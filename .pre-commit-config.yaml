@@ -1,0 +1,31 @@
+# Some checks to stop some human errors:
+# - checking in AWS secrets, private keys, and other suspicious patterns.
+# - ditto for suspicious files, like `.ssh`.
+# - prevent direct commit/push to master or production (enforce pull-request hygiene)
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-yaml
+      - id: name-tests-test
+      - id: requirements-txt-fixer
+      - id: double-quote-string-fixer
+      - id: check-added-large-files
+        args: ['--maxkb=2048']
+      - id: detect-private-key
+
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v4.1.0
+    hooks:
+      - id: commitlint
+        stages: [ commit-msg ]

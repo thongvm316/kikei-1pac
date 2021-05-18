@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4"
+  },
+  "name": "gmv_kaikei_fe",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:GumiViet/gmv_kaikei_fe.git",
+  "author": "Tung Nguyen <tungnguyen@gumiviet.com>",
+  "license": "MIT"
+}
