@@ -1,0 +1,27 @@
+.header {
+  background-color: $color-grey-100;
+  box-shadow: 0 1px 0 #f0f0f0;
+  height: 56px;
+
+  > [class^='container'] {
+    @include flexbox(null, center);
+    height: 100%;
+  }
+
+  &__breadcrumb {
+    flex-grow: 0;
+  }
+
+  &__content {
+    @include flexbox(flex-end, center);
+    flex-grow: 2;
+  }
+
+  &__account {
+    flex-grow: 0;
+
+    &--profile {
+      color: #000;
+    }
+  }
+}

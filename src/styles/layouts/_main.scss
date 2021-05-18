@@ -1,0 +1,9 @@
+.main {
+  @include flexbox(flex-start, stretch);
+  flex-direction: row;
+  height: 100vh;
+
+  &__content {
+    flex-grow: 1;
+  }
+}

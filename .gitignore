@@ -46,3 +46,17 @@ yarn.lock
 others
 .DS_Store
 docs/aws/*.pem
+
+# production
+/build
+/dist
+
+# env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging
+.env.production
+
+src/test/unit/coverage/
