@@ -1,19 +1,13 @@
 <template>
-  <main-layout>
+  <div>
     Project Edit Page
-  </main-layout>
+  </div>
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'ProjectEditPage',
-
-  components: {
-    MainLayout
-  }
 })
 </script>

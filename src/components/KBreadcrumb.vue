@@ -1,6 +1,6 @@
 <template>
   <nav class="breadcrumb">
-    <ol class="breadcrumb__list" v-if='breadcrumbLength !== 0'>
+    <ol class="breadcrumb__list" v-if="breadcrumbLength !== 0">
       <li v-for="item in breadcrumbLinkList" :key="item.href" class="breadcrumb__list--item">
         <router-link :to="item.href" class="breadcrumb__link">
           {{ $t(item.title) }}
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, watch, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 export default defineComponent({
@@ -23,17 +23,33 @@ export default defineComponent({
 
   setup() {
     const route = useRoute()
+    const breadcrumbLength = ref(0)
+    const breadcrumbLinkList = ref([])
+    const breadcrumbLast = ref([])
 
-    const breadcrumbList = route.matched
-      .map( item => ({
-        title: item.meta?.breadcrumbKey,
-        href: item.path
-      }))
-      .filter( item => !!item.title)
+    const getBreadcrumbList = (route) => {
+      const breadcrumbList = route.matched
+        .map((item) => ({
+          title: item.meta?.breadcrumbKey,
+          href: item.path
+        }))
+        .filter((item) => !!item.title)
 
-    const breadcrumbLength = breadcrumbList.length
-    const breadcrumbLinkList = breadcrumbLength > 1 ? breadcrumbList.slice(0, breadcrumbLength - 1) : []
-    const breadcrumbLast = breadcrumbLength > 0 ? breadcrumbList[breadcrumbLength - 1] : []
+      breadcrumbLength.value = breadcrumbList.length
+      breadcrumbLinkList.value = breadcrumbLength.value > 1 ? breadcrumbList.slice(0, breadcrumbLength.value - 1) : []
+      breadcrumbLast.value = breadcrumbLength.value > 0 ? breadcrumbList[breadcrumbLength.value - 1] : []
+    }
+
+    onMounted(() => {
+      getBreadcrumbList(route)
+    })
+
+    watch(
+      () => route.path,
+      () => {
+        getBreadcrumbList(route)
+      }
+    )
 
     return {
       breadcrumbLength,

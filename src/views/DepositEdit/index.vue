@@ -1,20 +1,13 @@
 <template>
-  <main-layout>
+  <div>
     Deposit Edit Page
-  </main-layout>
+  </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import { defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
 
 export default defineComponent({
   name: 'DepositEditPage',
-
-  components: {
-    MainLayout
-  }
 })
 </script>

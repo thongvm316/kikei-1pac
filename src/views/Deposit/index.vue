@@ -1,23 +1,12 @@
 <template>
-  <main-layout>
-    <template v-slot:header>
-      <div>Content header deposit</div>
-    </template>
-    <p>Deposit Page</p>
-    <router-link to="/deposit/edit">Go to edit page</router-link>
-  </main-layout>
+  <p>Deposit Page</p>
+  <router-link to="/deposit/edit">Go to edit page</router-link>
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'DepositPage',
-
-  components: {
-    MainLayout
-  },
 })
 </script>

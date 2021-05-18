@@ -1,22 +1,11 @@
 <template>
-  <main-layout>
-    <template v-slot:header>
-      <div>Content header financing</div>
-    </template>
-    Financing Page
-  </main-layout>
+  <div>Financing Page</div>
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'FinancingPage',
-
-  components: {
-    MainLayout
-  }
+  name: 'FinancingPage'
 })
 </script>
