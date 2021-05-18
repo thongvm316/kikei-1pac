@@ -1,6 +1,28 @@
+# I. Project Setup
+``` bash
+# install dependencies
+yarn install
+
+# serve with hot reload at localhost:8080
+yarn start
+
+# build for production with minification
+yarn build
+
+# run unit tests
+yarn test:unit
+
+# run e2e tests
+yarn test:e2e
+
+# run all tests
+yarn test
+```
+
+
+# II. Pre-Commit Hook
 MACOS, LINUX
 
-# I. Pre-Commit Hook
 ## Installation
 ```
 $ brew install pre-commit

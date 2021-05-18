@@ -1,0 +1,85 @@
+.k-input-group {
+  & + & {
+    margin-top: 24px;
+  }
+}
+
+.k-input {
+  font-size: 14px;
+  line-height: 22px;
+  background-color: $color-grey-100;
+  border: 1px solid $color-grey-85;
+  border-radius: 2px;
+  transition: border 0.25s;
+  // width: 100%;
+  color: $color-grey-15;
+
+  & + & {
+    margin-left: 8px;
+  }
+
+  &::placeholder {
+    color: $color-grey-75;
+  }
+
+  &:focus {
+    border-color: $color-additional-blue-5;
+    box-shadow: 0px 0px 0px 2px rgba(24, 144, 255, 0.2);
+  }
+
+  &:disabled,
+  &.disabled {
+    background-color: $color-grey-96;
+    border-color: $color-grey-85;
+  }
+
+  &.md {
+    padding: 4px 12px;
+  }
+
+  &.sm {
+    padding: 0 12px;
+  }
+
+  &.lg {
+    padding: 8px 12px;
+  }
+
+  &.error {
+    border-color: $color-additional-red-6;
+
+    &:focus {
+      box-shadow: 0px 0px 0px 2px rgba(245, 34, 45, 0.2);
+    }
+  }
+}
+
+.k-input-has-icon {
+  position: relative;
+
+  svg {
+    vertical-align: middle;
+    // color: $color-gray-800;
+  }
+
+  .form-icon--left,
+  .form-icon--right {
+    @include y-centered();
+  }
+
+  .form-icon--left {
+    left: 12px;
+
+    ~ .k-input {
+      padding-left: 44px;
+    }
+  }
+
+  .form-icon--right {
+    right: 12px;
+
+    ~ .k-input {
+      padding-right: 44px;
+    }
+  }
+}
