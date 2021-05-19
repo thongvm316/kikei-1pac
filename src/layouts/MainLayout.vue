@@ -6,7 +6,7 @@
         <slot name='header' />
       </app-header>
       <div class="container">
-        <slot />
+        <router-view />
       </div>
     </div>
   </main>
@@ -25,5 +25,5 @@ export default defineComponent({
     SideBar,
     AppHeader
   },
-})
+ })
 </script>
