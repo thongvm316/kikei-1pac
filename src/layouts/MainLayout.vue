@@ -6,7 +6,7 @@
         <slot name='header' />
       </app-header>
       <div class="container">
-        <slot />
+        <router-view />
       </div>
     </div>
   </main>
@@ -15,15 +15,15 @@
 <script>
 import { defineComponent, defineAsyncComponent } from 'vue'
 
-const SideBar = defineAsyncComponent(() =>import('@/layouts/-components/SideBar'))
-const AppHeader = defineAsyncComponent(() =>  import('@/layouts/-components/AppHeader'))
+// const SideBar = defineAsyncComponent(() =>import('@/layouts/-components/SideBar'))
+// const AppHeader = defineAsyncComponent(() =>  import('@/layouts/-components/AppHeader'))
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    SideBar,
-    AppHeader
+    SideBar: defineAsyncComponent(() =>import('@/layouts/-components/SideBar')),
+    AppHeader: defineAsyncComponent(() =>  import('@/layouts/-components/AppHeader'))
   },
-})
+ })
 </script>

@@ -6,66 +6,93 @@ const lazyLoadRoute = (pageName) => {
   return () => import(/* webpackChunkName: "[request]" */ `@/views/${pageName}`)
 }
 
+const lazyLoadLayout = (pageName) => {
+  return () => import(/* webpackChunkName: "[request]" */ `@/layouts/${pageName}`)
+}
+
 const routes = [
   {
+    path: '/login',
+    component: lazyLoadLayout('AuthLayout'),
+    children: [
+      {
+        path: '',
+        component: lazyLoadRoute('Login')
+      }
+    ]
+  },
+  {
     path: '/',
-    name: 'dashboard',
-    component: lazyLoadRoute('Dashboard'),
-    meta: { title: `Dashboard | ${appName}`, breadcrumbKey: 'header.dashboard' }
-  },
-  {
-    path: '/project',
-    component: lazyLoadRoute('Base'),
-    meta: { title: `Project | ${appName}`,  breadcrumbKey: 'header.project' },
+    component: lazyLoadLayout('MainLayout'),
     children: [
       {
         path: '',
-        name: 'project',
-        component: lazyLoadRoute('Project'),
+        name: 'dashboard',
+        component: lazyLoadRoute('Dashboard'),
+        meta: { title: `Dashboard | ${appName}`, breadcrumbKey: 'header.dashboard' }
       },
       {
-        path: 'edit',
-        name: 'project-edit',
-        component: lazyLoadRoute('ProjectEdit'),
-        meta: { title: `Edit Project | ${appName}`,  breadcrumbKey: 'header.edit' }
+        path: '/project',
+        component: lazyLoadRoute('Base'),
+        meta: { title: `Project | ${appName}`, breadcrumbKey: 'header.project' },
+        children: [
+          {
+            path: '',
+            name: 'project',
+            component: lazyLoadRoute('Project')
+          },
+          {
+            path: 'edit',
+            name: 'project-edit',
+            component: lazyLoadRoute('ProjectEdit'),
+            meta: { title: `Edit Project | ${appName}`, breadcrumbKey: 'header.edit' }
+          }
+        ]
       },
+      {
+        path: '/deposit',
+        component: lazyLoadRoute('Base'),
+        meta: { title: `Deposit | ${appName}`, breadcrumbKey: 'header.deposit' },
+        children: [
+          {
+            path: '',
+            name: 'deposit',
+            component: lazyLoadRoute('Deposit')
+          },
+          {
+            path: 'edit',
+            name: 'depositEdit',
+            component: lazyLoadRoute('DepositEdit'),
+            meta: { title: `Edit Deposit | ${appName}`, breadcrumbKey: 'header.edit' }
+          }
+        ]
+      },
+      {
+        path: '/financing',
+        name: 'financing',
+        component: lazyLoadRoute('Financing'),
+        meta: { title: `Financing Report | ${appName}`, breadcrumbKey: 'header.dashboard' }
+      },
+      {
+        path: '/accounting',
+        name: 'accounting',
+        component: lazyLoadRoute('AccountingManagement'),
+        meta: { title: `Accounting Management Report | ${appName}` }
+      },
+      {
+        path: '/setting',
+        name: 'setting',
+        component: lazyLoadRoute('Setting'),
+        meta: { title: `Setting | ${appName}`, breadcrumbKey: 'header.setting' }
+      }
     ]
   },
+
   {
-    path: '/deposit',
-    component: lazyLoadRoute('Base'),
-    meta: { title: `Deposit | ${appName}`, breadcrumbKey: 'header.deposit' },
-    children: [
-      {
-        path: '',
-        name: 'deposit',
-        component: lazyLoadRoute('Deposit'),
-      },
-      {
-        path: 'edit',
-        name: 'depositEdit',
-        component: lazyLoadRoute('DepositEdit'),
-        meta: { title: `Edit Deposit | ${appName}`, breadcrumbKey: 'header.edit' },
-      },
-    ]
-  },
-  {
-    path: '/financing',
-    name: 'financing',
-    component: lazyLoadRoute('Financing'),
-    meta: { title: `Financing Report | ${appName}`,  breadcrumbKey: 'header.dashboard'  }
-  },
-  {
-    path: '/accounting',
-    name: 'accounting',
-    component: lazyLoadRoute('AccountingManagement'),
-    meta: { title: `Accounting Management Report | ${appName}` }
-  },
-  {
-    path: '/setting',
-    name: 'setting',
-    component: lazyLoadRoute('Setting'),
-    meta: { title: `Setting | ${appName}`,  breadcrumbKey: 'header.setting' }
+    path: '/login',
+    name: 'login',
+    component: lazyLoadRoute('Login'),
+    meta: { title: `Login | ${appName}` }
   },
   {
     path: '/404',
@@ -81,7 +108,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  linkActiveClass: 'is-active',
+  linkExactActiveClass: 'is-active',
   routes
 })
 
