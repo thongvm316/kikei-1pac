@@ -89,6 +89,12 @@ const routes = [
   },
 
   {
+    path: '/login',
+    name: 'login',
+    component: lazyLoadRoute('Login'),
+    meta: { title: `Login | ${appName}` }
+  },
+  {
     path: '/404',
     name: 'error-404',
     component: lazyLoadRoute('Error404'),
