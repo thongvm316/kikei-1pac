@@ -12,5 +12,5 @@ jobs:
         uses: actions/setup-node@v1
       - name: Install Packages and Build Application
         run: |
-              npm ci
+              npm install
               npm run build
