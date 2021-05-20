@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const appName = 'KAIKEI'
+const APP_NAME = process.env.VUE_APP_APP_NAME || 'KAIKEI'
 
 const lazyLoadRoute = (pageName) => {
   return () => import(/* webpackChunkName: "[request]" */ `@/views/${pageName}`)
@@ -13,6 +13,8 @@ const lazyLoadLayout = (pageName) => {
 const routes = [
   {
     path: '/login',
+    name: 'login',
+    meta: { title: `Login | ${APP_NAME}` },
     component: lazyLoadLayout('AuthLayout'),
     children: [
       {
@@ -21,6 +23,7 @@ const routes = [
       }
     ]
   },
+
   {
     path: '/',
     component: lazyLoadLayout('MainLayout'),
@@ -29,12 +32,12 @@ const routes = [
         path: '',
         name: 'dashboard',
         component: lazyLoadRoute('Dashboard'),
-        meta: { title: `Dashboard | ${appName}`, breadcrumbKey: 'header.dashboard' }
+        meta: { title: `Dashboard | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
       {
         path: '/project',
         component: lazyLoadRoute('Base'),
-        meta: { title: `Project | ${appName}`, breadcrumbKey: 'header.project' },
+        meta: { title: `Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.project' },
         children: [
           {
             path: '',
@@ -45,14 +48,14 @@ const routes = [
             path: 'edit',
             name: 'project-edit',
             component: lazyLoadRoute('ProjectEdit'),
-            meta: { title: `Edit Project | ${appName}`, breadcrumbKey: 'header.edit' }
+            meta: { title: `Edit Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]
       },
       {
         path: '/deposit',
         component: lazyLoadRoute('Base'),
-        meta: { title: `Deposit | ${appName}`, breadcrumbKey: 'header.deposit' },
+        meta: { title: `Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.deposit' },
         children: [
           {
             path: '',
@@ -61,9 +64,9 @@ const routes = [
           },
           {
             path: 'edit',
-            name: 'depositEdit',
+            name: 'deposit-edit',
             component: lazyLoadRoute('DepositEdit'),
-            meta: { title: `Edit Deposit | ${appName}`, breadcrumbKey: 'header.edit' }
+            meta: { title: `Edit Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]
       },
@@ -71,29 +74,23 @@ const routes = [
         path: '/financing',
         name: 'financing',
         component: lazyLoadRoute('Financing'),
-        meta: { title: `Financing Report | ${appName}`, breadcrumbKey: 'header.dashboard' }
+        meta: { title: `Financing Report | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
       {
         path: '/accounting',
         name: 'accounting',
         component: lazyLoadRoute('AccountingManagement'),
-        meta: { title: `Accounting Management Report | ${appName}` }
+        meta: { title: `Accounting Management Report | ${APP_NAME}` }
       },
       {
         path: '/setting',
         name: 'setting',
         component: lazyLoadRoute('Setting'),
-        meta: { title: `Setting | ${appName}`, breadcrumbKey: 'header.setting' }
+        meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
       }
     ]
   },
 
-  {
-    path: '/login',
-    name: 'login',
-    component: lazyLoadRoute('Login'),
-    meta: { title: `Login | ${appName}` }
-  },
   {
     path: '/404',
     name: 'error-404',
@@ -112,7 +109,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   document.title = to.meta.title
   next()
 })

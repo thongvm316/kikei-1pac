@@ -37,9 +37,9 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-import CloseIcon from '@/assets/ico_close.svg'
-const KButton = defineAsyncComponent(() =>  import('@/components/KButton'))
+import { defineComponent } from 'vue'
+import CloseIcon from '@/assets/icons/ico_close.svg'
+import KButton from '@/components/KButton'
 
 export default defineComponent ({
   name: 'KModal',
