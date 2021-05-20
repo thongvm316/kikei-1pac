@@ -2,7 +2,7 @@
   <nav class="breadcrumb">
     <ol class="breadcrumb__list" v-if="breadcrumbLength !== 0">
       <li v-for="item in breadcrumbLinkList" :key="item.href" class="breadcrumb__list--item">
-        <router-link :to="{ name: item.name }" class="breadcrumb__link">
+        <router-link :to="item.path" class="breadcrumb__link">
           {{ $t(item.title) }}
         </router-link>
         <span class="breadcrumb__separator u-mx-8">/</span>
@@ -31,7 +31,7 @@ export default defineComponent({
       const breadcrumbList = route.matched
         .map((item) => ({
           title: item.meta?.breadcrumbKey,
-          name: item.name
+          path: item.path
         }))
         .filter((item) => !!item.title)
 
