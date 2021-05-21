@@ -17,12 +17,10 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-const KBreadcrumb = defineAsyncComponent(() => import('@/components/KBreadcrumb'))
-
-import AvatarIcon from '@/assets/ico_avatar.svg'
+import { defineComponent } from 'vue'
+import KButton from '@/components/KButton'
+import KBreadcrumb from '@/components/KBreadcrumb'
+import AvatarIcon from '@/assets/icons/ico_avatar.svg'
 
 export default defineComponent({
   name: 'AppHeader',

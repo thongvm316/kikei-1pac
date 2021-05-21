@@ -1,10 +1,11 @@
 <template>
   <main class="main">
-    <side-bar />
+    <app-sidebar />
     <div class="main__content">
       <app-header>
-        <slot name='header' />
+        <slot name="header" />
       </app-header>
+
       <div class="container">
         <router-view />
       </div>
@@ -13,17 +14,16 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-// const SideBar = defineAsyncComponent(() =>import('@/layouts/-components/SideBar'))
-// const AppHeader = defineAsyncComponent(() =>  import('@/layouts/-components/AppHeader'))
+import { defineComponent } from 'vue'
+import AppSidebar from './-components/AppSidebar'
+import AppHeader from './-components/AppHeader'
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    SideBar: defineAsyncComponent(() =>import('@/layouts/-components/SideBar')),
-    AppHeader: defineAsyncComponent(() =>  import('@/layouts/-components/AppHeader'))
-  },
- })
+    AppSidebar,
+    AppHeader
+  }
+})
 </script>
