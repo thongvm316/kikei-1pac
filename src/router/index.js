@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const APP_NAME = process.env.VUE_APP_APP_NAME || 'KAIKEI'
+const APP_NAME = process.env.APP_NAME || 'KAIKEI'
 
 const lazyLoadRoute = (pageName) => {
   return () => import(/* webpackChunkName: "[request]" */ `@/views/${pageName}`)
