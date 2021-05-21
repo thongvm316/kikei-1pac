@@ -17,7 +17,8 @@ const routes = [
     children: [
       {
         path: '',
-        component: lazyLoadRoute('Login')
+        component: lazyLoadRoute('Login'),
+        meta: { title: `Login | ${appName}`, }
       }
     ]
   },
@@ -82,17 +83,36 @@ const routes = [
       {
         path: '/setting',
         name: 'setting',
-        component: lazyLoadRoute('Setting'),
-        meta: { title: `Setting | ${appName}`, breadcrumbKey: 'header.setting' }
+        component: lazyLoadRoute('Base'),
+        meta: { title: `Setting | ${appName}`, breadcrumbKey: 'header.setting' },
+        children: [
+          {
+            path: '1',
+            name: 'setting-1',
+            component: lazyLoadRoute('Setting-1'),
+            meta: { title: `Setting - 1 | ${appName}`, breadcrumbKey: 'header.setting' },
+          },
+          {
+            path: '2',
+            name: 'setting-2',
+            component: lazyLoadRoute('Setting-2'),
+            meta: { title: `Setting - 2 | ${appName}`, breadcrumbKey: 'header.setting' },
+          },
+          {
+            path: '3',
+            name: 'setting-3',
+            component: lazyLoadRoute('Setting-3'),
+            meta: { title: `Setting - 3| ${appName}`, breadcrumbKey: 'header.setting' },
+          },
+          {
+            path: '4',
+            name: 'setting-4',
+            component: lazyLoadRoute('Setting-4'),
+            meta: { title: `Setting - 4 | ${appName}`, breadcrumbKey: 'header.setting' },
+          },
+        ]
       }
     ]
-  },
-
-  {
-    path: '/login',
-    name: 'login',
-    component: lazyLoadRoute('Login'),
-    meta: { title: `Login | ${appName}` }
   },
   {
     path: '/404',
@@ -108,7 +128,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  linkExactActiveClass: 'is-active',
+  linkActiveClass: 'is-active',
   routes
 })
 

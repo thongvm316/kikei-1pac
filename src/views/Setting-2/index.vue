@@ -1,6 +1,6 @@
 <template>
   <div>
-    Setting Page
+    Setting Page - 2
   </div>
 </template>
 
@@ -8,6 +8,6 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'SettingPage',
+  name: 'Setting2Page',
 })
 </script>

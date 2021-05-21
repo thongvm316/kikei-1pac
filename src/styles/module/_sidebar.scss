@@ -3,6 +3,7 @@
   background-color: $color-primary-10;
   color: $color-grey-100;
   flex-grow: 0;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
 
   &__top {
     height: 80px;
@@ -11,24 +12,74 @@
   &__list,
   &__top--toggle button {
     &:hover {
-      color: $color-primary-6;
+      color: $color-primary-3;
     }
 
-    svg {
+    .aside__link--nav-icon {
       margin-right: 8px;
+    }
+  }
+
+  &__list > :not(.is-dashboard),
+  &__top--toggle button {
+    .aside__link--nav-icon {
       background-color: $color-primary-10;
     }
   }
 
-  .is-active .aside__link,
-  .is-active svg {
-    background-color: $color-grey-100;
-    color: $color-primary-10;
+  .is-active.aside__link:not(.is-dashboard),
+  .is-active:not(.is-dashboard) .aside__link--nav-icon,
+  .router-link-exact-active {
+    background-color: $color-primary-9;
+    color: $color-primary-3;
   }
 
   &__link,
   &__top--toggle {
     @include flexbox(null, center);
-    padding: 8px 0 8px 16px;
+    padding: 8px 0 8px 24px;
+    position: relative;
+    cursor: pointer;
+
+    &--arrow-icon {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      margin-right: 24px;
+      margin-top: -7px;
+    }
+  }
+
+  &__sub-nav &__link {
+    &:before {
+      content: '';
+      display: block;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      background-color: $color-grey-100;
+      margin-right: 12px;
+    }
+
+    &:hover:before {
+      background-color: $color-primary-3;
+    }
+  }
+
+  &__sub-nav &__link {
+    margin-left: 24px;
+  }
+
+}
+
+.aside.is-collapse {
+  width: 66px;
+  // transform: translate(0, 0);
+  // transition: none;
+
+  .aside__link--text,
+  .aside__link--arrow-icon,
+  .aside__sub-nav {
+    display: none;
   }
 }
