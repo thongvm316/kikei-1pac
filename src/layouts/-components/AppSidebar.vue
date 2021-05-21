@@ -1,5 +1,5 @@
 <template>
-  <aside :class="`aside${isCollapse ? ' is-collapse' : ''}`">
+  <aside :class="['aside', isCollapse && 'is-collapse']">
     <div class="aside__top">
       <div class="aside__top--toggle">
         <k-button @click="toggleSideBar">
@@ -27,7 +27,7 @@
         </router-link>
 
         <ul v-if="navItem.childrens" class="aside__sub-nav list-unstyled">
-          <li v-for="subNavItem in navItem.childrens" :key="`${navItem.href}${subNavItem.href}`" class="aside__list">
+          <li v-for="subNavItem in navItem.childrens" :key="navItem.href + subNavItem.href" class="aside__list">
             <router-link :to="navItem.href + subNavItem.href" class="aside__link">
               <p class="aside__text">{{ $t(subNavItem.label) }}</p>
             </router-link>
@@ -39,19 +39,19 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent, ref } from 'vue'
-
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-
-import DashboardIcon from '@/assets/ico_dashboard.svg'
-import ProjectIcon from '@/assets/ico_project.svg'
-import DepositIcon from '@/assets/ico_deposit.svg'
-import FinancingIcon from '@/assets/ico_financing.svg'
-import SettingIcon from '@/assets/ico_setting.svg'
-import SideBarCloseIcon from '@/assets/ico_sidebar_close.svg'
-import ArrowDownIcon from '@/assets/ico_arrow_down.svg'
+import { defineComponent, ref } from 'vue'
+import KButton from '@/components/KButton'
+import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
+import ProjectIcon from '@/assets/icons/ico_project.svg'
+import DepositIcon from '@/assets/icons/ico_deposit.svg'
+import FinancingIcon from '@/assets/icons/ico_financing.svg'
+import SettingIcon from '@/assets/icons/ico_setting.svg'
+import SideBarCloseIcon from '@/assets/icons/ico_sidebar_close.svg'
+import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 
 export default defineComponent({
+  name: 'AppSidebar',
+
   components: {
     KButton,
     DashboardIcon,
@@ -67,27 +67,27 @@ export default defineComponent({
     const navList = [
       {
         href: '/',
-        label: 'header.dashboard',
+        label: 'breadcrumb.dashboard',
         icon: 'DashboardIcon'
       },
       {
         href: '/project',
-        label: 'header.project',
+        label: 'breadcrumb.project',
         icon: 'ProjectIcon'
       },
       {
         href: '/deposit',
-        label: 'header.deposit',
+        label: 'breadcrumb.deposit',
         icon: 'DepositIcon'
       },
       {
         href: '/financing',
-        label: 'header.financing',
+        label: 'breadcrumb.financing',
         icon: 'FinancingIcon'
       },
       {
         href: '/setting',
-        label: 'header.setting',
+        label: 'breadcrumb.setting',
         icon: 'SettingIcon',
         childrens: [
           {

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const appName = 'KAIKEI'
+const APP_NAME = process.env.APP_NAME || 'KAIKEI'
 
 const lazyLoadRoute = (pageName) => {
   return () => import(/* webpackChunkName: "[request]" */ `@/views/${pageName}`)
@@ -13,15 +13,18 @@ const lazyLoadLayout = (pageName) => {
 const routes = [
   {
     path: '/login',
+    name: 'login',
+    meta: { title: `Login | ${APP_NAME}` },
     component: lazyLoadLayout('AuthLayout'),
     children: [
       {
         path: '',
         component: lazyLoadRoute('Login'),
-        meta: { title: `Login | ${appName}`, }
+        meta: { title: `Login | ${APP_NAME}`, }
       }
     ]
   },
+
   {
     path: '/',
     component: lazyLoadLayout('MainLayout'),
@@ -30,12 +33,12 @@ const routes = [
         path: '',
         name: 'dashboard',
         component: lazyLoadRoute('Dashboard'),
-        meta: { title: `Dashboard | ${appName}`, breadcrumbKey: 'header.dashboard' }
+        meta: { title: `Dashboard | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
       {
         path: '/project',
         component: lazyLoadRoute('Base'),
-        meta: { title: `Project | ${appName}`, breadcrumbKey: 'header.project' },
+        meta: { title: `Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.project' },
         children: [
           {
             path: '',
@@ -46,14 +49,14 @@ const routes = [
             path: 'edit',
             name: 'project-edit',
             component: lazyLoadRoute('ProjectEdit'),
-            meta: { title: `Edit Project | ${appName}`, breadcrumbKey: 'header.edit' }
+            meta: { title: `Edit Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]
       },
       {
         path: '/deposit',
         component: lazyLoadRoute('Base'),
-        meta: { title: `Deposit | ${appName}`, breadcrumbKey: 'header.deposit' },
+        meta: { title: `Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.deposit' },
         children: [
           {
             path: '',
@@ -62,9 +65,9 @@ const routes = [
           },
           {
             path: 'edit',
-            name: 'depositEdit',
+            name: 'deposit-edit',
             component: lazyLoadRoute('DepositEdit'),
-            meta: { title: `Edit Deposit | ${appName}`, breadcrumbKey: 'header.edit' }
+            meta: { title: `Edit Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]
       },
@@ -72,43 +75,43 @@ const routes = [
         path: '/financing',
         name: 'financing',
         component: lazyLoadRoute('Financing'),
-        meta: { title: `Financing Report | ${appName}`, breadcrumbKey: 'header.dashboard' }
+        meta: { title: `Financing Report | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
       {
         path: '/accounting',
         name: 'accounting',
         component: lazyLoadRoute('AccountingManagement'),
-        meta: { title: `Accounting Management Report | ${appName}` }
+        meta: { title: `Accounting Management Report | ${APP_NAME}` }
       },
       {
         path: '/setting',
         name: 'setting',
         component: lazyLoadRoute('Base'),
-        meta: { title: `Setting | ${appName}`, breadcrumbKey: 'header.setting' },
+        meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
         children: [
           {
             path: '1',
             name: 'setting-1',
             component: lazyLoadRoute('Setting-1'),
-            meta: { title: `Setting - 1 | ${appName}`, breadcrumbKey: 'header.setting' },
+            meta: { title: `Setting - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
           },
           {
             path: '2',
             name: 'setting-2',
             component: lazyLoadRoute('Setting-2'),
-            meta: { title: `Setting - 2 | ${appName}`, breadcrumbKey: 'header.setting' },
+            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
           },
           {
             path: '3',
             name: 'setting-3',
             component: lazyLoadRoute('Setting-3'),
-            meta: { title: `Setting - 3| ${appName}`, breadcrumbKey: 'header.setting' },
+            meta: { title: `Setting - 3| ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
           },
           {
             path: '4',
             name: 'setting-4',
             component: lazyLoadRoute('Setting-4'),
-            meta: { title: `Setting - 4 | ${appName}`, breadcrumbKey: 'header.setting' },
+            meta: { title: `Setting - 4 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
           },
         ]
       }
@@ -132,7 +135,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   document.title = to.meta.title
   next()
 })
