@@ -1,13 +1,14 @@
 // https://medium.com/@danny.pule/export-json-to-csv-file-using-javascript-a0b7bc5b00d2
 
 const convertToCSV = (objArray) => {
-  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray
-  var str = ''
+  let array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray
+  let str = ''
 
-  for (var i = 0; i < array.length; i++) {
-    var line = ''
-    for (var index in array[i]) {
-      if (line != '') line += ','
+  for (let i = 0; i < array.length; i++) {
+    let line = ''
+
+    for (let index in array[i]) {
+      if (!!line) line += ','
 
       line += array[i][index]
     }
@@ -24,22 +25,19 @@ const exportCSVFile = (headers, items, fileTitle) => {
   }
 
   // Convert Object to JSON
-  var jsonObject = JSON.stringify(items)
-
-  var csv = convertToCSV(jsonObject)
-
-  var exportedFilenmae = fileTitle + '.csv' || 'export.csv'
-
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  let jsonObject = JSON.stringify(items)
+  let csv = convertToCSV(jsonObject)
+  let exportedFilenmae = fileTitle + '.csv' || 'export.csv'
+  let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   if (navigator.msSaveBlob) {
     // IE 10+
     navigator.msSaveBlob(blob, exportedFilenmae)
   } else {
-    var link = document.createElement('a')
+    let link = document.createElement('a')
     if (link.download !== undefined) {
       // feature detection
       // Browsers that support HTML5 download attribute
-      var url = URL.createObjectURL(blob)
+      let url = URL.createObjectURL(blob)
       link.setAttribute('href', url)
       link.setAttribute('download', exportedFilenmae)
       link.style.visibility = 'hidden'

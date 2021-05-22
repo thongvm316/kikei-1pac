@@ -14,8 +14,9 @@
         <slot name="modal-body"></slot>
       </div>
 
-      <div v-if="isShowFooterModal" class="modal__footer">
+      <div v-if="footer" class="modal__footer">
         <k-button
+          v-if="!!cancelButtonModalText"
           size="md"
           variant="primary"
           @click="toggle"
@@ -24,6 +25,7 @@
         </k-button>
 
         <k-button
+          v-if="!!confirmButtonModalText"
           class="u-ml-16"
           size="md"
           variant="primary"
@@ -37,9 +39,9 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-import CloseIcon from '@/assets/ico_close.svg'
-const KButton = defineAsyncComponent(() =>  import('@/components/KButton'))
+import { defineComponent } from 'vue'
+import CloseIcon from '@/assets/icons/ico_close.svg'
+import KButton from '@/components/KButton'
 
 export default defineComponent ({
   name: 'KModal',
@@ -57,20 +59,15 @@ export default defineComponent ({
 
     cancelButtonModalText: {
       type: String,
-      default: "Cancel",
+      default: 'Cancel',
     },
 
     confirmButtonModalText: {
       type: String,
-      default: "Confirm",
+      default: 'Confirm',
     },
 
-    isHiddenButtonConfirm: {
-      type: Boolean,
-      default: true,
-    },
-
-    isShowFooterModal: {
+    footer: {
       type: Boolean,
       default: true,
     }

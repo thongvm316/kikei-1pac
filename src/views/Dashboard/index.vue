@@ -43,16 +43,16 @@ import { useI18n } from 'vue-i18n'
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
-import ProjectIcon from '@/assets/ico_project.svg'
+import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
   name: 'Dashboard',
 
   components: {
     KButton,
-    ProjectIcon,
     KInput,
-    KModal
+    KModal,
+    ProjectIcon
   },
 
   setup() {

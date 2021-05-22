@@ -12,7 +12,7 @@
         <router-link to="/">
           <div class="aside__link">
             <dashboard-icon />
-            <p class="aside__text">{{ $t('header.dashboard') }}</p>
+            <p class="aside__text">{{ $t('sidebar.dashboard') }}</p>
           </div>
         </router-link>
       </li>
@@ -20,7 +20,7 @@
         <router-link to="/project">
           <div class="aside__link">
             <project-icon />
-            <p class="aside__text">{{ $t('header.project') }}</p>
+            <p class="aside__text">{{ $t('sidebar.project') }}</p>
           </div>
         </router-link>
       </li>
@@ -28,7 +28,7 @@
         <router-link to="/deposit">
           <div class="aside__link">
             <deposit-icon />
-            <p class="aside__text">{{ $t('header.deposit') }}</p>
+            <p class="aside__text">{{ $t('sidebar.deposit') }}</p>
           </div>
         </router-link>
       </li>
@@ -36,7 +36,7 @@
         <router-link to="/financing">
           <div class="aside__link">
             <financing-icon />
-            <p class="aside__text">{{ $t('header.financing') }}</p>
+            <p class="aside__text">{{ $t('sidebar.financing') }}</p>
           </div>
         </router-link>
       </li>
@@ -44,7 +44,7 @@
         <router-link to="/setting">
           <div class="aside__link">
             <setting-icon />
-            <p class="aside__text">{{ $t('header.setting') }}</p>
+            <p class="aside__text">{{ $t('sidebar.setting') }}</p>
           </div>
         </router-link>
       </li>
@@ -53,18 +53,18 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const KButton = defineAsyncComponent(() =>  import('@/components/KButton'))
-
-import DashboardIcon from '@/assets/ico_dashboard.svg'
-import ProjectIcon from '@/assets/ico_project.svg'
-import DepositIcon from '@/assets/ico_deposit.svg'
-import FinancingIcon from '@/assets/ico_financing.svg'
-import SettingIcon from '@/assets/ico_setting.svg'
-import SideBarCloseIcon from '@/assets/ico_sidebar_close.svg'
+import { defineComponent } from 'vue'
+import KButton from '@/components/KButton'
+import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
+import ProjectIcon from '@/assets/icons/ico_project.svg'
+import DepositIcon from '@/assets/icons/ico_deposit.svg'
+import FinancingIcon from '@/assets/icons/ico_financing.svg'
+import SettingIcon from '@/assets/icons/ico_setting.svg'
+import SideBarCloseIcon from '@/assets/icons/ico_sidebar_close.svg'
 
 export default defineComponent({
+  name: 'AppSidebar',
+
   components: {
     KButton,
     DashboardIcon,
