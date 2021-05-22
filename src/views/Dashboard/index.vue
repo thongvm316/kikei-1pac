@@ -31,8 +31,40 @@
     <project-icon />
   </k-button>
 
-  <k-input size="lg" nativeType="number" variant="error" placeholder="Please input">
-    <project-icon class="form-icon--left" />
+  <k-input
+    style="margin-top: 24px"
+    v-model.value="inputModel"
+    size="lg"
+    native-type="text"
+    icon-position="left"
+    placeholder="Please input"
+    label="プロジェクト名">
+    <template #icon>
+      <project-icon />
+    </template>
+  </k-input>
+
+  <k-input
+    style="margin-top: 24px"
+    v-model.value="inputModel"
+    size="lg"
+    native-type="text"
+    icon-position="right"
+    placeholder="Please input">
+    <template #icon>
+      <project-icon />
+    </template>
+  </k-input>
+
+   <k-input
+    style="margin-top: 24px"
+    v-model.value="inputModel"
+    size="lg"
+    native-type="text"
+    placeholder="Please input"
+    label="プロジェクト名"
+    variant="error"
+    error="Error message">
   </k-input>
 </template>
 
@@ -47,6 +79,12 @@ import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
   name: 'Dashboard',
+
+  data() {
+    return {
+      inputModel: ''
+    }
+  },
 
   components: {
     KButton,
