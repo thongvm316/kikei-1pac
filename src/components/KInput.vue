@@ -37,7 +37,9 @@ export default defineComponent ({
   name: 'KInput',
 
   props: {
-    value: String || Number,
+    value: {
+      type: [String, Number]
+    },
 
     nativeType: {
       type: String,

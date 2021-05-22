@@ -33,7 +33,7 @@
 
   <k-input
     style="margin-top: 24px"
-    v-model.value="inputModel"
+    v-model:value="inputModel"
     size="lg"
     native-type="text"
     icon-position="left"
@@ -46,7 +46,7 @@
 
   <k-input
     style="margin-top: 24px"
-    v-model.value="inputModel"
+    v-model:value="inputModel"
     size="lg"
     native-type="text"
     icon-position="right"
@@ -58,7 +58,7 @@
 
    <k-input
     style="margin-top: 24px"
-    v-model.value="inputModel"
+    v-model:value="inputModel"
     size="lg"
     native-type="text"
     placeholder="Please input"
@@ -66,6 +66,16 @@
     variant="error"
     error="Error message">
   </k-input>
+
+  <br />
+  <br />
+
+  <k-checkbox
+    v-model:value="checkboxModel"
+    :options="checkboxOptions"
+    inline
+    name="label-1"
+    label="Label (checkbox)" />
 </template>
 
 <script>
@@ -74,6 +84,7 @@ import { useI18n } from 'vue-i18n'
 
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
+const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
@@ -82,13 +93,31 @@ export default defineComponent({
 
   data() {
     return {
-      inputModel: ''
+      inputModel: '',
+      inputModel: '',
+      inputModel: '',
+      checkboxModel: ['出金'],
+      checkboxOptions: [
+        {
+          label: '入金',
+          value: '入金',
+        },
+        {
+          label: '出金',
+          value: '出金',
+        },
+        {
+          label: 'Text',
+          value: 'Text'
+        }
+      ]
     }
   },
 
   components: {
     KButton,
     KInput,
+    KCheckbox,
     KModal,
     ProjectIcon
   },
