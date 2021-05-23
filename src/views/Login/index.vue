@@ -56,7 +56,7 @@ export default defineComponent ({
       password: ''
     }
     const state = reactive(params)
-    const rules = validationRules(params)
+    const rules = validationRules()
 
     return {
       params,

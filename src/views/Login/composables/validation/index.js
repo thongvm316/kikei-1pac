@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { email, helpers, required } from '@vuelidate/validators'
 import { passwordComplexity } from '@/helpers/pattern'
 
-export default function validationRules(params)  {
+export default function validationRules()  {
   return computed(() => ({
     email: {
       required: helpers.withMessage((_) => 'Email can not be null', required),
