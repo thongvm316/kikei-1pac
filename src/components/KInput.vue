@@ -44,7 +44,7 @@ export default defineComponent ({
     nativeType: {
       type: String,
       default: 'text',
-      validator: function(nativeType) {
+      validator: nativeType => {
         return FORM_PROPS.nativeTypes.includes(nativeType)
       }
     },
