@@ -9,16 +9,17 @@
     </div>
 
     <ul class="list-unstyled">
-      <li v-for="navItem in navList" :key="navItem.href" class="aside__list">
-        <router-link :to="navItem.href" custom v-slot="{ navigate, isActive, isExactActive }">
+      <li v-for="navItem in navList" :key="navItem.path" class="aside__list">
+        <router-link v-slot="{ navigate, isActive, isExactActive }" :to="navItem.path" custom>
           <div
-            @click="!navItem.childrens ? navigate(ctalink) : null"
             :class="[
               'aside__link',
               isActive && 'is-active',
               isExactActive && 'router-link-exact-active',
-              !navItem.childrens && 'is-dashboard'
+              navItem.path === '/' && 'is-dashboard',
+              subNavList.includes(navItem.path) && 'is-sub-nav-open'
             ]"
+            @click="!navItem.childrens ? navigate(navItem.path) : toggleSubNav(navItem.path)"
           >
             <component :is="navItem.icon" class="aside__link--nav-icon" />
             <span class="aside__link--text">{{ $t(navItem.label) }}</span>
@@ -26,13 +27,16 @@
           </div>
         </router-link>
 
-        <ul v-if="navItem.childrens" class="aside__sub-nav list-unstyled">
-          <li v-for="subNavItem in navItem.childrens" :key="navItem.href + subNavItem.href" class="aside__list">
-            <router-link :to="navItem.href + subNavItem.href" class="aside__link">
-              <p class="aside__text">{{ $t(subNavItem.label) }}</p>
-            </router-link>
-          </li>
-        </ul>
+        <k-accordion v-if="navItem.childrens" :open="subNavList.includes(navItem.path)">
+          <ul class="aside__sub-nav list-unstyled">
+            <li v-for="subNavItem in navItem.childrens" :key="subNavItem.path" class="aside__list">
+              <router-link :to="subNavItem.path" class="aside__link">
+                <i class="aside__link--circle-icon" />
+                <span class="aside__text">{{ $t(subNavItem.label) }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </k-accordion>
       </li>
     </ul>
   </aside>
@@ -41,6 +45,8 @@
 <script>
 import { defineComponent, ref } from 'vue'
 import KButton from '@/components/KButton'
+import KAccordion from '@/components/KAccordion'
+
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 import DepositIcon from '@/assets/icons/ico_deposit.svg'
@@ -54,69 +60,101 @@ export default defineComponent({
 
   components: {
     KButton,
+    KAccordion,
     DashboardIcon,
     DepositIcon,
     ProjectIcon,
     SettingIcon,
     FinancingIcon,
     SideBarCloseIcon,
-    ArrowDownIcon,
+    ArrowDownIcon
   },
 
   setup() {
     const navList = [
       {
-        href: '/',
+        path: '/',
         label: 'breadcrumb.dashboard',
         icon: 'DashboardIcon'
       },
       {
-        href: '/project',
+        path: '/project',
         label: 'breadcrumb.project',
         icon: 'ProjectIcon'
       },
       {
-        href: '/deposit',
+        path: '/deposit',
         label: 'breadcrumb.deposit',
         icon: 'DepositIcon'
       },
       {
-        href: '/financing',
+        path: '/financing',
         label: 'breadcrumb.financing',
         icon: 'FinancingIcon'
       },
       {
-        href: '/setting',
+        path: '/setting',
         label: 'breadcrumb.setting',
         icon: 'SettingIcon',
         childrens: [
           {
-            href: '/1',
+            path: '/setting/1',
             label: 'Setting 1'
           },
           {
-            href: '/2',
+            path: '/setting/2',
             label: 'Setting 2'
           },
           {
-            href: '/3',
+            path: '/setting/3',
             label: 'Setting 3'
           },
           {
-            href: '/4',
+            path: '/setting/4',
             label: 'Setting 4'
+          }
+        ]
+      },
+      {
+        path: '/profile',
+        label: 'breadcrumb.profile',
+        icon: 'SettingIcon',
+        childrens: [
+          {
+            path: '/profile/1',
+            label: 'profile 1'
+          },
+          {
+            path: '/profile/2',
+            label: 'profile 2'
+          },
+          {
+            path: '/profile/3',
+            label: 'profile 3'
+          },
+          {
+            path: '/profile/4',
+            label: 'profile 4'
           }
         ]
       }
     ]
 
     const isCollapse = ref(false)
-    const toggleSideBar = () => isCollapse.value = !isCollapse.value
+    const toggleSideBar = () => (isCollapse.value = !isCollapse.value)
+    const subNavList = ref([])
+    const toggleSubNav = (path) => {
+      subNavList.value = subNavList.value.includes(path)
+        ? subNavList.value.filter((i) => i !== path)
+        : [...subNavList.value, path]
+    }
 
     return {
       navList,
+      subNavList,
       isCollapse,
       toggleSideBar,
+      toggleSubNav
     }
   }
 })

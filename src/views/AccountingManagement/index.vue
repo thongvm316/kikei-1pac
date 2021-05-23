@@ -1,22 +1,11 @@
 <template>
-  <main-layout>
-    <template v-slot:header>
-      <div>Content header accounting</div>
-    </template>
-    Accounting Management Page
-  </main-layout>
+  <div>Accounting Management Page</div>
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'AccountingManagementPage',
-
-  components: {
-    MainLayout
-  }
+  name: 'AccountingManagementPage'
 })
 </script>

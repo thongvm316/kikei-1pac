@@ -9,7 +9,7 @@
     height: 80px;
   }
 
-  &__list,
+  &__link,
   &__top--toggle button {
     &:hover {
       color: $color-primary-3;
@@ -17,6 +17,7 @@
 
     .aside__link--nav-icon {
       margin-right: 8px;
+      margin-bottom: -2px;
     }
   }
 
@@ -36,10 +37,11 @@
 
   &__link,
   &__top--toggle {
-    @include flexbox(null, center);
+    // @include flexbox(null, center);
     padding: 8px 0 8px 24px;
     position: relative;
     cursor: pointer;
+    white-space: nowrap;
 
     &--arrow-icon {
       position: absolute;
@@ -50,7 +52,10 @@
     }
   }
 
-  &__sub-nav &__link {
+  &__link--circle-icon {
+    display: inline-block;
+    margin-right: 12px;
+
     &:before {
       content: '';
       display: block;
@@ -58,7 +63,6 @@
       width: 10px;
       height: 10px;
       background-color: $color-grey-100;
-      margin-right: 12px;
     }
 
     &:hover:before {
@@ -67,19 +71,27 @@
   }
 
   &__sub-nav &__link {
-    margin-left: 24px;
+    display: block;
+    padding-left: 50px;
   }
 
+  &__link--arrow-icon {
+    transform: rotate(90deg);
+    transition: transform 0.5s ease;
+  }
+
+  // .is-sub-nav-open &__link--arrow-icon {
+  //   transform: none;
+  // }
 }
 
 .aside.is-collapse {
   width: 66px;
-  // transform: translate(0, 0);
-  // transition: none;
 
   .aside__link--text,
   .aside__link--arrow-icon,
-  .aside__sub-nav {
+  .aside__sub-nav,
+  .aside__list .accordion {
     display: none;
   }
 }

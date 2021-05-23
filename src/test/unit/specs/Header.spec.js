@@ -12,7 +12,7 @@ describe('Header', () => {
     const wrapper = mount(Header, {
       global: {
         plugins: [router, i18n]
-      },
+      }
     })
 
     expect(wrapper.html()).toContain('header')

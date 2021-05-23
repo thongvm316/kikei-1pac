@@ -4,12 +4,14 @@ exports[`Header should display header text 1`] = `
 <header class="header">
   <div class="container">
     <div class="header__breadcrumb">
-      <!---->
+      <nav class="breadcrumb">
+        <!--v-if-->
+      </nav>
     </div>
     <div class="header__content"></div>
-    <div class="header__account u-pl-24">
-      <!---->
-    </div>
+    <div class="header__account u-pl-24"><button class="k-button k-button--default header__account--profile" type="button">
+        <ico_avatar.svg></ico_avatar.svg>
+      </button></div>
   </div>
 </header>
 `;

@@ -3,15 +3,9 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
-
-const MainLayout = defineAsyncComponent(() =>  import('@/layouts/MainLayout'))
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'App',
-
-  components: {
-    MainLayout
-  }
+  name: 'App'
 })
 </script>

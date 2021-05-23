@@ -20,7 +20,7 @@ const routes = [
       {
         path: '',
         component: lazyLoadRoute('Login'),
-        meta: { title: `Login | ${APP_NAME}`, }
+        meta: { title: `Login | ${APP_NAME}` }
       }
     ]
   },
@@ -93,26 +93,26 @@ const routes = [
             path: '1',
             name: 'setting-1',
             component: lazyLoadRoute('Setting-1'),
-            meta: { title: `Setting - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
+            meta: { title: `Setting - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
           },
           {
             path: '2',
             name: 'setting-2',
             component: lazyLoadRoute('Setting-2'),
-            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
+            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
           },
           {
             path: '3',
             name: 'setting-3',
             component: lazyLoadRoute('Setting-3'),
-            meta: { title: `Setting - 3| ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
+            meta: { title: `Setting - 3| ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
           },
           {
             path: '4',
             name: 'setting-4',
             component: lazyLoadRoute('Setting-4'),
-            meta: { title: `Setting - 4 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
-          },
+            meta: { title: `Setting - 4 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          }
         ]
       }
     ]
