@@ -2,37 +2,41 @@
   <div :class="['modal-wrapper', { active: open }]">
     <span class="modal-overlay" @click="toggle"></span>
 
-    <div class="modal">
-      <div class="modal__head">
-        <h3>{{ header }}</h3>
-        <k-button @click="toggle">
-          <close-icon />
-        </k-button>
-      </div>
+    <div :class="['modal', sizeModalClass]">
+      <div class="modal__content">
+        <div class="modal__head">
+          <h3>{{ header }}</h3>
+          <k-button @click="toggle">
+            <close-icon />
+          </k-button>
+        </div>
 
-      <div class="modal__body">
-        <slot name="modal-body"></slot>
-      </div>
+        <div class="modal__body">
+          <slot name="modal-body"></slot>
+        </div>
 
-      <div v-if="footer" class="modal__footer">
-        <k-button
-          v-if="!!cancelButtonModalText"
-          size="md"
-          variant="primary"
-          @click="toggle"
-        >
-          {{ cancelButtonModalText }}
-        </k-button>
+        <div v-if="footer" class="modal__footer">
+          <k-button
+            v-if="!!cancelButtonModalText"
+            size="md"
+            variant="outline-primary"
+            @click="toggle"
+          >
+            {{ cancelButtonModalText }}
+          </k-button>
 
-        <k-button
-          v-if="!!confirmButtonModalText"
-          class="u-ml-16"
-          size="md"
-          variant="primary"
-          @click="$emit('confirm-modal')"
-        >
-          {{ confirmButtonModalText }}
-        </k-button>
+          <slot name="button-confirm">
+            <k-button
+              v-if="!!confirmButtonModalText"
+              class="u-ml-16"
+              size="md"
+              variant="primary"
+              @click="$emit('confirm-modal')"
+            >
+              {{ confirmButtonModalText }}
+            </k-button>
+          </slot>
+        </div>
       </div>
     </div>
   </div>
@@ -43,6 +47,12 @@ import { defineComponent } from 'vue'
 import CloseIcon from '@/assets/icons/ico_close.svg'
 import KButton from '@/components/KButton'
 
+const MODAL_PROPS = {
+  sizes: ['lg', 'md', 'sm']
+}
+
+Object.freeze(MODAL_PROPS)
+
 export default defineComponent ({
   name: 'KModal',
 
@@ -50,6 +60,13 @@ export default defineComponent ({
     open: {
       type: Boolean,
       default: false,
+    },
+
+    size: {
+      type: String,
+      validator: size => {
+        return MODAL_PROPS.sizes.includes(size)
+      }
     },
 
     header: {
@@ -78,6 +95,12 @@ export default defineComponent ({
     KButton
   },
 
+  computed: {
+    sizeModalClass() {
+      return this.size ? `modal--${this.size}` : ''
+    }
+  },
+
   methods: {
     toggle() {
       this.$emit('update:open', !this.open);
@@ -102,11 +125,10 @@ export default defineComponent ({
   background: rgba(0, 0, 0, 0.3);
   z-index: 200;
   display: none;
+  // height: 100%;
 
   &.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
   }
 }
 
@@ -115,11 +137,30 @@ export default defineComponent ({
 }
 
 .modal {
-  border-radius: 8px;
-  background-color: $color-grey-100;
-  margin: auto 16px;
+  margin: 16px auto;
   position: relative;
-  width: 605px;
+  height: calc(100% - 50px);
+
+  &--lg {
+    max-width: 800px;
+  }
+
+  &--md {
+    max-width: 600px; // tmp
+  }
+
+  &--sm {
+    max-width: 400px; // tmp
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: $color-grey-100;
+  }
 
   &__head {
     display: flex;
@@ -134,16 +175,12 @@ export default defineComponent ({
   }
 
   &__body {
-    padding: 16px 16px 0 16px;
-    max-height: 80vh;
-
-    &.is-scroll {
-      overflow-y: auto;
-    }
+    padding: 16px;
+    overflow: auto;
   }
 
   &__footer {
-    padding: 24px 0 16px 0;
+    padding: 16px;
     display: flex;
     justify-content: center;
   }
