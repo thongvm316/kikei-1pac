@@ -2,22 +2,35 @@
   <div class="login">
     <div class="login__form">
       <h1 class="login__headine">Login Page</h1>
-      <form class="w-220" @submit.prevent>
-        <div class="u-mb-16">
-          <label class="u-mb-4">Login ID</label>
-          <k-input size="lg" placeholder="Enter Id" />
-        </div>
 
-        <div class="u-mb-24">
-          <label class="u-mb-4">Password</label>
-          <k-input size="lg" placeholder="Enter password" />
-        </div>
+      <form class="w-220" @submit.prevent>
+        <k-input
+          class="u-mb-16"
+          style="margin-top: 24px"
+          v-model:value="v$.email.$model"
+          size="lg"
+          native-type="text"
+          :error="emailInputErrorText"
+          :variant="emailInputVariant"
+          label="Login ID">
+        </k-input>
+
+        <k-input
+          class="u-mb-24"
+          style="margin-top: 24px"
+          v-model:value="v$.password.$model"
+          size="lg"
+          native-type="password"
+          :error="passwordInputErrorText"
+          :variant="passwordInputVariant"
+          label="Password">
+        </k-input>
 
         <k-button
           @click="onClickLogin"
-          variant="primary" size="md"
-          nativeType="submit"
-          class="w-220">
+          variant="primary"
+          size="md"
+          native-type="submit">
           Login
         </k-button>
       </form>
@@ -27,12 +40,47 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent } from 'vue'
+import { defineComponent, defineAsyncComponent, reactive } from 'vue'
+import { useVuelidate } from '@vuelidate/core'
+import validationRules from './composables/validation'
+
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 
 export default defineComponent ({
   name: 'LoginPage',
+
+  setup () {
+    const params = {
+      email: '',
+      password: ''
+    }
+    const state = reactive(params)
+    const rules = validationRules(params)
+
+    return {
+      params,
+      v$: useVuelidate(rules, state)
+    }
+  },
+
+  computed: {
+    emailInputErrorText() {
+      return this.v$.email.$errors[0]?.$message || ''
+    },
+
+    emailInputVariant() {
+      return this.v$.email.$errors[0]?.$message ? 'error' : 'default'
+    },
+
+    passwordInputErrorText() {
+      return this.v$.password.$errors[0]?.$message || ''
+    },
+
+    passwordInputVariant() {
+      return this.v$.password.$errors[0]?.$message ? 'error' : 'default'
+    }
+  },
 
   components: {
     KInput,
@@ -41,7 +89,7 @@ export default defineComponent ({
 
   methods: {
     onClickLogin(e) {
-      console.log(e)
+      console.log(this.params)
     }
   }
 })
@@ -67,6 +115,10 @@ export default defineComponent ({
   &__img {
     width: calc(100% - 452px);
     height: 100vh;
+  }
+
+  ::v-deep .k-button {
+    width: 100%;
   }
 }
 
