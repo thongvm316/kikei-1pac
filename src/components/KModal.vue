@@ -17,7 +17,6 @@
 
         <div v-if="footer" class="modal__footer">
           <k-button
-            v-if="!!cancelButtonModalText"
             size="md"
             variant="outline-primary"
             @click="toggle"
@@ -27,7 +26,6 @@
 
           <slot name="button-confirm">
             <k-button
-              v-if="!!confirmButtonModalText"
               class="u-ml-16"
               size="md"
               variant="primary"
@@ -125,7 +123,6 @@ export default defineComponent ({
   background: rgba(0, 0, 0, 0.3);
   z-index: 200;
   display: none;
-  // height: 100%;
 
   &.active {
     display: block;

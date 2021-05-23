@@ -24,9 +24,7 @@
   <k-modal
     header="Edit user"
     size="lg"
-    v-model:open="isOpenModalText"
-    @cancel-modal="xxx"
-    @confirm-modal="xxx">
+    v-model:open="isOpenModalText">
     <template #modal-body>
       <p>Body content</p>
       <p>Body content</p>
@@ -96,10 +94,6 @@ export default defineComponent({
   methods: {
     onClickButton() {
       console.log('test click')
-    },
-
-    xxx() {
-      console.log('emit')
     }
   }
 })
