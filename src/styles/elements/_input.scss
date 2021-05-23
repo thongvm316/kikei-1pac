@@ -8,8 +8,18 @@
   }
 }
 
+.k-radio__items {
+  @include flexbox(flex-start, center);
+
+  &.k-radio__items--inline {
+    .k-radio__item {
+      margin: 4px 24px 4px 0;
+    }
+  }
+}
+
 .k-checkbox__item,
-.radio-item {
+.k-radio__item {
   span {
     cursor: pointer;
     padding-left: 24px;
@@ -77,13 +87,9 @@
       height: 5px;
     }
   }
-
-  + .checkbox-item {
-    margin-top: 16px;
-  }
 }
 
-.radio-item {
+.k-radio__item {
   span {
     &:before {
       border-radius: 50%;
@@ -92,7 +98,7 @@
     &:after {
       background-color: $color-grey-100;
       left: 4px;
-      top: 4px;
+      top: 5px;
       width: 8px;
       height: 8px;
       border-radius: 50%;

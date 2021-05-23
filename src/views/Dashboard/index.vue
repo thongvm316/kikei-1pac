@@ -76,6 +76,13 @@
     inline
     name="label-1"
     label="Label (checkbox)" />
+
+  <k-radio
+    v-model:value="radioModel"
+    :options="radioOptions"
+    inline
+    name="radio-1"
+    label="Label (checkbox)" />
 </template>
 
 <script>
@@ -85,6 +92,7 @@ import { useI18n } from 'vue-i18n'
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
+const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
@@ -110,6 +118,21 @@ export default defineComponent({
           label: 'Text',
           value: 'Text'
         }
+      ],
+      radioModel: 2,
+      radioOptions: [
+        {
+          label: '入金',
+          value: 1,
+        },
+        {
+          label: '出金',
+          value: 2,
+        },
+        {
+          label: 'Text',
+          value: 'Text'
+        }
       ]
     }
   },
@@ -118,6 +141,7 @@ export default defineComponent({
     KButton,
     KInput,
     KCheckbox,
+    KRadio,
     KModal,
     ProjectIcon
   },
