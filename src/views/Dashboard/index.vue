@@ -36,8 +36,10 @@
   </k-input>
 
   <k-multiple-select
+    v-model:value="selectModel"
     mode="multiple"
-    :options="selectOptions"/>
+    :options="selectOptions"
+    placeholder="Search something..."/>
 </template>
 
 <script>
@@ -59,6 +61,17 @@ export default defineComponent({
     KModal,
     ProjectIcon,
     KMultipleSelect
+  },
+
+  data() {
+    return {
+      selectModel: [
+        { value: 'batman', label: 'Batman' },
+        { value: 'robin', label: 'Robin' },
+        { value: 'joker', label: 'Joker' },
+        { value: 'sjoker', label: 'Nghia' }
+      ]
+    }
   },
 
   setup() {
