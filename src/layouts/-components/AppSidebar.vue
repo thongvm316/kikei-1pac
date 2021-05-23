@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <ul class="list-unstyled">
+    <ul class="aside__menu list-unstyled">
       <li v-for="navItem in navList" :key="navItem.path" class="aside__list">
         <router-link v-slot="{ navigate, isActive, isExactActive }" :to="navItem.path" custom>
           <div
@@ -27,16 +27,18 @@
           </div>
         </router-link>
 
-        <k-accordion v-if="navItem.childrens" :open="subNavList.includes(navItem.path)">
-          <ul class="aside__sub-nav list-unstyled">
-            <li v-for="subNavItem in navItem.childrens" :key="subNavItem.path" class="aside__list">
-              <router-link :to="subNavItem.path" class="aside__link">
-                <i class="aside__link--circle-icon" />
-                <span class="aside__text">{{ $t(subNavItem.label) }}</span>
-              </router-link>
-            </li>
-          </ul>
-        </k-accordion>
+        <div class="aside__sub-nav">
+          <k-accordion v-if="navItem.childrens" :open="subNavList.includes(navItem.path)" :is-expand="isCollapse">
+            <ul class="list-unstyled">
+              <li v-for="subNavItem in navItem.childrens" :key="subNavItem.path" class="aside__list">
+                <router-link :to="subNavItem.path" class="aside__link">
+                  <i class="aside__link--circle-icon" />
+                  <span class="aside__text">{{ $t(subNavItem.label) }}</span>
+                </router-link>
+              </li>
+            </ul>
+          </k-accordion>
+        </div>
       </li>
     </ul>
   </aside>
@@ -71,77 +73,11 @@ export default defineComponent({
   },
 
   setup() {
-    const navList = [
-      {
-        path: '/',
-        label: 'breadcrumb.dashboard',
-        icon: 'DashboardIcon'
-      },
-      {
-        path: '/project',
-        label: 'breadcrumb.project',
-        icon: 'ProjectIcon'
-      },
-      {
-        path: '/deposit',
-        label: 'breadcrumb.deposit',
-        icon: 'DepositIcon'
-      },
-      {
-        path: '/financing',
-        label: 'breadcrumb.financing',
-        icon: 'FinancingIcon'
-      },
-      {
-        path: '/setting',
-        label: 'breadcrumb.setting',
-        icon: 'SettingIcon',
-        childrens: [
-          {
-            path: '/setting/1',
-            label: 'Setting 1'
-          },
-          {
-            path: '/setting/2',
-            label: 'Setting 2'
-          },
-          {
-            path: '/setting/3',
-            label: 'Setting 3'
-          },
-          {
-            path: '/setting/4',
-            label: 'Setting 4'
-          }
-        ]
-      },
-      {
-        path: '/profile',
-        label: 'breadcrumb.profile',
-        icon: 'SettingIcon',
-        childrens: [
-          {
-            path: '/profile/1',
-            label: 'profile 1'
-          },
-          {
-            path: '/profile/2',
-            label: 'profile 2'
-          },
-          {
-            path: '/profile/3',
-            label: 'profile 3'
-          },
-          {
-            path: '/profile/4',
-            label: 'profile 4'
-          }
-        ]
-      }
-    ]
-
     const isCollapse = ref(false)
-    const toggleSideBar = () => (isCollapse.value = !isCollapse.value)
+    const toggleSideBar = () => {
+      isCollapse.value = !isCollapse.value
+    }
+
     const subNavList = ref([])
     const toggleSubNav = (path) => {
       subNavList.value = subNavList.value.includes(path)
@@ -150,11 +86,60 @@ export default defineComponent({
     }
 
     return {
-      navList,
       subNavList,
       isCollapse,
       toggleSideBar,
       toggleSubNav
+    }
+  },
+
+  data() {
+    return {
+      navList: [
+        {
+          path: '/',
+          label: 'breadcrumb.dashboard',
+          icon: 'DashboardIcon'
+        },
+        {
+          path: '/project',
+          label: 'breadcrumb.project',
+          icon: 'ProjectIcon'
+        },
+        {
+          path: '/deposit',
+          label: 'breadcrumb.deposit',
+          icon: 'DepositIcon'
+        },
+        {
+          path: '/financing',
+          label: 'breadcrumb.financing',
+          icon: 'FinancingIcon'
+        },
+        {
+          path: '/setting',
+          label: 'breadcrumb.setting',
+          icon: 'SettingIcon',
+          childrens: [
+            {
+              path: '/setting/1',
+              label: '登録企業'
+            },
+            {
+              path: '/setting/2',
+              label: '登録企業'
+            },
+            {
+              path: '/setting/3',
+              label: '登録企業'
+            },
+            {
+              path: '/setting/4',
+              label: '登録企業'
+            }
+          ]
+        }
+      ]
     }
   }
 })

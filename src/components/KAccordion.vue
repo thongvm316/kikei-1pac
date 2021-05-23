@@ -3,7 +3,7 @@
     <div v-if="open === undefined" class="accordion__header" @click="toggleAccordionOpen">
       <slot name="header" />
     </div>
-    <div class="accordion__contents" :style="{ height: `${contentHeight}px` }">
+    <div class="accordion__contents" :style="{ height: isExpand ? 'auto' : `${contentHeight}px` }">
       <div class="accordion__inner">
         <slot />
       </div>
@@ -18,11 +18,18 @@ import { debounce } from '@/utils/debounce'
 export default defineComponent({
   props: {
     /**
-     * Disable accordion header and open from props
+     * Invisible header and only open accordion from this prop
      */
     open: {
       type: Boolean,
       default: undefined
+    },
+    /**
+     * Disable accordion
+     */
+    isExpand: {
+      type: Boolean,
+      default: false
     }
   },
 
