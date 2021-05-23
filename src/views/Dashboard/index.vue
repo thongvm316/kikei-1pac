@@ -34,6 +34,10 @@
   <k-input size="lg" nativeType="number" variant="error" placeholder="Please input">
     <project-icon class="form-icon--left" />
   </k-input>
+
+  <k-multiple-select
+    mode="multiple"
+    :options="selectOptions"/>
 </template>
 
 <script>
@@ -43,6 +47,7 @@ import { useI18n } from 'vue-i18n'
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
+const KMultipleSelect = defineAsyncComponent(() => import('@/components/KMultipleSelect'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -52,7 +57,8 @@ export default defineComponent({
     KButton,
     KInput,
     KModal,
-    ProjectIcon
+    ProjectIcon,
+    KMultipleSelect
   },
 
   setup() {
@@ -75,10 +81,20 @@ export default defineComponent({
     ])
     const isOpenModalText = ref(false)
 
+    const selectOptions = ref(
+      [
+        { value: 'batman', label: 'Batman' },
+        { value: 'robin', label: 'Robin' },
+        { value: 'joker', label: 'Joker' },
+        { value: 'sjoker', label: 'Nghia' }
+      ]
+    )
+
     return {
       locale,
       isOpenModalText,
-      localeList
+      localeList,
+      selectOptions
     }
   },
 
