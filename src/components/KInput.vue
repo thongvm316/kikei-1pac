@@ -11,7 +11,7 @@
           disabledInputClass
         ]]"
         :type="nativeType"
-        :placeholder="placeholder"
+        :placeholder="placeholder ? placeholder : ''"
         :disabled="disabled"
         :value="value"
         @input="$emit('update:value', $event.target.value)" />
@@ -55,11 +55,6 @@ export default defineComponent ({
         return FORM_PROPS.variants.includes(variant)
       }
     },
-    placeholder: {
-      type: String,
-      // TODO: locale
-      default: 'Please input...'
-    },
 
     size: {
       type: String,
@@ -76,6 +71,7 @@ export default defineComponent ({
     },
 
     label: String,
+    placeholder: String,
     disabled: Boolean,
     error: String
   },
