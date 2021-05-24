@@ -81,7 +81,7 @@
     }
   },
   "lint-staged": {
-    "*.(js|vue)": [
+    "*.@(js|vue)": [
       "yarn lint"
     ]
   }
