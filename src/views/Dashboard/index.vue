@@ -65,6 +65,19 @@
     </template>
   </k-input>
 
+  <k-accordion duration="400">
+    <template #header>
+      <div>Open accordion</div>
+    </template>
+    <ul>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+    </ul>
+  </k-accordion>
    <k-input
     style="margin-top: 24px"
     v-model:value="inputModel"
@@ -110,6 +123,7 @@ const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
 const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
+const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
@@ -161,6 +175,7 @@ export default defineComponent({
     KCheckbox,
     KRadio,
     KModal,
+    KAccordion,
     KPagination,
     ProjectIcon
   },

@@ -18,38 +18,26 @@ module.exports = {
     // 'plugin:vue/vue3-essential',
     'plugin:vue/vue3-recommended',
     'prettier',
-    'prettier/vue',
     'plugin:prettier/recommended'
   ],
   // required to lint *.vue files
-  plugins: [
-    'vue',
-    'prettier'
-  ],
+  plugins: ['vue', 'prettier'],
+  ignorePatterns: ['src/test/'],
   rules: {
     'vue/no-multiple-template-root': 'off',
     'vue/no-unused-vars': 'error',
-    // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    "indent": [
-      "error",
-      2
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "no-multiple-empty-lines": [
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off', // allow debugger during development
+    indent: [
+      'error',
       2,
-      {"max": 1, "maxBOF": 0}
+      {
+        ignoredNodes: ['TemplateLiteral']
+      }
     ],
+    // 'template-curly-spacing': 'off',
+    'linebreak-style': ['error', 'unix'],
+    quotes: ['error', 'single'],
+    semi: ['error', 'never'],
+    'no-multiple-empty-lines': [2, { max: 1, maxBOF: 0 }]
   }
 }

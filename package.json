@@ -11,7 +11,9 @@
     "test:unit:ci": "jest test/unit/specs/store/modules --config jest.config.js --silent --maxWorkers=2",
     "test:unit": "jest --config jest.config.js -u --coverage",
     "test:e2e": "node test/e2e/runner.js",
-    "test": "npm run test:unit && npm run test:e2e"
+    "test": "npm run test:unit && npm run test:e2e",
+    "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --ext .js,.vue src --fix"
   },
   "dependencies": {
     "@vuelidate/core": "^2.0.0-alpha.17",
@@ -39,6 +41,7 @@
     "dotenv-webpack": "^7.0.2",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-prettier-vue": "^3.0.0",
     "eslint-plugin-vue": "^7.9.0",
     "file-loader": "^6.2.0",

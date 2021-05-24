@@ -19,7 +19,8 @@ const routes = [
     children: [
       {
         path: '',
-        component: lazyLoadRoute('Login')
+        component: lazyLoadRoute('Login'),
+        meta: { title: `Login | ${APP_NAME}` }
       }
     ]
   },
@@ -85,12 +86,38 @@ const routes = [
       {
         path: '/setting',
         name: 'setting',
-        component: lazyLoadRoute('Setting'),
-        meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+        component: lazyLoadRoute('Base'),
+        meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
+        // TODO: children will modify later
+        children: [
+          {
+            path: '1',
+            name: 'setting-1',
+            component: lazyLoadRoute('Setting-1'),
+            meta: { title: `Setting - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          },
+          {
+            path: '2',
+            name: 'setting-2',
+            component: lazyLoadRoute('Setting-2'),
+            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          },
+          {
+            path: '3',
+            name: 'setting-3',
+            component: lazyLoadRoute('Setting-3'),
+            meta: { title: `Setting - 3| ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          },
+          {
+            path: '4',
+            name: 'setting-4',
+            component: lazyLoadRoute('Setting-4'),
+            meta: { title: `Setting - 4 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          }
+        ]
       }
     ]
   },
-
   {
     path: '/404',
     name: 'error-404',
@@ -105,7 +132,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  linkExactActiveClass: 'is-active',
+  linkActiveClass: 'is-active',
   routes
 })
 
