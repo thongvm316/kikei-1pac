@@ -23,15 +23,12 @@
 
 <script>
 import { defineComponent } from 'vue'
-
-const FORM_PROPS = {
-  sizes: ['lg', 'md', 'sm'],
-  variants: ['default', 'error'],
-  nativeTypes: ['text', 'password', 'email'],
-  iconPosition: ['left', 'right']
-}
-
-Object.freeze(FORM_PROPS)
+import {
+  INPUT_NATIVE_TYPES,
+  INPUT_VARIANTS,
+  INPUT_SIZES,
+  INPUT_ICON_POSITIONS
+} from './constants'
 
 export default defineComponent ({
   name: 'KInput',
@@ -43,30 +40,33 @@ export default defineComponent ({
 
     nativeType: {
       type: String,
-      default: 'text',
+      default: INPUT_NATIVE_TYPES.text,
       validator: nativeType => {
-        return FORM_PROPS.nativeTypes.includes(nativeType)
+        return Object.values(INPUT_NATIVE_TYPES).includes(nativeType)
       }
     },
 
     variant: {
       type: String,
+      default: INPUT_VARIANTS.default,
       validator: variant => {
-        return FORM_PROPS.variants.includes(variant)
+        return Object.values(INPUT_VARIANTS).includes(variant)
       }
     },
 
     size: {
       type: String,
+      default: INPUT_SIZES.md,
       validator: size => {
-        return FORM_PROPS.sizes.includes(size)
+        return Object.values(INPUT_SIZES).includes(size)
       }
     },
 
     iconPosition: {
       type: String,
+      default: INPUT_ICON_POSITIONS.left,
       validator: pos => {
-        return FORM_PROPS.iconPosition.includes(pos)
+        return Object.values(INPUT_ICON_POSITIONS).includes(pos)
       }
     },
 

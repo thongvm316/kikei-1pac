@@ -43,6 +43,7 @@
 import { defineComponent, defineAsyncComponent, reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import validationRules from './composables/validation'
+import { INPUT_VARIANTS } from '@/components/KInput/constants'
 
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
@@ -70,7 +71,7 @@ export default defineComponent ({
     },
 
     emailInputVariant() {
-      return this.v$.email.$errors[0]?.$message ? 'error' : 'default'
+      return this.v$.email.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
     },
 
     passwordInputErrorText() {
@@ -78,7 +79,7 @@ export default defineComponent ({
     },
 
     passwordInputVariant() {
-      return this.v$.password.$errors[0]?.$message ? 'error' : 'default'
+      return this.v$.password.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
     }
   },
 
