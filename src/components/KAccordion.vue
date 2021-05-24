@@ -3,7 +3,10 @@
     <div v-if="open === undefined" class="accordion__header" @click="toggleAccordionOpen">
       <slot name="header" />
     </div>
-    <div class="accordion__contents" :style="{ height: isExpand ? 'auto' : `${contentHeight}px` }">
+    <div
+      class="accordion__contents"
+      :style="{ height: isExpand ? 'auto' : `${contentHeight}px`, 'transition-duration': `${duration}ms` }"
+    >
       <div class="accordion__inner">
         <slot />
       </div>
@@ -13,7 +16,7 @@
 
 <script>
 import { ref, defineComponent, onMounted, onBeforeUnmount, watch, toRefs } from 'vue'
-import { debounce } from '@/utils/debounce'
+import { debounce } from '@/helpers/debounce'
 
 export default defineComponent({
   props: {
@@ -30,6 +33,13 @@ export default defineComponent({
     isExpand: {
       type: Boolean,
       default: false
+    },
+    /**
+     * transition-duration(ms)
+     */
+    duration: {
+      type: Number,
+      default: 500
     }
   },
 
@@ -71,3 +81,21 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
+.accordion {
+  &__header {
+    cursor: pointer;
+  }
+
+  &__contents {
+    height: 0;
+    overflow: hidden;
+    transition-property: height;
+    transition-timing-function: ease-in-out;
+  }
+}
+</style>

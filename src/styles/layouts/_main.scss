@@ -1,9 +1,12 @@
 .main {
-  @include flexbox(flex-start, stretch);
-  flex-direction: row;
   height: 100vh;
 
   &__content {
-    flex-grow: 1;
+    margin-left: 232px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .aside.is-collapse + &__content {
+    margin-left: 66px;
   }
 }

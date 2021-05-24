@@ -1,12 +1,17 @@
-$width-collapse: 66px;
+$width-sidebar: 232px;
+$width-sidebar-collapse: 66px;
 $width-sub-nav-collapse: 150px;
 
 .aside {
-  width: 232px;
+  width: $width-sidebar;
   background-color: $color-primary-10;
   color: $color-grey-100;
   flex-grow: 0;
   transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
 
   &__top {
     height: 80px;
@@ -88,7 +93,7 @@ $width-sub-nav-collapse: 150px;
 }
 
 .aside.is-collapse {
-  width: $width-collapse;
+  width: $width-sidebar-collapse;
 
   .aside__link--text,
   .aside__link--arrow-icon,
@@ -110,7 +115,7 @@ $width-sub-nav-collapse: 150px;
   .aside__link--text,
   .aside__sub-nav {
     position: absolute;
-    left: $width-collapse;
+    left: $width-sidebar-collapse;
     width: $width-sub-nav-collapse;
     background-color: $color-primary-10;
   }
