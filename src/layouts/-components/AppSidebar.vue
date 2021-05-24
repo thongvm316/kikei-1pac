@@ -28,7 +28,12 @@
         </router-link>
 
         <div class="aside__sub-nav">
-          <k-accordion v-if="navItem.childrens" :open="subNavList.includes(navItem.name)" :is-expand="isCollapse">
+          <k-accordion
+            v-if="navItem.childrens"
+            :open="subNavList.includes(navItem.name)"
+            :is-expand="isCollapse"
+            :disable-header="true"
+          >
             <ul class="list-unstyled">
               <li v-for="subNavItem in navItem.childrens" :key="subNavItem.name" class="aside__list">
                 <router-link :to="{ name: subNavItem.name }" class="aside__link">

@@ -1,6 +1,6 @@
 <template>
   <div ref="accorRef" class="accordion">
-    <div v-if="open === undefined" class="accordion__header" @click="toggleAccordionOpen">
+    <div v-if="!disableHeader" class="accordion__header" @click="toggleAccordionOpen">
       <slot name="header" />
     </div>
     <div
@@ -21,11 +21,11 @@ import { debounce } from '@/helpers/debounce'
 export default defineComponent({
   props: {
     /**
-     * Invisible header and only open accordion from this prop
+     * open accordion
      */
     open: {
       type: Boolean,
-      default: undefined
+      default: false
     },
     /**
      * Disable accordion
@@ -40,6 +40,13 @@ export default defineComponent({
     duration: {
       type: Number,
       default: 500
+    },
+    /**
+     * Disable accordion header and only calculate content height from "open" prop
+     */
+    disableHeader: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -49,27 +56,30 @@ export default defineComponent({
     const isAccordionOpen = ref(false)
     const contentHeight = ref(0)
 
-    const getContentHeight = () => {
-      if (open.value === false || (open.value === undefined && !isAccordionOpen.value)) contentHeight.value = 0
-      else contentHeight.value = accorRef.value?.querySelector('.accordion__inner')?.clientHeight || 0
+    const calculateContentHeight = () => {
+      if ((props.disableHeader && !open.value) || (!props.disableHeader && !isAccordionOpen.value)) {
+        contentHeight.value = 0
+      } else {
+        contentHeight.value = accorRef.value?.querySelector('.accordion__inner')?.clientHeight || 0
+      }
     }
 
     const toggleAccordionOpen = () => {
       isAccordionOpen.value = !isAccordionOpen.value
-      getContentHeight()
+      calculateContentHeight()
     }
 
     onMounted(() => {
-      getContentHeight()
-      window.addEventListener('resize', debounce(getContentHeight, 500))
+      calculateContentHeight()
+      window.addEventListener('resize', debounce(calculateContentHeight, 500))
     })
 
     onBeforeUnmount(() => {
-      window.removeEventListener('resize', getContentHeight)
+      window.removeEventListener('resize', calculateContentHeight)
     })
 
     watch(open, () => {
-      getContentHeight()
+      calculateContentHeight()
     })
 
     return {

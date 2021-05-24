@@ -88,6 +88,7 @@ const routes = [
         name: 'setting',
         component: lazyLoadRoute('Base'),
         meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
+        // TODO: children will modify later
         children: [
           {
             path: '1',

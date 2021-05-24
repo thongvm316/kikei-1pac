@@ -34,6 +34,20 @@
   <k-input size="lg" nativeType="number" variant="error" placeholder="Please input">
     <project-icon class="form-icon--left" />
   </k-input>
+
+  <k-accordion duration="400">
+    <template #header>
+      <div>Open accordion</div>
+    </template>
+    <ul>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+      <li>Accordion content</li>
+    </ul>
+  </k-accordion>
 </template>
 
 <script>
@@ -43,6 +57,7 @@ import { useI18n } from 'vue-i18n'
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
+const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -52,6 +67,7 @@ export default defineComponent({
     KButton,
     KInput,
     KModal,
+    KAccordion,
     ProjectIcon
   },
 
