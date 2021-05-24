@@ -23,8 +23,17 @@
 
   <k-modal
     header="Edit user"
+    size="lg"
     v-model:open="isOpenModalText">
-    <template #modal-body>Body content</template>
+    <template #modal-body>
+      <p>Body content</p>
+      <p>Body content</p>
+      <p>Body content</p>
+      <p>Body content</p>
+
+      <p>End</p>
+    </template>
+
   </k-modal>
 
   <k-button variant="primary" size="md" @click="isOpenModalText = true" icon circle>
