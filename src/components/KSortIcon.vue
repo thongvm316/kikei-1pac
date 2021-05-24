@@ -7,8 +7,8 @@
 
 <script>
 import { defineComponent } from 'vue'
-import CaretUpIcon from '@/assets/ico_caret-up.svg'
-import CaretDownIcon from '@/assets/ico_caret-down.svg'
+import CaretUpIcon from '@/assets/icons/ico_caret-up.svg'
+import CaretDownIcon from '@/assets/icons/ico_caret-down.svg'
 
 export default defineComponent({
   name: 'KSortIcon',
