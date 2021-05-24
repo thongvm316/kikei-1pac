@@ -1,7 +1,7 @@
 <template>
   <nav class="pagination-wrapper">
     <p v-if="shower" class="pagination__shower">
-      Showing {{ firstItemInPage }}-{{ lastItemInPage }} of {{ totalItem }} items
+      {{ firstItemInPage }}-{{ lastItemInPage }} / {{ totalItem }}件
     </p>
 
     <ul class="pagination">
@@ -56,7 +56,7 @@ export default defineComponent({
   data() {
     return {
       innerValue: 1,
-      marginPages: 0
+      marginPages: 1
     }
   },
 
@@ -241,7 +241,7 @@ export default defineComponent({
   font-size: 12px;
   line-height: 18px;
   color: $color-grey-55;
-  margin-right: 24px;
+  margin-right: 16px;
 }
 
 .pagination {
@@ -251,9 +251,9 @@ export default defineComponent({
     @include flexbox(center, center);
     outline: 0;
     padding: 4px 7px;
-    width: 24px;
+    min-width: 24px;
     height: 24px;
-    line-height: 1;
+    line-height: -1;
     font-size: 14px;
     border-radius: 4px;
     color: $color-grey-55;
@@ -266,6 +266,7 @@ export default defineComponent({
 
     &--icon {
       padding: 0;
+      border: 0;
       padding-bottom: 1px;
     }
   }
