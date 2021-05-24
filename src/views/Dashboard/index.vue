@@ -83,6 +83,13 @@
     inline
     name="radio-1"
     label="Label (checkbox)" />
+
+  <k-pagination
+    v-model:value="page"
+    :page-range="3"
+    :total-item="42"
+    :per-page="10"
+    :click-handler="clickPagerHandler" />
 </template>
 
 <script>
@@ -94,6 +101,7 @@ const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
 const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
+const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -133,7 +141,8 @@ export default defineComponent({
           label: 'Text',
           value: 'Text'
         }
-      ]
+      ],
+      page: 1
     }
   },
 
@@ -143,6 +152,7 @@ export default defineComponent({
     KCheckbox,
     KRadio,
     KModal,
+    KPagination,
     ProjectIcon
   },
 
@@ -176,6 +186,10 @@ export default defineComponent({
   methods: {
     onClickButton() {
       console.log('test click')
+    },
+
+    clickPagerHandler() {
+      console.log('pager click')
     }
   }
 })
