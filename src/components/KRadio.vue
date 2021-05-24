@@ -1,19 +1,19 @@
 <template>
-  <div class="k-checkbox">
+  <div class="k-radio">
     <p v-if="!!label" class="k-input__label">{{ label }}</p>
 
-    <div :class="`k-checkbox__items ${inlineClass}`">
+    <div :class="`k-radio__items ${inlineClass}`">
       <label
         v-for="option in options"
         :key="option.value"
-        class="k-checkbox__item">
+        class="k-radio__item">
         <input
-          type="checkbox"
+          type="radio"
           :disabled="option.disabled"
           :name="name"
           :value="option.value"
           :checked="option.checked"
-          v-model="localCheckboxValue"
+          v-model="localRadioValue"
         />
         <span>{{ option.label }}</span>
       </label>
@@ -23,14 +23,13 @@
 
 <script>
 import { defineComponent, watch, ref, onMounted } from 'vue'
-import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent ({
-  name: 'KCheckbox',
+  name: 'KRadio',
 
   props: {
     value: {
-      type: Array,
+      type: [String, Number],
       required: true
     },
 
@@ -50,25 +49,25 @@ export default defineComponent ({
   },
 
   setup(props, context) {
-    const localCheckboxValue = ref([])
+    const localRadioValue = ref()
     const value = props.value
 
     onMounted(() => {
-      localCheckboxValue.value = deepCopy(value)
+      localRadioValue.value = value
     })
 
-    watch(localCheckboxValue, () => {
-      context.emit('update:value', localCheckboxValue.value)
+    watch(localRadioValue, () => {
+      context.emit('update:value', localRadioValue.value)
     })
 
     return {
-      localCheckboxValue
+      localRadioValue
     }
   },
 
   computed: {
     inlineClass() {
-      return this.inline ? 'k-checkbox__items--inline' : ''
+      return this.inline ? 'k-radio__items--inline' : ''
     }
   }
 })
