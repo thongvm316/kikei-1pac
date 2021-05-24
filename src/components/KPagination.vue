@@ -282,7 +282,7 @@ export default defineComponent({
   }
 
   &__item + &__item {
-    margin-left: 8px;
+    margin-left: 4px;
   }
 
   &__break .pagination__link {
