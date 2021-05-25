@@ -7,11 +7,11 @@
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">更新日</span>
               <k-sort-caret
-                @on-click-caret-up="onClickCaretUp"
-                @on-click-caret-down="onClickCaretDown"/>
+                @sort-asc="sortAsc"
+                @sort-desc="sortDesc"/>
             </div>
           </th>
-          <th class="w-262">
+          <th class="mw-262">
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">クライアント / プロジェクト名</span>
               <k-sort-caret />
@@ -170,12 +170,12 @@ export default defineComponent({
   },
 
   methods: {
-    onClickCaretUp() {
-      console.log('Up')
+    sortAsc() {
+      console.log('Asc')
     },
 
-    onClickCaretDown() {
-      console.log('Down')
+    sortDesc() {
+      console.log('Desc')
     }
   }
 })

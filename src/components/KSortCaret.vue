@@ -1,7 +1,7 @@
 <template>
   <div class="k-sort-icon">
-    <caret-up-icon @click="$emit('onClickCaretUp')"/>
-    <caret-down-icon @click="$emit('onClickCaretDown')" class="u-mt-2" />
+    <caret-up-icon @click="$emit('sort-asc')"/>
+    <caret-down-icon @click="$emit('sort-desc')" class="u-mt-2" />
   </div>
 </template>
 
@@ -16,10 +16,6 @@ export default defineComponent({
   components: {
     CaretUpIcon,
     CaretDownIcon
-  },
-
-  methods: {
-
   }
 })
 </script>
