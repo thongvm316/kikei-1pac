@@ -112,6 +112,11 @@
     :total-item="92"
     :per-page="10"
     :click-handler="clickPagerHandler" />
+
+  <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
+  <k-tooltip title="Tooltip content">
+    <k-button variant="danger">Tooltip test</k-button>
+  </k-tooltip>
 </template>
 
 <script>
@@ -125,6 +130,7 @@ const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
 const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
+const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -177,6 +183,7 @@ export default defineComponent({
     KModal,
     KAccordion,
     KPagination,
+    KTooltip,
     ProjectIcon
   },
 
