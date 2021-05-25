@@ -8,6 +8,7 @@ const convertToCSV = (objArray) => {
     let line = ''
 
     for (let index in array[i]) {
+      // eslint-disable-next-line no-extra-boolean-cast
       if (!!line) line += ','
 
       line += array[i][index]
