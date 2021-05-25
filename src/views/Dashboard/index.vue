@@ -109,7 +109,7 @@
   <k-pagination
     v-model:value="page"
     :page-range="3"
-    :total-item="42"
+    :total-item="92"
     :per-page="10"
     :click-handler="clickPagerHandler" />
 
@@ -128,6 +128,10 @@
       :options="selectOptions"
       placeholder="Search something..." />
   </div>
+  <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
+  <k-tooltip title="Tooltip content">
+    <k-button variant="danger">Tooltip test</k-button>
+  </k-tooltip>
 </template>
 
 <script>
@@ -142,6 +146,7 @@ const KModal = defineAsyncComponent(() => import('@/components/KModal'))
 const KMultipleSelect = defineAsyncComponent(() => import('@/components/KMultipleSelect'))
 const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
+const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -196,6 +201,7 @@ export default defineComponent({
     KMultipleSelect,
     KAccordion,
     KPagination,
+    KTooltip,
     ProjectIcon
   },
 
