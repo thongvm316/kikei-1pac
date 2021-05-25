@@ -113,6 +113,31 @@
     :per-page="10"
     :click-handler="clickPagerHandler" />
 
+  <div class="u-mt-16" style="width: 300px">
+    <!-- <k-multiselect
+      v-model="selectModel"
+      searchable
+      :options="selectOptions"
+      label="name"
+      trackBy="name"
+      placeholder="...." /> -->
+  </div>
+
+  <div class="u-mt-16" style="width: 300px">
+    <k-multiselect
+      v-model="selectModel"
+      searchable
+      mode="multiple"
+      :options="selectOptions"
+      label="name"
+      trackBy="name"
+      placeholder="....">
+      <template #option="{ option }">
+        <div class="k-select-option--checkbox">{{ option.name }}</div>
+      </template>
+    </k-multiselect>
+
+  </div>
   <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
   <k-tooltip title="Tooltip content">
     <k-button variant="danger">Tooltip test</k-button>
@@ -122,6 +147,7 @@
 <script>
 import { defineComponent, defineAsyncComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import Multiselect from '@vueform/multiselect'
 
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
@@ -141,6 +167,7 @@ export default defineComponent({
       inputModel: '',
       inputModel: '',
       inputModel: '',
+      selectModel: ['batman'],
       checkboxModel: ['出金'],
       checkboxOptions: [
         {
@@ -184,7 +211,8 @@ export default defineComponent({
     KAccordion,
     KPagination,
     KTooltip,
-    ProjectIcon
+    ProjectIcon,
+    KMultiselect: Multiselect
   },
 
   setup() {
@@ -207,10 +235,22 @@ export default defineComponent({
     ])
     const isOpenModalText = ref(false)
 
+    const selectOptions = ref(
+      [
+        { value: 'batman', name: 'Batman' },
+        { value: 'a', name: 'Amen' },
+        { value: 'b', name: 'Alibaba' },
+        { value: 'c', name: 'Hoho' },
+        { value: 'd', name: 'Hihihihih' },
+        { value: 'e', name: 'Emanan' }
+      ]
+    )
+
     return {
       locale,
       isOpenModalText,
-      localeList
+      localeList,
+      selectOptions
     }
   },
 
