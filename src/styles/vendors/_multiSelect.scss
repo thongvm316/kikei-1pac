@@ -1,80 +1,4 @@
-<template>
-  <div>
-    <multiselect
-      v-model="localSelectValue"
-      :searchable="true"
-      :mode="mode"
-      :options="options"
-      label="name"
-      trackBy="name"
-      :max-height="171"
-      open-direction="bellow"
-      :placeholder="placeholder"
-    >
-      <template v-slot:option="{ option }">
-        <div class="option-custom">{{ option.name }}</div>
-      </template>
-    </multiselect>
-  </div>
-</template>
-
-<script>
-import { defineComponent, ref, watch, onMounted } from 'vue'
-import Multiselect from '@vueform/multiselect'
-
-import KCheckbox from '@/components/KCheckbox'
-
-const MULTIPLE_SELECT_PROPS = {
-  modes: ['multiple', 'single']
-}
-
-Object.freeze(MULTIPLE_SELECT_PROPS)
-
-export default defineComponent({
-  name: 'KMultipleSelect',
-
-  components: {
-    Multiselect,
-    KCheckbox
-  },
-
-  props: {
-    value: {
-      require: true
-    },
-    options: Array,
-    mode: {
-      type: String,
-      validator: mode => {
-        return MULTIPLE_SELECT_PROPS.modes.includes(mode)
-      }
-    },
-    placeholder: String
-  },
-
-  setup(props, context) {
-    const localSelectValue = ref(null)
-    const value = props.value
-
-    onMounted(() => {
-      localSelectValue.value = value
-    })
-
-    watch(localSelectValue, () => {
-      context.emit('update:value', localSelectValue.value)
-    })
-
-    return {
-      localSelectValue
-    }
-  }
-})
-</script>
-
-<style src="@vueform/multiselect/themes/default.css"></style>
-
-<style lang="scss">
-@import '@/styles/shared/_variables.scss';
+@import '@vueform/multiselect/themes/default.css';
 
 .multiselect {
   .multiselect-input {
@@ -96,6 +20,7 @@ export default defineComponent({
   }
 
   .multiselect-multiple-label,
+  .multiselect-single-label,
   .multiselect-search input {
     color: $color-grey-15;
     font-size: 14px;
@@ -172,4 +97,3 @@ export default defineComponent({
     }
   }
 }
-</style>

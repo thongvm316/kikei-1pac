@@ -116,8 +116,8 @@
   <div class="u-mt-16" style="width: 300px">
     <k-multiple-select
       v-model:value="selectModel"
-      mode="single"
       :options="selectOptions"
+      searchable
       placeholder="Search something..." />
   </div>
 
@@ -126,7 +126,13 @@
       v-model:value="selectModel"
       mode="multiple"
       :options="selectOptions"
-      placeholder="Search something..." />
+      searchable
+      placeholder="Search something...">
+
+      <template #hasCheckbox="{ option }">
+        <div class="option-custom">{{ option.name }}</div>
+      </template>
+    </k-multiple-select>
   </div>
   <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
   <k-tooltip title="Tooltip content">
