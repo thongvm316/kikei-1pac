@@ -114,17 +114,17 @@
     :click-handler="clickPagerHandler" />
 
   <div class="u-mt-16" style="width: 300px">
-    <k-multiselect
+    <!-- <k-multiselect
       v-model="selectModel"
       searchable
       :options="selectOptions"
       label="name"
       trackBy="name"
-      placeholder="...." />
+      placeholder="...." /> -->
   </div>
 
   <div class="u-mt-16" style="width: 300px">
-    <!-- <k-multiselect
+    <k-multiselect
       v-model="selectModel"
       searchable
       mode="multiple"
@@ -133,9 +133,9 @@
       trackBy="name"
       placeholder="....">
       <template #option="{ option }">
-        <div class="option-custom">{{ option.name }}</div>
+        <div class="k-select-option--checkbox">{{ option.name }}</div>
       </template>
-    </k-multiselect> -->
+    </k-multiselect>
 
   </div>
   <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
