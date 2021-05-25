@@ -65,11 +65,6 @@
     </template>
   </k-input>
 
-  <k-multiple-select
-    v-model:value="selectModel"
-    mode="multiple"
-    :options="selectOptions"
-    placeholder="Search something..."/>
   <k-accordion duration="400">
     <template #header>
       <div>Open accordion</div>
@@ -117,6 +112,22 @@
     :total-item="42"
     :per-page="10"
     :click-handler="clickPagerHandler" />
+
+  <div class="u-mt-16" style="width: 300px">
+    <k-multiple-select
+      v-model:value="selectModel"
+      mode="single"
+      :options="selectOptions"
+      placeholder="Search something..." />
+  </div>
+
+  <div class="u-mt-16" style="width: 300px">
+    <k-multiple-select
+      v-model:value="selectModel"
+      mode="multiple"
+      :options="selectOptions"
+      placeholder="Search something..." />
+  </div>
 </template>
 
 <script>
@@ -128,12 +139,9 @@ const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
 const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
-<<<<<<< HEAD
 const KMultipleSelect = defineAsyncComponent(() => import('@/components/KMultipleSelect'))
-=======
 const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
->>>>>>> develop
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
@@ -144,6 +152,7 @@ export default defineComponent({
       inputModel: '',
       inputModel: '',
       inputModel: '',
+      selectModel: ['batman'],
       checkboxModel: ['出金'],
       checkboxOptions: [
         {
@@ -184,25 +193,10 @@ export default defineComponent({
     KCheckbox,
     KRadio,
     KModal,
-<<<<<<< HEAD
-    ProjectIcon,
-    KMultipleSelect
-  },
-
-  data() {
-    return {
-      selectModel: [
-        { value: 'batman', label: 'Batman' },
-        { value: 'robin', label: 'Robin' },
-        { value: 'joker', label: 'Joker' },
-        { value: 'sjoker', label: 'Nghia' }
-      ]
-    }
-=======
+    KMultipleSelect,
     KAccordion,
     KPagination,
     ProjectIcon
->>>>>>> develop
   },
 
   setup() {
@@ -227,10 +221,12 @@ export default defineComponent({
 
     const selectOptions = ref(
       [
-        { value: 'batman', label: 'Batman' },
-        { value: 'robin', label: 'Robin' },
-        { value: 'joker', label: 'Joker' },
-        { value: 'sjoker', label: 'Nghia' }
+        { value: 'batman', name: 'Batman' },
+        { value: 'a', name: 'Amen' },
+        { value: 'b', name: 'Alibaba' },
+        { value: 'c', name: 'Hoho' },
+        { value: 'd', name: 'Hihihihih' },
+        { value: 'e', name: 'Emanan' }
       ]
     )
 
