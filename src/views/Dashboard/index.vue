@@ -147,6 +147,7 @@
 <script>
 import { defineComponent, defineAsyncComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import Multiselect from '@vueform/multiselect'
 
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
@@ -210,7 +211,8 @@ export default defineComponent({
     KAccordion,
     KPagination,
     KTooltip,
-    ProjectIcon
+    ProjectIcon,
+    KMultiselect: Multiselect
   },
 
   setup() {
