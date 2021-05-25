@@ -1,5 +1,6 @@
-.table {
+.k-table {
   width: 100%;
+  white-space: nowrap;
 
   thead {
     background-color: $color-grey-96;
@@ -12,6 +13,10 @@
     padding: 16px;
     line-height: 18px;
     border: 1px solid $color-grey-85;
+
+    &.w-262 {
+      min-width: 262px;
+    }
   }
 
   tbody {
@@ -19,44 +24,10 @@
 
     & > tr > td {
       padding: 16px;
-      font-size: 14px;
+      font-size: 12px;
       border: 1px solid $color-grey-85;
       vertical-align: middle;
-      font-weight: 400;
-      line-height: 22px;
-
-      &.w-cell-uniq {
-        width: 48px;
-      }
-
-      &.w-cell-xs {
-        max-width: 50px;
-      }
-
-      &.w-cell-sm {
-        min-width: 144px;
-      }
-
-      &.w-cell-md {
-        max-width: 240px;
-      }
-
-      &.w-cell-lg {
-        max-width: 504px;
-      }
-
-      &.w-cell-xl {
-        width: 100%;
-        white-space: normal;
-      }
-
-      &.mw-240 {
-        min-width: 240px;
-      }
-
-      &.mw-320 {
-        min-width: 320px;
-      }
+      line-height: 18px;
     }
   }
 }

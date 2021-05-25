@@ -33,3 +33,14 @@ $text-position-utils: (
     text-align: $val;
   }
 }
+
+$text-size-utils: (
+  '12': 12px,
+  '14': 14px,
+  '16': 16px
+);
+@each $key, $val in $text-size-utils {
+  .u-text-#{$key} {
+    font-size: $val;
+  }
+}
