@@ -4,12 +4,7 @@
 
 <script>
 import { defineComponent } from 'vue'
-
-const FORM_PROPS = {
-  position: ['top', 'left', 'right', 'bottom']
-}
-
-Object.freeze(FORM_PROPS)
+import { TOOLTIP_POSITIONS } from './constants'
 
 export default defineComponent({
   name: 'KTooltip',
@@ -24,7 +19,7 @@ export default defineComponent({
       type: String,
       default: 'top',
       validator: (position) => {
-        return FORM_PROPS.position.includes(position)
+        return Object.values(TOOLTIP_POSITIONS).includes(position)
       }
     }
   }
