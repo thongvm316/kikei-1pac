@@ -35,6 +35,7 @@ const routes = [
         component: lazyLoadRoute('Dashboard'),
         meta: { title: `Dashboard | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
+
       {
         path: '/project',
         component: lazyLoadRoute('Base'),
@@ -46,13 +47,19 @@ const routes = [
             component: lazyLoadRoute('Project')
           },
           {
-            path: 'edit',
+            path: 'new',
+            name: 'project-new',
+            component: lazyLoadRoute('Project/new')
+          },
+          {
+            path: ':id/edit',
             name: 'project-edit',
-            component: lazyLoadRoute('ProjectEdit'),
+            component: lazyLoadRoute('Project/_id'),
             meta: { title: `Edit Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]
       },
+
       {
         path: '/deposit',
         component: lazyLoadRoute('Base'),
