@@ -109,7 +109,7 @@
   <k-pagination
     v-model:value="page"
     :page-range="3"
-    :total-item="42"
+    :total-item="92"
     :per-page="10"
     :click-handler="clickPagerHandler" />
 </template>

@@ -18,14 +18,11 @@
 
 <script>
 import { defineComponent } from 'vue'
-
-const BUTTON_PROPS = {
-  sizes: ['lg', 'md', 'sm'],
-  nativeTypes: ['button', 'submit', 'reset'],
-  variants: ['primary', 'danger', 'outline-primary', 'outline-danger', 'default']
-}
-
-Object.freeze(BUTTON_PROPS)
+import {
+  BUTTON_SIZES,
+  BUTTON_VARIANTS,
+  BUTTON_NATIVE_TYPES
+} from './constants'
 
 export default defineComponent({
   name: 'KButton',
@@ -33,26 +30,27 @@ export default defineComponent({
   props: {
     variant: {
       type: String,
-      default: 'default',
+      default: BUTTON_VARIANTS.default,
       validator: variant => {
-        return BUTTON_PROPS.variants.includes(variant)
+        return Object.values(BUTTON_VARIANTS).includes(variant)
       }
     },
     nativeType: {
       type: String,
-      default: 'button',
+      default: BUTTON_NATIVE_TYPES.button,
       validator: nativeType => {
-        return BUTTON_PROPS.nativeTypes.includes(nativeType)
+        return Object.values(BUTTON_NATIVE_TYPES).includes(nativeType)
+      }
+    },
+    size: {
+      type: String,
+      default: BUTTON_SIZES.md,
+      validator: size => {
+        return Object.values(BUTTON_SIZES).includes(size)
       }
     },
     disabled: Boolean,
     autofocus: Boolean,
-    size: {
-      type: String,
-      validator: size => {
-        return BUTTON_PROPS.sizes.includes(size)
-      }
-    },
     circle: Boolean,
     icon: Boolean
   },
