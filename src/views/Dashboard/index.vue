@@ -114,22 +114,28 @@
     :click-handler="clickPagerHandler" />
 
   <div class="u-mt-16" style="width: 300px">
+    <k-multiselect
+      v-model="selectModel"
+      searchable
+      :options="selectOptions"
+      label="name"
+      trackBy="name"
+      placeholder="...." />
   </div>
 
   <div class="u-mt-16" style="width: 300px">
-
-    <k-multiselect
+    <!-- <k-multiselect
       v-model="selectModel"
       searchable
       mode="multiple"
       :options="selectOptions"
-      label="label"
-      trackBy="label"
+      label="name"
+      trackBy="name"
       placeholder="....">
       <template #option="{ option }">
         <div class="option-custom">{{ option.name }}</div>
       </template>
-    </k-multiselect>
+    </k-multiselect> -->
 
   </div>
   <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
@@ -147,7 +153,6 @@ const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
 const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
 const KModal = defineAsyncComponent(() => import('@/components/KModal'))
-// const KMultipleSelect = defineAsyncComponent(() => import('@/components/KMultipleSelect'))
 const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
 const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
