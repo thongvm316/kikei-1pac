@@ -1,7 +1,7 @@
 <template>
-  <div class="xxx">
-    <caret-up-icon />
-    <caret-down-icon class="u-mt-2" />
+  <div class="k-sort-icon">
+    <caret-up-icon @click="$emit('onClickCaretUp')"/>
+    <caret-down-icon @click="$emit('onClickCaretDown')" class="u-mt-2" />
   </div>
 </template>
 
@@ -11,18 +11,23 @@ import CaretUpIcon from '@/assets/icons/ico_caret-up.svg'
 import CaretDownIcon from '@/assets/icons/ico_caret-down.svg'
 
 export default defineComponent({
-  name: 'KSortIcon',
+  name: 'KSortCaret',
 
   components: {
     CaretUpIcon,
     CaretDownIcon
+  },
+
+  methods: {
+
   }
 })
 </script>
 
 <style lang="scss" scoped>
-.xxx {
+.k-sort-icon {
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 </style>

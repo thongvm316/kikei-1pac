@@ -6,67 +6,69 @@
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">更新日</span>
-              <k-sort-icon />
+              <k-sort-caret
+                @on-click-caret-up="onClickCaretUp"
+                @on-click-caret-down="onClickCaretDown"/>
             </div>
           </th>
           <th class="w-262">
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">クライアント / プロジェクト名</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">受注確度</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">リリース日></span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">受注金額</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">計上月</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">グループ</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">営業担当</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">営業担当</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">営業担当</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
           <th>
             <div class="u-d-flex u-align-center">
               <span class="u-mr-8">営業担当</span>
-              <k-sort-icon />
+              <k-sort-caret />
             </div>
           </th>
         </tr>
@@ -157,14 +159,24 @@
 <script>
 import { defineComponent, defineAsyncComponent } from 'vue'
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-const KSortIcon = defineAsyncComponent(() => import('@/components/KSortIcon'))
+const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
 
 export default defineComponent({
   name: 'ProjectPage',
 
   components: {
     KButton,
-    KSortIcon
+    KSortCaret
+  },
+
+  methods: {
+    onClickCaretUp() {
+      console.log('Up')
+    },
+
+    onClickCaretDown() {
+      console.log('Down')
+    }
   }
 })
 </script>
