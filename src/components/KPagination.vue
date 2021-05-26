@@ -50,13 +50,17 @@ import { defineComponent } from 'vue'
 import ChervonLeftIcon from '@/assets/icons/ico_chervon_left.svg'
 import ChervonRightIcon from '@/assets/icons/ico_chervon_right.svg'
 
+const DEFAULT_RANGE = 7
+const RANGE_EXTRA = 5
+
 export default defineComponent({
   name: 'KPagination',
 
   data() {
     return {
       innerValue: 1,
-      marginPages: 1
+      marginPages: 1,
+      range: DEFAULT_RANGE
     }
   },
 
@@ -81,11 +85,6 @@ export default defineComponent({
       default: () => {}
     },
 
-    pageRange: {
-      type: Number,
-      default: 3
-    },
-
     shower: {
       type: Boolean,
       default: true
@@ -98,6 +97,10 @@ export default defineComponent({
   },
 
   computed: {
+    pageRange() {
+      return DEFAULT_RANGE > this.pageCount ? DEFAULT_RANGE : RANGE_EXTRA
+    },
+
     selected: {
       get: function() {
         return this.value || this.innerValue
@@ -241,7 +244,7 @@ export default defineComponent({
   font-size: 12px;
   line-height: 18px;
   color: $color-grey-55;
-  margin-right: 16px;
+  margin-right: 12px;
 }
 
 .pagination {
@@ -250,14 +253,14 @@ export default defineComponent({
   &__link {
     @include flexbox(center, center);
     outline: 0;
-    padding: 4px 7px;
+    padding: 4px 0;
     min-width: 24px;
+    text-align: center;
     height: 24px;
     line-height: -1;
     font-size: 14px;
     border-radius: 4px;
     color: $color-grey-55;
-    border: 1px solid $color-grey-55;
     cursor: pointer;
 
     &--break {
@@ -282,7 +285,7 @@ export default defineComponent({
   }
 
   &__item + &__item {
-    margin-left: 4px;
+    margin-left: 2px;
   }
 
   &__break .pagination__link {
@@ -291,6 +294,10 @@ export default defineComponent({
 
   &__prev,
   &__next {
+    &.disabled {
+      visibility: hidden;
+    }
+
     &.disabled .pagination__link {
       color: $color-grey-100;
       cursor: not-allowed;
