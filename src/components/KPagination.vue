@@ -98,7 +98,7 @@ export default defineComponent({
 
   computed: {
     pageRange() {
-      return this.range > this.pageCount ? this.range : RANGE_EXTRA
+      return DEFAULT_RANGE > this.pageCount ? DEFAULT_RANGE : RANGE_EXTRA
     },
 
     selected: {
@@ -294,6 +294,10 @@ export default defineComponent({
 
   &__prev,
   &__next {
+    &.disabled {
+      visibility: hidden;
+    }
+
     &.disabled .pagination__link {
       color: $color-grey-100;
       cursor: not-allowed;
