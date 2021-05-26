@@ -108,7 +108,12 @@ module.exports = function (webpackEnv) {
             },
             {
               loader: 'sass-loader',
-              options: { sourceMap: isEnvProduction && shouldUseSourceMap },
+              options: {
+                sourceMap: isEnvProduction && shouldUseSourceMap,
+                sassOptions: {
+                  includePaths:[paths.appSrc, 'node_modules']
+                }
+              },
             },
           ],
         },

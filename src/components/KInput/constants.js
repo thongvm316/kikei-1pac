@@ -12,7 +12,9 @@ export const INPUT_VARIANTS = Object.freeze({
 export const INPUT_NATIVE_TYPES = Object.freeze({
   text: 'text',
   password: 'password',
-  email: 'email'
+  email: 'email',
+  date: 'date',
+  month: 'month'
 })
 
 export const INPUT_ICON_POSITIONS = Object.freeze({

@@ -12,6 +12,7 @@ $width-sub-nav-collapse: 150px;
   top: 0;
   left: 0;
   bottom: 0;
+  z-index: 1000;
 
   &__top {
     height: 80px;
@@ -118,6 +119,7 @@ $width-sub-nav-collapse: 150px;
     left: $width-sidebar-collapse;
     width: $width-sub-nav-collapse;
     background-color: $color-primary-10;
+    z-index: 1000;
   }
 
   .aside__link--text {
