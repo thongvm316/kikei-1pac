@@ -27,8 +27,7 @@
               <div class="u-d-flex u-align-center">
                 <span class="u-mr-8">更新日</span>
                 <k-sort-caret
-                  @sort-asc="sortAsc"
-                  @sort-desc="sortDesc"/>
+                  @sort="sort" />
               </div>
             </th>
             <th class="mw-262">
@@ -204,12 +203,8 @@ export default defineComponent({
   },
 
   methods: {
-    sortAsc() {
-      console.log('Asc')
-    },
-
-    sortDesc() {
-      console.log('Desc')
+    sort(payload) {
+      console.log(payload)
     },
 
     nextPage() {

@@ -47,15 +47,9 @@ export default defineComponent({
   methods: {
     sort(by) {
       // clear sort if double click
-      if (this.localSort === by) {
-        this.localSort = SORT_BY.none
-        this.$emit('sort-none')
-        return
-      }
-
+      this.localSort = this.localSort === by ? SORT_BY.none : by
       // emit sort
-      this.localSort = by
-      this.$emit(`sort-${by}`)
+      this.$emit('sort', this.localSort)
     }
   }
 })
