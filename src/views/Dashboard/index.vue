@@ -120,7 +120,12 @@
       :options="selectOptions"
       label="name"
       trackBy="name"
-      placeholder="...." /> -->
+      :clearOnSearch="false"
+      placeholder="....">
+      <template #caret>
+        <arrow-down-icon class="k-select-caret-icon"/>
+      </template>
+    </k-multiselect> -->
   </div>
 
   <div class="u-mt-16" style="width: 300px">
@@ -132,6 +137,9 @@
       label="name"
       trackBy="name"
       placeholder="....">
+      <template #caret>
+        <arrow-down-icon class="k-select-caret-icon"/>
+      </template>
       <template #option="{ option }">
         <div class="k-select-option--checkbox">{{ option.name }}</div>
       </template>
@@ -158,6 +166,7 @@ const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
 const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
+import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 
 export default defineComponent({
   name: 'Dashboard',
@@ -212,7 +221,8 @@ export default defineComponent({
     KPagination,
     KTooltip,
     ProjectIcon,
-    KMultiselect: Multiselect
+    KMultiselect: Multiselect,
+    ArrowDownIcon
   },
 
   setup() {
