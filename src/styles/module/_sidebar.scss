@@ -91,6 +91,12 @@ $width-sub-nav-collapse: 150px;
   .is-sub-nav-open &__link--arrow-icon {
     transform: none;
   }
+
+  &__top--toggle {
+    svg {
+      transition: transform 0.3s ease;
+    }
+  }
 }
 
 .aside.is-collapse {
@@ -119,7 +125,6 @@ $width-sub-nav-collapse: 150px;
     left: $width-sidebar-collapse;
     width: $width-sub-nav-collapse;
     background-color: $color-primary-10;
-    z-index: 1000;
   }
 
   .aside__link--text {
@@ -138,5 +143,11 @@ $width-sub-nav-collapse: 150px;
 
   .aside__sub-nav .aside__link {
     padding-left: 12px;
+  }
+
+  .aside__top--toggle {
+    svg {
+      transform: scaleX(-1);
+    }
   }
 }

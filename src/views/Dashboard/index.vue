@@ -127,10 +127,11 @@
     <k-button variant="danger">Tooltip test</k-button>
   </k-tooltip>
 
-  <k-datetime-picker v-model:value="timeToday" mode="date" label="Datetime picker day:" />
-  <k-datetime-picker v-model:value="timeToday" mode="month" label="Datetime picker month:" />
-  <k-datetime-picker v-model:value="timeRange" mode="date" is-range label="Datetime picker range - day:" />
-  <k-datetime-picker v-model:value="timeRange" mode="month" is-range label="Datetime picker range - month:" />
+  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" label="Datetime picker day:" />
+  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" disabled label="Datetime picker day - disable:" />
+  <k-datetime-picker v-model:value="timeToday" mode="month" size="lg" label="Datetime picker month:" />
+  <k-datetime-picker v-model:value="timeRange" mode="date" size="lg" is-range label="Datetime picker range - day:" />
+  <k-datetime-picker v-model:value="timeRange" mode="month" size="lg" is-range label="Datetime picker range - month:" />
 </template>
 
 <script>
@@ -240,8 +241,8 @@ export default defineComponent({
       page: 1,
       timeToday: new Date(),
       timeRange: {
-        start: new Date(2021, 1, 2),
-        end: new Date(2021, 3, 16)
+        start: new Date(2021, 1, 10),
+        end: new Date(2021, 1, 26)
       }
     }
   },
