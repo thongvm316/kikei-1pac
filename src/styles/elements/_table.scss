@@ -15,6 +15,10 @@
     line-height: 18px;
     border: 1px solid $color-grey-85;
 
+    &:first-child {
+      padding-left: 32px;
+    }
+
     &.mw-262 {
       min-width: 262px;
     }
@@ -30,6 +34,10 @@
       border: 1px solid $color-grey-85;
       vertical-align: middle;
       line-height: 18px;
+
+      &:first-child {
+        padding-left: 32px;
+      }
     }
   }
 }

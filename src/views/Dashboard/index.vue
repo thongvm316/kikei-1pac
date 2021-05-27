@@ -1,8 +1,5 @@
 <template>
-  <!-- <template #header>
-    <div>Content header dashboard</div>
-  </template> -->
-  <div>
+  <div class="container">
     <h2>Dashboard Page</h2>
 
     <label for="locale-select">Change locale:</label>
@@ -12,7 +9,6 @@
       </option>
     </select>
   </div>
-
   <k-button variant="primary" size="md" @click="isOpenModalText = true"> Open modal </k-button>
 
   <k-modal v-model:open="isOpenModalText" header="Edit user" size="lg">

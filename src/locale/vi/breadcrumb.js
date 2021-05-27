@@ -6,4 +6,5 @@ export default {
   accounting: 'Accounting',
   setting: 'Cài đặt',
   edit: 'Chỉnh sửa',
+  new: 'New'
 }

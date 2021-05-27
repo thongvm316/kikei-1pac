@@ -1,6 +1,6 @@
 <template>
   <div>
-    Deposit Edit Page
+    Deposit edit page
   </div>
 </template>
 
@@ -8,6 +8,10 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'DepositEditPage',
+  name: 'DepositEditPage'
 })
 </script>
+
+<style>
+
+</style>
