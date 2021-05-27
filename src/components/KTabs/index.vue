@@ -2,10 +2,10 @@
   <div>
     <ul class="tab">
       <li
-        v-for="tab in tabsList"
-        :key="tab.id"
-        :class="['tab__item', { 'is-active': tabActive === tab.name.toLowerCase() }]"
-        @click="onClickTab(tab.name)">{{ tab.name }}</li>
+        v-for="tab in tabs"
+        :key="tab.value"
+        :class="['tab__item', { 'is-active': tabActive === tab.value }]"
+        @click="clickTab(tab.value)">{{ tab.label }}</li>
     </ul>
   </div>
 </template>
@@ -15,39 +15,39 @@ import { defineComponent, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 export default defineComponent ({
-  name: 'KTab',
+  name: 'KTabs',
 
   props: {
-    tabsList: Array,
+    tabs: Array,
     tabActive: String
   },
 
-  setup(props, context) {
+  setup(props, { emit }) {
     const router = useRouter()
     const route = useRoute()
 
-    const onClickTab = name => {
+    const clickTab = value => {
       router.push({
         name: 'deposit',
         query: {
           ...route.query,
-          tab: name.toLowerCase()
+          tab: value
         },
       })
 
-      context.emit('update:tabActive', name.toLowerCase())
+      emit('update:tabActive', value)
     }
 
     onMounted(() => {
-      const currentTapParam = router.currentRoute._value.query.tab?.toLowerCase()
-      const nameTabList = props.tabsList.map(item => item.name.toLowerCase())
+      const currentTapParam = router.currentRoute._value.query.tab
+      const valueTabList = props.tabs.map(item => item.value)
 
-      if (!nameTabList.includes(currentTapParam)) return
-      context.emit('update:tabActive', currentTapParam)
+      if (!valueTabList.includes(currentTapParam)) return
+      emit('update:tabActive', currentTapParam)
     })
 
     return {
-      onClickTab
+      clickTab
     }
   }
 })

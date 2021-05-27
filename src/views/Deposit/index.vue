@@ -42,8 +42,8 @@
   </div>
 
   <div class="-mx-32">
-    <k-tab
-      :tabs-list="tabsList"
+    <k-tabs
+      :tabs="tabs"
       v-model:tab-active="tabActive" />
 
     <div v-if="tabActive === 'gumivietnam'" class="k-table-responsive">
@@ -217,7 +217,7 @@ const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const LineDownIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-down.svg'))
 const LineAddIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-add.svg'))
 const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
-const KTab = defineAsyncComponent(() => import('@/components/KTab'))
+const KTabs = defineAsyncComponent(() => import('@/components/KTabs'))
 const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import DepositTable from './-components/DepositTable'
@@ -245,22 +245,22 @@ export default defineComponent({
         { value: 'd', name: 'Hihihihih' },
         { value: 'e', name: 'Emanan' }
       ],
-      tabsList: [
+      tabs: [
         {
-          id: 1,
-          name: 'GumiVietNam',
+          label: 'GumiVietNam',
+          value: 'gumivietnam',
           isActive: true
         },
 
         {
-          id: 2,
-          name: 'VAND',
+          label: 'VAND',
+          value: 'vand',
           isActive: false
         },
 
         {
-          id: 3,
-          name: 'グループ名',
+          label: 'グループ名',
+          value: 'グループ名',
           isActive: false
         }
       ]
@@ -275,7 +275,7 @@ export default defineComponent({
     KCheckbox,
     KMultiselect: Multiselect,
     ArrowDownIcon,
-    KTab,
+    KTabs,
     DepositTable,
     KSortCaret
   },
