@@ -71,9 +71,15 @@ const routes = [
             component: lazyLoadRoute('Deposit')
           },
           {
-            path: 'edit',
+            path: 'new',
+            name: 'deposit-new',
+            component: lazyLoadRoute('Deposit/new'),
+            meta: { title: `New Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.new' }
+          },
+          {
+            path: ':id/edit',
             name: 'deposit-edit',
-            component: lazyLoadRoute('DepositEdit'),
+            component: lazyLoadRoute('Deposit/_id'),
             meta: { title: `Edit Deposit | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
           }
         ]

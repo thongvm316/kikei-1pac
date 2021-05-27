@@ -1,6 +1,7 @@
 @import '@vueform/multiselect/themes/default.css';
 
 .multiselect {
+  background-color: $color-grey-100;
   .multiselect-input {
     border-radius: 2px;
     min-height: 32px;
@@ -46,6 +47,8 @@
 
   .multiselect-placeholder {
     color: $color-grey-75;
+    font-size: 14px;
+    line-height: 22px;
   }
 
   &.is-open {

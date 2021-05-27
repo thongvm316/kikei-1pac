@@ -6,4 +6,5 @@ export default {
   accounting: 'Accounting',
   setting: 'Setting',
   edit: 'Edit',
+  new: 'New'
 }

@@ -6,4 +6,5 @@ export default {
   accounting: 'accounting',
   setting: '登録設定',
   edit: '登録',
+  new: 'New'
 }
