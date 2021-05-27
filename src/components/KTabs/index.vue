@@ -26,16 +26,8 @@ export default defineComponent ({
 
     const emitChangeTab = tab => emit('update:tabActive', tab)
 
-    const clickTab = (tab) => {
-
-      router.push({
-        name: router.name,
-        query: {
-          ...route.query,
-          tab
-        },
-      })
-
+    const clickTab = tab => {
+      router.push({ query: {...route.query, tab } })
       emitChangeTab(tab)
     }
 
@@ -49,9 +41,7 @@ export default defineComponent ({
       emitChangeTab(tab)
     })
 
-    return {
-      clickTab
-    }
+    return { clickTab }
   }
 })
 </script>
