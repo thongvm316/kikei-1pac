@@ -6,25 +6,16 @@
     <h2>Dashboard Page</h2>
 
     <label for="locale-select">Change locale:</label>
-    <select v-model="locale" id="locale-select">
+    <select id="locale-select" v-model="locale">
       <option v-for="locale in localeList" :key="locale.value" :value="locale.value">
         {{ locale.label }}
       </option>
     </select>
   </div>
 
-  <k-button
-    variant="primary"
-    size="md"
-    @click="isOpenModalText = true"
-  >
-    Open modal
-  </k-button>
+  <k-button variant="primary" size="md" @click="isOpenModalText = true"> Open modal </k-button>
 
-  <k-modal
-    header="Edit user"
-    size="lg"
-    v-model:open="isOpenModalText">
+  <k-modal v-model:open="isOpenModalText" header="Edit user" size="lg">
     <template #modal-body>
       <p>Body content</p>
       <p>Body content</p>
@@ -33,39 +24,40 @@
 
       <p>End</p>
     </template>
-
   </k-modal>
 
-  <k-button variant="primary" size="md" @click="isOpenModalText = true" icon circle>
+  <k-button variant="primary" size="md" icon circle @click="isOpenModalText = true">
     <project-icon />
   </k-button>
 
   <k-input
-    style="margin-top: 24px"
     v-model:value="inputModel"
+    style="margin-top: 24px"
     size="lg"
     native-type="text"
     icon-position="left"
     placeholder="Please input"
-    label="プロジェクト名">
+    label="プロジェクト名"
+  >
     <template #icon>
       <project-icon />
     </template>
   </k-input>
 
   <k-input
-    style="margin-top: 24px"
     v-model:value="inputModel"
+    style="margin-top: 24px"
     size="lg"
     native-type="text"
     icon-position="right"
-    placeholder="Please input">
+    placeholder="Please input"
+  >
     <template #icon>
       <project-icon />
     </template>
   </k-input>
 
-  <k-accordion duration="400">
+  <k-accordion :duration="400">
     <template #header>
       <div>Open accordion</div>
     </template>
@@ -78,40 +70,32 @@
       <li>Accordion content</li>
     </ul>
   </k-accordion>
-   <k-input
-    style="margin-top: 24px"
+  <k-input
     v-model:value="inputModel"
+    style="margin-top: 24px"
     size="lg"
     native-type="text"
     placeholder="Please input"
     label="プロジェクト名"
     variant="error"
-    error="Error message">
+    error="Error message"
+  >
   </k-input>
 
   <br />
   <br />
 
-  <k-checkbox
-    v-model:value="checkboxModel"
-    :options="checkboxOptions"
-    inline
-    name="label-1"
-    label="Label (checkbox)" />
+  <k-checkbox v-model:value="checkboxModel" :options="checkboxOptions" inline name="label-1" label="Label (checkbox)" />
 
-  <k-radio
-    v-model:value="radioModel"
-    :options="radioOptions"
-    inline
-    name="radio-1"
-    label="Label (checkbox)" />
+  <k-radio v-model:value="radioModel" :options="radioOptions" inline name="radio-1" label="Label (checkbox)" />
 
   <k-pagination
     v-model:value="page"
     :page-range="3"
     :total-item="92"
     :per-page="10"
-    :click-handler="clickPagerHandler" />
+    :click-handler="clickPagerHandler"
+  />
 
   <div class="u-mt-16" style="width: 300px">
     <!-- <k-multiselect
@@ -144,12 +128,17 @@
         <div class="k-select-option--checkbox">{{ option.name }}</div>
       </template>
     </k-multiselect>
-
   </div>
   <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
   <k-tooltip title="Tooltip content">
     <k-button variant="danger">Tooltip test</k-button>
   </k-tooltip>
+
+  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" label="Datetime picker day:" />
+  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" disabled label="Datetime picker day - disable:" />
+  <k-datetime-picker v-model:value="timeToday" mode="month" size="lg" label="Datetime picker month:" />
+  <k-datetime-picker v-model:value="timeRange" mode="date" size="lg" is-range label="Datetime picker range - day:" />
+  <k-datetime-picker v-model:value="timeRange" mode="month" size="lg" is-range label="Datetime picker range - month:" />
 </template>
 
 <script>
@@ -165,51 +154,12 @@ const KModal = defineAsyncComponent(() => import('@/components/KModal'))
 const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
 const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
 const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
+const KDatetimePicker = defineAsyncComponent(() => import('@/components/KDatetimePicker'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 
 export default defineComponent({
   name: 'Dashboard',
-
-  data() {
-    return {
-      inputModel: '',
-      inputModel: '',
-      inputModel: '',
-      selectModel: ['batman'],
-      checkboxModel: ['出金'],
-      checkboxOptions: [
-        {
-          label: '入金',
-          value: '入金',
-        },
-        {
-          label: '出金',
-          value: '出金',
-        },
-        {
-          label: 'Text',
-          value: 'Text'
-        }
-      ],
-      radioModel: 2,
-      radioOptions: [
-        {
-          label: '入金',
-          value: 1,
-        },
-        {
-          label: '出金',
-          value: 2,
-        },
-        {
-          label: 'Text',
-          value: 'Text'
-        }
-      ],
-      page: 1
-    }
-  },
 
   components: {
     KButton,
@@ -221,6 +171,7 @@ export default defineComponent({
     KPagination,
     KTooltip,
     ProjectIcon,
+    KDatetimePicker,
     KMultiselect: Multiselect,
     ArrowDownIcon
   },
@@ -245,22 +196,63 @@ export default defineComponent({
     ])
     const isOpenModalText = ref(false)
 
-    const selectOptions = ref(
-      [
-        { value: 'batman', name: 'Batman' },
-        { value: 'a', name: 'Amen' },
-        { value: 'b', name: 'Alibaba' },
-        { value: 'c', name: 'Hoho' },
-        { value: 'd', name: 'Hihihihih' },
-        { value: 'e', name: 'Emanan' }
-      ]
-    )
+    const selectOptions = ref([
+      { value: 'batman', name: 'Batman' },
+      { value: 'a', name: 'Amen' },
+      { value: 'b', name: 'Alibaba' },
+      { value: 'c', name: 'Hoho' },
+      { value: 'd', name: 'Hihihihih' },
+      { value: 'e', name: 'Emanan' }
+    ])
 
     return {
       locale,
       isOpenModalText,
       localeList,
       selectOptions
+    }
+  },
+
+  data() {
+    return {
+      inputModel: '',
+      selectModel: ['batman'],
+      checkboxModel: ['出金'],
+      checkboxOptions: [
+        {
+          label: '入金',
+          value: '入金'
+        },
+        {
+          label: '出金',
+          value: '出金'
+        },
+        {
+          label: 'Text',
+          value: 'Text'
+        }
+      ],
+      radioModel: 2,
+      radioOptions: [
+        {
+          label: '入金',
+          value: 1
+        },
+        {
+          label: '出金',
+          value: 2
+        },
+        {
+          label: 'Text',
+          value: 'Text'
+        }
+      ],
+      page: 1,
+      timeToday: new Date(),
+      timeRange: {
+        start: new Date(2021, 1, 10),
+        end: new Date(2021, 1, 26)
+      }
     }
   },
 

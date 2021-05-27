@@ -2,9 +2,9 @@
   <aside :class="['aside', isCollapse && 'is-collapse']">
     <div class="aside__top">
       <div class="aside__top--toggle">
-        <k-button @click="toggleSideBar">
+        <div @click="toggleSideBar">
           <side-bar-close-icon />
-        </k-button>
+        </div>
       </div>
     </div>
 

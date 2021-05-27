@@ -12,6 +12,7 @@ $width-sub-nav-collapse: 150px;
   top: 0;
   left: 0;
   bottom: 0;
+  z-index: 1000;
 
   &__top {
     height: 80px;
@@ -90,6 +91,12 @@ $width-sub-nav-collapse: 150px;
   .is-sub-nav-open &__link--arrow-icon {
     transform: none;
   }
+
+  &__top--toggle {
+    svg {
+      transition: transform 0.3s ease;
+    }
+  }
 }
 
 .aside.is-collapse {
@@ -136,5 +143,11 @@ $width-sub-nav-collapse: 150px;
 
   .aside__sub-nav .aside__link {
     padding-left: 12px;
+  }
+
+  .aside__top--toggle {
+    svg {
+      transform: scaleX(-1);
+    }
   }
 }
