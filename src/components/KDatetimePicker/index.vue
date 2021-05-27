@@ -49,6 +49,7 @@ import FlatPickr from 'vue-flatpickr-component'
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect'
 import { PICKER_MODES } from './constans'
 import { INPUT_SIZES } from '@/components/KInput/constants'
+import { deepCopy } from '@/helpers/json-parser'
 import 'flatpickr/dist/flatpickr.css'
 import 'flatpickr/dist/plugins/monthSelect/style.css'
 
@@ -96,7 +97,10 @@ export default defineComponent({
       }
     },
 
-    disabled: Boolean
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
 
   setup(props, context) {
@@ -104,23 +108,24 @@ export default defineComponent({
     const dateStart = ref(props.value)
     const dateEnd = ref(null)
 
-    const configStart = ref({
+    const configCommon = {
       wrap: true,
       altFormat: 'F j, Y',
       dateFormat: isModeMonth ? 'Y/m' : 'Y/m/d',
       allowInput: true
-    })
+    }
+
+    const configStart = ref(deepCopy(configCommon))
+    const configEnd = ref(deepCopy(configCommon))
 
     if (isModeMonth) {
       configStart.value.plugins = [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y/m' })]
+      configEnd.value.plugins = [new monthSelectPlugin({ shorthand: true, dateFormat: 'Y/m' })]
     }
-
-    const configEnd = ref(configStart.value)
 
     if (props.isRange) {
       dateStart.value = new Date(props.value.start)
       dateEnd.value = new Date(props.value.end)
-
       configStart.value.minDate = null
       configStart.value.maxDate = null
       configEnd.value.minDate = null
