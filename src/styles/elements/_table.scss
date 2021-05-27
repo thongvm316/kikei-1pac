@@ -1,16 +1,20 @@
+.k-table-responsive {
+  overflow-x: auto;
+}
+
 .k-table {
   width: 100%;
   white-space: nowrap;
 
   thead {
-    background-color: $color-grey-96;
+    background-color: $color-grey-92;
   }
 
   thead > tr > th {
     font-weight: 800;
     font-size: 12px;
     color: $color-primary-9;
-    padding: 16px;
+    padding: 14px 16px;
     line-height: 18px;
     border: 1px solid $color-grey-85;
 

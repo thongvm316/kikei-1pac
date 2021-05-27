@@ -1,3 +1,11 @@
+.k-button-group {
+  @include flexbox(flex-start, center);
+
+  .k-button + .k-button {
+    margin-left: 8px;
+  }
+}
+
 .k-button {
   font-size: 14px;
   font-weight: 400;
@@ -50,8 +58,8 @@
   }
 
   &--outline-primary {
-    color: $color-grey-55;
-    border: 1px solid $color-grey-55;
+    color: $color-primary-9;
+    border: 1px solid $color-primary-9;
 
     &:hover {
       color: $color-primary-6;

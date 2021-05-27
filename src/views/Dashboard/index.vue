@@ -104,7 +104,12 @@
       :options="selectOptions"
       label="name"
       trackBy="name"
-      placeholder="...." /> -->
+      :clearOnSearch="false"
+      placeholder="....">
+      <template #caret>
+        <arrow-down-icon class="k-select-caret-icon"/>
+      </template>
+    </k-multiselect> -->
   </div>
 
   <div class="u-mt-16" style="width: 300px">
@@ -117,6 +122,9 @@
       track-by="name"
       placeholder="...."
     >
+      <template #caret>
+        <arrow-down-icon class="k-select-caret-icon" />
+      </template>
       <template #option="{ option }">
         <div class="k-select-option--checkbox">{{ option.name }}</div>
       </template>
@@ -137,7 +145,7 @@
 <script>
 import { defineComponent, defineAsyncComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import KMultiselect from '@vueform/multiselect'
+import Multiselect from '@vueform/multiselect'
 
 const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 const KInput = defineAsyncComponent(() => import('@/components/KInput'))
@@ -149,6 +157,7 @@ const KPagination = defineAsyncComponent(() => import('@/components/KPagination'
 const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
 const KDatetimePicker = defineAsyncComponent(() => import('@/components/KDatetimePicker'))
 import ProjectIcon from '@/assets/icons/ico_project.svg'
+import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 
 export default defineComponent({
   name: 'Dashboard',
@@ -163,8 +172,9 @@ export default defineComponent({
     KPagination,
     KTooltip,
     ProjectIcon,
-    KMultiselect,
-    KDatetimePicker
+    KDatetimePicker,
+    KMultiselect: Multiselect,
+    ArrowDownIcon
   },
 
   setup() {
