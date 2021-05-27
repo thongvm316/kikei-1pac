@@ -119,11 +119,10 @@
       mode="multiple"
       :options="selectOptions"
       label="name"
-      track-by="name"
-      placeholder="...."
-    >
+      trackBy="name"
+      placeholder="....">
       <template #caret>
-        <arrow-down-icon class="k-select-caret-icon" />
+        <arrow-down-icon class="k-select-caret-icon"/>
       </template>
       <template #option="{ option }">
         <div class="k-select-option--checkbox">{{ option.name }}</div>
