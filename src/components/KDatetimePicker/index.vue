@@ -47,7 +47,7 @@
 import { defineComponent, ref, watch } from 'vue'
 import FlatPickr from 'vue-flatpickr-component'
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect'
-import { PICKER_MODES } from './constans'
+import { PICKER_MODES } from './constants'
 import { INPUT_SIZES } from '@/components/KInput/constants'
 import { deepCopy } from '@/helpers/json-parser'
 import 'flatpickr/dist/flatpickr.css'
