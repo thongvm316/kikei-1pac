@@ -48,9 +48,11 @@ export default defineComponent ({
 
 <style lang="scss" scoped>
 @import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
 
 .tab {
-  display: flex;
+  @include flexbox(flex-start, flex-start);
+
   padding: 0 32px;
   background-color: $color-grey-100;
   border: 1px solid $color-grey-75;

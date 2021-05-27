@@ -1,5 +1,5 @@
 <template>
-  <div class="u-d-flex u-justify-flex-end u-mt-24 u-mb-16">
+  <div class="u-d-flex u-justify-end u-mt-24 u-mb-16">
     <div class="k-button-group">
       <k-button variant="outline-primary" size="sm" icon>
         <line-down-icon />CSVファイルダウンロード
@@ -52,7 +52,7 @@
           <tr>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">更新日</span>
+                <span class="u-mr-8">入出金日</span>
                 <k-sort-caret
                   @sort-asc="sortAsc"
                   @sort-desc="sortDesc"/>
@@ -60,61 +60,43 @@
             </th>
             <th class="mw-262">
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">クライアント / プロジェクト名</span>
-                <k-sort-caret />
-              </div>
-            </th>
-            <th>
-              <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">受注確度</span>
-                <k-sort-caret />
-              </div>
-            </th>
-            <th>
-              <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">リリース日></span>
-                <k-sort-caret />
-              </div>
-            </th>
-            <th>
-              <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">受注金額</span>
-                <k-sort-caret />
-              </div>
-            </th>
-            <th>
-              <div class="u-d-flex u-align-center">
                 <span class="u-mr-8">計上月</span>
                 <k-sort-caret />
               </div>
             </th>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">グループ</span>
+                <span class="u-mr-8">大分類</span>
                 <k-sort-caret />
               </div>
             </th>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">営業担当</span>
+                <span class="u-mr-8">中分類></span>
                 <k-sort-caret />
               </div>
             </th>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">営業担当</span>
+                <span class="u-mr-8">項目名</span>
                 <k-sort-caret />
               </div>
             </th>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">営業担当</span>
+                <span class="u-mr-8">区分</span>
                 <k-sort-caret />
               </div>
             </th>
             <th>
               <div class="u-d-flex u-align-center">
-                <span class="u-mr-8">営業担当</span>
+                <span class="u-mr-8">入出金額 (VND)</span>
+                <k-sort-caret />
+              </div>
+            </th>
+            <th>
+              <div class="u-d-flex u-align-center">
+                <span class="u-mr-8">残高 (VND)</span>
                 <k-sort-caret />
               </div>
             </th>
