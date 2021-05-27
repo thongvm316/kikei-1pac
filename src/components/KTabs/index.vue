@@ -1,13 +1,11 @@
 <template>
-  <div>
-    <ul class="tab">
-      <li
-        v-for="tab in tabs"
-        :key="tab.value"
-        :class="['tab__item', { 'is-active': tabActive === tab.value }]"
-        @click="clickTab(tab.value)">{{ tab.label }}</li>
-    </ul>
-  </div>
+  <ul class="tab">
+    <li
+      v-for="tab in tabs"
+      :key="tab.value"
+      :class="['tab__item', { 'is-active': tabActive === tab.value }]"
+      @click="clickTab(tab.value)">{{ tab.label }}</li>
+  </ul>
 </template>
 
 <script>
@@ -39,11 +37,13 @@ export default defineComponent ({
     }
 
     onMounted(() => {
-      const currentTapParam = router.currentRoute._value.query.tab
-      const valueTabList = props.tabs.map(item => item.value)
+      const { tab } = router.currentRoute._value.query
+      if(!tab) return
 
-      if (!valueTabList.includes(currentTapParam)) return
-      emit('update:tabActive', currentTapParam)
+      const indexValue = props.tabs.findIndex(item => item.value === tab)
+      if (indexValue < 0) return
+
+      emit('update:tabActive', tab)
     })
 
     return {
