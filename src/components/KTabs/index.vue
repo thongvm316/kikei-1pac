@@ -27,7 +27,7 @@ export default defineComponent ({
     const emitChangeTab = tab => emit('update:tabActive', tab)
 
     const clickTab = tab => {
-      router.push({ query: {...route.query, tab } })
+      router.push({ query: { ...route.query, tab } })
       emitChangeTab(tab)
     }
 
