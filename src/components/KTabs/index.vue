@@ -24,26 +24,29 @@ export default defineComponent ({
     const router = useRouter()
     const route = useRoute()
 
-    const clickTab = value => {
+    const emitChangeTab = tab => emit('update:tabActive', tab)
+
+    const clickTab = (tab) => {
+
       router.push({
-        name: 'deposit',
+        name: router.name,
         query: {
           ...route.query,
-          tab: value
+          tab
         },
       })
 
-      emit('update:tabActive', value)
+      emitChangeTab(tab)
     }
 
     onMounted(() => {
       const { tab } = router.currentRoute._value.query
-      if(!tab) return
+      if (!tab) return
 
       const indexValue = props.tabs.findIndex(item => item.value === tab)
       if (indexValue < 0) return
 
-      emit('update:tabActive', tab)
+      emitChangeTab(tab)
     })
 
     return {
