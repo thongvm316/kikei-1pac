@@ -6,7 +6,7 @@ import directives from '@/directives'
 import globalComponents from '@/plugins/global-components'
 
 import App from '@/App.vue'
-import 'ant-design-vue/dist/antd.less'
+import '@/styles/ant.less'
 
 const app = createApp(App)
 

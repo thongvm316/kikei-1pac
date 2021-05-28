@@ -79,9 +79,7 @@ module.exports = merge(common('production'), {
             options: {
               lessOptions: {
                 modifyVars: {
-                  'primary-color': '#4608e2',
-                  'link-color': '#4608e2',
-                  'border-radius-base': '20px'
+                  hack: `true; @import "${paths.themeOverride}";`
                 },
                 javascriptEnabled: true
               }

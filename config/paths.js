@@ -16,5 +16,5 @@ module.exports = {
   appSrc: resolveApp('src'),
   appNodeModules: resolveApp('node_modules'),
   publicUrlOrPath: '/',
-  themeOverride: resolveApp('src/styles/theme.less')
+  variableOverride: resolveApp('src/styles/ant.less'),
 }

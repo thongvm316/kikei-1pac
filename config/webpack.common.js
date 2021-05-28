@@ -82,6 +82,7 @@ module.exports = function (webpackEnv) {
           test: /\.vue$/,
           loader: 'vue-loader'
         },
+
         {
           test: /\.(scss|css)$/,
           use: [
@@ -121,7 +122,7 @@ module.exports = function (webpackEnv) {
               options: {
                 lessOptions: {
                   modifyVars: {
-                    hack: `true; @import "${paths.themeOverride}";`
+                    hack: `true; @import "${paths.variableOverride}";`
                   },
                   javascriptEnabled: true
                 }
