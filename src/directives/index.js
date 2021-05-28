@@ -1,8 +1,6 @@
-import tooltipDirective from '@/directives/Tooltip'
-
 // register all directives
-const directives = (app) => {
-  tooltipDirective(app)
-}
+
+// eslint-disable-next-line no-unused-vars
+const directives = (app) => {}
 
 export default directives
