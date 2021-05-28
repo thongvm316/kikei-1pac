@@ -1,5 +1,6 @@
 <template>
-  <section class="project__filters">
+  Project New
+  <!-- <section class="project__filters">
     <div class="project__filter k-button-group">
       <k-button variant="outline-primary" size="sm" icon>
         <line-down-icon />CSVファイルダウンロード
@@ -170,19 +171,19 @@
 
       <project-empty-state />
     </div>
-  </section>
+  </section> -->
 </template>
 
 <script>
 import { defineComponent, defineAsyncComponent } from 'vue'
 
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
-const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
-const LineDownIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-down.svg'))
-const LineAddIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-add.svg'))
+// const KButton = defineAsyncComponent(() => import('@/components/KButton'))
+// const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
+// const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
+// const LineDownIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-down.svg'))
+// const LineAddIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-add.svg'))
 
-import ProjectEmptyState from './-components/ProjectEmptyState'
+// import ProjectEmptyState from './-components/ProjectEmptyState'
 
 export default defineComponent({
   name: 'ProjectPage',
@@ -193,47 +194,47 @@ export default defineComponent({
     }
   },
 
-  components: {
-    KButton,
-    KSortCaret,
-    KPagination,
-    LineDownIcon,
-    LineAddIcon,
-    ProjectEmptyState
-  },
+  // components: {
+  //   KButton,
+  //   KSortCaret,
+  //   KPagination,
+  //   LineDownIcon,
+  //   LineAddIcon,
+  //   ProjectEmptyState
+  // },
 
-  methods: {
-    sort(payload) {
-      console.log(payload)
-    },
+  // methods: {
+  //   sort(payload) {
+  //     console.log(payload)
+  //   },
 
-    nextPage() {
-      console.log(this.page)
-    }
-  }
+  //   nextPage() {
+  //     console.log(this.page)
+  //   }
+  // }
 })
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/shared/mixins';
+// @import '@/styles/shared/mixins';
 
-.project__filters {
-  @include flexbox(flex-end, end);
-  flex-direction: column;
-  padding-bottom: 16px;
-  padding-top: 24px;
-}
+// .project__filters {
+//   @include flexbox(flex-end, flex-end);
+//   flex-direction: column;
+//   padding-bottom: 16px;
+//   padding-top: 24px;
+// }
 
-.project__filter {
-  align-self: flex-end;
-}
+// .project__filter {
+//   align-self: flex-end;
+// }
 
-.project__filter + .project__filter {
-  margin-top: 16px;
-}
+// .project__filter + .project__filter {
+//   margin-top: 16px;
+// }
 
-.project__body {
-  margin-left: -32px;
-  margin-right: -32px;
-}
+// .project__body {
+//   margin-left: -32px;
+//   margin-right: -32px;
+// }
 </style>

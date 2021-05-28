@@ -1,5 +1,6 @@
 <template>
-  <div class="k-table-responsive">
+  Deposit Table
+  <!-- <div class="k-table-responsive">
     <table class="k-table">
       <thead>
         <tr>
@@ -130,31 +131,31 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </div> -->
 </template>
 
 <script>
 import { defineComponent, defineAsyncComponent } from 'vue'
-const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
+// const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
+// const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 
 export default defineComponent ({
   name: 'DepositTable',
 
-  components: {
-    KSortCaret,
-    KButton
-  },
+  // components: {
+  //   KSortCaret,
+  //   KButton
+  // },
 
-  methods: {
-    sortAsc() {
-      console.log('Asc')
-    },
+  // methods: {
+  //   sortAsc() {
+  //     console.log('Asc')
+  //   },
 
-    sortDesc() {
-      console.log('Desc')
-    }
-  }
+  //   sortDesc() {
+  //     console.log('Desc')
+  //   }
+  // }
 })
 </script>
 

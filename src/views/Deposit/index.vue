@@ -1,5 +1,6 @@
 <template>
-  <div class="u-d-flex u-justify-end u-mt-24 u-mb-16">
+  Deposit Page
+  <!-- <div class="u-d-flex u-justify-end u-mt-24 u-mb-16">
     <div class="k-button-group">
       <k-button variant="outline-primary" size="sm" icon>
         <line-down-icon />CSVファイルダウンロード
@@ -186,95 +187,94 @@
     <table v-if="tabActive === 'グループ名'">
 
     </table>
-  </div>
-
+  </div> -->
 </template>
 
 <script>
 import { defineComponent, defineAsyncComponent } from 'vue'
-import Multiselect from '@vueform/multiselect'
+// import Multiselect from '@vueform/multiselect'
 
-const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-const LineDownIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-down.svg'))
-const LineAddIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-add.svg'))
-const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
-const KTabs = defineAsyncComponent(() => import('@/components/KTabs'))
-const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
-import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
-import DepositTable from './-components/DepositTable'
+// const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
+// const KButton = defineAsyncComponent(() => import('@/components/KButton'))
+// const LineDownIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-down.svg'))
+// const LineAddIcon = defineAsyncComponent(() => import('@/assets/icons/ico_line-add.svg'))
+// const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
+// const KTabs = defineAsyncComponent(() => import('@/components/KTabs'))
+// const KSortCaret = defineAsyncComponent(() => import('@/components/KSortCaret'))
+// import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
+// import DepositTable from './-components/DepositTable'
 
 export default defineComponent({
   name: 'DepositPage',
 
-  data() {
-    return {
-      page: 1,
-      tabActive: 'gumivietnam',
-      checkboxModel: ['all'],
-      checkboxOptions: [
-        {
-          label: 'チェックした項目全てを確定する',
-          value: 'all',
-        }
-      ],
-      selectModel: null,
-      selectOptions: [
-        { value: 'batman', name: 'Batman' },
-        { value: 'a', name: 'Amen' },
-        { value: 'b', name: 'Alibaba' },
-        { value: 'c', name: 'Hoho' },
-        { value: 'd', name: 'Hihihihih' },
-        { value: 'e', name: 'Emanan' }
-      ],
-      tabs: [
-        {
-          label: 'GumiVietNam',
-          value: 'gumivietnam',
-          isActive: true
-        },
+  // data() {
+  //   return {
+  //     page: 1,
+  //     tabActive: 'gumivietnam',
+  //     checkboxModel: ['all'],
+  //     checkboxOptions: [
+  //       {
+  //         label: 'チェックした項目全てを確定する',
+  //         value: 'all',
+  //       }
+  //     ],
+  //     selectModel: null,
+  //     selectOptions: [
+  //       { value: 'batman', name: 'Batman' },
+  //       { value: 'a', name: 'Amen' },
+  //       { value: 'b', name: 'Alibaba' },
+  //       { value: 'c', name: 'Hoho' },
+  //       { value: 'd', name: 'Hihihihih' },
+  //       { value: 'e', name: 'Emanan' }
+  //     ],
+  //     tabs: [
+  //       {
+  //         label: 'GumiVietNam',
+  //         value: 'gumivietnam',
+  //         isActive: true
+  //       },
 
-        {
-          label: 'VAND',
-          value: 'vand',
-          isActive: false
-        },
+  //       {
+  //         label: 'VAND',
+  //         value: 'vand',
+  //         isActive: false
+  //       },
 
-        {
-          label: 'グループ名',
-          value: 'グループ名',
-          isActive: false
-        }
-      ]
-    }
-  },
+  //       {
+  //         label: 'グループ名',
+  //         value: 'グループ名',
+  //         isActive: false
+  //       }
+  //     ]
+  //   }
+  // },
 
-  components: {
-    KPagination,
-    KButton,
-    LineDownIcon,
-    LineAddIcon,
-    KCheckbox,
-    KMultiselect: Multiselect,
-    ArrowDownIcon,
-    KTabs,
-    DepositTable,
-    KSortCaret
-  },
+  // components: {
+  //   KPagination,
+  //   KButton,
+  //   LineDownIcon,
+  //   LineAddIcon,
+  //   KCheckbox,
+  //   KMultiselect: Multiselect,
+  //   ArrowDownIcon,
+  //   KTabs,
+  //   DepositTable,
+  //   KSortCaret
+  // },
 
-  methods: {
-    nextPage() {
-      console.log(this.page)
-    },
+  // methods: {
+  //   nextPage() {
+  //     console.log(this.page)
+  //   },
 
-    sortAsc() {
-      console.log('Asc')
-    },
+  //   sortAsc() {
+  //     console.log('Asc')
+  //   },
 
-    sortDesc() {
-      console.log('Desc')
-    }
-  }
+  //   sortDesc() {
+  //     console.log('Desc')
+  //   }
+  // }
 })
 </script>
 

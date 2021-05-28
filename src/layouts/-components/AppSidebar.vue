@@ -51,7 +51,6 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import KButton from '@/components/KButton'
 import KAccordion from '@/components/KAccordion'
 
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
@@ -66,7 +65,6 @@ export default defineComponent({
   name: 'AppSidebar',
 
   components: {
-    KButton,
     KAccordion,
     DashboardIcon,
     DepositIcon,
