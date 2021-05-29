@@ -7,6 +7,7 @@ import globalComponents from '@/plugins/global-components'
 
 import App from '@/App.vue'
 import '@/styles/vendor/ant/index.less'
+import '@/styles/main.scss'
 
 const app = createApp(App)
 
