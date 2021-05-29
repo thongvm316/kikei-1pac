@@ -2,6 +2,7 @@
   <div>
     <a-date-picker />
     <a-button type="primary">Button</a-button>
+    <a-button type="primary" shape="circle" size="large" />
   </div>
 </template>
 
