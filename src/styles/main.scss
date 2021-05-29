@@ -1,2 +1,8 @@
-@import './shared/variables/color';
-@import './elements/button.scss';
+// variables
+@import './shared/variables';
+
+// mixins
+@import './shared/mixins';
+
+// elemnts
+@import './elements';
