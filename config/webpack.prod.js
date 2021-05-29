@@ -79,7 +79,7 @@ module.exports = merge(common('production'), {
             options: {
               lessOptions: {
                 modifyVars: {
-                  hack: `true; @import "${paths.themeOverride}";`
+                  hack: `true; @import "${paths.variableOverride}";`
                 },
                 javascriptEnabled: true
               }
