@@ -6,7 +6,11 @@ import directives from '@/directives'
 import globalComponents from '@/plugins/global-components'
 
 import App from '@/App.vue'
+
+// variables for customize ant-design vue
+// https://github.com/vueComponent/ant-design-vue/blob/master/components/style/themes/default.less
 import '@/styles/vendor/ant/index.less'
+// global component
 import '@/styles/main.scss'
 
 const app = createApp(App)
@@ -16,10 +20,10 @@ directives(app)
 
 // register plugins
 app.use(i18n)
-app.use(router)
-app.use(store)
+  .use(router)
+  .use(store)
 
-// register components
+// register ant-design as global components
 globalComponents(app)
 
 // mount app

@@ -1,8 +1,17 @@
-import { Button, DatePicker } from 'ant-design-vue'
+import {
+  Button,
+  DatePicker,
+  Checkbox,
+  Pagination,
+  Table
+} from 'ant-design-vue'
 
 const globalComponents = (app) => {
   app.use(Button)
-  app.use(DatePicker)
+    .use(DatePicker)
+    .use(Checkbox)
+    .use(Pagination)
+    .use(Table)
 }
 
 export default globalComponents
