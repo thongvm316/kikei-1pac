@@ -6,7 +6,8 @@ import {
   Pagination,
   Table,
   Layout,
-  Collapse
+  Collapse,
+  Modal
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -17,6 +18,7 @@ const globalComponents = (app) => {
     .use(Table)
     .use(Layout)
     .use(Collapse)
+    .use(Modal)
 }
 
 export default globalComponents
