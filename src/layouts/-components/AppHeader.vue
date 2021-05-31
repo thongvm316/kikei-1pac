@@ -1,7 +1,7 @@
 <template>
-  <header class="header">
+  <a-layout-header class="header" mode="horizontal">
     Header
-  </header>
+  </a-layout-header>
 </template>
 
 <script>
@@ -11,3 +11,12 @@ export default defineComponent({
   name: 'AppHeader'
 })
 </script>
+
+<style lang="scss">
+@import '@/styles/shared/variables';
+
+.header {
+  background-color: $color-grey-100;
+  color: $color-grey-15;
+}
+</style>

@@ -19,6 +19,7 @@ const app = createApp(App)
 directives(app)
 
 // register plugins
+// eslint-disable-next-line prettier/prettier
 app.use(i18n)
   .use(router)
   .use(store)

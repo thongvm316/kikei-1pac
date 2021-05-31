@@ -1,9 +1,12 @@
+/* eslint-disable prettier/prettier */
 import {
   Button,
   DatePicker,
   Checkbox,
   Pagination,
-  Table
+  Table,
+  Layout,
+  Collapse
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -12,6 +15,8 @@ const globalComponents = (app) => {
     .use(Checkbox)
     .use(Pagination)
     .use(Table)
+    .use(Layout)
+    .use(Collapse)
 }
 
 export default globalComponents

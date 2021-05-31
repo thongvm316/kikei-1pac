@@ -1,6 +1,6 @@
 <template>
   <div>
-    Setting Page - 4
+    Setting Page - 3
   </div>
 </template>
 
