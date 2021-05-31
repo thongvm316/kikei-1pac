@@ -1,17 +1,11 @@
 <template>
-  <div>
-    Deposit new page
-  </div>
+  <div>Category Page</div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'DepositNewPage'
+  name: 'CategoryPage'
 })
 </script>
-
-<style>
-
-</style>
