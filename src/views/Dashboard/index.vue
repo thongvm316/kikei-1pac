@@ -2,7 +2,41 @@
   <div>
     <a-date-picker />
     <a-button type="primary">Button</a-button>
-    <a-button type="primary" shape="circle" size="large" />
+    <a-button type="primary" shape="circle">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
+      </template>
+    </a-button>
+    <a-button type="primary" shape="circle" size="small">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
+      </template>
+    </a-button>
+
+    <a-button type="primary" shape="circle" size="small">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
+      </template>
+    </a-button>
+
+    <a-button>Default</a-button>
+    <a-button type="danger" ghost>Danger</a-button>
+    <a-button disabled type="primary">
+      <template #icon>
+        <span class="btn-icon"><project-icon /></span>
+      </template>
+      Search
+    </a-button>
+    <div>
+      <a-button disabled type="link">Link</a-button>
+      <a-button type="link">Link</a-button>
+    </div>
 
     <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
 
@@ -17,9 +51,14 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
+import ProjectIcon from '@/assets/icons/ico_project.svg'
 
 export default defineComponent({
   name: 'Dashboard',
+
+  components: {
+    ProjectIcon
+  },
 
   setup() {
     const plainOptions = ['Apple', 'Pear', 'Orange'];
