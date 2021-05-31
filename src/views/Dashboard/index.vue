@@ -4,25 +4,33 @@
     <a-button type="primary">Button</a-button>
     <a-button type="primary" shape="circle">
       <template #icon>
-        <search-outlined />
+        <span class="btn-icon">
+          <project-icon />
+        </span>
       </template>
     </a-button>
     <a-button type="primary" shape="circle" size="small">
       <template #icon>
-        <search-outlined />
+        <span class="btn-icon">
+          <project-icon />
+        </span>
       </template>
     </a-button>
 
-    <a-button disabled type="primary" shape="circle" size="small">
+    <a-button type="primary" shape="circle" size="small">
       <template #icon>
-        <search-outlined />
+        <span class="btn-icon">
+          <project-icon />
+        </span>
       </template>
     </a-button>
 
     <a-button>Default</a-button>
     <a-button type="danger" ghost>Danger</a-button>
     <a-button disabled type="primary">
-      <template #icon><search-outlined /></template>
+      <template #icon>
+        <span class="btn-icon"><project-icon /></span>
+      </template>
       Search
     </a-button>
     <div>
@@ -44,14 +52,12 @@
 <script>
 import { defineComponent, ref } from 'vue'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
-import { SearchOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
   name: 'Dashboard',
 
   components: {
-    ProjectIcon,
-    SearchOutlined
+    ProjectIcon
   },
 
   setup() {
