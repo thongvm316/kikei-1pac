@@ -65,31 +65,6 @@
       <p>Some contents...</p>
       <p>Some contents...</p>
     </a-modal>
-
-    <div style="padding: 24px">
-      <a-table
-        :columns="columns"
-        :data-source="data"
-        :row-selection="rowSelection"
-        :pagination="false"
-        :expand-icon-column-index="expandIconColumnIndex"
-        :expand-icon-as-cell="false">
-        <template #action="{ record }">
-          <a-button :disabled="record.disabled" type="primary">確定</a-button>
-        </template>
-
-        <template #expandIcon="{ expanded, onExpand }">
-          <arrow-up-icon class="u-cursor-pointer" @click="onExpand" v-if="expanded" />
-          <arrow-down-icon class="u-cursor-pointer" v-else @click="onExpand" />
-        </template>
-
-        <template #expandedRowRender="{ record }">
-          <p style="margin: 0">
-            {{ record.description }}
-          </p>
-        </template>
-      </a-table>
-    </div>
   </div>
 </template>
 
@@ -97,15 +72,13 @@
 import { defineComponent, ref } from 'vue'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
-import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
 
 // test
 const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   { title: 'Age', dataIndex: 'age', key: 'age' },
   { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action',  } },
+  { title: 'Action', dataIndex: '', key: 'x', width: '10px'	, slots: { customRender: 'action',  } },
   { title: '', dataIndex: 'xxx', key: 'xxx' }
 ]
 
@@ -116,7 +89,16 @@ const data = [
     age: 32,
     address: 'New York No. 1 Lake Park',
     description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.',
-    disabled: true
+    disabled: true,
+
+    children: [
+      {
+        key: 1,
+        name: 'Nghia',
+        age: 25,
+        address: '1Pac'
+      }
+    ]
   },
   {
     key: 2,
@@ -146,6 +128,8 @@ const rowSelection = {
   onSelectAll: (selected, selectedRows, changeRows) => {
     console.log(selected, selectedRows, changeRows)
   },
+
+  columnWidth: '10px'
 };
 
 const expandIconColumnIndex = 5
@@ -155,9 +139,7 @@ export default defineComponent({
 
   components: {
     ProjectIcon,
-    SearchIcon,
-    ArrowDownIcon,
-    ArrowUpIcon
+    SearchIcon
   },
 
   setup() {
