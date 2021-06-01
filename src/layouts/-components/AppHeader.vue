@@ -1,60 +1,35 @@
 <template>
   <a-layout-header class="header" mode="horizontal">
     <div class="header__content">
-      <a-breadcrumb :routes="routes" class="header__left">
-        <template #itemRender="{ route, routes }">
-          <span v-if="routes.indexOf(route) === routes.length - 1">
-            {{ route.breadcrumbName }}
-          </span>
-          <router-link v-else :to="route.path">
-            {{ route.breadcrumbName }}
-          </router-link>
-        </template>
-      </a-breadcrumb>
-      <div class="header__right">
-        <a-button key="3">Search</a-button>
-        <a-button key="2">Account</a-button>
+      <div class="header__content--left">
+        <k-breadcrumb />
+      </div>
+      <div class="header__content--right">
+        <a-button class="header__search"><search-icon /></a-button>
+        <k-profile />
       </div>
     </div>
   </a-layout-header>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import { defineComponent } from 'vue'
+import KBreadcrumb from '@/components/KBreadcrumb'
+import KProfile from '@/components/KProfile'
+
+import SearchIcon from '@/assets/icons/ico_search.svg'
 
 export default defineComponent({
   name: 'AppHeader',
 
+  components: {
+    KBreadcrumb,
+    SearchIcon,
+    KProfile
+  },
+
   setup() {
-    const { t } = useI18n({ useScope: 'global' })
-    const routes = ref([])
-    const route = useRoute()
-
-    const getRoutesList = () => {
-      routes.value = route.matched
-        .filter((item) => !!item.meta?.breadcrumbKey)
-        .map((item) => ({
-          breadcrumbName: t(item.meta?.breadcrumbKey),
-          path: item.path
-        }))
-    }
-
-    onMounted(() => {
-      getRoutesList(route)
-    })
-
-    watch(
-      () => route.path,
-      () => {
-        getRoutesList(route)
-      }
-    )
-
-    return {
-      routes
-    }
+    return {}
   }
 })
 </script>
@@ -73,23 +48,31 @@ export default defineComponent({
   &__content {
     @include flexbox(center, center);
     padding: 14px 0;
+
+    &--left {
+      flex-grow: 1;
+    }
+
+    &--right {
+      @include flexbox(center, center);
+    }
   }
 
-  .ant-breadcrumb {
-    flex-grow: 1;
-  }
+  &__search {
+    @include flexbox(center, center);
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    padding: 0;
 
-  .ant-breadcrumb-link,
-  .ant-breadcrumb-separator {
-    color: $color-grey-75;
-    font-size: 20px;
-    line-height: 28px;
-    font-weight: 400;
-  }
+    &:not(:last-child) {
+      margin-right: 16px;
+    }
 
-  .ant-breadcrumb > span:last-child .ant-breadcrumb-link {
-    color: $color-grey-15;
-    font-weight: 800;
+    &:hover {
+      background-color: $color-primary-6;
+      color: $color-grey-100;
+    }
   }
 }
 </style>
