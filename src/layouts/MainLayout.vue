@@ -1,16 +1,16 @@
 <template>
-  <main class="main">
+  <a-layout class="main">
     <app-sidebar />
-    <div class="main__content">
+    <a-layout class="main__content">
       <app-header>
         <slot name="header" />
       </app-header>
 
-      <div class="container">
+      <a-layout-content>
         <router-view />
-      </div>
-    </div>
-  </main>
+      </a-layout-content>
+    </a-layout>
+  </a-layout>
 </template>
 
 <script>
@@ -27,3 +27,9 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss">
+.main {
+  height: 100vh;
+}
+</style>

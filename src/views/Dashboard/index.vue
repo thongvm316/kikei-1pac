@@ -1,264 +1,200 @@
 <template>
-  <div class="container">
-    <h2>Dashboard Page</h2>
-
-    <label for="locale-select">Change locale:</label>
-    <select id="locale-select" v-model="locale">
-      <option v-for="locale in localeList" :key="locale.value" :value="locale.value">
-        {{ locale.label }}
-      </option>
-    </select>
-  </div>
-  <k-button variant="primary" size="md" @click="isOpenModalText = true"> Open modal </k-button>
-
-  <k-modal v-model:open="isOpenModalText" header="Edit user" size="lg">
-    <template #modal-body>
-      <p>Body content</p>
-      <p>Body content</p>
-      <p>Body content</p>
-      <p>Body content</p>
-
-      <p>End</p>
-    </template>
-  </k-modal>
-
-  <k-button variant="primary" size="md" icon circle @click="isOpenModalText = true">
-    <project-icon />
-  </k-button>
-
-  <k-input
-    v-model:value="inputModel"
-    style="margin-top: 24px"
-    size="lg"
-    native-type="text"
-    icon-position="left"
-    placeholder="Please input"
-    label="プロジェクト名"
-  >
-    <template #icon>
-      <project-icon />
-    </template>
-  </k-input>
-
-  <k-input
-    v-model:value="inputModel"
-    style="margin-top: 24px"
-    size="lg"
-    native-type="text"
-    icon-position="right"
-    placeholder="Please input"
-  >
-    <template #icon>
-      <project-icon />
-    </template>
-  </k-input>
-
-  <k-accordion :duration="400">
-    <template #header>
-      <div>Open accordion</div>
-    </template>
-    <ul>
-      <li>Accordion content</li>
-      <li>Accordion content</li>
-      <li>Accordion content</li>
-      <li>Accordion content</li>
-      <li>Accordion content</li>
-      <li>Accordion content</li>
-    </ul>
-  </k-accordion>
-  <k-input
-    v-model:value="inputModel"
-    style="margin-top: 24px"
-    size="lg"
-    native-type="text"
-    placeholder="Please input"
-    label="プロジェクト名"
-    variant="error"
-    error="Error message"
-  >
-  </k-input>
-
-  <br />
-  <br />
-
-  <k-checkbox v-model:value="checkboxModel" :options="checkboxOptions" inline name="label-1" label="Label (checkbox)" />
-
-  <k-radio v-model:value="radioModel" :options="radioOptions" inline name="radio-1" label="Label (checkbox)" />
-
-  <k-pagination
-    v-model:value="page"
-    :page-range="3"
-    :total-item="92"
-    :per-page="10"
-    :click-handler="clickPagerHandler"
-  />
-
-  <div class="u-mt-16" style="width: 300px">
-    <!-- <k-multiselect
-      v-model="selectModel"
-      searchable
-      :options="selectOptions"
-      label="name"
-      trackBy="name"
-      :clearOnSearch="false"
-      placeholder="....">
-      <template #caret>
-        <arrow-down-icon class="k-select-caret-icon"/>
+  <div>
+    <a-date-picker />
+    <a-button type="primary">Button</a-button>
+    <a-button type="primary" shape="circle">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
       </template>
-    </k-multiselect> -->
-  </div>
-
-  <div class="u-mt-16" style="width: 300px">
-    <k-multiselect
-      v-model="selectModel"
-      searchable
-      mode="multiple"
-      :options="selectOptions"
-      label="name"
-      trackBy="name"
-      placeholder="....">
-      <template #caret>
-        <arrow-down-icon class="k-select-caret-icon"/>
+    </a-button>
+    <a-button type="primary" shape="circle" size="small">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
       </template>
-      <template #option="{ option }">
-        <div class="k-select-option--checkbox">{{ option.name }}</div>
-      </template>
-    </k-multiselect>
-  </div>
-  <k-button v-tooltip.tooltip="'Tooltip content'" variant="primary">Tooltip test</k-button>
-  <k-tooltip title="Tooltip content">
-    <k-button variant="danger">Tooltip test</k-button>
-  </k-tooltip>
+    </a-button>
 
-  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" label="Datetime picker day:" />
-  <k-datetime-picker v-model:value="timeToday" mode="date" size="lg" disabled label="Datetime picker day - disable:" />
-  <k-datetime-picker v-model:value="timeToday" mode="month" size="lg" label="Datetime picker month:" />
-  <k-datetime-picker v-model:value="timeRange" mode="date" size="lg" is-range label="Datetime picker range - day:" />
-  <k-datetime-picker v-model:value="timeRange" mode="month" size="lg" is-range label="Datetime picker range - month:" />
+    <a-button type="primary" shape="circle" size="small">
+      <template #icon>
+        <span class="btn-icon">
+          <project-icon />
+        </span>
+      </template>
+    </a-button>
+
+    <a-button>Default</a-button>
+    <a-button type="danger" ghost>Danger</a-button>
+    <a-button disabled type="primary">
+      <template #icon>
+        <span class="btn-icon"><project-icon /></span>
+      </template>
+      Search
+    </a-button>
+    <div>
+      <a-button disabled type="link">Link</a-button>
+      <a-button type="link">Link</a-button>
+    </div>
+
+    <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
+
+     <a-pagination
+      v-model:current="page"
+      :total="101"
+      :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
+      :page-size="10"
+      size="small" />
+
+    <a-button type="primary" @click="showModal">Open Modal</a-button>
+    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk" >
+      <template #footer>
+        <a-button @click="handleCancel">クリア</a-button>
+        <a-button type="primary">
+          <template #icon>
+            <span class="btn-icon">
+              <search-icon />
+            </span>
+          </template>
+          Submit
+        </a-button>
+      </template>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </a-modal>
+
+    <div style="padding: 24px">
+      <a-table
+        :columns="columns"
+        :data-source="data"
+        :row-selection="rowSelection"
+        :pagination="false"
+        :expand-icon-column-index="expandIconColumnIndex"
+        :expand-icon-as-cell="false">
+        <template #action="{ record }">
+          <a-button :disabled="record.disabled" type="primary">確定</a-button>
+        </template>
+
+        <template #expandIcon="{ expanded, onExpand }">
+          <arrow-up-icon class="u-cursor-pointer" @click="onExpand" v-if="expanded" />
+          <arrow-down-icon class="u-cursor-pointer" v-else @click="onExpand" />
+        </template>
+
+        <template #expandedRowRender="{ record }">
+          <p style="margin: 0">
+            {{ record.description }}
+          </p>
+        </template>
+      </a-table>
+    </div>
+  </div>
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import Multiselect from '@vueform/multiselect'
-
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
-const KInput = defineAsyncComponent(() => import('@/components/KInput'))
-const KCheckbox = defineAsyncComponent(() => import('@/components/KCheckbox'))
-const KRadio = defineAsyncComponent(() => import('@/components/KRadio'))
-const KModal = defineAsyncComponent(() => import('@/components/KModal'))
-const KAccordion = defineAsyncComponent(() => import('@/components/KAccordion'))
-const KPagination = defineAsyncComponent(() => import('@/components/KPagination'))
-const KTooltip = defineAsyncComponent(() => import('@/components/KTooltip'))
-const KDatetimePicker = defineAsyncComponent(() => import('@/components/KDatetimePicker'))
+import { defineComponent, ref } from 'vue'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
+import SearchIcon from '@/assets/icons/ico_search.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
+import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
+
+// test
+const columns = [
+  { title: 'Name', dataIndex: 'name', key: 'name' },
+  { title: 'Age', dataIndex: 'age', key: 'age' },
+  { title: 'Address', dataIndex: 'address', key: 'address' },
+  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action',  } },
+  { title: '', dataIndex: 'xxx', key: 'xxx' }
+]
+
+const data = [
+  {
+    key: 1,
+    name: 'John Brown',
+    age: 32,
+    address: 'New York No. 1 Lake Park',
+    description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.',
+    disabled: true
+  },
+  {
+    key: 2,
+    name: 'Jim Green',
+    age: 42,
+    address: 'London No. 1 Lake Park',
+    description: 'My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park.',
+    disabled: false
+  },
+  {
+    key: 3,
+    name: 'Joe Black',
+    age: 32,
+    address: 'Sidney No. 1 Lake Park',
+    description: 'My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park.',
+    disabled: false
+  }
+]
+
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+  },
+  onSelect: (record, selected, selectedRows) => {
+    console.log(record, selected, selectedRows)
+  },
+  onSelectAll: (selected, selectedRows, changeRows) => {
+    console.log(selected, selectedRows, changeRows)
+  },
+};
+
+const expandIconColumnIndex = 5
 
 export default defineComponent({
   name: 'Dashboard',
 
   components: {
-    KButton,
-    KInput,
-    KCheckbox,
-    KRadio,
-    KModal,
-    KAccordion,
-    KPagination,
-    KTooltip,
     ProjectIcon,
-    KDatetimePicker,
-    KMultiselect: Multiselect,
-    ArrowDownIcon
+    SearchIcon,
+    ArrowDownIcon,
+    ArrowUpIcon
   },
 
   setup() {
-    const { locale } = useI18n({ useScope: 'global' })
-    const localeList = ref([
-      {
-        value: 'en',
-        label: 'English'
-      },
+    const plainOptions = ['Apple', 'Pear', 'Orange'];
+    const checkedList = ref(['Apple', 'Orange'])
+    const page = ref(3)
+    const visible = ref(false)
 
-      {
-        value: 'ja',
-        label: 'Japan'
-      },
+    const onChange = () => {
+      console.log('dsalkdksa')
+    }
 
-      {
-        value: 'vi',
-        label: 'Việt Nam'
-      }
-    ])
-    const isOpenModalText = ref(false)
+    const handleCancel = () => {
+      visible.value = false
+    }
 
-    const selectOptions = ref([
-      { value: 'batman', name: 'Batman' },
-      { value: 'a', name: 'Amen' },
-      { value: 'b', name: 'Alibaba' },
-      { value: 'c', name: 'Hoho' },
-      { value: 'd', name: 'Hihihihih' },
-      { value: 'e', name: 'Emanan' }
-    ])
+    const showModal = () => {
+      visible.value = true
+    };
+
+    const handleOk = e => {
+      visible.value = false
+    };
 
     return {
-      locale,
-      isOpenModalText,
-      localeList,
-      selectOptions
-    }
-  },
-
-  data() {
-    return {
-      inputModel: '',
-      selectModel: ['batman'],
-      checkboxModel: ['出金'],
-      checkboxOptions: [
-        {
-          label: '入金',
-          value: '入金'
-        },
-        {
-          label: '出金',
-          value: '出金'
-        },
-        {
-          label: 'Text',
-          value: 'Text'
-        }
-      ],
-      radioModel: 2,
-      radioOptions: [
-        {
-          label: '入金',
-          value: 1
-        },
-        {
-          label: '出金',
-          value: 2
-        },
-        {
-          label: 'Text',
-          value: 'Text'
-        }
-      ],
-      page: 1,
-      timeToday: new Date(),
-      timeRange: {
-        start: new Date(2021, 1, 10),
-        end: new Date(2021, 1, 26)
-      }
-    }
-  },
-
-  methods: {
-    onClickButton() {
-      console.log('test click')
-    },
-
-    clickPagerHandler() {
-      console.log('pager click')
+      page,
+      plainOptions,
+      checkedList,
+      onChange,
+      visible,
+      showModal,
+      handleOk,
+      handleCancel,
+      data,
+      columns,
+      rowSelection,
+      expandIconColumnIndex
     }
   }
 })

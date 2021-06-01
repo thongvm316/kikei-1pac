@@ -3,7 +3,9 @@ export default {
   project: 'Dự án',
   deposit: 'Tiền gửi',
   financing: 'Tài chính',
-  accounting: 'Accounting',
+  accounting: 'Kế toán quản lý',
+  company: 'Công ty đăng ký',
+  category: 'Danh mục đăng ký',
   setting: 'Cài đặt',
   edit: 'Chỉnh sửa',
   new: 'New'

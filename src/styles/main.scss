@@ -8,23 +8,12 @@
 
 // base
 @import './base/base';
-@import './base/minireset';
 
-
-// utils
-@import './shared/utils';
-
-// layout
-@import './layouts';
-
-// elements
+// elemnts
 @import './elements';
 
 // components
-@import './components';
+@import './components/';
 
-// modules
-@import './module/';
-
-// vendors
-@import './vendors/'
+// utils
+@import './shared/utils';

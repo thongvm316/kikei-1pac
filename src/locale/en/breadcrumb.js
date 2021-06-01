@@ -4,6 +4,8 @@ export default {
   deposit: 'Deposit',
   financing: 'Financing',
   accounting: 'Accounting',
+  company: 'Company',
+  category: 'Category',
   setting: 'Setting',
   edit: 'Edit',
   new: 'New'

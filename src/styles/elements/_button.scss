@@ -1,106 +1,26 @@
-.k-button-group {
-  @include flexbox(flex-start, center);
-
-  .k-button + .k-button {
-    margin-left: 8px;
-  }
+.ant-btn:hover {
+  color: $color-primary-6;
+  border-color: $color-primary-6;
 }
 
-.k-button {
-  font-size: 14px;
-  font-weight: 400;
-  border-radius: 2px;
-  border: 1px solid transparent;
+.ant-btn-primary:hover {
+  color: $color-grey-100;
+  background-color: $color-primary-6;
+  border-color: $color-primary-6;
+}
+
+.ant-btn-link:hover {
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.btn-icon {
+  line-height: 1;
   text-align: center;
   display: inline-block;
-  white-space: nowrap;
-  line-height: 22px;
-  cursor: pointer;
-  color: $color-grey-100;
-  transition: border 0.25s, background-color 0.3s;
-  background-color: $color-grey-100;
+  vertical-align: middle;
 
-  > span {
-    pointer-events: none;
-  }
-
-  svg {
-    vertical-align: middle;
-    pointer-events: none;
-  }
-
-  &--md {
-    padding: 4px 16px;
-  }
-
-  &--sm {
-    padding: 0 8px;
-  }
-
-  &--default {
-    background-color: transparent;
-  }
-
-  &--primary {
-    background-color: $color-primary-9;
-
-    &:hover {
-      background-color: $color-primary-6;
-    }
-  }
-
-  &--danger {
-    background-color: $color-additional-red-5;
-
-    &:hover {
-      background-color: $color-additional-red-4;
-    }
-  }
-
-  &--outline-primary {
-    color: $color-primary-9;
-    border: 1px solid $color-primary-9;
-
-    &:hover {
-      color: $color-primary-6;
-      border-color: $color-primary-6;
-    }
-  }
-
-  &--outline-danger {
-    color: $color-additional-red-5;
-    border: 1px solid $color-additional-red-5;
-
-    &:hover {
-      color: $color-additional-red-4;
-      border-color: $color-additional-red-4;
-    }
-  }
-
-  &.has-icon {
-    position: relative;
-    padding-left: 38px;
-
-    svg {
-      @include y-centered();
-      left: 12px;
-    }
-  }
-
-  &.is-circle {
-    border-radius: 50%;
-    padding: 12px;
-
-    svg {
-      @include centered();
-    }
-  }
-
-  &:disabled,
-  &.disabled {
-    color: $color-grey-55;
-    background-color: $color-grey-85;
-    cursor: not-allowed;
-    border: none;
+  & + span {
+    margin-left: 8px;
   }
 }

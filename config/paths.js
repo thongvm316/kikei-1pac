@@ -14,7 +14,7 @@ module.exports = {
   appHtml: resolveApp('public/index.html'),
   appIndexJs: resolveApp('src/main.js'),
   appSrc: resolveApp('src'),
-  // appTsConfig: resolveApp('tsconfig.json'),
   appNodeModules: resolveApp('node_modules'),
   publicUrlOrPath: '/',
+  variableOverride: resolveApp('src/styles/vendor/ant/index.less'),
 }

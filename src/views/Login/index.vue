@@ -1,5 +1,6 @@
 <template>
-  <div class="login">
+  Login page
+  <!-- <div class="login">
     <div class="login__form">
       <h1 class="login__headine">Login Page</h1>
 
@@ -36,94 +37,94 @@
       </form>
     </div>
     <img class="login__img" src="@/assets/images/img-bg-login.png" alt="">
-  </div>
+  </div> -->
 </template>
 
 <script>
 import { defineComponent, defineAsyncComponent, reactive } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
-import validationRules from './composables/validation'
-import { INPUT_VARIANTS } from '@/components/KInput/constants'
+// import { useVuelidate } from '@vuelidate/core'
+// import validationRules from './composables/validation'
+// import { INPUT_VARIANTS } from '@/components/KInput/constants'
 
-const KInput = defineAsyncComponent(() => import('@/components/KInput'))
-const KButton = defineAsyncComponent(() => import('@/components/KButton'))
+// const KInput = defineAsyncComponent(() => import('@/components/KInput'))
+// const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 
 export default defineComponent ({
   name: 'LoginPage',
 
-  setup () {
-    const params = {
-      email: '',
-      password: ''
-    }
-    const state = reactive(params)
-    const rules = validationRules()
+  // setup () {
+  //   const params = {
+  //     email: '',
+  //     password: ''
+  //   }
+  //   const state = reactive(params)
+  //   const rules = validationRules()
 
-    return {
-      params,
-      v$: useVuelidate(rules, state)
-    }
-  },
+  //   return {
+  //     params,
+  //     v$: useVuelidate(rules, state)
+  //   }
+  // },
 
-  computed: {
-    emailInputErrorText() {
-      return this.v$.email.$errors[0]?.$message || ''
-    },
+  // computed: {
+  //   emailInputErrorText() {
+  //     return this.v$.email.$errors[0]?.$message || ''
+  //   },
 
-    emailInputVariant() {
-      return this.v$.email.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
-    },
+  //   emailInputVariant() {
+  //     return this.v$.email.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
+  //   },
 
-    passwordInputErrorText() {
-      return this.v$.password.$errors[0]?.$message || ''
-    },
+  //   passwordInputErrorText() {
+  //     return this.v$.password.$errors[0]?.$message || ''
+  //   },
 
-    passwordInputVariant() {
-      return this.v$.password.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
-    }
-  },
+  //   passwordInputVariant() {
+  //     return this.v$.password.$errors[0]?.$message ? INPUT_VARIANTS.error : INPUT_VARIANTS.default
+  //   }
+  // },
 
-  components: {
-    KInput,
-    KButton
-  },
+  // components: {
+  //   KInput,
+  //   KButton
+  // },
 
-  methods: {
-    onClickLogin(e) {
-      console.log(this.params)
-    }
-  }
+  // methods: {
+  //   onClickLogin(e) {
+  //     console.log(this.params)
+  //   }
+  // }
 })
 </script>
 
 <style lang="scss" scoped>
-.login {
-  display: flex;
+// .login {
+//   display: flex;
 
-  &__headine {
-    font-size: 38px;
-    font-weight: 800;
-    line-height: 46px;
-    margin-bottom: 66px;
-  }
+//   &__headine {
+//     font-size: 38px;
+//     font-weight: 800;
+//     line-height: 46px;
+//     margin-bottom: 66px;
+//   }
 
-  &__form {
-    width: 452px;
-    margin-top: 80px;
-    padding-left: 80px;
-  }
+//   &__form {
+//     width: 452px;
+//     margin-top: 80px;
+//     padding-left: 80px;
+//   }
 
-  &__img {
-    width: calc(100% - 452px);
-    height: 100vh;
-  }
+//   &__img {
+//     width: calc(100% - 452px);
+//     height: 100vh;
+//   }
 
-  ::v-deep .k-button {
-    width: 100%;
-  }
-}
+//   ::v-deep .k-button {
+//     width: 100%;
+//   }
+// }
 
-.w-220 {
-  width: 220px;
-}
+// .w-220 {
+//   width: 220px;
+// }
 </style>

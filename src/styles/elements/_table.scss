@@ -1,43 +1,19 @@
-.k-table-responsive {
-  overflow-x: auto;
+.ant-table {
+  font-size: 12px;
 }
 
-.k-table {
-  width: 100%;
-  white-space: nowrap;
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td {
+  padding: 14px 16px;
+  border-bottom: 1px solid $color-grey-85;
+}
 
-  thead > tr > th {
-    font-weight: 800;
-    font-size: 12px;
-    color: $color-primary-9;
-    background-color: $color-grey-92;
-    padding: 14px 16px;
-    line-height: 18px;
-    border: 1px solid $color-grey-85;
+.ant-table-thead > tr > th {
+  font-weight: 800;
+  line-height: 18px;
+}
 
-    &:first-child {
-      padding-left: 32px;
-    }
-
-    &.mw-262 {
-      min-width: 262px;
-    }
-  }
-
-  tbody {
-    color: $color-grey-15;
-
-    & > tr > td {
-      padding: 4px 16px;
-      font-size: 12px;
-      background-color: $color-grey-100;
-      border: 1px solid $color-grey-85;
-      vertical-align: middle;
-      line-height: 18px;
-
-      &:first-child {
-        padding-left: 32px;
-      }
-    }
-  }
+.ant-table-tbody > tr > td {
+  color: $color-grey-15;
+  line-height: 18px;
 }

@@ -84,18 +84,21 @@ const routes = [
           }
         ]
       },
+
       {
         path: '/financing',
         name: 'financing',
         component: lazyLoadRoute('Financing'),
         meta: { title: `Financing Report | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
       },
+
       {
         path: '/accounting',
         name: 'accounting',
         component: lazyLoadRoute('AccountingManagement'),
         meta: { title: `Accounting Management Report | ${APP_NAME}` }
       },
+
       {
         path: '/setting',
         name: 'setting',
@@ -103,6 +106,18 @@ const routes = [
         meta: { title: `Setting | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' },
         // TODO: children will modify later
         children: [
+          {
+            path: 'company',
+            name: 'company',
+            component: lazyLoadRoute('Company'),
+            meta: { title: `Company - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.company' }
+          },
+          {
+            path: 'category',
+            name: 'category',
+            component: lazyLoadRoute('Category'),
+            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.category' }
+          },
           {
             path: '1',
             name: 'setting-1',

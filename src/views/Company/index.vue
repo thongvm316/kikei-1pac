@@ -1,14 +1,11 @@
 <template>
-  Project New
+  <div>Company Page</div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'ProjectPage'
+  name: 'CompanyPage'
 })
 </script>
-
-<style lang="scss" scoped>
-</style>

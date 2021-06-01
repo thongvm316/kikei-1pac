@@ -1,0 +1,19 @@
+.ant-modal-content {
+  border-radius: 5px;
+}
+
+.ant-modal-header {
+  border-radius: 5px 5px 0 0;
+  padding: 12px 24px;
+
+  .ant-modal-title {
+    font-weight: 800;
+    line-height: 28px;
+    font-size: 20px;
+  }
+}
+
+.ant-modal-footer {
+  text-align: center;
+  padding-top: 0;
+}

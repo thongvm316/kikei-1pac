@@ -22,7 +22,7 @@ module.exports = merge(common('production'), {
     pathinfo: false,
     filename: 'static/js/[name].[contenthash:8].js',
     chunkFilename: 'static/js/[name].[contenthash:8].chunk.js',
-    publicPath: paths.publicUrlOrPath,
+    publicPath: paths.publicUrlOrPath
   },
 
   plugins: [
@@ -30,7 +30,7 @@ module.exports = merge(common('production'), {
 
     new MiniCssExtractPlugin({
       filename: 'styles/[name].[contenthash].css',
-      chunkFilename: '[id].css',
+      chunkFilename: '[id].css'
     }),
 
     new WebpackManifestPlugin({
@@ -41,16 +41,14 @@ module.exports = merge(common('production'), {
           manifest[file.name] = file.path
           return manifest
         }, seed)
-        const entrypointFiles = entrypoints.main.filter(
-          (fileName) => !fileName.endsWith('.map')
-        )
+        const entrypointFiles = entrypoints.main.filter((fileName) => !fileName.endsWith('.map'))
 
         return {
           files: manifestFiles,
-          entrypoints: entrypointFiles,
+          entrypoints: entrypointFiles
         }
-      },
-    }),
+      }
+    })
   ],
 
   module: {
@@ -63,14 +61,33 @@ module.exports = merge(common('production'), {
             loader: 'css-loader',
             options: {
               importLoaders: 2,
-              sourceMap: false,
-            },
+              sourceMap: false
+            }
           },
           'postcss-loader',
-          'sass-loader',
-        ],
+          'sass-loader'
+        ]
       },
-    ],
+
+      {
+        test: /\.less$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              lessOptions: {
+                modifyVars: {
+                  hack: `true; @import "${paths.variableOverride}";`
+                },
+                javascriptEnabled: true
+              }
+            }
+          }
+        ]
+      }
+    ]
   },
 
   optimization: {
@@ -82,44 +99,44 @@ module.exports = merge(common('production'), {
       new TerserPlugin({
         terserOptions: {
           parse: {
-            ecma: 8,
+            ecma: 8
           },
           compress: {
             ecma: 5,
             warnings: false,
             comparisons: false,
-            inline: 2,
+            inline: 2
           },
           mangle: {
-            safari10: true,
+            safari10: true
           },
           keep_classnames: isEnvProductionProfile,
           keep_fnames: isEnvProductionProfile,
           output: {
             ecma: 5,
             comments: false,
-            ascii_only: true,
-          },
-        },
+            ascii_only: true
+          }
+        }
         // sourceMap: shouldUseSourceMap,
-      }),
+      })
     ],
 
     // Automatically split vendor and commons
     splitChunks: {
       chunks: 'all',
-      name: false,
+      name: false
     },
 
     // Keep the runtime chunk separated to enable long term caching
     runtimeChunk: {
-      name: (entrypoint) => `runtime-${entrypoint.name}`,
-    },
+      name: (entrypoint) => `runtime-${entrypoint.name}`
+    }
   },
 
   performance: {
     hints: false,
     maxEntrypointSize: 512000,
-    maxAssetSize: 512000,
-  },
+    maxAssetSize: 512000
+  }
 })
