@@ -7,7 +7,8 @@ import {
   Table,
   Layout,
   Collapse,
-  Modal
+  Modal,
+  Breadcrumb
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -19,6 +20,7 @@ const globalComponents = (app) => {
     .use(Layout)
     .use(Collapse)
     .use(Modal)
+    .use(Breadcrumb)
 }
 
 export default globalComponents
