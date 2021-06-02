@@ -2,8 +2,6 @@
   <section class="financing">
     <Search />
     <div class="box-utilities">
-      <ModalSearch />
-
       <Pagination />
     </div>
     <div>
@@ -11,6 +9,7 @@
         :columns="columns"
         :data-source="data"
         :pagination="false"
+        :size="middle"
         :scroll="{ y: '100vh' }"
       >
 
@@ -23,7 +22,7 @@
   import { defineComponent } from 'vue'
   import ModalSearch from '@/layouts/-components/ModalSearch'
   import Pagination from '@/layouts/-components/Pagination'
-  import Search from '@/views/Company/Search'
+  import Search from '@/views/Financing/Search'
 
   const columns = [
     { title: '日付', dataIndex: 'date', key: 'date', sorter: true },

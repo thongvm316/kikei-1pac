@@ -1,98 +1,139 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('company.title_search')" class="search-company" width="800px">
+  <a-modal v-model:visible="visible" :title="$t('financing.title_search')" class="search-financing" width="800px">
     <template #footer>
       <Form @submit="onSubmit">
-        <!-- Keyword -->
+        <!-- Group -->
         <div class="form-group">
           <Field
             v-slot="{ field, errors, handleChange }"
             v-model="filter.keyword"
-            :name="$t('company.keyword')"
+            :name="$t('financing.keyword')"
             rules="required"
           >
             <div class="form-content">
-              <label class="form-label">{{ $t('company.keyword') }}</label>
-              <div class="form-input">
-                <a-input
-                  :value="field.value"
-                  :class="{ has__error: errors.length }"
-                  class="w-339"
-                  placeholder="入力してください"
-                  @change="handleChange"
-                />
-                <!-- note -->
-                <span class="note" v-text="`※会社名、会社コードより検索します`" />
-                <!-- Error message -->
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.keyword')" class="errors">
+              <label class="form-label">{{ $t('financing.keyword') }}</label>
+
+              <div class="form-select">
+                <a-select default-value="lucy" style="width: 152px" @change="handleChange">
+                  <a-select-option value="jack">
+                    Jack
+                  </a-select-option>
+                  <a-select-option value="lucy">
+                    Lucy
+                  </a-select-option>
+                  <a-select-option value="Yiminghe">
+                    yiminghe
+                  </a-select-option>
+                </a-select>
+                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
+                  {{ message }}
+                </ErrorMessage>
+              </div>
+
+            </div>
+          </Field>
+        </div>
+        <!--./Group -->
+        <!--Stage-->
+        <div class="form-group">
+          <Field
+            v-slot="{ field, errors, handleChange }"
+            v-model="filter.keyword"
+            :name="$t('financing.keyword')"
+            rules="required"
+          >
+            <div class="form-content">
+              <label class="form-label">{{ $t('financing.stage') }}</label>
+
+              <div class="form-select">
+                <a-select default-value="lucy" style="width: 81px" @change="handleChange">
+                  <a-select-option value="jack">
+                    Jack
+                  </a-select-option>
+                  <a-select-option value="lucy">
+                    Lucy
+                  </a-select-option>
+                  <a-select-option value="Yiminghe">
+                    yiminghe
+                  </a-select-option>
+                </a-select>
+                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
+                  {{ message }}
+                </ErrorMessage>
+              </div>
+
+            </div>
+          </Field>
+        </div>
+        <!--./Stage -->
+        <!--Date From-->
+        <div class="form-group">
+          <Field
+            v-slot="{ field, errors, handleChange }"
+            v-model="filter.keyword"
+            :name="$t('financing.keyword')"
+            rules="required"
+          >
+            <div class="form-content">
+              <label class="form-label"></label>
+
+              <div class="form-select">
+                <a-date-picker @change="onChange" style="width: 142px" />
+                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
+                  {{ message }}
+                </ErrorMessage>
+              </div>
+              <div class="form-select">
+                <SwapRightIcon />
+              </div>
+              <div class="form-select">
+                <a-date-picker @change="onChange" style="width: 142px" />
+                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
                   {{ message }}
                 </ErrorMessage>
               </div>
             </div>
           </Field>
         </div>
-
-        <!-- Classification -->
+        <!--./Date From -->
+        <!-- Display -->
         <div class="form-group">
           <Field
             v-slot="{ field, handleChange }"
             v-model="filter.classification"
-            :name="$t('company.classification')"
+            :name="$t('financing.classification')"
             rules="required"
           >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('company.classification') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="plainOptions" @change="handleChange" />
+            <div class="form-content">
+              <label class="form-label">{{ $t('financing.display') }}</label>
+              <div class="form-checkbox">
+                <a-radio-group v-model="value" :options="plainOptions" @change="onChange">
+                  <a-radio :value="1">
+                  </a-radio>
+                  <a-radio :value="2">
+                  </a-radio>
+                </a-radio-group>
+
+              </div>
             </div>
             <!-- Error message -->
-            <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.classification')" class="errors">{{
+            <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.classification')" class="errors">{{
               message
-              }}</ErrorMessage>
+              }}
+            </ErrorMessage>
           </Field>
         </div>
+        <!-- ./Display -->
 
-        <!-- Country -->
-        <Field v-slot="{ field, handleChange }" v-model="filter.country" :name="$t('company.country')" rules="required">
-          <div class="checkbox__input">
-            <label class="label-input">
-              {{ $t('company.country') }}
-            </label>
-            <a-checkbox-group v-model="field.value" :options="countries" @change="handleChange" />
-          </div>
-          <!-- Error message -->
-          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.country')" class="errors">{{
-            message
-            }}</ErrorMessage>
-        </Field>
 
-        <!-- Currency -->
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="filter.currency"
-          :name="$t('company.currency')"
-          rules="required"
-        >
-          <div class="checkbox__input">
-            <label class="label-input">
-              {{ $t('company.currency') }}
-            </label>
-            <a-checkbox-group v-model="field.value" :options="currencies" @change="handleChange" />
-          </div>
-          <!-- Error message -->
-          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.currency')" class="errors">{{
-            message
-            }}</ErrorMessage>
-        </Field>
-
-        <a-button key="back" @click="handleCancel">{{ $t('company.handle_cancel') }}</a-button>
+        <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit" :loading="loading">
           <template #icon>
             <span class="btn-icon">
               <search-icon />
             </span>
           </template>
-          {{ $t('company.handle_ok') }}
+          {{ $t('financing.handle_ok') }}
         </a-button>
       </Form>
     </template>
@@ -103,11 +144,13 @@
   import { defineComponent, ref, reactive } from 'vue'
 
   import SearchIcon from '@/assets/icons/ico_search.svg'
+  import SwapRightIcon from '@/assets/icons/ico_swap_right.svg'
 
   export default defineComponent({
     name: 'Search',
     components: {
-      SearchIcon
+      SearchIcon,
+      SwapRightIcon
     },
     setup() {
       const loading = ref(false)
