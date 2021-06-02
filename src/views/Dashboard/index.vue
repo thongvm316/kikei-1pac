@@ -1,6 +1,16 @@
 <template>
   <div>
-    <a-date-picker />
+    <form>
+      <select v-model="locale">
+        <option value="en">English</option>
+        <option value="ja">Japanese</option>
+      </select>
+    </form>
+
+    <a-config-provider :locale="locales[locale]">
+      <a-date-picker />
+    </a-config-provider>
+
     <a-button type="primary">Button</a-button>
     <a-button type="primary" shape="circle">
       <template #icon>
@@ -102,6 +112,10 @@ import SearchIcon from '@/assets/icons/ico_search.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
 
+import { useI18n } from 'vue-i18n'
+import localeJa from 'ant-design-vue/es/locale/ja_JP'
+import localeEn from 'ant-design-vue/es/locale/en_US'
+
 // test
 const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -163,6 +177,9 @@ export default defineComponent({
   },
 
   setup() {
+    const locales = ref({ en: localeEn, ja: localeJa })
+    const { locale } = useI18n()
+
     const plainOptions = ['Apple', 'Pear', 'Orange']
     const checkedList = ref(['Apple', 'Orange'])
     const page = ref(3)
@@ -185,6 +202,8 @@ export default defineComponent({
     }
 
     return {
+      locales,
+      locale,
       page,
       plainOptions,
       checkedList,
