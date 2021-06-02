@@ -8,7 +8,8 @@ export default createI18n({
   // legacy: false, // you must set `false`, to use Composition API
   locale: 'ja', // set locale
   fallbackLocale: 'en', // set fallback locale
-  messages: { // set locale messages
+  messages: {
+    // set locale messages
     en,
     vi,
     ja

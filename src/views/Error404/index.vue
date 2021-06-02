@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Error 404</h1>
-    <router-link to='/'>Go to dashboard</router-link>
+    <router-link to="/">Go to dashboard</router-link>
   </div>
 </template>
 
@@ -9,6 +9,6 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Error404Page',
+  name: 'Error404Page'
 })
 </script>

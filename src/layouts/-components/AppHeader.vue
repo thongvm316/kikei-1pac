@@ -1,7 +1,5 @@
 <template>
-  <a-layout-header class="header" mode="horizontal">
-    Header
-  </a-layout-header>
+  <a-layout-header class="header" mode="horizontal"> Header </a-layout-header>
 </template>
 
 <script>
