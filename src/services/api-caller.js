@@ -64,7 +64,7 @@ export default function apiCaller({
   if (needAuth) {
     const accessToken = StorageService.get(storageKeys.authProfile)?.token || store.state.auth.authProfile?.token
     if (accessToken) headers = {
-      Authorization: `Bearer ${accessToken.Token}`
+      Authorization: `Bearer ${accessToken}`
     }
   }
 
