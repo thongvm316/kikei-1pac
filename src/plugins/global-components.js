@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  Typography,
   Button,
   DatePicker,
   Checkbox,
@@ -7,11 +8,14 @@ import {
   Table,
   Layout,
   Collapse,
-  Modal
+  Modal,
+  Form,
+  Input
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
-  app.use(Button)
+  app.use(Typography)
+    .use(Button)
     .use(DatePicker)
     .use(Checkbox)
     .use(Pagination)
@@ -19,6 +23,8 @@ const globalComponents = (app) => {
     .use(Layout)
     .use(Collapse)
     .use(Modal)
+    .use(Form)
+    .use(Input)
 }
 
 export default globalComponents

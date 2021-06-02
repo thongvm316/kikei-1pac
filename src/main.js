@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { store } from '@/store'
+import store from '@/store'
 import router from '@/router'
 import i18n from '@/locale'
 import directives from '@/directives'
