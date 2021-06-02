@@ -62,10 +62,10 @@ export default defineComponent ({
     // input validator rules
     const loginFormRules = {
       username: [
-        { required: true, message: 'Please input Activity name', trigger: 'change' }
+        { required: true, message: 'Please input username', trigger: 'change' }
       ],
       password: [
-        { required: true, message: 'Please input Activity name', trigger: 'change' }
+        { required: true, message: 'Please input password', trigger: 'change' }
       ]
     }
 
