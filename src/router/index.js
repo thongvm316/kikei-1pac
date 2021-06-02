@@ -54,7 +54,8 @@ const routes = [
           {
             path: 'new',
             name: 'project-new',
-            component: lazyLoadRoute('Project/new')
+            component: lazyLoadRoute('Project/new'),
+            meta: { title: `New Project | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.new' }
           },
           {
             path: ':id/edit',
@@ -94,7 +95,7 @@ const routes = [
         path: '/financing',
         name: 'financing',
         component: lazyLoadRoute('Financing'),
-        meta: { title: `Financing Report | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.dashboard' }
+        meta: { title: `Financing Report | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.financing' }
       },
 
       {
@@ -115,13 +116,13 @@ const routes = [
             path: 'company',
             name: 'company',
             component: lazyLoadRoute('Company'),
-            meta: { title: `Company - 1 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.company' }
+            meta: { title: `Company | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.company' }
           },
           {
             path: 'category',
             name: 'category',
             component: lazyLoadRoute('Category'),
-            meta: { title: `Setting - 2 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.category' }
+            meta: { title: `Category | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.category' }
           },
           {
             path: '1',

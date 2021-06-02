@@ -1,4 +1,4 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 
 // variables
 @import './shared/variables';
@@ -9,8 +9,14 @@
 // base
 @import './base/base';
 
-// elemnts
+// element
 @import './elements';
 
 // components
-@import './components/';
+@import './components';
+
+// utils
+@import './shared/utils';
+
+// pages
+@import './pages';

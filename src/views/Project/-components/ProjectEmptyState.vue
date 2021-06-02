@@ -7,10 +7,8 @@
     <h2 class="project-empty-section__headline headline--lg">まだプロジェクトがありません。</h2>
     <p class="project-empty-section__desc">
       新規プロジェクトを追加するには、
-      <br/>
-      <router-link
-        :to="{ name: 'project-new' }"
-        class="link--primary">ここをクリック</router-link>
+      <br />
+      <router-link :to="{ name: 'project-new' }" class="link--primary">ここをクリック</router-link>
       してください。
     </p>
   </div>
@@ -36,18 +34,18 @@ export default defineComponent({
   margin: 80px auto;
   text-align: center;
 
-  &__icon svg, {
+  &__icon svg {
     display: inline-block;
   }
 
   &__headline {
-    margin-top: 18px
+    margin-top: 18px;
   }
 
   &__desc {
     font-size: 16px;
     line-height: 24px;
-    margin-top: 12px
+    margin-top: 12px;
   }
 }
 </style>

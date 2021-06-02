@@ -12,52 +12,40 @@
       <ul class="aside__menu">
         <li v-for="navItem in navList" :key="navItem.name" class="aside__list">
           <router-link
-            v-if="!navItem.childrens"
-            v-slot="{ navigate, isActive, isExactActive }"
+            v-if="!navItem.children"
             :to="{ name: navItem.name }"
-            custom
+            :class="['aside__link', navItem.name === 'dashboard' && 'is-dashboard']"
           >
-            <div
-              :class="[
-                'aside__link',
-                isActive && 'is-active',
-                isExactActive && 'router-link-exact-active',
-                navItem.name === 'dashboard' && 'is-dashboard',
-                subNavList.includes(navItem.name) && 'is-sub-nav-open'
-              ]"
-              @click="!navItem.childrens ? navigate(navItem.name) : toggleSubNav(navItem.name)"
-            >
-              <component :is="navItem.icon" class="aside__link--nav-icon" />
-              <span class="aside__link--text">{{ $t(navItem.label) }}</span>
-              <arrow-down-icon v-if="navItem.childrens" class="aside__link--arrow-icon" />
-            </div>
+            <component :is="navItem.icon" class="aside__link--nav-icon" />
+            <span class="aside__link--text">{{ $t(navItem.label) }}</span>
           </router-link>
 
           <div v-else class="aside__collapse">
-            <a-collapse accordion>
-              <a-collapse-panel :key="navItem.name" :show-arrow="false" :is-active="isCollapse">
+            <a-collapse v-model:activeKey="activeKey" :bordered="false">
+              <a-collapse-panel :key="navItem.name" :show-arrow="false" :force-render="true">
                 <template #extra>
-                  <li class="aside__list">
-                    <router-link v-slot="{ navigate, isActive, isExactActive }" :to="{ name: navItem.name }" custom>
+                  <li class="aside__list" @click="headerCollapseClick">
+                    <router-link v-slot="{ isActive, isExactActive }" :to="{ name: navItem.name }" custom>
                       <div
                         :class="[
-                          'aside__link',
+                          'aside__collapse--header aside__link',
                           isActive && 'is-active',
                           isExactActive && 'router-link-exact-active',
                           navItem.name === 'dashboard' && 'is-dashboard',
-                          subNavList.includes(navItem.name) && 'is-sub-nav-open'
+                          activeKey.includes(navItem.name) && 'is-sub-nav-open'
                         ]"
-                        @click="!navItem.childrens ? navigate(navItem.name) : toggleSubNav(navItem.name)"
+                        @click="null"
                       >
                         <component :is="navItem.icon" class="aside__link--nav-icon" />
                         <span class="aside__link--text">{{ $t(navItem.label) }}</span>
-                        <arrow-down-icon v-if="navItem.childrens" class="aside__link--arrow-icon" />
+                        <arrow-down-icon class="aside__link--arrow-icon" />
                       </div>
                     </router-link>
                   </li>
                 </template>
-                <ul class="aside__sub-nav">
-                  <li v-for="subNavItem in navItem.childrens" :key="subNavItem.name" class="aside__list">
+
+                <ul v-if="isShowChidrenNav" class="aside__sub-nav">
+                  <li v-for="subNavItem in navItem.children" :key="subNavItem.name" class="aside__list">
                     <router-link :to="{ name: subNavItem.name }" class="aside__link">
                       <i class="aside__link--circle-icon" />
                       <span class="aside__text">{{ $t(subNavItem.label) }}</span>
@@ -74,8 +62,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-// import KAccordion from '@/components/KAccordion'
+import { defineComponent, ref, watch } from 'vue'
 
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
@@ -84,89 +71,122 @@ import FinancingIcon from '@/assets/icons/ico_financing.svg'
 import SettingIcon from '@/assets/icons/ico_setting.svg'
 import SideBarCloseIcon from '@/assets/icons/ico_sidebar_close.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
+import AccountingIcon from '@/assets/icons/ico_accounting.svg'
 
 export default defineComponent({
   name: 'AppSidebar',
 
   components: {
-    // KAccordion,
     DashboardIcon,
     DepositIcon,
     ProjectIcon,
     SettingIcon,
     FinancingIcon,
     SideBarCloseIcon,
-    ArrowDownIcon
+    ArrowDownIcon,
+    AccountingIcon
   },
 
   setup() {
+    const navList = [
+      {
+        name: 'dashboard',
+        label: 'breadcrumb.dashboard',
+        icon: 'DashboardIcon'
+      },
+      {
+        name: 'project',
+        label: 'breadcrumb.project',
+        icon: 'ProjectIcon'
+      },
+      {
+        name: 'deposit',
+        label: 'breadcrumb.deposit',
+        icon: 'DepositIcon'
+      },
+      {
+        name: 'financing',
+        label: 'breadcrumb.financing',
+        icon: 'FinancingIcon'
+      },
+      {
+        name: 'accounting',
+        label: 'breadcrumb.accounting',
+        icon: 'AccountingIcon'
+      },
+      {
+        name: 'setting',
+        label: 'breadcrumb.setting',
+        icon: 'SettingIcon',
+        children: [
+          {
+            name: 'company',
+            label: 'breadcrumb.company'
+          },
+          {
+            name: 'category',
+            label: 'breadcrumb.category'
+          },
+          {
+            name: 'setting-1',
+            label: 'breadcrumb.setting'
+          },
+          {
+            name: 'setting-2',
+            label: 'breadcrumb.setting'
+          },
+          {
+            name: 'setting-3',
+            label: 'breadcrumb.setting'
+          },
+          {
+            name: 'setting-4',
+            label: 'breadcrumb.setting'
+          }
+        ]
+      }
+    ]
+
+    // collapse sidebar
     const isCollapse = ref(false)
+
     const toggleSideBar = () => {
       isCollapse.value = !isCollapse.value
     }
 
-    const subNavList = ref([])
-    const toggleSubNav = (name) => {
-      subNavList.value = subNavList.value.includes(name)
-        ? subNavList.value.filter((i) => i !== name)
-        : [...subNavList.value, name]
+    // collapse active sub menu
+    const activeKey = ref([])
+    const preActiveKeys = ref([])
+    const isShowChidrenNav = ref(true)
+
+    const headerCollapseClick = (event) => {
+      isCollapse.value && event.stopPropagation()
     }
 
+    watch(activeKey, (newVal) => {
+      if (!isCollapse.value) preActiveKeys.value = newVal
+    })
+
+    watch(isCollapse, () => {
+      activeKey.value = isCollapse.value
+        ? navList.filter((item) => item.children).map((item) => item.name)
+        : preActiveKeys.value
+
+      // disable transition panel in first time
+      isShowChidrenNav.value = false
+
+      setTimeout(() => {
+        isShowChidrenNav.value = true
+      }, 0)
+    })
+
     return {
-      subNavList,
+      navList,
       isCollapse,
       toggleSideBar,
-      toggleSubNav
-    }
-  },
-
-  data() {
-    return {
-      navList: [
-        {
-          name: 'dashboard',
-          label: 'breadcrumb.dashboard',
-          icon: 'DashboardIcon'
-        },
-        {
-          name: 'project',
-          label: 'breadcrumb.project',
-          icon: 'ProjectIcon'
-        },
-        {
-          name: 'deposit',
-          label: 'breadcrumb.deposit',
-          icon: 'DepositIcon'
-        },
-        {
-          name: 'financing',
-          label: 'breadcrumb.financing',
-          icon: 'FinancingIcon'
-        },
-        {
-          name: 'setting',
-          label: 'breadcrumb.setting',
-          icon: 'SettingIcon',
-          childrens: [
-            {
-              name: 'setting-1',
-              label: 'breadcrumb.setting'
-            },
-            {
-              name: 'setting-2',
-              label: 'breadcrumb.setting'
-            },
-            {
-              name: 'setting-3',
-              label: 'breadcrumb.setting'
-            },
-            {
-              name: 'setting-4',
-              label: 'breadcrumb.setting'
-            }
-          ]
-        }
-      ]
+      activeKey,
+      headerCollapseClick,
+      isShowChidrenNav
     }
   }
 })
@@ -190,6 +210,12 @@ $width-sub-nav-collapse: 150px;
   left: 0;
   bottom: 0;
   z-index: 1000;
+  height: 100vh;
+  overflow: hidden;
+
+  &:hover {
+    overflow: auto;
+  }
 
   ul {
     list-style: none;
@@ -203,6 +229,7 @@ $width-sub-nav-collapse: 150px;
 
   &__link,
   &__top--toggle {
+    display: block;
     padding: 8px 0 8px 24px;
     position: relative;
     cursor: pointer;
@@ -255,10 +282,16 @@ $width-sub-nav-collapse: 150px;
     }
   }
 
-  .is-active.aside__link:not(.is-dashboard),
-  .is-active:not(.is-dashboard) .aside__link--nav-icon,
-  .router-link-exact-active {
+  .is-active.aside__link:not(.is-dashboard, .aside__collapse--header),
+  .is-active:not(.is-dashboard, .aside__collapse--header) .aside__link--nav-icon,
+  .is-active:not(.is-dashboard, .aside__collapse--header) .aside__link--text,
+  .router-link-exact-active,
+  .router-link-exact-active > .aside__link--text {
     background-color: $color-primary-9;
+    color: $color-primary-3;
+  }
+
+  .is-active.aside__link.aside__collapse--header {
     color: $color-primary-3;
   }
 
@@ -281,7 +314,6 @@ $width-sub-nav-collapse: 150px;
   }
 
   &__sub-nav &__link {
-    display: block;
     padding-left: 50px;
     color: $color-grey-100;
 
@@ -350,6 +382,8 @@ $width-sub-nav-collapse: 150px;
 
 .aside.is-collapse {
   width: $width-sidebar-collapse;
+  position: relative;
+  overflow: visible;
 
   .aside__link--text,
   .aside__link--arrow-icon,
@@ -373,7 +407,7 @@ $width-sub-nav-collapse: 150px;
     position: absolute;
     left: $width-sidebar-collapse;
     width: $width-sub-nav-collapse;
-    background-color: $color-primary-10;
+    border-left: 1px solid #fff;
   }
 
   .aside__link--text {
@@ -381,13 +415,13 @@ $width-sub-nav-collapse: 150px;
     padding: 8px 0 8px 12px;
   }
 
-  .aside__sub-nav {
-    top: 37px;
+  .aside__link:not(.router-link-exact-active) .aside__link--text {
+    background-color: $color-primary-10;
   }
 
-  .aside__sub-nav,
-  .aside__link--text {
-    border-left: 1px solid #fff;
+  .aside__sub-nav {
+    top: 37px;
+    background-color: $color-primary-10;
   }
 
   .aside__sub-nav .aside__link {

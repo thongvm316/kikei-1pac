@@ -5,5 +5,5 @@ export default {
   financing: '資金繰り',
   accounting: 'accounting',
   setting: '登録設定',
-  edit: '登録',
+  edit: '登録'
 }
