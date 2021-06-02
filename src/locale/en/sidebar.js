@@ -5,5 +5,5 @@ export default {
   financing: 'Financing',
   accounting: 'Accounting',
   setting: 'Setting',
-  edit: 'Edit',
+  edit: 'Edit'
 }

@@ -49,8 +49,8 @@ import { defineComponent, defineAsyncComponent, reactive } from 'vue'
 // const KInput = defineAsyncComponent(() => import('@/components/KInput'))
 // const KButton = defineAsyncComponent(() => import('@/components/KButton'))
 
-export default defineComponent ({
-  name: 'LoginPage',
+export default defineComponent({
+  name: 'LoginPage'
 
   // setup () {
   //   const params = {

@@ -40,15 +40,16 @@
 
     <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
 
-     <a-pagination
+    <a-pagination
       v-model:current="page"
       :total="101"
       :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
       :page-size="10"
-      size="small" />
+      size="small"
+    />
 
     <a-button type="primary" @click="showModal">Open Modal</a-button>
-    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk" >
+    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk">
       <template #footer>
         <a-button @click="handleCancel">クリア</a-button>
         <a-button type="primary">
@@ -73,14 +74,15 @@
         :row-selection="rowSelection"
         :pagination="false"
         :expand-icon-column-index="expandIconColumnIndex"
-        :expand-icon-as-cell="false">
+        :expand-icon-as-cell="false"
+      >
         <template #action="{ record }">
           <a-button :disabled="record.disabled" type="primary">確定</a-button>
         </template>
 
         <template #expandIcon="{ expanded, onExpand }">
-          <arrow-up-icon class="u-cursor-pointer" @click="onExpand" v-if="expanded" />
-          <arrow-down-icon class="u-cursor-pointer" v-else @click="onExpand" />
+          <arrow-up-icon v-if="expanded" class="u-cursor-pointer" @click="onExpand" />
+          <arrow-down-icon v-else class="u-cursor-pointer" @click="onExpand" />
         </template>
 
         <template #expandedRowRender="{ record }">
@@ -105,7 +107,7 @@ const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   { title: 'Age', dataIndex: 'age', key: 'age' },
   { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action',  } },
+  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action' } },
   { title: '', dataIndex: 'xxx', key: 'xxx' }
 ]
 
@@ -145,8 +147,8 @@ const rowSelection = {
   },
   onSelectAll: (selected, selectedRows, changeRows) => {
     console.log(selected, selectedRows, changeRows)
-  },
-};
+  }
+}
 
 const expandIconColumnIndex = 5
 
@@ -161,7 +163,7 @@ export default defineComponent({
   },
 
   setup() {
-    const plainOptions = ['Apple', 'Pear', 'Orange'];
+    const plainOptions = ['Apple', 'Pear', 'Orange']
     const checkedList = ref(['Apple', 'Orange'])
     const page = ref(3)
     const visible = ref(false)
@@ -176,11 +178,11 @@ export default defineComponent({
 
     const showModal = () => {
       visible.value = true
-    };
+    }
 
-    const handleOk = e => {
+    const handleOk = (e) => {
       visible.value = false
-    };
+    }
 
     return {
       page,

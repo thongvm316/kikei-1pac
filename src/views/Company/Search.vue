@@ -1,26 +1,29 @@
 <template>
-  <a-modal
-    v-model:visible="visible"
-    :title="$t('company.title_search')"
-    class="search-company"
-    width="800px">
+  <a-modal v-model:visible="visible" :title="$t('company.title_search')" class="search-company" width="800px">
     <template #footer>
       <Form @submit="onSubmit">
         <!-- Keyword -->
         <div class="form-group">
-          <Field v-slot="{ field, errors, handleChange }" v-model="filter.keyword" :name="$t('company.keyword')" rules="required">
+          <Field
+            v-slot="{ field, errors, handleChange }"
+            v-model="filter.keyword"
+            :name="$t('company.keyword')"
+            rules="required"
+          >
             <div class="form-content">
               <label class="form-label">{{ $t('company.keyword') }}</label>
               <div class="form-input">
                 <a-input
                   :value="field.value"
-                  :class="{'has__error': errors.length}"
+                  :class="{ has__error: errors.length }"
                   class="w-339"
-                  placeholder="入力してください" @change="handleChange" />
+                  placeholder="入力してください"
+                  @change="handleChange"
+                />
                 <!-- note -->
-                <span class="note" v-text="`※会社名、会社コードより検索します`"/>
+                <span class="note" v-text="`※会社名、会社コードより検索します`" />
                 <!-- Error message -->
-                <ErrorMessage as="span" v-slot="{ message }" :name="$t('company.keyword')" class="errors">
+                <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.keyword')" class="errors">
                   {{ message }}
                 </ErrorMessage>
               </div>
@@ -30,15 +33,22 @@
 
         <!-- Classification -->
         <div class="form-group">
-          <Field v-slot="{ field, handleChange }" v-model="filter.classification" :name="$t('company.classification')" rules="required">
+          <Field
+            v-slot="{ field, handleChange }"
+            v-model="filter.classification"
+            :name="$t('company.classification')"
+            rules="required"
+          >
             <div class="checkbox__input">
               <label class="label-input">
                 {{ $t('company.classification') }}
               </label>
-              <a-checkbox-group :options="plainOptions" v-model="field.value" @change="handleChange"/>
+              <a-checkbox-group v-model="field.value" :options="plainOptions" @change="handleChange" />
             </div>
             <!-- Error message -->
-            <ErrorMessage as="span" v-slot="{ message }" :name="$t('company.classification')" class="errors">{{ message }}</ErrorMessage>
+            <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.classification')" class="errors">{{
+              message
+            }}</ErrorMessage>
           </Field>
         </div>
 
@@ -48,32 +58,41 @@
             <label class="label-input">
               {{ $t('company.country') }}
             </label>
-            <a-checkbox-group :options="countries" v-model="field.value" @change="handleChange"/>
+            <a-checkbox-group v-model="field.value" :options="countries" @change="handleChange" />
           </div>
           <!-- Error message -->
-          <ErrorMessage as="span" v-slot="{ message }" :name="$t('company.country')" class="errors">{{ message }}</ErrorMessage>
+          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.country')" class="errors">{{
+            message
+          }}</ErrorMessage>
         </Field>
 
         <!-- Currency -->
-        <Field v-slot="{ field, handleChange }" v-model="filter.currency" :name="$t('company.currency')" rules="required">
+        <Field
+          v-slot="{ field, handleChange }"
+          v-model="filter.currency"
+          :name="$t('company.currency')"
+          rules="required"
+        >
           <div class="checkbox__input">
             <label class="label-input">
               {{ $t('company.currency') }}
             </label>
-            <a-checkbox-group :options="currencies" v-model="field.value" @change="handleChange"/>
+            <a-checkbox-group v-model="field.value" :options="currencies" @change="handleChange" />
           </div>
           <!-- Error message -->
-          <ErrorMessage as="span" v-slot="{ message }" :name="$t('company.currency')" class="errors">{{ message }}</ErrorMessage>
+          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.currency')" class="errors">{{
+            message
+          }}</ErrorMessage>
         </Field>
 
-        <a-button key="back" @click="handleCancel">{{ $t("company.handle_cancel") }}</a-button>
-        <a-button key="submit" type="primary" htmlType="submit" :loading="loading">
+        <a-button key="back" @click="handleCancel">{{ $t('company.handle_cancel') }}</a-button>
+        <a-button key="submit" type="primary" html-type="submit" :loading="loading">
           <template #icon>
             <span class="btn-icon">
               <search-icon />
             </span>
           </template>
-          {{ $t("company.handle_ok") }}
+          {{ $t('company.handle_ok') }}
         </a-button>
       </Form>
     </template>
@@ -81,12 +100,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from "vue"
+import { defineComponent, ref, reactive } from 'vue'
 
-import SearchIcon from "@/assets/icons/ico_search.svg"
+import SearchIcon from '@/assets/icons/ico_search.svg'
 
 export default defineComponent({
-  name: "Search",
+  name: 'Search',
   components: {
     SearchIcon
   },
@@ -96,7 +115,7 @@ export default defineComponent({
     const plainOptions = reactive(['顧客', 'パートナー'])
     const countries = reactive(['Japan', 'Vietnam'])
     const currencies = reactive(['JPY', 'VND'])
-    const filter = reactive({keyword: '', classification: [], country: [], currency: []})
+    const filter = reactive({ keyword: '', classification: [], country: [], currency: [] })
 
     function handleOk() {
       loading.value = true
@@ -110,7 +129,7 @@ export default defineComponent({
       visible.value = false
     }
 
-    function onSubmit () {
+    function onSubmit() {
       alert('ok')
     }
 

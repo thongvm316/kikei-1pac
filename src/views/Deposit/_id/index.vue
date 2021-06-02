@@ -1,7 +1,5 @@
 <template>
-  <div>
-    Deposit edit page
-  </div>
+  <div>Deposit edit page</div>
 </template>
 
 <script>
@@ -12,6 +10,4 @@ export default defineComponent({
 })
 </script>
 
-<style>
-
-</style>
+<style></style>
