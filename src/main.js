@@ -5,6 +5,7 @@ import i18n from '@/locale'
 import directives from '@/directives'
 import globalComponents from '@/plugins/global-components'
 import Validation from '@/plugins/validation'
+import ConfigValidationMixin from '@/mixins/config-validation.mixin'
 
 import App from '@/App.vue'
 
@@ -30,6 +31,9 @@ globalComponents(app)
 
 // register vee validate
 Validation(app)
+
+// global mixin
+ConfigValidationMixin(app)
 
 // mount app
 app.mount('#app')
