@@ -13,7 +13,11 @@ import {
   ConfigProvider,
   Breadcrumb,
   Popover,
-  Menu
+  Menu,
+  Radio,
+  Form,
+  Select,
+  Tag
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -31,6 +35,11 @@ const globalComponents = (app) => {
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
+    .use(Radio)
+    .use(Form)
+    .use(Select)
+    .use(Input)
+    .use(Tag)
 }
 
 export default globalComponents
