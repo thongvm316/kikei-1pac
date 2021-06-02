@@ -8,7 +8,8 @@ import {
   Layout,
   Collapse,
   Modal,
-  Input
+  Input,
+  Icon
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -21,6 +22,7 @@ const globalComponents = (app) => {
     .use(Collapse)
     .use(Modal)
     .use(Input)
+    .use(Icon)
 }
 
 export default globalComponents

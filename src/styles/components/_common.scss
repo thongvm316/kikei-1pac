@@ -1,0 +1,13 @@
+.errors {
+  color: #cd201f;
+  padding: 5px 0px 0px;
+  display: block;
+  font-size: 12px;
+}
+
+.has__error {
+  border-color: #cd201f;
+  &:hover, &:focus {
+    border-color: #cd201f;
+  }
+}

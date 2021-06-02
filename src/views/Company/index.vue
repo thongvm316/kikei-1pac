@@ -1,11 +1,11 @@
 <template>
   <section>
+    <Search />
     <div class="box-utilities">
       <ModalSearch />
 
       <Pagination />
     </div>
-
     <div>
       <a-table
         :columns="columns"
@@ -56,11 +56,14 @@ for (let i = 0; i < 50; i++) {
 
 const expandIconColumnIndex = 5
 
+import Search from '@/views/Company/Search'
+
 export default defineComponent({
   name: 'CompanyPage',
   components: {
     Pagination,
-    ModalSearch
+    ModalSearch,
+    Search
   },
 
   setup() {

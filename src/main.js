@@ -4,6 +4,7 @@ import router from '@/router'
 import i18n from '@/locale'
 import directives from '@/directives'
 import globalComponents from '@/plugins/global-components'
+import Validation from '@/plugins/validation'
 
 import App from '@/App.vue'
 
@@ -26,6 +27,9 @@ app.use(i18n)
 
 // register ant-design as global components
 globalComponents(app)
+
+// register vee validate
+Validation(app)
 
 // mount app
 app.mount('#app')
