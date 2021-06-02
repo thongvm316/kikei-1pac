@@ -5,7 +5,7 @@
         <k-breadcrumb />
       </div>
       <div class="header__content--right">
-        <a-button class="header__search"><search-icon /></a-button>
+        <a-button class="header__search" @click="openModalSearch"><search-icon /></a-button>
         <k-profile />
       </div>
     </div>
@@ -18,6 +18,8 @@ import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'AppHeader',
@@ -29,7 +31,14 @@ export default defineComponent({
   },
 
   setup() {
-    return {}
+    const store = useStore()
+    const route = useRoute()
+
+    const openModalSearch = () => {
+      store.commit('setCurrentRoute', route.name)
+    }
+
+    return { route, openModalSearch }
   }
 })
 </script>
