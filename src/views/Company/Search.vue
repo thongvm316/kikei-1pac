@@ -8,12 +8,13 @@
       <Form @submit="onSubmit">
         <!-- Keyword -->
         <div class="form-group">
-          <Field v-slot="{ field, handleChange }" v-model="filter.keyword" :name="$t('company.keyword')" rules="required">
+          <Field v-slot="{ field, errors, handleChange }" v-model="filter.keyword" :name="$t('company.keyword')" rules="required">
             <div class="form-content">
               <label class="form-label">{{ $t('company.keyword') }}</label>
               <div class="form-input">
                 <a-input
                   :value="field.value"
+                  :class="{'has__error': errors.length}"
                   class="w-339"
                   placeholder="入力してください" @change="handleChange" />
                 <!-- note -->
