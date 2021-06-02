@@ -12,7 +12,8 @@ import {
   Icon,
   Breadcrumb,
   Popover,
-  Menu
+  Menu,
+  ConfigProvider
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -29,6 +30,7 @@ const globalComponents = (app) => {
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
+    .use(ConfigProvider)
 }
 
 export default globalComponents
