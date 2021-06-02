@@ -8,5 +8,5 @@ export default {
   category: '登録大分類',
   setting: '登録設定',
   edit: '登録',
-  new: 'New'
+  new: '登録'
 }
