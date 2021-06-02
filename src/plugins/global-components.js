@@ -10,10 +10,11 @@ import {
   Modal,
   Input,
   Icon,
+  ConfigProvider,
   Breadcrumb,
   Popover,
   Menu,
-  ConfigProvider
+  notification
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -27,10 +28,12 @@ const globalComponents = (app) => {
     .use(Modal)
     .use(Input)
     .use(Icon)
+    .use(ConfigProvider)
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
-    .use(ConfigProvider)
+  // Config global notification
+  app.config.globalProperties.$notification = notification
 }
 
 export default globalComponents
