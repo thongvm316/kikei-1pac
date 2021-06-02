@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="financing">
     <Search />
     <div class="box-utilities">
       <ModalSearch />
@@ -34,17 +34,36 @@
     { title: '合計', dataIndex: 'total', key: 'total' }
   ]
 
-  const data = [
-  ]
+  const data = []
   for (let i = 0; i < 50; i++) {
     data.push({
       key: i,
       date: '20/12/2021',
-      acb_jp: '111,323,343,343',
-      acb_vn_1: '111,323,3143,343',
-      acb_vn_2: '111,323,3143,343',
-      acb_vn_3: '111,323,3143,343',
-      total: '111,323,341,243'
+      acb_jp: `${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 2
+      }).format(Math.random() * 99996999 * (Math.round(Math.random()) ? 1 : -1))}`,
+      acb_vn_1: `${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 2
+      }).format(Math.random() * 999933999 * (Math.round(Math.random()) ? 1 : -1))}`,
+      acb_vn_2: `${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 2
+      }).format(Math.random() * 99699999 * (Math.round(Math.random()) ? 1 : -1))}`,
+      acb_vn_3: `${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 2
+      }).format(Math.random() * 999955599 * (Math.round(Math.random()) ? 1 : -1))}`,
+      total: `${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 2
+      }).format(Math.random() * 999999999 * (Math.round(Math.random()) ? 1 : -1))}`
     })
   }
 
@@ -52,7 +71,6 @@
     name: 'FinancingPage',
     components: {
       Pagination,
-      ModalSearch,
       Search
     },
     setup() {
