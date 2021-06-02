@@ -1,6 +1,4 @@
-<template>
-  Project New
-</template>
+<template>Project New</template>
 
 <script>
 import { defineComponent } from 'vue'
@@ -10,5 +8,4 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

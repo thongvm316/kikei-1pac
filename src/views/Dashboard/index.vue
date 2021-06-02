@@ -1,6 +1,16 @@
 <template>
   <div>
-    <a-date-picker />
+    <form>
+      <select v-model="locale">
+        <option value="en">English</option>
+        <option value="ja">Japanese</option>
+      </select>
+    </form>
+
+    <a-config-provider :locale="locales[locale]">
+      <a-date-picker />
+    </a-config-provider>
+
     <a-button type="primary">Button</a-button>
     <a-button type="primary" shape="circle">
       <template #icon>
@@ -40,15 +50,16 @@
 
     <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
 
-     <a-pagination
+    <a-pagination
       v-model:current="page"
       :total="101"
       :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
       :page-size="10"
-      size="small" />
+      size="small"
+    />
 
     <a-button type="primary" @click="showModal">Open Modal</a-button>
-    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk" >
+    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk">
       <template #footer>
         <a-button @click="handleCancel">クリア</a-button>
         <a-button type="primary">
@@ -73,14 +84,15 @@
         :row-selection="rowSelection"
         :pagination="false"
         :expand-icon-column-index="expandIconColumnIndex"
-        :expand-icon-as-cell="false">
+        :expand-icon-as-cell="false"
+      >
         <template #action="{ record }">
           <a-button :disabled="record.disabled" type="primary">確定</a-button>
         </template>
 
         <template #expandIcon="{ expanded, onExpand }">
-          <arrow-up-icon class="u-cursor-pointer" @click="onExpand" v-if="expanded" />
-          <arrow-down-icon class="u-cursor-pointer" v-else @click="onExpand" />
+          <arrow-up-icon v-if="expanded" class="u-cursor-pointer" @click="onExpand" />
+          <arrow-down-icon v-else class="u-cursor-pointer" @click="onExpand" />
         </template>
 
         <template #expandedRowRender="{ record }">
@@ -100,12 +112,16 @@ import SearchIcon from '@/assets/icons/ico_search.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
 
+import { useI18n } from 'vue-i18n'
+import localeJa from 'ant-design-vue/es/locale/ja_JP'
+import localeEn from 'ant-design-vue/es/locale/en_US'
+
 // test
 const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   { title: 'Age', dataIndex: 'age', key: 'age' },
   { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action',  } },
+  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action' } },
   { title: '', dataIndex: 'xxx', key: 'xxx' }
 ]
 
@@ -145,8 +161,8 @@ const rowSelection = {
   },
   onSelectAll: (selected, selectedRows, changeRows) => {
     console.log(selected, selectedRows, changeRows)
-  },
-};
+  }
+}
 
 const expandIconColumnIndex = 5
 
@@ -161,7 +177,10 @@ export default defineComponent({
   },
 
   setup() {
-    const plainOptions = ['Apple', 'Pear', 'Orange'];
+    const locales = ref({ en: localeEn, ja: localeJa })
+    const { locale } = useI18n()
+
+    const plainOptions = ['Apple', 'Pear', 'Orange']
     const checkedList = ref(['Apple', 'Orange'])
     const page = ref(3)
     const visible = ref(false)
@@ -176,13 +195,15 @@ export default defineComponent({
 
     const showModal = () => {
       visible.value = true
-    };
+    }
 
-    const handleOk = e => {
+    const handleOk = (e) => {
       visible.value = false
-    };
+    }
 
     return {
+      locales,
+      locale,
       page,
       plainOptions,
       checkedList,

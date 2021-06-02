@@ -8,6 +8,9 @@ import {
   Layout,
   Collapse,
   Modal,
+  Input,
+  Icon,
+  ConfigProvider,
   Breadcrumb,
   Popover,
   Menu
@@ -22,6 +25,9 @@ const globalComponents = (app) => {
     .use(Layout)
     .use(Collapse)
     .use(Modal)
+    .use(Input)
+    .use(Icon)
+    .use(ConfigProvider)
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
