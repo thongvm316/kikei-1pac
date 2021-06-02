@@ -100,8 +100,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from 'vue'
-
+import { defineComponent, ref, reactive, computed } from "vue"
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 
 export default defineComponent({
@@ -110,12 +111,20 @@ export default defineComponent({
     SearchIcon
   },
   setup() {
+    const store = useStore()
+    const route = useRoute()
+
     const loading = ref(false)
-    const visible = ref(true)
     const plainOptions = reactive(['顧客', 'パートナー'])
     const countries = reactive(['Japan', 'Vietnam'])
     const currencies = reactive(['JPY', 'VND'])
     const filter = reactive({ keyword: '', classification: [], country: [], currency: [] })
+    const visible = computed({
+      get: () => store.getters.currentRoute === route.name,
+      set: (val) => {
+        store.commit('setCurrentRoute', val)
+      }
+    })
 
     function handleOk() {
       loading.value = true

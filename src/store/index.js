@@ -1,7 +1,17 @@
 import { createStore } from 'vuex'
 
-const state = {}
+const state = {
+  currentRoute: null
+}
 
-const mutations = {}
+const getters = {
+  currentRoute: state => state.currentRoute
+}
 
-export const store = createStore({ state, mutations })
+const mutations = {
+  setCurrentRoute (state, routeName) {
+    state.currentRoute = routeName
+  }
+}
+
+export const store = createStore({ state, getters, mutations })
