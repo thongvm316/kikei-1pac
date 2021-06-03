@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import store from '@/store'
+import Services from '@/services'
+import storageKeys from '@/enums/storage-keys'
 
+const StorageService = Services.get('StorageService')
 const APP_NAME = process.env.APP_NAME || 'KAIKEI'
 
 const lazyLoadRoute = (pageName) => {
@@ -19,8 +23,9 @@ const routes = [
     children: [
       {
         path: '',
-        component: lazyLoadRoute('Login'),
-        meta: { title: `Login | ${APP_NAME}` }
+        component: lazyLoadRoute('Auth/Login'),
+        meta: { title: `Login | ${APP_NAME}` },
+        name: 'login'
       }
     ]
   },
@@ -165,9 +170,34 @@ const router = createRouter({
   routes
 })
 
+// pager guard
+const ROUTING_FREE = ['login']
+
 router.beforeEach((to, _, next) => {
+  // set head title
   document.title = to.meta.title
-  next()
+
+  const isRouteFree = ROUTING_FREE.indexOf(to.name) >= 0
+  const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
+  if (!!authProfile) {
+    // store data to state if need
+    if (!store.state.auth.authProfile) {
+      store.commit('auth/STORE_AUTH_PROFILE', authProfile)
+    }
+
+    if (isRouteFree) {
+      console.log('daslkmsa')
+      next('/')
+    } else {
+      next()
+    }
+  } else {
+    if (isRouteFree) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
 })
 
 export default router
