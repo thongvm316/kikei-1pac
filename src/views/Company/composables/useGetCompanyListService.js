@@ -6,7 +6,7 @@ export default function useGetCompanyListService(params) {
     // eslint-disable-next-line no-useless-catch
     try {
       const response = await CompanyService.getLists(params)
-      return response
+      return response.data
     } catch (e) {
       throw e
     }

@@ -12,7 +12,7 @@ export default {
 
     showTotal(total, range) {
       if (this.$i18n.locale === LOCALE.ja) {
-        return `${range[0]} - ${range[1]} 件 / 総件数 ${total}件`
+        return `${range[0]} - ${range[1]} 件 / ${total}件`
       }
       return `${range[0]}-${range[1]} of ${total} items`
     },

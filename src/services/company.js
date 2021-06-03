@@ -6,7 +6,7 @@ const RESOURCES = Object.freeze({
 
 export default {
   getLists(params = {}) {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.company}`, params })
+    return apiCaller({ method: 'POST', url: `${RESOURCES.company}/search`, params })
   },
 
   deleteCompany(id) {
