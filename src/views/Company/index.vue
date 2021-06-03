@@ -1,11 +1,19 @@
 <template>
-  <div>Company Page</div>
+  <div>
+    <Search />
+    Company Page
+  </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 
+import Search from '@/views/Company/Search'
+
 export default defineComponent({
-  name: 'CompanyPage'
+  name: 'CompanyPage',
+  components: {
+    Search
+  }
 })
 </script>

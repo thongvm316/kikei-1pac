@@ -1,6 +1,16 @@
 <template>
   <div>
-    <a-date-picker />
+    <form>
+      <select v-model="locale">
+        <option value="en">English</option>
+        <option value="ja">Japanese</option>
+      </select>
+    </form>
+
+    <a-config-provider :locale="locales[locale]">
+      <a-date-picker />
+    </a-config-provider>
+
     <a-button type="primary">Button</a-button>
     <a-button type="primary" shape="circle">
       <template #icon>
@@ -40,15 +50,16 @@
 
     <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
 
-     <a-pagination
+    <a-pagination
       v-model:current="page"
       :total="101"
       :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
       :page-size="10"
-      size="small" />
+      size="small"
+    />
 
     <a-button type="primary" @click="showModal">Open Modal</a-button>
-    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk" >
+    <a-modal v-model:visible="visible" width="800px" title="Basic Modal" @ok="handleOk">
       <template #footer>
         <a-button @click="handleCancel">クリア</a-button>
         <a-button type="primary">
@@ -72,6 +83,10 @@
 import { defineComponent, ref } from 'vue'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 import SearchIcon from '@/assets/icons/ico_search.svg'
+
+import { useI18n } from 'vue-i18n'
+import localeJa from 'ant-design-vue/es/locale/ja_JP'
+import localeEn from 'ant-design-vue/es/locale/en_US'
 
 // test
 const columns = [
@@ -143,7 +158,10 @@ export default defineComponent({
   },
 
   setup() {
-    const plainOptions = ['Apple', 'Pear', 'Orange'];
+    const locales = ref({ en: localeEn, ja: localeJa })
+    const { locale } = useI18n()
+
+    const plainOptions = ['Apple', 'Pear', 'Orange']
     const checkedList = ref(['Apple', 'Orange'])
     const page = ref(3)
     const visible = ref(false)
@@ -158,13 +176,15 @@ export default defineComponent({
 
     const showModal = () => {
       visible.value = true
-    };
+    }
 
-    const handleOk = e => {
+    const handleOk = (e) => {
       visible.value = false
-    };
+    }
 
     return {
+      locales,
+      locale,
       page,
       plainOptions,
       checkedList,

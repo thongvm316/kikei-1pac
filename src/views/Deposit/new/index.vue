@@ -1,7 +1,5 @@
 <template>
-  <div>
-    Deposit new page
-  </div>
+  <div>Deposit new page</div>
 </template>
 
 <script>
@@ -12,6 +10,4 @@ export default defineComponent({
 })
 </script>
 
-<style>
-
-</style>
+<style></style>

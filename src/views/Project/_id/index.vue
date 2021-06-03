@@ -1,7 +1,5 @@
 <template>
-  <div>
-    Project Edit Page
-  </div>
+  <div>Project Edit Page</div>
 </template>
 
 <script>

@@ -5,5 +5,5 @@ export default {
   financing: 'Tài chính',
   accounting: 'Accounting',
   setting: 'Cài đặt',
-  edit: 'Chỉnh sửa',
+  edit: 'Chỉnh sửa'
 }
