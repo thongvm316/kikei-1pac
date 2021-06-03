@@ -1,7 +1,14 @@
-import { createStore } from 'vuex'
+import { createStore, createLogger } from 'vuex'
+import auth from './auth'
 
-const state = {}
+const debug = process.env.VUE_APP_ENV !== 'production'
 
-const mutations = {}
+const store = createStore({
+  modules: {
+    auth
+  },
+  strict: debug,
+  plugins: debug ? [createLogger()] : []
+})
 
-export const store = createStore({ state, mutations })
+export default store
