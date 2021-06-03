@@ -2,75 +2,110 @@
   <section>
     <Search />
 
+    <div class="box-create">
+      <a-button class="btn-modal" type="primary"><add-icon class="add-icon" /> 新規企業追加</a-button>
+    </div>
+
     <div>
       <a-table
         :columns="columns"
-        :data-source="data"
+        :data-source="dataSource"
+        :row-key="randomUniqueID"
         :pagination="{
           showTotal: showTotal
         }"
-        :expand-icon-column-index="expandIconColumnIndex"
-        :expand-icon-as-cell="false"
         :scroll="{ y: '100vh' }"
+        size="middle"
+        @change="handleChange"
       >
-        <template #action="{ record }">
-          <a-button :disabled="record.disabled" type="primary">確定</a-button>
-        </template>
       </a-table>
     </div>
   </section>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import Table from '@/mixins/table.mixin'
-
-const columns = [
-  { title: '会社名', dataIndex: '会社名', key: '会社名', sorter: true },
-  { title: '会社コード', dataIndex: '会社コード', key: '会社コード', sorter: true },
-  { title: '国', dataIndex: '国', key: '国' },
-  { title: '通貨', dataIndex: '通貨', key: '通貨' },
-  { title: '区分', dataIndex: '区分', key: '区分' }
-]
-
-const data = []
-for (let i = 0; i < 50; i++) {
-  data.push({
-    key: i,
-    会社名: `Edward King ${i + 1}`,
-    会社コード: `${i + 1}`,
-    国: 'Japan',
-    通貨: 'JPY',
-    区分: '顧客、パートナー'
-  })
-}
-
-const expandIconColumnIndex = 5
-
 import Search from '@/views/Company/Search'
+import AddIcon from '@/assets/icons/ico_line-add.svg'
 
 export default defineComponent({
   name: 'CompanyPage',
 
-  components: {
-    Search
-  },
+  components: { Search, AddIcon },
 
   mixins: [Table],
 
+  async beforeRouteEnter(to, from, next) {
+    const { getLists } = useGetCompanyListService({ 'page-number': 1, 'page-size': 10 })
+    const { data } = await getLists()
+    to.meta['lists'] = data.result
+
+    next()
+  },
+
   setup() {
+    const route = useRoute()
+    const { t } = useI18n()
+    const dataSource = ref([])
+    const columns = computed(() => {
+      return [
+        {
+          title: t('123'),
+          dataIndex: 'name',
+          key: 'name',
+          sorter: (a, b) => a.name.length - b.name.length
+        },
+        {
+          title: t('333'),
+          dataIndex: 'paymentTerm',
+          key: 'paymentTerm',
+          sorter: (a, b) => a.paymentTerm - b.paymentTerm
+        }
+      ]
+    })
+
+    onMounted(async () => {
+      dataSource.value = [...route.meta['lists']]
+    })
+
+    const handleChange = (pagination, filters, sorter) => {
+      console.log('Various parameters', pagination, filters, sorter)
+    }
+
     return {
-      data,
+      dataSource,
       columns,
-      expandIconColumnIndex
+      handleChange
     }
   }
 })
 </script>
 
 <style scoped lang="scss">
-.box-utilities {
+.box-create {
   padding: 24px 32px 16px;
   text-align: right;
+}
+.modal {
+  margin-bottom: 16px;
+  text-align: -webkit-right;
+
+  .btn-modal {
+    width: auto;
+    height: 24px;
+    border-radius: 2px;
+    padding: 1px 8px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+
+    .add-icon {
+      margin-right: 10.33px;
+    }
+  }
 }
 </style>

@@ -173,31 +173,31 @@ const router = createRouter({
 // pager guard
 const ROUTING_FREE = ['login']
 
-// router.beforeEach((to, _, next) => {
-//   // set head title
-//   document.title = to.meta.title
-//
-//   const isRouteFree = ROUTING_FREE.indexOf(to.name) >= 0
-//   const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
-//   if (authProfile) {
-//     // store data to state if need
-//     if (!store.state.auth.authProfile) {
-//       store.commit('auth/STORE_AUTH_PROFILE', authProfile)
-//     }
-//
-//     if (isRouteFree) {
-//       console.log('daslkmsa')
-//       next('/')
-//     } else {
-//       next()
-//     }
-//   } else {
-//     if (isRouteFree) {
-//       next()
-//     } else {
-//       next('/login')
-//     }
-//   }
-// })
+router.beforeEach((to, _, next) => {
+  // set head title
+  document.title = to.meta.title
+
+  const isRouteFree = ROUTING_FREE.indexOf(to.name) >= 0
+  const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
+  if (authProfile) {
+    // store data to state if need
+    if (!store.state.auth.authProfile) {
+      store.commit('auth/STORE_AUTH_PROFILE', authProfile)
+    }
+
+    if (isRouteFree) {
+      console.log('daslkmsa')
+      next('/')
+    } else {
+      next()
+    }
+  } else {
+    if (isRouteFree) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
+})
 
 export default router
