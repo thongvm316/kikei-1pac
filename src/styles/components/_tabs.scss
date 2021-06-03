@@ -1,0 +1,18 @@
+.ant-tabs-bar {
+  margin-bottom: 0;
+  background-color: $color-grey-100;
+  color: $color-grey-55;
+  font-weight: 800;
+
+  &:first-child {
+    padding-left: 0;
+  }
+}
+
+.ant-tabs-nav {
+  margin-left: 32px;
+
+  .ant-tabs-tab-active {
+    font-weight: 800;
+  }
+}

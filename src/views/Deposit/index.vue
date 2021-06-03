@@ -13,20 +13,21 @@
     </div>
 
     <div class="u-flex u-justify-between u-mb-24">
-      <a-checkbox v-model:checked="checkAll">チェックした項目全てを確定する</a-checkbox>
+      <a-checkbox
+        v-model:checked="checkAllRowTable"
+        @change="onSelectAllRowsByCustomCheckbox"
+        :indeterminate="indeterminateCheckAllRows">
+        チェックした項目全てを確定する
+      </a-checkbox>
 
       <a-select
-        v-model:value="value"
+        v-model:value="searchKeyMultipleSelect"
         show-arrow
         :maxTagCount="0"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
-        option-label-prop="label"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        @change="handleChange"
-      >
+        option-label-prop="label"      >
         <template #maxTagPlaceholder>
           dsaas
         </template>
@@ -39,163 +40,146 @@
       </a-select>
 
       <a-pagination
-        v-model:current="page"
+        v-model:current="currentPage"
         :total="101"
         :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
         :page-size="10"
         size="small" />
     </div>
 
-    <div class="-mx-32">
-      <a-table
-        :columns="columns"
-        :data-source="data"
-        :row-selection="rowSelection"
-        :pagination="false"
-        :expand-icon-column-index="expandIconColumnIndex"
-        :expand-icon-as-cell="false">
-        <template #action="{ record }">
-          <a-button :disabled="record.disabled" type="primary">確定</a-button>
-        </template>
+    <a-tabs
+      class="-mx-32"
+      defaultActiveKey="1"
+      :animated="false">
+      <a-tab-pane key="1" tab="GumiVietNam">
+        <a-table
+          :scroll="{ x: 1500 }"
+          @expand="xxx"
+          :customRow="customRow"
+          :columns="columnsDeposit"
+          :data-source="dataDeposit"
+          :row-selection="{
+            onChange: onSelectChangeRow,
+            onSelectAll: onSelectAllChangeRows,
+            selectedRowKeys: currentSelectedRowKeys
+          }"
+          :rowClassName="addRowClass"
+          :pagination="false"
+          :expand-icon-column-index="expandIconColumnIndex"
+          :expand-icon-as-cell="false">
+          <template #action="{ record }">
+            <a-button v-if="record.children" :disabled="record.confirmed" type="primary">確定</a-button>
+          </template>
 
-        <template #expandIcon="{ expanded, onExpand }">
-          <arrow-up-icon class="u-cursor-pointer" @click="onExpand" v-if="expanded" />
-          <arrow-down-icon class="u-cursor-pointer" v-else @click="onExpand" />
-        </template>
+          <template #customTitleDeposit>
+            入出金額<br>(JPY)
+          </template>
 
-        <!-- <template #expandedRowRender="{ record }">
-          <p style="margin: 0">
-            {{ record.description }}
-          </p>
-        </template> -->
-      </a-table>
-    </div>
+          <template #customTitleBalance>
+            残高<br>(JPY)
+          </template>
+        </a-table>
+      </a-tab-pane>
+      <a-tab-pane key="2" tab="VAND">Content of Tab Pane 2</a-tab-pane>
+      <a-tab-pane key="3" tab="グループ名">Content of Tab Pane 3</a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref } from 'vue'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
-import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
-
-const columns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  { title: 'Age', dataIndex: 'age', key: 'age' },
-  { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', width: '10px'	, slots: { customRender: 'action',  } },
-  { title: '', dataIndex: 'xxx', key: 'xxx' }
-]
-
-const data = [
-  {
-    key: 1,
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.',
-    disabled: true,
-
-    children: [
-      {
-        key: 1,
-        name: 'Nghia',
-        age: 25,
-        address: '1Pac'
-      }
-    ]
-  },
-  {
-    key: 2,
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    description: 'My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park.',
-    disabled: false
-  },
-  {
-    key: 3,
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sidney No. 1 Lake Park',
-    description: 'My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park.',
-    disabled: false
-  }
-]
-
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows)
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows)
-  },
-
-  columnWidth: '10px',
-  columnTitle: undefined
-};
-
-const expandIconColumnIndex = 5
+import { columnsDeposit, dataDeposit, expandIconColumnIndex } from './data'
 
 export default defineComponent({
   name: 'DepositPage',
 
   components: {
     LineDownIcon,
-    LineAddIcon,
-    ArrowDownIcon,
-    ArrowUpIcon
+    LineAddIcon
   },
 
   setup() {
-    // checkbox
-    const checkAll = ref(false)
+    const checkAllRowTable = ref()
+    const searchKeyMultipleSelect = ref([])
+    const currentPage = ref(3)
+    const currentSelectedRowKeys = ref([])
+    const indeterminateCheckAllRows = ref()
 
-    // select search
-    const value = ref([])
-
-    const handleChange = (value) => {
-      console.log(`selected ${value}`)
-    }
-    const handleBlur = () => {
-      console.log('blur')
-    }
-    const handleFocus = () => {
-      console.log('focus')
+    const onSelectChangeRow = (selectedRowKeys) => {
+      indeterminateCheckAllRows.value = selectedRowKeys.length < dataDeposit.length && selectedRowKeys.length > 0
+      checkAllRowTable.value = selectedRowKeys.length === dataDeposit.length
+      currentSelectedRowKeys.value = selectedRowKeys
     }
 
-    // pagination
-    const page = ref(3)
+    const onSelectAllChangeRows = (_, selectedRows) => currentSelectedRowKeys.value = selectedRows.map(item => item.key)
+
+    const onSelectAllRowsByCustomCheckbox = (e) => {
+      indeterminateCheckAllRows.value = false
+      e.target.checked ? currentSelectedRowKeys.value = dataDeposit.map(item => item.key) : currentSelectedRowKeys.value = []
+    }
+
+    const customRow = (record) => {
+      return {
+        onClick: (event) => {
+          console.log(event.target)
+        }
+      }
+    }
+
+    const abc = ref('')
+
+    const xxx = (expanded, record) => {
+      if (expanded) {
+        abc.value = record.key
+      } else {
+        abc.value = ''
+      }
+    }
+
+    const addRowClass = (record, index) => {
+      return record.key === abc.value ? 'is-expand-row' : null
+    }
 
     return {
-      // checkbox
-      checkAll,
-
-      // select search
-      value,
-      handleBlur,
-      handleFocus,
-      handleChange,
-
-      // pagination
-      page,
-
-      // table
-      data,
-      columns,
-      rowSelection,
-      expandIconColumnIndex
+      checkAllRowTable,
+      searchKeyMultipleSelect,
+      currentPage,
+      dataDeposit,
+      columnsDeposit,
+      onSelectChangeRow,
+      onSelectAllChangeRows,
+      expandIconColumnIndex,
+      onSelectAllRowsByCustomCheckbox,
+      currentSelectedRowKeys,
+      indeterminateCheckAllRows,
+      customRow,
+      xxx,
+      addRowClass
     }
   }
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import '@/styles/shared/variables';
+
 .-mx-32 {
   margin: 0 -32px;
+}
+
+table thead .ant-checkbox-wrapper {
+  display: none;
+}
+
+table tbody {
+  .is-expand-row td {
+    border-bottom: 0;
+  }
+}
+
+.ant-table-row.is-expand-row.ant-table-row-level-0 {
+  background-color: $color-grey-98;
 }
 </style>
