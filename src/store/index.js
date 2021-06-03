@@ -5,11 +5,11 @@ const state = {
 }
 
 const getters = {
-  currentRoute: state => state.currentRoute
+  currentRoute: (state) => state.currentRoute
 }
 
 const mutations = {
-  setCurrentRoute (state, routeName) {
+  setCurrentRoute(state, routeName) {
     state.currentRoute = routeName
   }
 }

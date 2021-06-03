@@ -17,11 +17,11 @@
                   :value="field.value"
                   :class="{ has__error: errors.length }"
                   class="w-339"
-                  placeholder="入力してください"
+                  :placeholder="$t('company.place_input')"
                   @change="handleChange"
                 />
                 <!-- note -->
-                <span class="note" v-text="`※会社名、会社コードより検索します`" />
+                <span class="note" v-text="`※` + $t('company.note')" />
                 <!-- Error message -->
                 <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.keyword')" class="errors">
                   {{ message }}
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from "vue"
+import { defineComponent, ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'

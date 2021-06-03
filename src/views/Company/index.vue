@@ -1,28 +1,20 @@
 <template>
   <section>
     <Search />
-    <div class="box-utilities">
-      <ModalSearch />
 
-      <Pagination />
-    </div>
     <div>
       <a-table
         :columns="columns"
         :data-source="data"
-        :pagination="false"
+        :pagination="{
+          showTotal: showTotal
+        }"
         :expand-icon-column-index="expandIconColumnIndex"
         :expand-icon-as-cell="false"
         :scroll="{ y: '100vh' }"
       >
         <template #action="{ record }">
           <a-button :disabled="record.disabled" type="primary">確定</a-button>
-        </template>
-
-        <template #expandedRowRender="{ record }">
-          <p>
-            {{ record.description }}
-          </p>
         </template>
       </a-table>
     </div>
@@ -31,8 +23,7 @@
 
 <script>
 import { defineComponent } from 'vue'
-import ModalSearch from '@/layouts/-components/ModalSearch'
-import Pagination from '@/layouts/-components/Pagination'
+import Table from '@/mixins/table.mixin'
 
 const columns = [
   { title: '会社名', dataIndex: '会社名', key: '会社名', sorter: true },
@@ -60,11 +51,12 @@ import Search from '@/views/Company/Search'
 
 export default defineComponent({
   name: 'CompanyPage',
+
   components: {
-    Pagination,
-    ModalSearch,
     Search
   },
+
+  mixins: [Table],
 
   setup() {
     return {
