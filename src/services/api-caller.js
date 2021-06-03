@@ -27,7 +27,7 @@ axios.interceptors.request.use(
 )
 
 axios.interceptors.response.use(
-  function(response) {
+  function (response) {
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
@@ -35,7 +35,7 @@ axios.interceptors.response.use(
     return response
   },
 
-  function(error) {
+  function (error) {
     if (error.response && error.response.status === 401) {
       clearAllGlobalData()
     } else {
@@ -53,19 +53,14 @@ function clearAllGlobalData() {
   // add more action to clear ...
 }
 
-export default function apiCaller({
-  method = 'GET',
-  url,
-  params = null,
-  data = null,
-  needAuth = 1
-}) {
+export default function apiCaller({ method = 'GET', url, params = null, data = null, needAuth = 1 }) {
   let headers = null
   if (needAuth) {
     const accessToken = StorageService.get(storageKeys.authProfile)?.token || store.state.auth.authProfile?.token
-    if (accessToken) headers = {
-      Authorization: `Bearer ${accessToken}`
-    }
+    if (accessToken)
+      headers = {
+        Authorization: `Bearer ${accessToken}`
+      }
   }
 
   return axios({

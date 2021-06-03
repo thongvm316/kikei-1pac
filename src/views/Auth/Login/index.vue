@@ -4,42 +4,35 @@
       <div class="login__form">
         <a-typography-title>Login</a-typography-title>
 
-        <a-form
-          :model="params"
-          :rules="loginFormRules"
-          @submit="onSubmitLogin"
-          layout="vertical"
-          ref="loginFormRef">
+        <a-form ref="loginFormRef" :model="params" :rules="loginFormRules" layout="vertical" @submit="onSubmitLogin">
           <a-form-item name="username" label="Login ID">
             <a-input
               v-model:value="params.username"
-              @pressEnter="onSubmitLogin"
               size="large"
               placeholder="Login ID"
-              autofocus />
+              autofocus
+              @pressEnter="onSubmitLogin"
+            />
           </a-form-item>
 
           <a-form-item name="password" label="Password">
             <a-input
               v-model:value="params.password"
-              @pressEnter="onSubmitLogin"
               type="password"
               size="large"
-              placeholder="Password" />
+              placeholder="Password"
+              @pressEnter="onSubmitLogin"
+            />
           </a-form-item>
 
           <a-form-item>
-            <a-button
-              type="primary"
-              size="large"
-              :loading="loading"
-              @click="onSubmitLogin">Login</a-button>
+            <a-button type="primary" size="large" :loading="loading" @click="onSubmitLogin">Login</a-button>
           </a-form-item>
         </a-form>
       </div>
     </div>
 
-    <img class="login__img" src="@/assets/images/img-bg-login.png" alt="login image">
+    <img class="login__img" src="@/assets/images/img-bg-login.png" alt="login image" />
   </div>
 </template>
 
@@ -48,10 +41,10 @@ import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useLoginService from './composables/useLoginService'
 
-export default defineComponent ({
+export default defineComponent({
   name: 'LoginPage',
 
-  setup () {
+  setup() {
     const loginFormRef = ref()
     const params = reactive({
       username: '',
@@ -61,12 +54,8 @@ export default defineComponent ({
 
     // input validator rules
     const loginFormRules = {
-      username: [
-        { required: true, message: 'Please input username', trigger: 'change' }
-      ],
-      password: [
-        { required: true, message: 'Please input password', trigger: 'change' }
-      ]
+      username: [{ required: true, message: 'Please input username', trigger: 'change' }],
+      password: [{ required: true, message: 'Please input password', trigger: 'change' }]
     }
 
     const router = useRouter()
@@ -85,10 +74,10 @@ export default defineComponent ({
           // to dashboard screen
           toDashboardScreen()
         }
-      } catch(e) {
+      } catch (e) {
         throw e
       }
-    };
+    }
 
     return {
       loginFormRef,

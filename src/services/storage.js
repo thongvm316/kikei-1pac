@@ -3,16 +3,16 @@ export default {
     localStorage.setItem(key, JSON.stringify(data))
   },
 
-  get: key => {
+  get: (key) => {
     const data = localStorage.getItem(key)
     return JSON.parse(data)
   },
 
-  remove: key => {
+  remove: (key) => {
     localStorage.removeItem(key)
   },
 
-  has: key => {
+  has: (key) => {
     return !!localStorage.getItem(key)
   }
 }
