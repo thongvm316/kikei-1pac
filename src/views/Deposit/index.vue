@@ -23,11 +23,13 @@
       <a-select
         v-model:value="searchKeyMultipleSelect"
         show-arrow
-        :maxTagCount="0"
+        :maxTagCount="1"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
-        option-label-prop="label">
+        option-label-prop="label"
+        dropdownClassName="multiple-select-custom"
+        :defaultActiveFirstOption="false">
         <template #menuItemSelectedIcon>
           <a-checkbox :checked="true" />
         </template>
