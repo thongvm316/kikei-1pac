@@ -34,7 +34,6 @@
           </span>
         </template>
       </a-table>
-
     </div>
   </section>
 </template>
@@ -45,7 +44,6 @@
   import Search from '@/views/Financing/Search'
 
   import DownloadIcon from '@/assets/icons/ico_line-down.svg'
-
 
   const columns = [
     { title: '日付', dataIndex: 'date', key: 'date', sorter: true },
@@ -103,12 +101,12 @@
       downloadCSV() {
         console.log("Download successful!");
       },
+
       showNumberCell(number) {
-        console.log(`number :${number}` + `${typeof number}` + `parseInt: ${parseInt(number)}`)
+        console.log(number)
       }
     }
   })
 </script>
 <style scoped lang="scss">
-
 </style>
