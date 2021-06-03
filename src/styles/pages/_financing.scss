@@ -1,6 +1,30 @@
 .financing {
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    margin: 25px 32px 0 auto;
+    padding: 0 10px;
+
+    &-icon {
+      margin-right: 10px;
+    }
+  }
+
+  .box-utilities {
+    padding: 16px 32px;
+    text-align: right;
+  }
+
   .ant-pagination.mini .ant-pagination-item {
     margin: 0 2px;
+  }
+  .ant-table-content {
+    .ant-table-row {
+      .text--red {
+        color: #F5222D;
+      }
+    }
   }
 }
 
@@ -19,5 +43,24 @@
       width: 120px;
       text-align: left;
     }
+
+    .form-select {
+      text-align: left;
+    }
+
+    //.ant-calendar-range-picker-separator {
+    //  position: relative;
+    //  color: transparent;
+    //  top: -18px;
+    //}
+    //.ant-calendar-range-picker-separator:after {
+    //  content: "";
+    //  display:block;
+    //  height:16px;
+    //  width:16px;
+    //  background-size: cover;
+    //  background-image: url(../assets/icons/ico_swap_right.svg);
+    //  background-repeat: no-repeat;
+    //}
   }
 }

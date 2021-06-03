@@ -1,164 +1,132 @@
 <template>
   <a-modal v-model:visible="visible" :title="$t('financing.title_search')" class="search-financing" width="800px">
     <template #footer>
-      <Form @submit="onSubmit">
-        <!-- Group -->
-        <div class="form-group">
-          <Field
-            v-slot="{ field, errors, handleChange }"
-            v-model="filter.keyword"
-            :name="$t('financing.keyword')"
-            rules="required"
-          >
+      <a-config-provider :locale="locales[locale]">
+        <form @submit.prevent="onSubmit">
+          <!-- Group -->
+          <div class="form-group">
             <div class="form-content">
-              <label class="form-label">{{ $t('financing.keyword') }}</label>
+              <label class="form-label">{{ $t('financing.group') }}</label>
 
               <div class="form-select">
-                <a-select default-value="lucy" style="width: 152px" @change="handleChange">
-                  <a-select-option value="jack">
-                    Jack
-                  </a-select-option>
-                  <a-select-option value="lucy">
-                    Lucy
-                  </a-select-option>
-                  <a-select-option value="Yiminghe">
-                    yiminghe
+                <a-select
+                  v-model:value="groupsValue"
+                  :placeholder="$t('financing.group_placeholder')"
+                  style="width: 152px"
+                  @change="handleChange"
+                >
+                  <a-select-option v-for="group in dataGroups" :key="group">
+                    {{ group }}
                   </a-select-option>
                 </a-select>
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
-                  {{ message }}
-                </ErrorMessage>
               </div>
-
             </div>
-          </Field>
-        </div>
-        <!--./Group -->
-        <!--Stage-->
-        <div class="form-group">
-          <Field
-            v-slot="{ field, errors, handleChange }"
-            v-model="filter.keyword"
-            :name="$t('financing.keyword')"
-            rules="required"
-          >
+          </div>
+          <!--./Group -->
+          <!--Stages-->
+          <div class="form-group">
             <div class="form-content">
-              <label class="form-label">{{ $t('financing.stage') }}</label>
+              <label class="form-label">{{ $t('financing.stages') }}</label>
 
               <div class="form-select">
-                <a-select default-value="lucy" style="width: 81px" @change="handleChange">
-                  <a-select-option value="jack">
-                    Jack
-                  </a-select-option>
-                  <a-select-option value="lucy">
-                    Lucy
-                  </a-select-option>
-                  <a-select-option value="Yiminghe">
-                    yiminghe
+                <a-select v-model:value="stagesValue" placeholder="" style="width: 80px" @change="handleChange">
+                  <a-select-option v-for="stage in dataStages" :key="stage" :value="stage">
+                    {{ stage }}
                   </a-select-option>
                 </a-select>
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
-                  {{ message }}
-                </ErrorMessage>
+                <span style="margin-left: 4px">{{ $t('financing.term') }}</span>
               </div>
-
             </div>
-          </Field>
-        </div>
-        <!--./Stage -->
-        <!--Date From-->
-        <div class="form-group">
-          <Field
-            v-slot="{ field, errors, handleChange }"
-            v-model="filter.keyword"
-            :name="$t('financing.keyword')"
-            rules="required"
-          >
+          </div>
+          <!--./Stages -->
+          <!--Date From-->
+          <div class="form-group">
             <div class="form-content">
               <label class="form-label"></label>
 
               <div class="form-select">
-                <a-date-picker @change="onChange" style="width: 142px" />
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
-                  {{ message }}
-                </ErrorMessage>
-              </div>
-              <div class="form-select">
-                <SwapRightIcon />
-              </div>
-              <div class="form-select">
-                <a-date-picker @change="onChange" style="width: 142px" />
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.keyword')" class="errors">
-                  {{ message }}
-                </ErrorMessage>
+                <a-range-picker
+                  style="width: 300px"
+                  format="YYYY-MM"
+                  :placeholder="['YYYY/MM', 'YYYY/MM']"
+                >
+                  <template #suffixIcon>
+                    <CalendarOutlined />
+                  </template>
+                </a-range-picker>
+
               </div>
             </div>
-          </Field>
-        </div>
-        <!--./Date From -->
-        <!-- Display -->
-        <div class="form-group">
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filter.classification"
-            :name="$t('financing.classification')"
-            rules="required"
-          >
+          </div>
+          <!--./Date From -->
+          <!-- Display -->
+          <div class="form-group">
             <div class="form-content">
               <label class="form-label">{{ $t('financing.display') }}</label>
-              <div class="form-checkbox">
-                <a-radio-group v-model="value" :options="plainOptions" @change="onChange">
-                  <a-radio :value="1">
-                  </a-radio>
-                  <a-radio :value="2">
-                  </a-radio>
-                </a-radio-group>
 
+              <div class="form-checkbox">
+                <a-radio-group :options="display" @change="handleChange">
+                  <a-radio :value="1"></a-radio>
+                  <a-radio :value="2"></a-radio>
+                </a-radio-group>
               </div>
             </div>
-            <!-- Error message -->
-            <ErrorMessage v-slot="{ message }" as="span" :name="$t('financing.classification')" class="errors">{{
-              message
-              }}
-            </ErrorMessage>
-          </Field>
-        </div>
-        <!-- ./Display -->
+          </div>
+          <!-- ./Display -->
 
-
-        <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
-        <a-button key="submit" type="primary" html-type="submit" :loading="loading">
-          <template #icon>
-            <span class="btn-icon">
-              <search-icon />
-            </span>
-          </template>
-          {{ $t('financing.handle_ok') }}
-        </a-button>
-      </Form>
+          <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
+          <a-button key="submit" type="primary" html-type="submit" :loading="loading">
+            <template #icon>
+              <span class="btn-icon">
+                <search-icon />
+              </span>
+            </template>
+            {{ $t('financing.handle_ok') }}
+          </a-button>
+        </form>
+      </a-config-provider>
     </template>
   </a-modal>
 </template>
 
 <script>
-  import { defineComponent, ref, reactive } from 'vue'
+  import { defineComponent, ref, reactive, computed } from 'vue'
+  import { useStore } from 'vuex'
+  import { useRoute } from 'vue-router'
+  import { useI18n } from 'vue-i18n'
+
+  import localeJa from 'ant-design-vue/es/locale/ja_JP'
+  import localeEn from 'ant-design-vue/es/locale/en_US'
 
   import SearchIcon from '@/assets/icons/ico_search.svg'
-  import SwapRightIcon from '@/assets/icons/ico_swap_right.svg'
+  import { CalendarOutlined } from '@ant-design/icons-vue'
+
 
   export default defineComponent({
     name: 'Search',
-    components: {
-      SearchIcon,
-      SwapRightIcon
-    },
+
+    components: { SearchIcon, CalendarOutlined },
+
     setup() {
+      const store = useStore()
+      const route = useRoute()
+      const { t, locale } = useI18n()
+
+      const locales = ref({ en: localeEn, ja: localeJa })
       const loading = ref(false)
-      const visible = ref(true)
-      const plainOptions = reactive(['顧客', 'パートナー'])
-      const countries = reactive(['Japan', 'Vietnam'])
-      const currencies = reactive(['JPY', 'VND'])
-      const filter = reactive({ keyword: '', classification: [], country: [], currency: [] })
+      const groupsValue = ref()
+      const stagesValue = ref()
+
+      const dataGroups = reactive(['tomato', 'orange', 'carrot'])
+      const dataStages = reactive(['One', 'Two', 'Three'])
+      const display = reactive([t('financing.display_monthly'), t('financing.display_all')])
+
+      const visible = computed({
+        get: () => store.getters.currentRoute === route.name,
+        set: (val) => {
+          store.commit('setCurrentRoute', val)
+        }
+      })
 
       function handleOk() {
         loading.value = true
@@ -176,17 +144,27 @@
         alert('ok')
       }
 
+      function handleChange() {
+        console.log('aa')
+      }
+
       return {
+        locales,
+        locale,
         loading,
         visible,
-        plainOptions,
-        countries,
-        currencies,
-        filter,
+        groupsValue,
+        stagesValue,
+        dataGroups,
+        dataStages,
+        display,
         handleOk,
         handleCancel,
-        onSubmit
+        onSubmit,
+        handleChange
       }
     }
   })
 </script>
+<style scoped lang="scss">
+</style>

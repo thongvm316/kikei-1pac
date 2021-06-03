@@ -78,9 +78,6 @@
     </a-modal>
 
     <section class="modal">
-      <a-button class="btn-modal" type="primary" @click="showModalDeposit"
-        ><add-icon class="add-icon" /> 新規企業追加</a-button
-      >
       <a-modal v-model:visible="visibleDeposit" width="800px" title="Modal Deposit" @ok="handleOk">
         <template #footer>
           <a-button @click="handleCancel">クリア</a-button>
