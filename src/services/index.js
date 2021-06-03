@@ -7,7 +7,7 @@ const repositories = {
 }
 
 export default {
-  get: name => {
+  get: (name) => {
     // check if name is not found
     if (!repositories[name]) {
       throw new Error(`${name.toUpperCase()} Services Not Found`)

@@ -1,7 +1,4 @@
-import {
-  STORE_AUTH_PROFILE,
-  CLEAR_AUTH_PROFILE
-} from '../mutation-types'
+import { STORE_AUTH_PROFILE, CLEAR_AUTH_PROFILE } from '../mutation-types'
 
 const mutations = {
   [STORE_AUTH_PROFILE](state, payload) {
