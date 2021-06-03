@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from "vue"
+import { defineComponent, ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'

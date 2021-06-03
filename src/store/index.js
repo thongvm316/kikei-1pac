@@ -1,17 +1,31 @@
-import { createStore } from 'vuex'
+import { createStore, createLogger } from 'vuex'
+import auth from './auth'
 
 const state = {
   currentRoute: null
 }
 
 const getters = {
-  currentRoute: state => state.currentRoute
+  currentRoute: (state) => state.currentRoute
 }
 
 const mutations = {
-  setCurrentRoute (state, routeName) {
+  setCurrentRoute(state, routeName) {
     state.currentRoute = routeName
   }
 }
 
-export const store = createStore({ state, getters, mutations })
+const debug = process.env.VUE_APP_ENV !== 'production'
+
+const store = createStore({
+  modules: {
+    auth
+  },
+  state,
+  getters,
+  mutations,
+  strict: debug,
+  plugins: debug ? [createLogger()] : []
+})
+
+export default store
