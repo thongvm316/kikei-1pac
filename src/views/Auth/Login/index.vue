@@ -86,7 +86,8 @@ export default defineComponent ({
           toDashboardScreen()
         }
       } catch(e) {
-        throw e
+        console.log(e)
+        // throw e
       }
     };
 

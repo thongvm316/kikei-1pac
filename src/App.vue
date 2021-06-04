@@ -17,13 +17,12 @@ export default defineComponent({
     const store = useStore()
     const { t } = useI18n()
     const flashMessage = computed(() => store.state.flash.message)
-    const { variant, content, top, duration } = flashMessage.value
-
     const onClose = () => {
       store.commit('flash/CLEAR_FLASH_MESSAGE')
     }
 
     const showMessage = () => {
+      const { variant, content, top, duration } = flashMessage.value
       // check variant
       if (!MESSAGE_VARIANTS.includes(variant)) throw new Error('Should be input correct variant')
       if (!!content) message[variant]({ content: t(`errors.${content}`), top, duration, onClose })
