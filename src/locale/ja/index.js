@@ -4,7 +4,6 @@ import sidebar from './breadcrumb'
 import company from './company'
 import financing from './financing'
 import table from './table'
-import deposit from './deposit'
 import action from './action'
 
 export default {
@@ -14,6 +13,5 @@ export default {
   company,
   financing,
   table,
-  deposit,
   action
 }

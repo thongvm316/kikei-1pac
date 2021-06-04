@@ -45,16 +45,11 @@
               <label class="form-label"></label>
 
               <div class="form-select">
-                <a-range-picker
-                  style="width: 300px"
-                  format="YYYY-MM"
-                  :placeholder="['YYYY/MM', 'YYYY/MM']"
-                >
+                <a-range-picker style="width: 300px" format="YYYY-MM" :placeholder="['YYYY/MM', 'YYYY/MM']">
                   <template #suffixIcon>
                     <CalendarOutlined />
                   </template>
                 </a-range-picker>
-
               </div>
             </div>
           </div>
@@ -90,81 +85,79 @@
 </template>
 
 <script>
-  import { defineComponent, ref, reactive, computed } from 'vue'
-  import { useStore } from 'vuex'
-  import { useRoute } from 'vue-router'
-  import { useI18n } from 'vue-i18n'
+import { defineComponent, ref, reactive, computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
-  import localeJa from 'ant-design-vue/es/locale/ja_JP'
-  import localeEn from 'ant-design-vue/es/locale/en_US'
+import localeJa from 'ant-design-vue/es/locale/ja_JP'
+import localeEn from 'ant-design-vue/es/locale/en_US'
 
-  import SearchIcon from '@/assets/icons/ico_search.svg'
-  import { CalendarOutlined } from '@ant-design/icons-vue'
+import SearchIcon from '@/assets/icons/ico_search.svg'
+import { CalendarOutlined } from '@ant-design/icons-vue'
 
+export default defineComponent({
+  name: 'Search',
 
-  export default defineComponent({
-    name: 'Search',
+  components: { SearchIcon, CalendarOutlined },
 
-    components: { SearchIcon, CalendarOutlined },
+  setup() {
+    const store = useStore()
+    const route = useRoute()
+    const { t, locale } = useI18n()
 
-    setup() {
-      const store = useStore()
-      const route = useRoute()
-      const { t, locale } = useI18n()
+    const locales = ref({ en: localeEn, ja: localeJa })
+    const loading = ref(false)
+    const groupsValue = ref()
+    const stagesValue = ref()
 
-      const locales = ref({ en: localeEn, ja: localeJa })
-      const loading = ref(false)
-      const groupsValue = ref()
-      const stagesValue = ref()
+    const dataGroups = reactive(['tomato', 'orange', 'carrot'])
+    const dataStages = reactive(['One', 'Two', 'Three'])
+    const display = reactive([t('financing.display_monthly'), t('financing.display_all')])
 
-      const dataGroups = reactive(['tomato', 'orange', 'carrot'])
-      const dataStages = reactive(['One', 'Two', 'Three'])
-      const display = reactive([t('financing.display_monthly'), t('financing.display_all')])
-
-      const visible = computed({
-        get: () => store.getters.currentRoute === route.name,
-        set: (val) => {
-          store.commit('setCurrentRoute', val)
-        }
-      })
-
-      function handleOk() {
-        loading.value = true
-        setTimeout(() => {
-          loading.value = false
-          visible.value = false
-        }, 2000)
+    const visible = computed({
+      get: () => store.getters.currentRoute === route.name,
+      set: (val) => {
+        store.commit('setCurrentRoute', val)
       }
+    })
 
-      function handleCancel() {
+    function handleOk() {
+      loading.value = true
+      setTimeout(() => {
+        loading.value = false
         visible.value = false
-      }
-
-      function onSubmit() {
-        alert('ok')
-      }
-
-      function handleChange() {
-        console.log('aa')
-      }
-
-      return {
-        locales,
-        locale,
-        loading,
-        visible,
-        groupsValue,
-        stagesValue,
-        dataGroups,
-        dataStages,
-        display,
-        handleOk,
-        handleCancel,
-        onSubmit,
-        handleChange
-      }
+      }, 2000)
     }
-  })
+
+    function handleCancel() {
+      visible.value = false
+    }
+
+    function onSubmit() {
+      alert('ok')
+    }
+
+    function handleChange() {
+      console.log('aa')
+    }
+
+    return {
+      locales,
+      locale,
+      loading,
+      visible,
+      groupsValue,
+      stagesValue,
+      dataGroups,
+      dataStages,
+      display,
+      handleOk,
+      handleCancel,
+      onSubmit,
+      handleChange
+    }
+  }
+})
 </script>
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>
