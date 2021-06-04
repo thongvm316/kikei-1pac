@@ -40,7 +40,7 @@
         </a-select>
 
         <a-button v-if="true" @click="handleOpenModalCompany">選択</a-button>
-        <modal-company-list v-model:visible="openModalCompany" v-model:company="params.subcategoryId" />
+        <search-company v-model:visible="openModalCompany" v-model:company="params.subcategoryId" />
       </a-form-item>
 
       <a-form-item name="purpose" label="項目名">
@@ -68,7 +68,12 @@
       </a-form-item>
 
       <a-form-item name="currency" label="金額">
-        <a-input v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
+        <a-input-number
+          v-model:value="params.currency"
+          placeholder="入力してください"
+          class="has-max-width"
+          :precision="3"
+        />
         <span class="k-deposit-new__currency-unit">(VND)</span>
         <p v-if="params.depositType === 'unclear'" class="k-deposit-new__field-cation">
           ※仮受金の場合はマイナスで入力してください
@@ -80,7 +85,8 @@
           <a-input v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
         </a-form-item>
         <a-form-item name="currency" label="金額">
-          <a-input v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
+          <a-input-number v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
+          <span class="k-deposit-new__currency-unit">(USD)</span>
         </a-form-item>
       </div>
 
@@ -138,15 +144,15 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref, watch, onMounted, computed } from 'vue'
+import { defineComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
 import useDepositNewService from '../composables/useDepositNewService'
-import ModalCompanyList from '../-components/ModalCompanyList'
+import SearchCompany from '../-components/SearchCompany'
 
 export default defineComponent({
   name: 'DepositNewPage',
 
   components: {
-    ModalCompanyList
+    SearchCompany
   },
 
   setup() {
@@ -199,7 +205,7 @@ export default defineComponent({
       repeatedExpiredDate: [{ required: true, message: 'Please select date', trigger: 'change', type: 'object' }]
     }
 
-    onMounted(async () => {
+    onBeforeMount(async () => {
       const { getCategoryList, getSubCategoryList, getBankAccountList, getGroupList } = useDepositNewService()
 
       const { result: categoryResult = [] } = await getCategoryList()

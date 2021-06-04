@@ -4,6 +4,7 @@ import company from './company'
 import financing from './financing'
 import table from './table'
 import action from './action'
+import depositCompany from './depositCompany'
 
 export default {
   errors,
@@ -11,5 +12,6 @@ export default {
   company,
   financing,
   table,
-  action
+  action,
+  depositCompany
 }

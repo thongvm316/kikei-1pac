@@ -19,7 +19,8 @@ import {
   Radio,
   Select,
   Tag,
-  notification
+  notification,
+  InputNumber
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -43,6 +44,7 @@ const globalComponents = (app) => {
     .use(Form)
     .use(Select)
     .use(Tag)
+    .use(InputNumber)
 
   // Config global notification
   app.config.globalProperties.$notification = notification
