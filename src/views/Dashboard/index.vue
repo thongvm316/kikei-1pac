@@ -160,6 +160,8 @@
           </p>
         </template>
       </a-table>
+
+      <a-button @click="setMessage">Set message</a-button>
     </div>
   </div>
 </template>
@@ -225,6 +227,8 @@ const rowSelection = {
 
 const expandIconColumnIndex = 5
 
+import { useStore } from 'vuex'
+
 export default defineComponent({
   name: 'Dashboard',
 
@@ -236,6 +240,11 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
+    const setMessage = () => {
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
+    }
+
     const locales = ref({ en: localeEn, ja: localeJa })
     const { locale } = useI18n()
 
@@ -266,6 +275,7 @@ export default defineComponent({
     }
 
     return {
+      setMessage,
       locales,
       locale,
       page,
