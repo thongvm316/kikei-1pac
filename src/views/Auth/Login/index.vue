@@ -74,7 +74,7 @@ export default defineComponent({
           // to dashboard screen
           toDashboardScreen()
         }
-      } catch(e) {
+      } catch (e) {
         console.log(e)
         // throw e
       }

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -82,6 +82,7 @@ export default defineComponent({
     return {
       loading,
       visible,
+      t,
       handleOk,
       handleCancel,
       onSubmit,
