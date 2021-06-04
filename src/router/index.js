@@ -187,7 +187,6 @@ router.beforeEach((to, _, next) => {
     }
 
     if (isRouteFree) {
-      console.log('daslkmsa')
       next('/')
     } else {
       next()

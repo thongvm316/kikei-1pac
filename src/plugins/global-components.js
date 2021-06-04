@@ -42,8 +42,8 @@ const globalComponents = (app) => {
     .use(Radio)
     .use(Form)
     .use(Select)
-    .use(Input)
     .use(Tag)
+
   // Config global notification
   app.config.globalProperties.$notification = notification
 }

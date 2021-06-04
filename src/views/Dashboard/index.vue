@@ -77,6 +77,65 @@
       <p>Some contents...</p>
     </a-modal>
 
+    <section class="modal">
+      <a-modal v-model:visible="visibleDeposit" width="800px" title="Modal Deposit" @ok="handleOk">
+        <template #footer>
+          <a-button @click="handleCancel">クリア</a-button>
+          <a-button type="primary">
+            <template #icon>
+              <span class="btn-icon">
+                <search-icon />
+              </span>
+            </template>
+            Submit
+          </a-button>
+        </template>
+        <ul>
+          <li>
+            <p>項目名</p>
+            <a-input placeholder="Text" />
+          </li>
+          <li>
+            <p>区分</p>
+            <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
+          </li>
+          <li>
+            <p>国</p>
+            <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
+          </li>
+          <li>
+            <p>通貨</p>
+            <a-checkbox-group v-model:value="checkedList" :options="plainOptions" @change="onChange" />
+          </li>
+        </ul>
+        <div>
+          <a-table
+            :columns="columns"
+            :data-source="data"
+            :row-selection="rowSelection"
+            :pagination="false"
+            :expand-icon-column-index="expandIconColumnIndex"
+            :expand-icon-as-cell="false"
+          >
+            <template #action="{ record }">
+              <a-button :disabled="record.disabled" type="primary">確定</a-button>
+            </template>
+
+            <template #expandIcon="{ expanded, onExpand }">
+              <arrow-up-icon v-if="expanded" class="u-cursor-pointer" @click="onExpand" />
+              <arrow-down-icon v-else class="u-cursor-pointer" @click="onExpand" />
+            </template>
+
+            <template #expandedRowRender="{ record }">
+              <p>
+                {{ record.description }}
+              </p>
+            </template>
+          </a-table>
+        </div>
+      </a-modal>
+    </section>
+
     <div>
       <a-table
         :columns="columns"
@@ -101,6 +160,8 @@
           </p>
         </template>
       </a-table>
+
+      <a-button @click="setMessage">Set message</a-button>
     </div>
   </div>
 </template>
@@ -166,6 +227,8 @@ const rowSelection = {
 
 const expandIconColumnIndex = 5
 
+import { useStore } from 'vuex'
+
 export default defineComponent({
   name: 'Dashboard',
 
@@ -177,6 +240,11 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
+    const setMessage = () => {
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
+    }
+
     const locales = ref({ en: localeEn, ja: localeJa })
     const { locale } = useI18n()
 
@@ -207,6 +275,7 @@ export default defineComponent({
     }
 
     return {
+      setMessage,
       locales,
       locale,
       page,
