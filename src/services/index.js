@@ -1,11 +1,13 @@
 import StorageService from './storage'
 import AuthService from './auth'
 import CompanyService from './company'
+import LogService from './logs'
 
 const repositories = {
   StorageService,
   AuthService,
-  CompanyService
+  CompanyService,
+  LogService
 }
 
 export default {
