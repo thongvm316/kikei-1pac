@@ -57,7 +57,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ page_number: 1, page_size: 30 })
+    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30 })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -126,8 +126,8 @@ export default defineComponent({
 
     const handleChange = async (pagination) => {
       const params = {
-        page_number: pagination.current,
-        page_size: pagination.pageSize
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize
       }
 
       await fetchlist(params)
@@ -135,7 +135,7 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchlist({ page_number: 1, page_size: 30 })
+      await fetchlist({ pageNumber: 1, pageSize: 30 })
     }
 
     const fetchlist = async (params = {}) => {
