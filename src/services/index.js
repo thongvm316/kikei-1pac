@@ -5,6 +5,7 @@ import CategoryService from './category'
 import SubCategoryService from './sub-category'
 import GroupService from './group'
 import DepositService from './deposit'
+import CompanyService from './company'
 
 const repositories = {
   StorageService,
@@ -13,11 +14,12 @@ const repositories = {
   CategoryService,
   SubCategoryService,
   DepositService,
-  GroupService
+  GroupService,
+  CompanyService
 }
 
 export default {
-  get: name => {
+  get: (name) => {
     // check if name is not found
     if (!repositories[name]) {
       throw new Error(`${name.toUpperCase()} Services Not Found`)

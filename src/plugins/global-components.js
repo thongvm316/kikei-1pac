@@ -18,7 +18,8 @@ import {
   Menu,
   Radio,
   Select,
-  Tag
+  Tag,
+  notification
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -43,6 +44,8 @@ const globalComponents = (app) => {
     .use(Select)
     .use(Input)
     .use(Tag)
+  // Config global notification
+  app.config.globalProperties.$notification = notification
 }
 
 export default globalComponents
