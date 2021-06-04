@@ -16,7 +16,9 @@ import {
   Breadcrumb,
   Popover,
   Menu,
-  notification
+  notification,
+  Select,
+  Radio
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -36,6 +38,8 @@ const globalComponents = (app) => {
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
+    .use(Select)
+    .use(Radio)
   // Config global notification
   app.config.globalProperties.$notification = notification
 }

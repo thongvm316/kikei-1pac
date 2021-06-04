@@ -1,7 +1,7 @@
 .search-company {
   .form-group {
     margin-bottom: 24px;
-    
+
     .form-content {
       display: flex;
       align-items: baseline;
@@ -24,39 +24,37 @@
       }
     }
   }
+
+  .ant-modal-footer {
+    form {
+      width: 50%;
+      margin: 0 auto;
+
+      .form-content {
+        text-align: left;
+      }
+
+      .form-label,
+      .label-input {
+        width: 40%;
+      }
+
+      .form-input,
+      .ant-checkbox-group {
+        width: 60%;
+      }
+    }
+  }
 }
 
 .ant-table-pagination.ant-pagination {
   margin-right: 40px;
 }
 
-.ant-modal-footer {
-  form {
-    width: 50%;
-    margin: 0 auto;
-    
-    .form-group {
-      .form-content {
-        text-align: left;
-        
-        .form-label,
-        .label-input{
-          width: 40%;
-        }
-        
-        .form-input,
-        .ant-checkbox-group{
-          width: 60%;
-        }
-      }
-    }
-  }
-}
-
 .ant-layout {
   position: relative;
   max-height: 100vh;
-  
+
   .box-btn {
     width: auto;
     margin: 0 auto;
@@ -70,7 +68,7 @@
     transform: translateX(-50%);
     box-shadow: 2px 2px 24px rgba(50, 50, 71, 0.25);
     border-radius: 2px;
-    
+
     .btn-edit {
       margin-right: 12px;
     }
