@@ -5,8 +5,12 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getLists(params = {}) {
-    return apiCaller({ method: 'POST', url: `${RESOURCES.company}/search`, params })
+  getLists(params = {}, data) {
+    return apiCaller({
+      method: 'POST',
+      url: `${RESOURCES.company}/search?page_number=${params.pageNumber}&page_size=${params.pageSize}`,
+      data
+    })
   },
 
   deleteCompany(id) {

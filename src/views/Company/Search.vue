@@ -20,11 +20,7 @@
               {{ $t('company.classification') }}
             </label>
             <a-checkbox-group v-model:value="filter.divition">
-              <a-row>
-                <a-col v-for="item in DIVITION" :key="item.id" :span="8">
-                  <a-checkbox :value="item.id">{{ item.value }}</a-checkbox>
-                </a-col>
-              </a-row>
+              <a-checkbox v-for="item in DIVITION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
@@ -36,11 +32,7 @@
               {{ $t('company.country') }}
             </label>
             <a-checkbox-group v-model:value="filter.country_id">
-              <a-row>
-                <a-col v-for="item in COUNTRY" :key="item.id" :span="8">
-                  <a-checkbox :value="item.id">{{ item.value }}</a-checkbox>
-                </a-col>
-              </a-row>
+              <a-checkbox v-for="item in COUNTRY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
@@ -52,11 +44,7 @@
               {{ $t('company.currency') }}
             </label>
             <a-checkbox-group v-model:value="filter.currency_id">
-              <a-row>
-                <a-col v-for="item in CURRENTCY" :key="item.id" :span="8">
-                  <a-checkbox :value="item.id">{{ item.value }}</a-checkbox>
-                </a-col>
-              </a-row>
+              <a-checkbox v-for="item in CURRENTCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
