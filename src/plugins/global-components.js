@@ -15,7 +15,8 @@ import {
   ConfigProvider,
   Breadcrumb,
   Popover,
-  Menu
+  Menu,
+  notification
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -35,6 +36,8 @@ const globalComponents = (app) => {
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
+  // Config global notification
+  app.config.globalProperties.$notification = notification
 }
 
 export default globalComponents

@@ -77,7 +77,7 @@
       <p>Some contents...</p>
     </a-modal>
 
-    <div style="padding: 24px">
+    <div>
       <a-table
         :columns="columns"
         :data-source="data"
@@ -96,7 +96,7 @@
         </template>
 
         <template #expandedRowRender="{ record }">
-          <p style="margin: 0">
+          <p>
             {{ record.description }}
           </p>
         </template>
@@ -193,6 +193,7 @@ export default defineComponent({
     const checkedList = ref(['Apple', 'Orange'])
     const page = ref(3)
     const visible = ref(false)
+    const visibleDeposit = ref(false)
 
     const onChange = () => {
       console.log('dsalkdksa')
@@ -206,7 +207,11 @@ export default defineComponent({
       visible.value = true
     }
 
-    const handleOk = (e) => {
+    const showModalDeposit = () => {
+      visibleDeposit.value = true
+    }
+
+    const handleOk = () => {
       visible.value = false
     }
 
@@ -219,7 +224,9 @@ export default defineComponent({
       checkedList,
       onChange,
       visible,
+      visibleDeposit,
       showModal,
+      showModalDeposit,
       handleOk,
       handleCancel,
       data,
