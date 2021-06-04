@@ -5,5 +5,7 @@ export default {
   keyword: 'Keyword',
   classification: 'Classification',
   country: 'Country',
-  currency: 'Currency'
+  currency: 'Currency',
+  company_name: 'Company Name',
+  company_code: 'Company Code'
 }

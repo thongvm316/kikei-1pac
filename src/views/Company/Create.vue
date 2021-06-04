@@ -1,9 +1,13 @@
-<template></template>
+<template>
+  <section>Create</section>
+</template>
 
 <script>
-export default {
-  name: 'Create'
-}
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'ModalSearch'
+})
 </script>
 
-<style scoped></style>
+<style scoped lang="scss"></style>
