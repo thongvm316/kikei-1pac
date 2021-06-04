@@ -31,15 +31,21 @@ axios.interceptors.response.use(
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
+    store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
 
     return response
   },
 
   function(error) {
+    if (error.response) {
+      const { data } = error.response
+      const errorMessage = data['error-message'] || data.errorMessage || 'fall.back.error'
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', content: errorMessage.replaceAll('.', '_') })
+    }
+
+    // clear all aut profile & global state when logout
     if (error.response && error.response.status === 401) {
       clearAllGlobalData()
-    } else {
-      alert('fail')
     }
 
     return Promise.reject(error)

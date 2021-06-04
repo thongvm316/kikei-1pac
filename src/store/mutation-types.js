@@ -1,3 +1,7 @@
+// flash message
+export const STORE_FLASH_MESSAGE = 'STORE_FLASH_MESSAGE'
+export const CLEAR_FLASH_MESSAGE = 'CLEAR_FLASH_MESSAGE'
+
 // auth
 export const STORE_AUTH_PROFILE = 'STORE_AUTH_PROFILE'
 export const CLEAR_AUTH_PROFILE = 'CLEAR_AUTH_PROFILE'
