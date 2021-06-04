@@ -1,92 +1,56 @@
 <template>
   <a-modal v-model:visible="visible" :title="$t('company.title_search')" class="search-company" width="800px">
     <template #footer>
-      <Form @submit="onSubmit">
+      <form @submit.prevent="onSearch">
         <!-- Keyword -->
         <div class="form-group">
-          <Field
-            v-slot="{ field, errors, handleChange }"
-            v-model="filter.keyword"
-            :name="$t('company.keyword')"
-            rules="required"
-          >
-            <div class="form-content">
-              <label class="form-label">{{ $t('company.keyword') }}</label>
-              <div class="form-input">
-                <a-input
-                  :value="field.value"
-                  :class="{ has__error: errors.length }"
-                  class="w-339"
-                  placeholder="入力してください"
-                  @change="handleChange"
-                />
-                <!-- note -->
-                <span class="note" v-text="`※会社名、会社コードより検索します`" />
-                <!-- Error message -->
-                <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.keyword')" class="errors">
-                  {{ message }}
-                </ErrorMessage>
-              </div>
+          <div class="form-content">
+            <label class="form-label">{{ $t('company.keyword') }}</label>
+            <div class="form-input">
+              <a-input v-model:value="filter.key_search" class="w-339" :placeholder="$t('company.place_input')" />
+              <span class="note" v-text="`※` + $t('company.note')" />
             </div>
-          </Field>
+          </div>
         </div>
 
         <!-- Classification -->
         <div class="form-group">
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filter.classification"
-            :name="$t('company.classification')"
-            rules="required"
-          >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('company.classification') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="plainOptions" @change="handleChange" />
-            </div>
-            <!-- Error message -->
-            <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.classification')" class="errors">{{
-              message
-            }}</ErrorMessage>
-          </Field>
+          <div class="form-content">
+            <label class="label-input">
+              {{ $t('company.classification') }}
+            </label>
+            <a-checkbox-group v-model:value="filter.divition">
+              <a-checkbox v-for="item in DIVITION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            </a-checkbox-group>
+          </div>
         </div>
 
         <!-- Country -->
-        <Field v-slot="{ field, handleChange }" v-model="filter.country" :name="$t('company.country')" rules="required">
-          <div class="checkbox__input">
+        <div class="form-group">
+          <div class="form-content">
             <label class="label-input">
               {{ $t('company.country') }}
             </label>
-            <a-checkbox-group v-model="field.value" :options="countries" @change="handleChange" />
+            <a-checkbox-group v-model:value="filter.country_id">
+              <a-checkbox v-for="item in COUNTRY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            </a-checkbox-group>
           </div>
-          <!-- Error message -->
-          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.country')" class="errors">{{
-            message
-          }}</ErrorMessage>
-        </Field>
+        </div>
 
         <!-- Currency -->
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="filter.currency"
-          :name="$t('company.currency')"
-          rules="required"
-        >
-          <div class="checkbox__input">
+        <div class="form-group">
+          <div class="form-content">
             <label class="label-input">
               {{ $t('company.currency') }}
             </label>
-            <a-checkbox-group v-model="field.value" :options="currencies" @change="handleChange" />
+            <a-checkbox-group v-model:value="filter.currency_id">
+              <a-checkbox v-for="item in CURRENTCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            </a-checkbox-group>
           </div>
-          <!-- Error message -->
-          <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.currency')" class="errors">{{
-            message
-          }}</ErrorMessage>
-        </Field>
+        </div>
 
         <a-button key="back" @click="handleCancel">{{ $t('company.handle_cancel') }}</a-button>
-        <a-button key="submit" type="primary" html-type="submit" :loading="loading">
+        <a-button key="submit" type="primary" html-type="submit">
           <template #icon>
             <span class="btn-icon">
               <search-icon />
@@ -94,31 +58,27 @@
           </template>
           {{ $t('company.handle_ok') }}
         </a-button>
-      </Form>
+      </form>
     </template>
   </a-modal>
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from 'vue'
+import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
+import { DIVITION, COUNTRY, CURRENTCY } from '@/enums/company.enum'
 
 export default defineComponent({
   name: 'Search',
-  components: {
-    SearchIcon
-  },
-  setup() {
+
+  components: { SearchIcon },
+
+  setup(props, context) {
     const store = useStore()
     const route = useRoute()
-
-    const loading = ref(false)
-    const plainOptions = reactive(['顧客', 'パートナー'])
-    const countries = reactive(['Japan', 'Vietnam'])
-    const currencies = reactive(['JPY', 'VND'])
-    const filter = reactive({ keyword: '', classification: [], country: [], currency: [] })
+    const filter = reactive({ key_search: '', divition: [], country_id: [], currency_id: [] })
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
       set: (val) => {
@@ -126,32 +86,23 @@ export default defineComponent({
       }
     })
 
-    function handleOk() {
-      loading.value = true
-      setTimeout(() => {
-        loading.value = false
-        visible.value = false
-      }, 2000)
-    }
-
-    function handleCancel() {
+    const handleCancel = () => {
       visible.value = false
     }
 
-    function onSubmit() {
-      alert('ok')
+    const onSearch = () => {
+      context.emit('filter-changed', filter)
+      handleCancel()
     }
 
     return {
-      loading,
       visible,
-      plainOptions,
-      countries,
-      currencies,
+      DIVITION,
+      COUNTRY,
+      CURRENTCY,
       filter,
-      handleOk,
       handleCancel,
-      onSubmit
+      onSearch
     }
   }
 })

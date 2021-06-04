@@ -19,6 +19,7 @@
   .ant-pagination.mini .ant-pagination-item {
     margin: 0 2px;
   }
+
   .ant-table-content {
     .ant-table-row {
       .text--red {
@@ -31,13 +32,17 @@
 .search-financing {
   .ant-modal-footer {
     padding: 16px 182px;
-  }
 
-  .form-content {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 24px;
+    form {
+      width: 100%;
+    }
+
+    .form-content {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 24px;
+    }
 
     .form-label {
       width: 120px;

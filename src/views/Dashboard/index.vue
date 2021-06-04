@@ -261,7 +261,7 @@ export default defineComponent({
       visibleDeposit.value = true
     }
 
-    const handleOk = (e) => {
+    const handleOk = () => {
       visible.value = false
     }
 
