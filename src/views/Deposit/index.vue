@@ -1,18 +1,10 @@
-<template>
-  Deposit Page
-  <Search />
-</template>
+<template>Deposit Page</template>
 
 <script>
 import { defineComponent } from 'vue'
-import Search from '@/views/Deposit/Search'
 
 export default defineComponent({
-  name: 'DepositPage',
-
-  components: {
-    Search
-  }
+  name: 'DepositPage'
 })
 </script>
 

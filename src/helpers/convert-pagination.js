@@ -1,11 +1,11 @@
-const convertPagination = (pagination) => {
+const convertPagination = (pagination, position = 'top') => {
   return {
     defaultCurrent: 1,
     defaultPageSize: 30,
     current: pagination.pageNumber,
     total: pagination.totalRecords,
     pageSize: pagination.pageSize,
-    position: 'top'
+    position: position
   }
 }
 
