@@ -31,7 +31,6 @@ axios.interceptors.response.use(
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
-    store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
 
     return response
   },

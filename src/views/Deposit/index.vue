@@ -69,6 +69,8 @@
       </a-tab-pane>
     </a-tabs>
   </div>
+
+  <search-deposit-modal />
 </template>
 
 <script>
@@ -81,6 +83,7 @@ import DepositTable from './-components/DepositTable'
 import { getDeposit, getGroupList, getBankAccounts } from './composables/useDepositService'
 import { debounce } from '@/helpers/debounce'
 import { typeDepositEnums } from '@/enums/deposit.enum'
+import SearchDepositModal from './-components/SearchDepositModal'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -88,7 +91,8 @@ export default defineComponent({
   components: {
     LineDownIcon,
     LineAddIcon,
-    DepositTable
+    DepositTable,
+    SearchDepositModal
   },
 
   setup() {
