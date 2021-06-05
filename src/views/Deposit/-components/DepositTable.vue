@@ -1,19 +1,32 @@
 <template>
   <a-table
+    class="deposit-table"
+    :expanded-row-keys="expandedRowKeys"
+    :loading="isLoadingDataTable"
     :scroll="{ x: 1500 }"
     @expand="onClickExpandRowButton"
+    :rowClassName="onAddRowClass"
     :onCustomRow="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
     :row-selection="{
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,
-      selectedRowKeys: currentSelectedRowKeys
+      selectedRowKeys: currentSelectedRowKeys,
+      getCheckboxProps: (record) => ({ disabled: record.confirmed })
     }"
-    :rowClassName="onAddRowClass"
+
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false">
+    <template #typeName="{ record }">
+      <span :class="`type-${record.type}`">{{ record.typeName }}</span>
+    </template>
+
+    <template #deposit="{ record }">
+      <span :class="`type-${record.type}`">{{ record.deposit }}</span>
+    </template>
+
     <template #action="{ record }">
       <a-button v-if="record.children" :disabled="record.confirmed" type="primary">確定</a-button>
     </template>
@@ -27,10 +40,9 @@
     </template>
   </a-table>
 </template>
-
 <script>
 import { defineComponent, ref } from 'vue'
-import { columnsDeposit, dataDeposit, expandIconColumnIndex } from '../data'
+import { columnsDeposit, expandIconColumnIndex } from '../data'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -38,20 +50,21 @@ export default defineComponent({
   props: {
     indeterminateCheckAllRows: Boolean,
     checkAllRowTable: Boolean,
-    currentSelectedRowKeys: Array
+    currentSelectedRowKeys: Array,
+    dataDeposit: Array,
+    isLoadingDataTable: Boolean,
+    expandedRowKeys: Array
   },
 
-  setup(_, context) {
-    const currentExpandedRows = ref([])
-
+  setup(props, { emit }) {
     const onSelectChangeRow = (selectedRowKeys) => {
-      context.emit('update:indeterminateCheckAllRows', selectedRowKeys.length < dataDeposit.length && selectedRowKeys.length > 0)
-      context.emit('update:checkAllRowTable', selectedRowKeys.length === dataDeposit.length)
-      context.emit('update:currentSelectedRowKeys', selectedRowKeys)
+      emit('update:indeterminateCheckAllRows', selectedRowKeys.length < props.dataDeposit.filter(item => !item.confirmed).length)
+      emit('update:checkAllRowTable', selectedRowKeys.length === props.dataDeposit.filter(item => !item.confirmed).length)
+      emit('update:currentSelectedRowKeys', selectedRowKeys)
     }
 
     const onSelectAllChangeRows = (_, selectedRows) => {
-      context.emit('update:currentSelectedRowKeys', selectedRows.map(item => item.key))
+      emit('update:currentSelectedRowKeys', selectedRows.map(item => item.key))
     }
 
     const onCustomRow = (record) => {
@@ -64,16 +77,15 @@ export default defineComponent({
 
     const onClickExpandRowButton = (expanded, record) => {
       if (expanded) {
-        currentExpandedRows.value.push(record.key)
+        props.expandedRowKeys.push(record.key)
       } else {
-        currentExpandedRows.value = currentExpandedRows.value.filter(item => item !== record.key)
+        emit('update:expandedRowKeys', props.expandedRowKeys.filter(item => item !== record.key))
       }
     }
 
-    const onAddRowClass = (record) => currentExpandedRows.value.includes(record.key) ? 'is-expand-row' : null
+    const onAddRowClass = (record) => props.expandedRowKeys.includes(record.key) ? 'is-expand-row' : null
 
     return {
-      dataDeposit,
       columnsDeposit,
       expandIconColumnIndex,
 
@@ -90,39 +102,54 @@ export default defineComponent({
 <style lang="scss">
 @import '@/styles/shared/variables';
 
-table thead .ant-checkbox-wrapper {
-  display: none;
-}
-
-table tbody {
-  .ant-table-row {
-    cursor: pointer;
+.ant-table-wrapper.deposit-table {
+  table thead .ant-checkbox-wrapper {
+    display: none;
   }
 
-  .is-expand-row td {
-    border-bottom: 0;
+  table tbody {
+    .ant-table-row {
+      cursor: pointer;
+    }
+
+    .is-expand-row td {
+      border-bottom: 0;
+    }
   }
-}
 
-.ant-table-row.is-expand-row.ant-table-row-level-0 {
-  background-color: $color-grey-98;
-}
+  .ant-table-row.is-expand-row.ant-table-row-level-0 {
+    background-color: $color-grey-98;
+  }
 
-.ant-table-row.is-expand-row.ant-table-row-level-1:last-child td {
-  border-bottom: 1px solid $color-grey-85 !important;
-}
+  .ant-table-row.is-expand-row.ant-table-row-level-1:last-child td {
+    border-bottom: 1px solid $color-grey-85 !important;
+  }
 
-$columns: 11;
-@for $i from 1 through ($columns) {
-  @if ($i < 10) {
-    @if ($i > 5) {
+  $columns: 11;
+  @for $i from 1 through ($columns) {
+    @if ($i < 10) {
+      @if ($i > 5) {
+        .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
+          border-bottom: 1px solid $color-grey-85;
+        }
+      }
+    } @else {
       .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
-        border-bottom: 1px solid $color-grey-85;
+        border-bottom: 0;
       }
     }
-  } @else {
-    .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
-      border-bottom: 0;
+  }
+
+  $text-color-type: (
+    10: $color-additional-blue-6,
+    20: $color-additional-red-6,
+    30: $color-grey-15,
+    40: $color-grey-15
+  );
+
+  @each $key, $val in $text-color-type {
+    .type-#{$key} {
+      color: #{$val};
     }
   }
 }

@@ -13,92 +13,74 @@
     </div>
 
     <div class="u-flex u-justify-between u-mb-24">
-      <a-checkbox
-        v-model:checked="checkAllRowTable"
-        @change="onSelectAllRowsByCustomCheckbox"
-        :indeterminate="indeterminateCheckAllRows">
-        チェックした項目全てを確定する
-      </a-checkbox>
+      <div>
+        <a-checkbox
+          v-model:checked="checkAllRowTable"
+          @change="onSelectAllRowsByCustomCheckbox"
+          :indeterminate="indeterminateCheckAllRows">
+          チェックした項目全てを確定する
+        </a-checkbox>
+
+        <a-button v-if="currentSelectedRowKeys.length > 1" size="small" type="primary">確定</a-button>
+      </div>
 
       <a-select
         v-model:value="searchKeyMultipleSelect"
         show-arrow
-        :maxTagCount="1"
+        :maxTagCount="0"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
         option-label-prop="label"
         dropdownClassName="multiple-select-custom"
-        :defaultActiveFirstOption="false">
+        :defaultActiveFirstOption="false"
+        @change="onHandleChangeBankAcountSelect">
         <template #menuItemSelectedIcon>
           <a-checkbox :checked="true" />
         </template>
 
-        <a-select-option v-for="option in bankAccountList" :key="option.value">
-          {{ option.label }}
+        <a-select-option v-for="option in bankAccountList" :key="option.id">
+          {{ option.number }}
         </a-select-option>
       </a-select>
 
       <a-pagination
         v-model:current="currentPage"
-        :total="101"
+        :total="totalRecords"
         :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
         :page-size="10"
+        @change="handleChangePage"
         size="small" />
     </div>
 
     <a-tabs
       class="-mx-32"
       defaultActiveKey="1"
-      :animated="false">
-      <a-tab-pane key="1" tab="GumiVietNam">
+      :animated="false"
+      @change="onHandleChangeTabGroup">
+      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
         <deposit-table
+          v-model:expanded-row-keys="expandedRowKeys"
+          v-model:is-loading-data-table="isLoadingDataTable"
+          v-model:dataDeposit="dataDeposit"
           v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
           v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys"
-        />
-      </a-tab-pane>
-      <a-tab-pane key="2" tab="VAND">
-        <!-- test -->
-        <deposit-table
-          v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
-          v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys"
-        />
-      </a-tab-pane>
-      <a-tab-pane key="3" tab="グループ名">
-        <!-- test -->
-        <deposit-table
-          v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
-          v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys"
-        />
+          v-model:current-selected-row-keys="currentSelectedRowKeys" />
       </a-tab-pane>
     </a-tabs>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import { dataDeposit } from './data'
 import DepositTable from './-components/DepositTable'
-
-const bankAccountList = [
-  {
-    value: 'bank1',
-    label: 'Bank 1'
-  },
-  {
-    value: 'bank2',
-    label: 'Bank 2'
-  },
-  {
-    value: 'bank3',
-    label: 'Bank 3'
-  },
-]
+import { getDeposit, getGroupList, getBankAccounts } from './composables/useDepositService'
+import { debounce } from '@/helpers/debounce'
+import { typeDepositEnums } from '@/enums/deposit.enum'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -110,15 +92,93 @@ export default defineComponent({
   },
 
   setup() {
+    const router = useRouter()
+    const route = useRoute()
+
     const checkAllRowTable = ref()
     const indeterminateCheckAllRows = ref()
     const searchKeyMultipleSelect = ref([])
     const currentPage = ref(1)
     const currentSelectedRowKeys = ref([])
+    const tabListGroup = ref([])
+    const bankAccountList = ref([])
+    const dataDeposit = ref([])
+    const isLoadingDataTable = ref(true)
+    const expandedRowKeys = ref([])
+    const currentActiveIdGroup = ref()
+    const currentBankAccountList = ref([])
+    const totalRecords = ref()
 
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
-      e.target.checked ? currentSelectedRowKeys.value = dataDeposit.map(item => item.key) : currentSelectedRowKeys.value = []
+      const keyRowList = dataDeposit.value.filter(item => !item.confirmed)
+      e.target.checked ? currentSelectedRowKeys.value = keyRowList.map(item => item.key) : currentSelectedRowKeys.value = []
+    }
+
+    const createDataTableFormat = (data) => {
+      return data.map(item => {
+        let typeName
+        typeDepositEnums.forEach(type => (type.type === item.type) && (typeName = type.name))
+
+        return Object.assign(item,
+          {
+            key: item.id,
+            children: item.bankAccounts ? item.bankAccounts.map(
+              bank => Object.assign(bank,
+                { type: 10 },
+                { key: item.id },
+                { purpose: `${bank.name} (${bank.currency})` },
+                { typeName }))
+                : [],
+            deposit: '100000',
+            typeName
+          })
+      })
+    }
+
+    const getDataDeposit = async (data, params) => {
+      try {
+        isLoadingDataTable.value = true
+        const res = await getDeposit(data, params)
+        dataDeposit.value = createDataTableFormat(res.data.result.data)
+        console.log(dataDeposit.value)
+        totalRecords.value = res.data.result.meta.totalRecords
+      } finally {
+        isLoadingDataTable.value = false
+      }
+    }
+
+    onBeforeMount(async () => {
+      const groupList = await getGroupList()
+      tabListGroup.value = groupList.result
+      currentActiveIdGroup.value = groupList.result[0].id
+
+      const bankAccounts = await getBankAccounts()
+      bankAccountList.value = bankAccounts.result
+
+      const { tab } = router.currentRoute._value.query
+      const idGroupList = tabListGroup.value.map(item => item.id)
+      const indexTab = idGroupList.findIndex(item => item.toString() === tab)
+      indexTab < 0 ? await getDataDeposit({ groupId: tabListGroup.value[0].id }) : await getDataDeposit({ groupId: parseInt(tab) })
+    })
+
+    const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
+      dataDeposit.value = []
+      currentBankAccountList.value = bankAccountId
+      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId })
+
+      bankAccountId.length ? expandedRowKeys.value = dataDeposit.value.map(item => item.key) : expandedRowKeys.value = []
+    }, 800)
+
+    const onHandleChangeTabGroup = async (groupId) => {
+      currentActiveIdGroup.value = groupId
+      router.push({ query: { ...route.query, tab: groupId } })
+
+      await getDataDeposit({ groupId, bankAccountId: currentBankAccountList.value })
+    }
+
+    const handleChangePage = async (pageNumber) => {
+      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
     }
 
     return {
@@ -128,14 +188,22 @@ export default defineComponent({
       indeterminateCheckAllRows,
       currentSelectedRowKeys,
       bankAccountList,
+      tabListGroup,
+      dataDeposit,
+      isLoadingDataTable,
+      expandedRowKeys,
+      totalRecords,
 
-      onSelectAllRowsByCustomCheckbox
+      onSelectAllRowsByCustomCheckbox,
+      onHandleChangeBankAcountSelect,
+      onHandleChangeTabGroup,
+      handleChangePage
     }
   }
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .-mx-32 {
   margin: 0 -32px;
 }

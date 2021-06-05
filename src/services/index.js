@@ -1,9 +1,15 @@
 import StorageService from './storage'
 import AuthService from './auth'
+import DepositService from './deposit'
+import GroupService from './group'
+import BankAccountsService from './bankAccounts'
 
 const repositories = {
   StorageService,
-  AuthService
+  AuthService,
+  DepositService,
+  GroupService,
+  BankAccountsService
 }
 
 export default {
