@@ -17,7 +17,10 @@ import {
   Breadcrumb,
   Popover,
   Menu,
-  Tabs
+  Tabs,
+  notification,
+  Select,
+  Radio
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -39,6 +42,10 @@ const globalComponents = (app) => {
     .use(Popover)
     .use(Menu)
     .use(Tabs)
+    .use(Select)
+    .use(Radio)
+  // Config global notification
+  app.config.globalProperties.$notification = notification
 }
 
 export default globalComponents

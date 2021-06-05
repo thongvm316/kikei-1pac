@@ -1,10 +1,11 @@
 .search-company {
   .form-group {
+    margin-bottom: 24px;
+
     .form-content {
       display: flex;
       align-items: baseline;
       justify-content: center;
-      margin-bottom: 24px;
 
       .form-label {
         margin-right: 49px;
@@ -16,9 +17,95 @@
         align-items: flex-start;
 
         .note {
-          color: #BFBFBF;
+          color: $color-grey-75;
           font-weight: 400;
-          font-size: 12px
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    form {
+      width: 50%;
+      margin: 0 auto;
+
+      .form-content {
+        text-align: left;
+      }
+
+      .form-label,
+      .label-input {
+        width: 40%;
+      }
+
+      .form-input,
+      .ant-checkbox-group {
+        width: 60%;
+      }
+    }
+  }
+}
+
+.modal-company {
+  .ant-modal-content {
+    height: calc(100vh - 200px);
+    
+    .ant-modal-footer {
+      display: flex;
+      padding: 0;
+      height: calc(100% - 53px);
+      
+      .form-deposit {
+        text-align: left;
+        padding: 24px;
+        border-right: 1px solid $color-grey-55;
+        background-color: $color-grey-94;
+        
+        .form-left {
+          height: 100%;
+          position: relative;
+          
+          .form-group,
+          .checkbox__input {
+            margin-bottom: 16px;
+            
+            .ant-checkbox-group {
+              display: flex;
+              flex-direction: column;
+              
+              .ant-checkbox-wrapper {
+                margin: 0 0 8px;
+              }
+            }
+          }
+          
+          .ant-btn {
+            position: absolute;
+            bottom: 0;
+          }
+        }
+      }
+      
+      .ant-table-wrapper {
+        flex: 1;
+        padding: 24px;
+        .ant-spin-nested-loading {
+          .ant-spin-container {
+            .ant-btn {
+              padding: 1px 6px;
+            }
+            .ant-pagination {
+              float: none;
+            }
+            .ant-table-tbody {
+              tr {
+                td {
+                  padding: 6px 8px;
+                }
+              }
+            }
+          }
         }
       }
     }

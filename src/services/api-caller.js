@@ -27,19 +27,25 @@ axios.interceptors.request.use(
 )
 
 axios.interceptors.response.use(
-  function(response) {
+  function (response) {
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
+    store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
 
     return response
   },
 
-  function(error) {
+  function (error) {
+    if (error.response) {
+      const { data } = error.response
+      const errorMessage = data['error-message'] || data.errorMessage || 'fall.back.error'
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', content: errorMessage.replaceAll('.', '_') })
+    }
+
+    // clear all aut profile & global state when logout
     if (error.response && error.response.status === 401) {
       clearAllGlobalData()
-    } else {
-      alert('fail')
     }
 
     return Promise.reject(error)
@@ -53,19 +59,14 @@ function clearAllGlobalData() {
   // add more action to clear ...
 }
 
-export default function apiCaller({
-  method = 'GET',
-  url,
-  params = null,
-  data = null,
-  needAuth = 1
-}) {
+export default function apiCaller({ method = 'GET', url, params = null, data = null, needAuth = 1 }) {
   let headers = null
   if (needAuth) {
     const accessToken = StorageService.get(storageKeys.authProfile)?.token || store.state.auth.authProfile?.token
-    if (accessToken) headers = {
-      Authorization: `Bearer ${accessToken}`
-    }
+    if (accessToken)
+      headers = {
+        Authorization: `Bearer ${accessToken}`
+      }
   }
 
   return axios({
