@@ -1,23 +1,23 @@
 <template>
   <div class="k-deposit-new container">
     <a-form ref="depositNewRef" :model="params" :rules="depositNewFormRules" layout="vertical" @submit="onSubmitForm">
-      <a-form-item name="date" label="入出金日">
+      <a-form-item name="date" :label="$t('deposit.new.date')">
         <a-date-picker v-model:value="params.date" placeholder="YYYY/MM/DD" />
       </a-form-item>
 
-      <a-form-item name="type" label="入出金">
+      <a-form-item name="type" :label="$t('deposit.new.type')">
         <a-radio-group v-model:value="params.type">
-          <a-radio value="deposit">入金</a-radio>
-          <a-radio value="withdrawal">出金</a-radio>
-          <a-radio value="transfer">移動</a-radio>
-          <a-radio value="unclear">不明</a-radio>
+          <a-radio value="deposit">{{ $t('deposit.new.type_deposit') }}</a-radio>
+          <a-radio value="withdrawal">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
+          <a-radio value="transfer">{{ $t('deposit.new.type_transfer') }}</a-radio>
+          <a-radio value="unclear">{{ $t('deposit.new.type_unclear') }}</a-radio>
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item name="categoryId" label="大分類">
+      <a-form-item name="categoryId" :label="$t('deposit.new.category')">
         <a-select
           v-model:value="params.categoryId"
-          placeholder="選択して下さい"
+          :placeholder="$t('deposit.new.category_place_holder')"
           :disabled="isCategoryDisabled"
           class="has-max-width"
         >
@@ -27,10 +27,11 @@
         </a-select>
       </a-form-item>
 
-      <a-form-item name="subcategoryId" label="大分類">
+      <a-form-item name="subcategoryId" :label="$t('deposit.new.sub_category')">
         <a-select
+          v-if="!isCompanySelection"
           v-model:value="params.subcategoryId"
-          placeholder="選択して下さい"
+          :placeholder="$t('deposit.new.sub_category_place_holder')"
           :disabled="isCategoryDisabled"
           class="has-max-width"
         >
@@ -39,62 +40,94 @@
           </template>
         </a-select>
 
-        <a-button v-if="true" @click="handleOpenModalCompany">選択</a-button>
-        <search-company v-model:visible="openModalCompany" v-model:company="params.subcategoryId" />
+        <div v-else class="k-deposit-new__company-selection">
+          <span v-if="params.companyName" class="k-deposit-new__company-selection--content">
+            {{ params.companyName }}
+          </span>
+          <a-button v-if="true" class="k-deposit-new__company-selection--btn" @click="handleOpenModalCompany">
+            {{ $t('deposit.new.company_selection') }}
+          </a-button>
+          <search-company-name v-model:visible="isOpenModalCompany" v-model:companyName="params.companyName" />
+        </div>
       </a-form-item>
 
-      <a-form-item name="purpose" label="項目名">
-        <a-input v-model:value="params.purpose" placeholder="入力してください" class="has-max-width" />
+      <a-form-item name="purpose" :label="$t('deposit.new.purpose')">
+        <a-input
+          v-model:value="params.purpose"
+          :placeholder="$t('deposit.new.purpose_place_holder')"
+          class="has-max-width"
+        />
       </a-form-item>
 
-      <a-form-item name="statisticsMonth" label="計上月">
+      <a-form-item name="statisticsMonth" :label="$t('deposit.new.statistics_month')">
         <a-month-picker v-model:value="params.statisticsMonth" placeholder="YYYY/MM" />
       </a-form-item>
 
-      <a-form-item name="groupId" label="入出金グループ">
-        <a-select v-model:value="params.groupId" placeholder="選択して下さい" class="has-max-width">
+      <a-form-item name="groupId" :label="$t('deposit.new.group')">
+        <a-select
+          v-model:value="params.groupId"
+          :placeholder="$t('deposit.new.group_place_holder')"
+          class="has-max-width"
+        >
           <template v-for="group in groupList" :key="group.id">
             <a-select-option :value="group.id">{{ group.name }}</a-select-option>
           </template>
         </a-select>
       </a-form-item>
 
-      <a-form-item name="withdrawalBankAccountId" label="銀行口座">
-        <a-select v-model:value="params.withdrawalBankAccountId" placeholder="選択して下さい" class="has-max-width">
+      <a-form-item name="withdrawalBankAccountId" :label="$t('deposit.new.withdrawal_bank_account')">
+        <a-select
+          v-model:value="params.withdrawalBankAccountId"
+          :placeholder="$t('deposit.new.withdrawal_bank_account_place_holder')"
+          class="has-max-width"
+        >
           <template v-for="bankAccount in bankAccountList" :key="bankAccount.id">
             <a-select-option :value="bankAccount.id">{{ bankAccount.number }}</a-select-option>
           </template>
         </a-select>
       </a-form-item>
 
-      <a-form-item name="currency" label="金額">
+      <a-form-item name="withdrawalMoney" :label="$t('deposit.new.withdrawal_money')">
         <a-input-number
-          v-model:value="params.currency"
-          placeholder="入力してください"
+          v-model:value="params.withdrawalMoney"
+          :placeholder="$t('deposit.new.withdrawal_money_place_holder')"
           class="has-max-width"
+          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
           :precision="3"
         />
         <span class="k-deposit-new__currency-unit">(VND)</span>
-        <p v-if="params.depositType === 'unclear'" class="k-deposit-new__field-cation">
-          ※仮受金の場合はマイナスで入力してください
+        <p v-if="isShowCaptionCurrency" class="k-deposit-new__field-cation">
+          {{ $t('deposit.new.withdrawal_money_cation') }}
         </p>
       </a-form-item>
 
       <div v-if="isAdvandceCurrency" class="k-deposit-new__field-advance">
-        <a-form-item name="currency" label="金額">
-          <a-input v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
+        <a-form-item name="depositBankAccountId" :label="$t('deposit.new.deposit_bank_account')">
+          <a-input
+            v-model:value="params.depositBankAccountId"
+            :placeholder="$t('deposit.new.deposit_bank_account_place_holder')"
+            class="has-max-width"
+          />
         </a-form-item>
-        <a-form-item name="currency" label="金額">
-          <a-input-number v-model:value="params.currency" placeholder="入力してください" class="has-max-width" />
+        <a-form-item name="depositMoney" :label="$t('deposit.new.deposit_money')">
+          <a-input-number
+            v-model:value="params.depositMoney"
+            :placeholder="$t('deposit.new.deposit_money_place_holder')"
+            class="has-max-width"
+            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+            :precision="3"
+          />
           <span class="k-deposit-new__currency-unit">(USD)</span>
         </a-form-item>
       </div>
 
-      <a-form-item name="tags" label="タグ">
+      <a-form-item name="tags" :label="$t('deposit.new.tag')">
         <div class="k-deposit-new__tags">
           <a-input
             v-model:value="inputTagVal"
-            placeholder="タグを入力してください"
+            :placeholder="$t('deposit.new.tag_place_holder')"
             class="k-deposit-new__tags--input"
             @blur="handleInputTagConfirm"
             @keyup.enter="handleInputTagConfirm"
@@ -105,88 +138,105 @@
         </div>
       </a-form-item>
 
-      <a-form-item name="memo" label="メモ">
-        <a-input v-model:value="params.memo" placeholder="入力してください" class="has-max-width" />
+      <a-form-item name="memo" :label="$t('deposit.new.memo')">
+        <a-input v-model:value="params.memo" :placeholder="$t('deposit.new.memo_place_holder')" class="has-max-width" />
       </a-form-item>
 
-      <a-form-item name="depositRepeatType" label="繰返し">
-        <a-radio-group v-model:value="params.depositRepeatType">
-          <a-radio :value="1">毎日</a-radio>
-          <a-radio :value="2">毎週</a-radio>
-          <a-radio :value="3">毎月</a-radio>
-          <a-radio :value="4">毎年</a-radio>
-          <a-radio :value="0">繰返し無し</a-radio>
+      <a-form-item name="repeated" :label="$t('deposit.new.repeat')">
+        <a-radio-group v-model:value="params.repeated">
+          <a-radio :value="1">{{ $t('deposit.new.daily') }}</a-radio>
+          <a-radio :value="2">{{ $t('deposit.new.weekly') }}</a-radio>
+          <a-radio :value="3">{{ $t('deposit.new.monthly') }}</a-radio>
+          <a-radio :value="4">{{ $t('deposit.new.yearly') }}</a-radio>
+          <a-radio :value="0">{{ $t('deposit.new.no_repetition') }}</a-radio>
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item v-if="params.depositRepeatType === 3" name="confirm">
-        <a-checkbox v-model:checked="params.confirm">月末</a-checkbox>
+      <a-form-item v-if="params.repeated === 3" name="repeated_end_month">
+        <a-checkbox v-model:checked="params.confirm">{{ $t('deposit.new.repeated_end_month') }}</a-checkbox>
       </a-form-item>
 
       <a-form-item
-        v-if="params.depositRepeatType !== 0 && params.depositRepeatType !== null"
+        v-if="params.repeated !== 0 && params.repeated !== null"
         name="repeatedExpiredDate"
-        label="終了日"
+        :label="$t('deposit.new.repeated_expired_date')"
       >
         <a-date-picker v-model:value="params.repeatedExpiredDate" placeholder="YYYY/MM/DD" />
       </a-form-item>
 
-      <a-form-item name="confirmed" label="確定">
-        <a-checkbox v-model:checked="params.confirmed">確定</a-checkbox>
+      <a-form-item name="confirmed" :label="$t('deposit.new.confirmed')">
+        <a-checkbox v-model:checked="params.confirmed">{{ $t('deposit.new.confirmed') }}</a-checkbox>
       </a-form-item>
 
       <a-form-item>
-        <a-button type="default" size="large" @click="onCancelForm">キャンセル</a-button>
-        <a-button type="primary" size="large" :loading="loading" @click="onSubmitForm">登録</a-button>
+        <a-button type="default" @click="onCancelForm">{{ $t('deposit.new.cancel') }}</a-button>
+        <a-button type="primary" class="u-ml-16" :loading="isLoading" @click="onSubmitForm">
+          {{ $t('deposit.new.registration') }}
+        </a-button>
       </a-form-item>
     </a-form>
   </div>
 </template>
 
 <script>
-import { defineComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
+import { defineComponent, defineAsyncComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
 import useDepositNewService from '../composables/useDepositNewService'
-import SearchCompany from '../-components/SearchCompany'
+const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
   name: 'DepositNewPage',
 
   components: {
-    SearchCompany
+    SearchCompanyName
   },
 
   setup() {
     const depositNewRef = ref()
-    const loading = ref(false)
-    const params = reactive({
-      date: null,
-      type: '',
-      categoryId: undefined,
-      // subcategoryId: undefined,
-      subcategoryId: 1,
-      purpose: '',
-      statisticsMonth: null,
-      groupId: undefined,
-      withdrawalBankAccountId: undefined,
-      depositBankAccountId: '',
-      withdrawalMoney: 0,
-      depositMoney: 0,
-      tags: ['tags'],
-      memo: '',
-      numberOfDividedMonth: 0,
-      repeated: 3,
-      repeatedExpiredDate: null,
-      repeatedOption: '12',
-      repeatedInterval: 2,
-      confirmed: true,
-      createdBy: 1,
-      updatedBy: 1
-    })
+    const isLoading = ref(false)
 
+    // list data
     const categoryList = ref([])
     const subCategoryList = ref([])
     const bankAccountList = ref([])
     const groupList = ref([])
+
+    // tags
+    const inputTagVal = ref('')
+    const isShowTagList = computed(() => params.tags.length !== 0)
+
+    // modal select company name
+    const isCompanySelection = ref(false)
+    const isOpenModalCompany = ref(false)
+
+    // disabled fields
+    const isCategoryDisabled = ref(false)
+    const isAdvandceCurrency = ref(false)
+    const isShowCaptionCurrency = ref(false)
+
+    const params = reactive({
+      date: null,
+      type: '',
+      categoryId: undefined,
+      subcategoryId: undefined,
+      companyName: '',
+      purpose: '',
+      statisticsMonth: null,
+      groupId: undefined,
+      withdrawalBankAccountId: undefined,
+      withdrawalMoney: 0,
+      depositBankAccountId: undefined,
+      depositMoney: 0,
+      tags: [],
+      memo: '',
+      // numberOfDividedMonth: 0,
+      repeated: 3,
+      repeatedExpiredDate: null,
+      // repeatedOption: '12',
+      // repeatedInterval: 2,
+      confirmed: true,
+      createdBy: 1,
+      updatedBy: 1
+    })
 
     // form validator rules
     const depositNewFormRules = {
@@ -200,26 +250,29 @@ export default defineComponent({
       withdrawalBankAccountId: [
         { required: true, message: 'Please input bank account', trigger: 'change', type: 'number' }
       ],
-      tags: [{ required: true, message: 'Please input tag', trigger: 'blur', type: 'array' }],
-      confirmed: [{ required: true, message: 'Please check confirm', trigger: 'change', type: 'boolean' }],
-      repeatedExpiredDate: [{ required: true, message: 'Please select date', trigger: 'change', type: 'object' }]
+      withdrawalMoney: [
+        { required: true, message: 'Please select withdrawal money', trigger: 'change', type: 'number' }
+      ],
+      depositBankAccountId: [
+        { required: true, message: 'Please input bank account', trigger: 'change', type: 'number' }
+      ],
+      depositMoney: [{ required: true, message: 'Please select withdrawal money', trigger: 'change', type: 'number' }],
+      tags: [{ required: true, message: 'Please input tag', trigger: 'blur', type: 'array' }]
     }
 
-    onBeforeMount(async () => {
-      const { getCategoryList, getSubCategoryList, getBankAccountList, getGroupList } = useDepositNewService()
+    const handleInputTagConfirm = () => {
+      if (!inputTagVal.value) return
+      params.tags = [...params.tags, inputTagVal.value]
+      inputTagVal.value = ''
+    }
 
-      const { result: categoryResult = [] } = await getCategoryList()
-      categoryList.value = categoryResult
+    const handleCloseTag = (removedTag) => {
+      params.tags = params.tags.filter((tag) => tag !== removedTag)
+    }
 
-      const { result: subCategoryResult = [] } = await getSubCategoryList()
-      subCategoryList.value = subCategoryResult
-
-      const { result: bankAccountResult = [] } = await getBankAccountList()
-      bankAccountList.value = bankAccountResult
-
-      const { result: groupResult = [] } = await getGroupList()
-      groupList.value = groupResult
-    })
+    const handleOpenModalCompany = () => {
+      isOpenModalCompany.value = true
+    }
 
     // handle cancel form
     const onCancelForm = () => {
@@ -239,10 +292,22 @@ export default defineComponent({
       // }
     }
 
-    // disabled form field
-    const isCategoryDisabled = ref(false)
-    const isAdvandceCurrency = ref(false)
-    const isShowCaptionCurrency = ref(false)
+    // fetch list data
+    onBeforeMount(async () => {
+      const { getCategoryList, getSubCategoryList, getBankAccountList, getGroupList } = useDepositNewService()
+
+      const { result: categoryResult = [] } = await getCategoryList()
+      categoryList.value = categoryResult
+
+      const { result: subCategoryResult = [] } = await getSubCategoryList()
+      subCategoryList.value = subCategoryResult
+
+      const { result: bankAccountResult = [] } = await getBankAccountList()
+      bankAccountList.value = bankAccountResult
+
+      const { result: groupResult = [] } = await getGroupList()
+      groupList.value = groupResult
+    })
 
     watch(
       () => params.type,
@@ -253,44 +318,34 @@ export default defineComponent({
       }
     )
 
-    // tags
-    const inputTagVal = ref('')
-    const isShowTagList = computed(() => params.tags.length !== 0)
-    const handleInputTagConfirm = () => {
-      if (!inputTagVal.value) return
-      params.tags = [...params.tags, inputTagVal.value]
-      inputTagVal.value = ''
-    }
-
-    const handleCloseTag = (removedTag) => {
-      params.tags = params.tags.filter((tag) => tag !== removedTag)
-    }
-
-    // modal sub category
-    const openModalCompany = ref(false)
-    const handleOpenModalCompany = () => {
-      openModalCompany.value = true
-    }
+    // TODO: check value to show company name select
+    watch(
+      () => params.categoryId,
+      (val) => {
+        isCompanySelection.value = val === 1
+      }
+    )
 
     return {
       depositNewRef,
       params,
-      loading,
+      isLoading,
       depositNewFormRules,
-      onSubmitForm,
-      onCancelForm,
       isCategoryDisabled,
       isAdvandceCurrency,
       isShowCaptionCurrency,
       inputTagVal,
-      handleInputTagConfirm,
       categoryList,
       subCategoryList,
       bankAccountList,
       groupList,
       isShowTagList,
+      isOpenModalCompany,
+      isCompanySelection,
+      onSubmitForm,
+      onCancelForm,
+      handleInputTagConfirm,
       handleCloseTag,
-      openModalCompany,
       handleOpenModalCompany
     }
   }
@@ -336,6 +391,19 @@ $field-max-width: 500px;
 
     &--list {
       padding: 4px 12px;
+    }
+  }
+
+  &__company-selection {
+    &--content {
+      color: $color-grey-55;
+      margin-right: 12px;
+    }
+
+    &--btn {
+      border: 0;
+      background-color: transparent;
+      padding: 0;
     }
   }
 
