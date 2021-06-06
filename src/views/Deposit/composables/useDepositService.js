@@ -54,3 +54,11 @@ export const getSubCategory = async () => {
     throw error
   }
 }
+
+export const deleteDeposit = async (id) => {
+  try {
+    await DepositService.deleteDeposit(id)
+  } catch (error) {
+    throw error
+  }
+}

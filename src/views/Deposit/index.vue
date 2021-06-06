@@ -67,14 +67,14 @@
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
-          @on-open-deposit-buttons-float="isVisibleDepositButtonsFloat = true"/>
+          @on-open-deposit-buttons-float="onOpenDepositButtonsFloat" />
       </a-tab-pane>
     </a-tabs>
   </div>
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
-  <deposit-buttons-float @on-open-delete-deposit-modal="isVisibleDepositModal = true" v-model:visible="isVisibleDepositButtonsFloat" />
-  <delete-deposit-modal v-model:visible="isVisibleDepositModal" />
+  <deposit-buttons-float @on-open-delete-deposit-modal="onOpenDeleteDepositModal" v-model:visible="isVisibleDepositButtonsFloat" />
+  <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
 </template>
 
 <script>
@@ -84,7 +84,7 @@ import { useRouter, useRoute } from 'vue-router'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
-import { getDeposit, getGroupList, getBankAccounts } from './composables/useDepositService'
+import { getDeposit, getGroupList, getBankAccounts, deleteDeposit } from './composables/useDepositService'
 import { debounce } from '@/helpers/debounce'
 import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
@@ -106,6 +106,26 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const route = useRoute()
+
+    const currentSelectedRecord = ref()
+
+    const onOpenDepositButtonsFloat = (record) => {
+      if (record.confirmed) return
+
+      currentSelectedRecord.value = record
+      isVisibleDepositButtonsFloat.value = true
+    }
+
+    const onOpenDeleteDepositModal = () => {
+      isVisibleDepositButtonsFloat.value = false
+      isVisibleDepositModal.value = true
+    }
+
+    const onDeleteDepositRecord = () => {
+      deleteDeposit(currentSelectedRecord.value.id)
+    }
+
+
 
     // const tableVal = reactive({
     //   indeterminateCheckAllRows: false,
@@ -232,7 +252,10 @@ export default defineComponent({
       onHandleChangeBankAcountSelect,
       onHandleChangeTabGroup,
       handleChangePage,
-      getDataDeposit
+      getDataDeposit,
+      onOpenDepositButtonsFloat,
+      onOpenDeleteDepositModal,
+      onDeleteDepositRecord
     }
   }
 })

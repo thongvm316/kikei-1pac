@@ -5,32 +5,28 @@
     width="380px">
     <template #footer>
       <p>プロジェクト名 を削除してもよろしですか？</p>
-      <a-button>キャンセル</a-button>
-      <a-button type="danger">削除</a-button>
+      <a-button @click="handleCancel">キャンセル</a-button>
+      <a-button @click="$emit('on-delete-deposit-record')" type="danger">削除</a-button>
     </template>
   </a-modal>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
-// import DeleteIcon from '@/assets/icons/ico_delete.svg'
-// import EditIcon from '@/assets/icons/ico_edit.svg'
-// import CopyIcon from '@/assets/icons/ico_copy.svg'
 
 export default defineComponent({
   name: 'DeleteDepositModal',
 
-  components: {
-    // DeleteIcon,
-    // EditIcon,
-    // CopyIcon
-  },
+  setup(_, { emit }) {
+    const visible = ref()
 
-  setup() {
-    const visible = ref(true)
+    const handleCancel = () => {
+      emit('update:visible', false)
+    }
 
     return {
-      visible
+      visible,
+      handleCancel
     }
   }
 })
