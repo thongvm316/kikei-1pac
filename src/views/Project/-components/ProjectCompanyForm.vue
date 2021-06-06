@@ -2,7 +2,7 @@
   <a-modal
     v-model:visible="visibility"
     :title="$t('deposit.title_search')"
-    class="search-deposit"
+    class="modal-company"
     width="85%"
     max-height="85%"
   >

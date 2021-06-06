@@ -6,6 +6,7 @@ import financing from './financing'
 import table from './table'
 import action from './action'
 import project from './project'
+import deposit from './deposit'
 
 export default {
   errors,
@@ -15,5 +16,6 @@ export default {
   financing,
   table,
   action,
-  project
+  project,
+  deposit
 }

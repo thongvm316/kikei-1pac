@@ -18,6 +18,10 @@ export default {
     return apiCaller({ method: 'POST', url: RESOURCES.project, data })
   },
 
+  deleteProject(projectId) {
+    return apiCaller({ method: 'DELETE', url: `${RESOURCES.project}/${projectId}` })
+  },
+
   getProjectStatuses() {
     return apiCaller({ url: `${RESOURCES.project}/status` })
   },

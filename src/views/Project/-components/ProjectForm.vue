@@ -185,7 +185,7 @@
     </a-form-item>
 
     <a-form-item>
-      <a-button>キャンセル</a-button>
+      <a-button @click="$router.go(-1)">キャンセル</a-button>
       <a-button type="primary" :loading="loading" @click="onSubmit" style="margin-left: 8px">登録</a-button>
     </a-form-item>
   </a-form>
@@ -432,6 +432,10 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
+
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
 
 .modal-link {
   color: $color-additional-blue-6;

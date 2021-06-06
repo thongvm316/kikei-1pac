@@ -34,7 +34,8 @@
       :loading="loading"
       :locale="{ emptyText: '該当するプロジェクトが見つかりませんでした。' }"
       :pagination="false"
-      :scroll="{ x: true }">
+      :scroll="{ x: true }"
+      :custom-row="onCustomRow">
 
       <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
       <template #renderProjectName="{ record }">
@@ -74,14 +75,33 @@
   </div>
 
   <project-search-form @on-search="fetchProjectDatas($event)" />
+
+  <project-float-buttons
+    v-model:visible="isOpenFloatButtons"
+    @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id:targetProjectSelected.id} })"
+    @on-confirm-delete="isDeleteConfirmModalOpen = true"
+  />
+
+  <a-modal
+    v-model:visible="isDeleteConfirmModalOpen"
+    title="削除"
+    width="380px">
+    <template #footer>
+      <p>プロジェクト名 を削除してもよろしですか？</p>
+      <a-button @click="isDeleteConfirmModalOpen = false">キャンセル</a-button>
+      <a-button @click="deleteProjectCaller" type="danger">削除</a-button>
+    </template>
+  </a-modal>
 </template>
 
 <script>
 import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { notification } from 'ant-design-vue'
 import { exportCSVFile } from '@/helpers/export-csv-file'
-import { getProjectList } from './composables/useProject'
+import { getProjectList, deleteProject } from './composables/useProject'
 import ProjectSearchForm from './-components/ProjectSearchForm'
+import ProjectFloatButtons from './-components/ProjectFloatButtons'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -178,6 +198,18 @@ export default defineComponent({
         sorter: (a, b) => a.name.length - b.name.length
       }
     ]
+    const isOpenFloatButtons = ref(false)
+    const isDeleteConfirmModalOpen = ref(false)
+    const targetProjectSelected = ref({})
+
+    const onCustomRow = (record) => {
+      return {
+        onClick: () => {
+          targetProjectSelected.value = record
+          isOpenFloatButtons.value = true
+        }
+      }
+    }
 
     const exportObj = reactive({
       header: [
@@ -225,6 +257,24 @@ export default defineComponent({
       exportCSVFile(exportObj)
     }
 
+    const deleteProjectCaller = async () => {
+      if (!targetProjectSelected.value || (targetProjectSelected.value && !targetProjectSelected.value.id)) return
+      await deleteProject(targetProjectSelected.value.id)
+
+      // remove data in list
+      const index = projectDatas.value.findIndex(project => project.id === targetProjectSelected.value.id)
+      projectDatas.value.splice(index, 1)
+
+      // close all modal
+      isDeleteConfirmModalOpen.value = false
+      isOpenFloatButtons.value = false
+
+      // clear selected value
+      targetProjectSelected.value = {}
+      // show notification
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5 });
+    }
+
     onBeforeMount(() => { fetchProjectDatas() })
 
     watch(currentPage, fetchProjectDatas)
@@ -235,14 +285,20 @@ export default defineComponent({
       loading,
       pagination,
       columns,
+      isOpenFloatButtons,
+      isDeleteConfirmModalOpen,
+      targetProjectSelected,
+      onCustomRow,
       projectDatas,
       fetchProjectDatas,
-      exportProjectAsCsvFile
+      exportProjectAsCsvFile,
+      deleteProjectCaller
     }
   },
 
   components: {
     ProjectSearchForm,
+    ProjectFloatButtons,
     LineDownIcon,
     LineAddIcon
   }
@@ -274,16 +330,16 @@ export default defineComponent({
     }
   }
 
-  ::v-deep .ant-table-tbody > tr > td {
+  :deep(.ant-table-tbody > tr > td) {
     cursor: pointer;
   }
 
-  ::v-deep .ant-table-tbody > tr > td:nth-child(3),
-  ::v-deep .ant-table-tbody > tr > td:nth-child(4) {
+  :deep(.ant-table-tbody > tr > td:nth-child(3)),
+  :deep(.ant-table-tbody > tr > td:nth-child(4)) {
     padding: 0;
   }
 
-  ::v-deep .ant-table-tbody > tr > td:nth-child(3) {
+  :deep(.ant-table-tbody > tr > td:nth-child(3)) {
     padding-right: 8px;
   }
 </style>

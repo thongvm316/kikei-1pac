@@ -1,4 +1,4 @@
-export const PROJECT_TYPES = [
+export const PROJECT_TYPES = Object.freeze([
   {
     value: 0,
     label: '受託'
@@ -7,4 +7,4 @@ export const PROJECT_TYPES = [
     value: 1,
     label: 'ラボ'
   }
-]
+])

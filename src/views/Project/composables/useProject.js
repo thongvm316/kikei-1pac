@@ -42,6 +42,15 @@ export const addProject = async (data) => {
   }
 }
 
+export const deleteProject = async (projectId) => {
+  try {
+    const response = await ProjectService.deleteProject(projectId)
+    return response
+  } catch(e) {
+    throw e
+  }
+}
+
 export const getProjectStatuses = async () => {
   try {
     const { data } = await ProjectService.getProjectStatuses()
