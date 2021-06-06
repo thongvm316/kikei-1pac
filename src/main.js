@@ -4,6 +4,7 @@ import router from '@/router'
 import i18n from '@/locale'
 import directives from '@/directives'
 import globalComponents from '@/plugins/global-components'
+import globalFilters from '@/filters'
 import Validation from '@/plugins/validation'
 import ConfigValidationMixin from '@/mixins/config-validation.mixin'
 
@@ -16,6 +17,8 @@ import '@/styles/vendor/ant/index.less'
 import '@/styles/main.scss'
 
 const app = createApp(App)
+
+app.config.globalProperties.$filters = globalFilters
 
 // register directives
 directives(app)

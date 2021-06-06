@@ -2,6 +2,7 @@ import axios from 'axios'
 import humps from 'humps'
 import { deepCopy } from '@/helpers/json-parser'
 import store from '@/store'
+import router from '@/router'
 import storageKeys from '@/enums/storage-keys'
 import StorageService from './storage'
 
@@ -31,7 +32,6 @@ axios.interceptors.response.use(
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
-    store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
 
     return response
   },
@@ -39,13 +39,14 @@ axios.interceptors.response.use(
   function(error) {
     if (error.response) {
       const { data } = error.response
-      const errorMessage = data['error-message'] || data.errorMessage || 'fall.back.error'
+      const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
       store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', content: errorMessage.replaceAll('.', '_') })
     }
 
     // clear all aut profile & global state when logout
     if (error.response && error.response.status === 401) {
       clearAllGlobalData()
+      router.push({ name: 'login' })
     }
 
     return Promise.reject(error)

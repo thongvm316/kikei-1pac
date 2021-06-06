@@ -1,4 +1,5 @@
 export default {
+  success: 'Thành công',
   fall_back_error: 'Đã có lỗi xảy ra, vui lòng thử lại',
   // login error
   login_0001: 'username and password is not valid',

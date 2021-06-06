@@ -1,4 +1,5 @@
 export default {
+  success: 'Success',
   fall_back_error: 'An error occurred, please try again',
   // login error
   login_0001: 'ユーザー名とパスワードが無効です',
