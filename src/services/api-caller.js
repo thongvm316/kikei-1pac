@@ -36,7 +36,7 @@ axios.interceptors.response.use(
     return response
   },
 
-  function(error) {
+  function (error) {
     if (error.response) {
       const { data } = error.response
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'

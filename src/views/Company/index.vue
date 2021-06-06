@@ -57,7 +57,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 5 })
+    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30 })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -84,6 +84,7 @@ export default defineComponent({
         type: 'radio'
       }
     })
+
     const columns = computed(() => {
       return [
         {
@@ -135,7 +136,7 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchlist({ pageNumber: 1, pageSize: 5 }, filter.value)
+      await fetchlist({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
     const fetchlist = async (params = {}, data) => {

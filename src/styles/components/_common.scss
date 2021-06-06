@@ -21,3 +21,27 @@
     display: none;
   }
 }
+
+.ant-layout {
+  position: relative;
+  max-height: 100vh;
+  
+  .box-btn {
+    width: auto;
+    margin: 0 auto;
+    padding: 16px;
+    background: $color-grey-100;
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 2px 2px 24px rgba(50, 50, 71, 0.25);
+    border-radius: 2px;
+    
+    .btn-edit {
+      margin-right: 12px;
+    }
+  }
+}

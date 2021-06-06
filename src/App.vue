@@ -25,7 +25,7 @@ export default defineComponent({
       const { variant, content, top, duration } = flashMessage.value
       // check variant
       if (!MESSAGE_VARIANTS.includes(variant)) throw new Error('Should be input correct variant')
-      if (!!content) message[variant]({ content: t(`errors.${content}`), top, duration, onClose })
+      if (content) message[variant]({ content: t(`errors.${content}`), top, duration, onClose })
     }
 
     showMessage()
