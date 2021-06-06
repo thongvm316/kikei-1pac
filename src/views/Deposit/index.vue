@@ -55,7 +55,7 @@
 
     <a-tabs
       class="-mx-32"
-      defaultActiveKey="1"
+      default-active-key="1"
       :animated="false"
       @change="onHandleChangeTabGroup">
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
@@ -70,7 +70,7 @@
     </a-tabs>
   </div>
 
-  <search-deposit-modal />
+  <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
 </template>
 
 <script>
@@ -99,16 +99,16 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
-    const checkAllRowTable = ref()
-    const indeterminateCheckAllRows = ref()
+    const checkAllRowTable = ref() // 3
+    const indeterminateCheckAllRows = ref() // 2
     const searchKeyMultipleSelect = ref([])
     const currentPage = ref(1)
-    const currentSelectedRowKeys = ref([])
+    const currentSelectedRowKeys = ref([]) // 4
     const tabListGroup = ref([])
     const bankAccountList = ref([])
-    const dataDeposit = ref([])
-    const isLoadingDataTable = ref(true)
-    const expandedRowKeys = ref([])
+    const dataDeposit = ref([]) // 5
+    const isLoadingDataTable = ref(true) // 6
+    const expandedRowKeys = ref([]) // 1
     const currentActiveIdGroup = ref()
     const currentBankAccountList = ref([])
     const totalRecords = ref()
@@ -163,7 +163,12 @@ export default defineComponent({
       const { tab } = router.currentRoute._value.query
       const idGroupList = tabListGroup.value.map(item => item.id)
       const indexTab = idGroupList.findIndex(item => item.toString() === tab)
-      indexTab < 0 ? await getDataDeposit({ groupId: tabListGroup.value[0].id }) : await getDataDeposit({ groupId: parseInt(tab) })
+
+      if (indexTab < 0) {
+        await getDataDeposit({ groupId: tabListGroup.value[0].id })
+      } else {
+        await getDataDeposit({ groupId: parseInt(tab) })
+      }
     })
 
     const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
@@ -197,11 +202,13 @@ export default defineComponent({
       isLoadingDataTable,
       expandedRowKeys,
       totalRecords,
+      currentActiveIdGroup,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,
       onHandleChangeTabGroup,
-      handleChangePage
+      handleChangePage,
+      getDataDeposit
     }
   }
 })

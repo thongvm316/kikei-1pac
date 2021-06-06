@@ -8,9 +8,13 @@
               <label class="form-label">入出金日</label>
 
               <div class="form-select">
-                <a-range-picker style="width: 256px" format="YYYY-MM" :placeholder="['YYYY/MM', 'YYYY/MM']">
+                <a-range-picker
+                  style="width: 256px"
+                  format="YYYY-MM-DD"
+                  v-model:value="dateDepositValue"
+                  :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']">
                   <template #suffixIcon>
-                    <CalendarOutlined />
+                    <calendar-outlined />
                   </template>
                 </a-range-picker>
               </div>
@@ -22,9 +26,13 @@
               <label class="form-label">計上月</label>
 
               <div class="form-select">
-                <a-range-picker style="width: 256px" format="YYYY-MM" :placeholder="['YYYY/MM', 'YYYY/MM']">
+                <a-range-picker
+                  style="width: 256px"
+                  format="YYYY-MM"
+                  v-model:value="statisticsDateDepositValue"
+                  :placeholder="['YYYY/MM', 'YYYY/MM']">
                   <template #suffixIcon>
-                    <CalendarOutlined />
+                    <calendar-outlined />
                   </template>
                 </a-range-picker>
               </div>
@@ -41,7 +49,6 @@
             </div>
           </div>
 
-          <!-- Category -->
           <div class="form-group">
             <div class="form-content">
               <label class="form-label">大分類</label>
@@ -52,7 +59,6 @@
             </div>
           </div>
 
-          <!-- Sub Category -->
           <div class="form-group">
             <div class="form-content">
               <label class="form-label">中分類</label>
@@ -63,28 +69,24 @@
             </div>
           </div>
 
-          <!-- Confirmed -->
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">Confirmed ?</label>
+              <label class="form-label">確定</label>
 
               <div class="form-checkbox">
-                <a-radio-group :options="confirmedOptions">
-                  <a-radio :value="1"></a-radio>
-                  <a-radio :value="2"></a-radio>
-                </a-radio-group>
+                <a-checkbox-group v-model:value="checkedSubConfirmedList" :options="confirmedList"  />
               </div>
             </div>
           </div>
 
           <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
-          <a-button key="submit" type="primary" html-type="submit" :loading="loading">
+          <a-button key="submit" type="primary" html-type="submit">
             <template #icon>
               <span class="btn-icon">
                 <search-icon />
               </span>
             </template>
-            {{ $t('financing.handle_ok') }}
+            Ok
           </a-button>
         </form>
       </a-config-provider>
@@ -93,10 +95,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, reactive, toRefs, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import moment from 'moment'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -104,27 +107,44 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
+import { typeDepositEnums } from '@/enums/deposit.enum'
+
+import { getCategory, getSubCategory } from '../composables/useDepositService'
+
+const typeDepositList = typeDepositEnums.map(item => {
+  return { value: item.type, label: item.name }
+})
+
 export default defineComponent({
   name: 'Search',
 
   components: { SearchIcon, CalendarOutlined },
 
-  setup() {
+  props: {
+    currentActiveIdGroup: Number
+  },
+
+  setup(props, { emit }) {
     const store = useStore()
     const route = useRoute()
     const { t, locale } = useI18n()
 
     const locales = ref({ en: localeEn, ja: localeJa })
-    const loading = ref(false)
-    const typeDepositList = ['Sales', 'Payment', 'Unclear', 'Cash Transfer']
-    const checkedTypeDepositList = ref(['Sales'])
-    const categoryList = ref(['大分類 (1)', '大分類 (2)', '大分類 (3)', '大分類 (4)', '大分類 (5)', '大分類 (6)', '大分類 (7)', '大分類 (8)'])
-    const checkedCategotyList = ref(['大分類 (1)'])
+    const categoryList = ref([])
+    const subCategoryList = ref([])
+    const confirmedList = ref([
+      { value: 1, label: 'Yes' },
+      { value: 2, label: 'No' }
+    ])
 
-    const subCategoryList = ref(['大分類 (1)', '大分類 (2)', '大分類 (3)', '大分類 (4)', '大分類 (5)', '大分類 (6)', '大分類 (7)', '大分類 (8)' ])
-    const checkedSubCategotyList = ref(['大分類 (1)'])
-
-    const confirmedOptions = ref(['Yes', 'No'])
+    const state = reactive({
+      dateDepositValue: [],
+      statisticsDateDepositValue: [],
+      checkedTypeDepositList: [typeDepositList[0].value],
+      checkedCategotyList: [],
+      checkedSubCategotyList: [],
+      checkedSubConfirmedList: [confirmedList.value[0].value]
+    })
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
@@ -138,21 +158,57 @@ export default defineComponent({
     }
 
     const onSubmit = () => {
-      alert('ok')
+      const searchDataDeposit = {
+        group_id: props.currentActiveIdGroup,
+        fromDate: state.dateDepositValue[0] ? moment(state.dateDepositValue[0]).format('YYYY-MM-DD') : null,
+        toDate: state.dateDepositValue[1] ? moment(state.dateDepositValue[1]).format('YYYY-MM-DD') : null,
+        statisticsFrom: state.statisticsDateDepositValue[0] ? moment(state.statisticsDateDepositValue[0]).format('YYYY-MM') : null,
+        statisticsTo: state.statisticsDateDepositValue[1] ? moment(state.statisticsDateDepositValue[1]).format('YYYY-MM') : null,
+        type: state.checkedTypeDepositList,
+        confirmed: state.checkedSubConfirmedList,
+        categoryId: state.checkedCategotyList,
+        subcategoryId: state.checkedSubCategotyList
+      }
+
+      emit('on-search', searchDataDeposit)
+      visible.value = false
     }
+
+    const toCategoryOptions = (options) => {
+      if (!options) return
+
+      return options.map(item => {
+        return { value: item.id, label: item.name  }
+      })
+    }
+
+    const toSubCategoryOptions = (options) => {
+      if (!options) return
+
+      return options.map(item => {
+        return { value: item.id, label: item.name, categoryId: item.categoryId }
+      })
+    }
+
+    onBeforeMount(async () => {
+      const dataCategory = await getCategory()
+      categoryList.value = toCategoryOptions(dataCategory.result)
+      state.checkedCategotyList = [categoryList.value[0].value]
+
+      const dataSubCategory = await getSubCategory()
+      subCategoryList.value = toSubCategoryOptions(dataSubCategory.result)
+      state.checkedSubCategotyList = [subCategoryList.value[0].value]
+    })
 
     return {
       locales,
       locale,
-      loading,
       visible,
       typeDepositList,
-      checkedTypeDepositList,
       categoryList,
-      checkedCategotyList,
       subCategoryList,
-      checkedSubCategotyList,
-      confirmedOptions,
+      confirmedList,
+      ...toRefs(state),
 
       handleCancel,
       onSubmit

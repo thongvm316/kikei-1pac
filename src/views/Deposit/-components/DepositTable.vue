@@ -41,7 +41,7 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { columnsDeposit, expandIconColumnIndex } from '../data'
 
 export default defineComponent({
