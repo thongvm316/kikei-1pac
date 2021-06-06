@@ -73,7 +73,8 @@
   </div>
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
-  <deposit-buttons-float v-model:visible="isVisibleDepositButtonsFloat" />
+  <deposit-buttons-float @on-open-delete-deposit-modal="isVisibleDepositModal = true" v-model:visible="isVisibleDepositButtonsFloat" />
+  <delete-deposit-modal v-model:visible="isVisibleDepositModal" />
 </template>
 
 <script>
@@ -88,6 +89,7 @@ import { debounce } from '@/helpers/debounce'
 import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
+import DeleteDepositModal from './-components/DeleteDepositModal'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -97,7 +99,8 @@ export default defineComponent({
     LineAddIcon,
     DepositTable,
     SearchDepositModal,
-    DepositButtonsFloat
+    DepositButtonsFloat,
+    DeleteDepositModal
   },
 
   setup() {
@@ -115,6 +118,7 @@ export default defineComponent({
     // })
 
     const isVisibleDepositButtonsFloat = ref()
+    const isVisibleDepositModal = ref()
 
     const checkAllRowTable = ref()
     const indeterminateCheckAllRows = ref()
@@ -222,6 +226,7 @@ export default defineComponent({
       currentActiveIdGroup,
       expandIconColumnIndex,
       isVisibleDepositButtonsFloat,
+      isVisibleDepositModal,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

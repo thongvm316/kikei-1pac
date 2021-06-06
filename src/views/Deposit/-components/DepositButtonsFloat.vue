@@ -21,7 +21,7 @@
         </template>
         クリア
       </a-button>
-      <a-button>
+      <a-button @click="$emit('on-open-delete-deposit-modal')">
         <template #icon>
           <span class="btn-icon">
             <delete-icon />
