@@ -66,16 +66,18 @@
           v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
-          v-model:expand-icon-column-index="expandIconColumnIndex"/>
+          v-model:expand-icon-column-index="expandIconColumnIndex"
+          @on-open-deposit-buttons-float="isVisibleDepositButtonsFloat = true"/>
       </a-tab-pane>
     </a-tabs>
   </div>
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
+  <deposit-buttons-float v-model:visible="isVisibleDepositButtonsFloat" />
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, ref } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -85,6 +87,7 @@ import { getDeposit, getGroupList, getBankAccounts } from './composables/useDepo
 import { debounce } from '@/helpers/debounce'
 import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
+import DepositButtonsFloat from './-components/DepositButtonsFloat'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -93,12 +96,25 @@ export default defineComponent({
     LineDownIcon,
     LineAddIcon,
     DepositTable,
-    SearchDepositModal
+    SearchDepositModal,
+    DepositButtonsFloat
   },
 
   setup() {
     const router = useRouter()
     const route = useRoute()
+
+    // const tableVal = reactive({
+    //   indeterminateCheckAllRows: false,
+    //   checkAllRowTable: false,
+    //   currentSelectedRowKeys: [],
+    //   dataDeposit: [],
+    //   isLoadingDataTable: true,
+    //   expandedRowKeys: [],
+    //   expandIconColumnIndex: null
+    // })
+
+    const isVisibleDepositButtonsFloat = ref()
 
     const checkAllRowTable = ref()
     const indeterminateCheckAllRows = ref()
@@ -205,6 +221,7 @@ export default defineComponent({
       totalRecords,
       currentActiveIdGroup,
       expandIconColumnIndex,
+      isVisibleDepositButtonsFloat,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

@@ -5,8 +5,8 @@
     :loading="isLoadingDataTable"
     :scroll="{ x: 1500 }"
     @expand="onClickExpandRowButton"
-    :rowClassName="onAddRowClass"
-    :onCustomRow="onCustomRow"
+    :row-class-name="onAddRowClass"
+    :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
     :row-selection="{
@@ -41,7 +41,7 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, onBeforeMount } from 'vue'
+import { defineComponent, onBeforeMount, ref, toRefs } from 'vue'
 
 const columnsDeposit = [
   { title: '入出金日', dataIndex: 'date', key: 'date', align: 'left', sorter: true },
@@ -56,22 +56,32 @@ const columnsDeposit = [
   { title: '', align: 'left', width: '48px' }
 ]
 
-// const expandIconColumnIndex = columnsDeposit.length + 1
-
 export default defineComponent({
   name: 'DepositTable',
 
   props: {
+    // value: Object,
     indeterminateCheckAllRows: Boolean,
     checkAllRowTable: Boolean,
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
     expandedRowKeys: Array,
-    expandIconColumnIndex: Number
+    expandIconColumnIndex: Number,
+    isVisibleDepositButtonsFloat: Boolean
   },
 
   setup(props, { emit }) {
+    // const { indeterminateCheckAllRows,
+    // checkAllRowTable,
+    // currentSelectedRowKeys,
+    // dataDeposit,
+    // isLoadingDataTable,
+    // expandedRowKeys,
+    // expandIconColumnIndex } = toRefs(props.value)
+
+    const currentRowClick = ref()
+
     const onSelectChangeRow = (selectedRowKeys) => {
       emit('update:indeterminateCheckAllRows', selectedRowKeys.length < props.dataDeposit.filter(item => !item.confirmed).length)
       emit('update:checkAllRowTable', selectedRowKeys.length === props.dataDeposit.filter(item => !item.confirmed).length)
@@ -85,7 +95,9 @@ export default defineComponent({
     const onCustomRow = (record) => {
       return {
         onClick: (event) => {
-          console.log(event.target)
+          currentRowClick.value = record.key
+          emit('on-open-deposit-buttons-float', record)
+          console.log(currentRowClick.value)
         }
       }
     }
@@ -98,7 +110,13 @@ export default defineComponent({
       }
     }
 
-    const onAddRowClass = (record) => props.expandedRowKeys.includes(record.key) ? 'is-expand-row' : null
+    const onAddRowClass = (record) => {
+      let classes = ''
+      if (record.key === currentRowClick.value) classes += 'is-clicked-row'
+      if (props.expandedRowKeys.includes(record.key)) classes += ' is-expand-row'
+
+      return classes
+    }
 
     onBeforeMount(() => {
       emit('update:expandIconColumnIndex', columnsDeposit.length + 1)
@@ -132,6 +150,10 @@ export default defineComponent({
 
     .is-expand-row td {
       border-bottom: 0;
+    }
+
+    tr.is-clicked-row.ant-table-row-level-0 td {
+      background-color: $color-primary-1 !important;
     }
   }
 
