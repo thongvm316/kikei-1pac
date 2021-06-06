@@ -116,7 +116,7 @@ const typeDepositList = typeDepositEnums.map(item => {
 })
 
 export default defineComponent({
-  name: 'Search',
+  name: 'SearchDepositModal',
 
   components: { SearchIcon, CalendarOutlined },
 

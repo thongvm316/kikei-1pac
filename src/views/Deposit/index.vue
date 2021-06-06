@@ -65,7 +65,8 @@
           v-model:dataDeposit="dataDeposit"
           v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
           v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys" />
+          v-model:current-selected-row-keys="currentSelectedRowKeys"
+          v-model:expand-icon-column-index="expandIconColumnIndex"/>
       </a-tab-pane>
     </a-tabs>
   </div>
@@ -99,19 +100,20 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
-    const checkAllRowTable = ref() // 3
-    const indeterminateCheckAllRows = ref() // 2
+    const checkAllRowTable = ref()
+    const indeterminateCheckAllRows = ref()
     const searchKeyMultipleSelect = ref([])
     const currentPage = ref(1)
-    const currentSelectedRowKeys = ref([]) // 4
+    const currentSelectedRowKeys = ref([])
     const tabListGroup = ref([])
     const bankAccountList = ref([])
-    const dataDeposit = ref([]) // 5
-    const isLoadingDataTable = ref(true) // 6
-    const expandedRowKeys = ref([]) // 1
+    const dataDeposit = ref([])
+    const isLoadingDataTable = ref(true)
+    const expandedRowKeys = ref([])
     const currentActiveIdGroup = ref()
     const currentBankAccountList = ref([])
     const totalRecords = ref()
+    const expandIconColumnIndex = ref()
 
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
@@ -145,7 +147,6 @@ export default defineComponent({
         isLoadingDataTable.value = true
         const res = await getDeposit(data, params)
         dataDeposit.value = createDataTableFormat(res.data.result.data)
-        console.log(dataDeposit.value)
         totalRecords.value = res.data.result.meta.totalRecords
       } finally {
         isLoadingDataTable.value = false
@@ -175,7 +176,7 @@ export default defineComponent({
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
       await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId })
-
+      expandIconColumnIndex.value = 10 // TODO: columns count
       bankAccountId.length ? expandedRowKeys.value = dataDeposit.value.map(item => item.key) : expandedRowKeys.value = []
     }, 800)
 
@@ -203,6 +204,7 @@ export default defineComponent({
       expandedRowKeys,
       totalRecords,
       currentActiveIdGroup,
+      expandIconColumnIndex,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

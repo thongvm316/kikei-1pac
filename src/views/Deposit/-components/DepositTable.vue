@@ -41,8 +41,22 @@
   </a-table>
 </template>
 <script>
-import { defineComponent } from 'vue'
-import { columnsDeposit, expandIconColumnIndex } from '../data'
+import { defineComponent, onBeforeMount } from 'vue'
+
+const columnsDeposit = [
+  { title: '入出金日', dataIndex: 'date', key: 'date', align: 'left', sorter: true },
+  { title: '計上月', dataIndex: 'statisticsMonth', key: 'statisticsMonth', sorter: true },
+  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
+  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
+  { title: '項目名', dataIndex: 'purpose', key: 'purpose', slots: { customRender: 'purpose' } },
+  { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
+  { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
+  { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance' } },
+  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' },
+  { title: '', align: 'left', width: '48px' }
+]
+
+// const expandIconColumnIndex = columnsDeposit.length + 1
 
 export default defineComponent({
   name: 'DepositTable',
@@ -53,7 +67,8 @@ export default defineComponent({
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
-    expandedRowKeys: Array
+    expandedRowKeys: Array,
+    expandIconColumnIndex: Number
   },
 
   setup(props, { emit }) {
@@ -85,9 +100,12 @@ export default defineComponent({
 
     const onAddRowClass = (record) => props.expandedRowKeys.includes(record.key) ? 'is-expand-row' : null
 
+    onBeforeMount(() => {
+      emit('update:expandIconColumnIndex', columnsDeposit.length + 1)
+    })
+
     return {
       columnsDeposit,
-      expandIconColumnIndex,
 
       onSelectChangeRow,
       onSelectAllChangeRows,
