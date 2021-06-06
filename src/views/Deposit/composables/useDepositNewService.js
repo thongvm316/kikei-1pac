@@ -1,7 +1,7 @@
 import services from '@/services'
 const CategoryService = services.get('CategoryService')
 const SubCategoryService = services.get('SubCategoryService')
-const BankAccountService = services.get('BankAccountService')
+const BankAccountsService = services.get('BankAccountsService')
 const GroupService = services.get('GroupService')
 const DepositService = services.get('DepositService')
 
@@ -15,11 +15,11 @@ export default function useDepositNewService() {
   }
 
   function getBankAccountList() {
-    return BankAccountService.getBankAccount().then((res) => res.data)
+    return BankAccountsService.getBankAccounts().then((res) => res.data)
   }
 
   function getGroupList() {
-    return GroupService.getGroup().then((res) => res.data)
+    return GroupService.getGroupList().then((res) => res.data)
   }
 
   function createDeposit(data) {

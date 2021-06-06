@@ -9,6 +9,7 @@ import {
   Layout,
   Collapse,
   Modal,
+  Select,
   Form,
   Input,
   Icon,
@@ -17,10 +18,10 @@ import {
   Popover,
   Menu,
   Radio,
-  Select,
   Tag,
   notification,
-  InputNumber
+  InputNumber,
+  Tabs
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -41,10 +42,10 @@ const globalComponents = (app) => {
     .use(Popover)
     .use(Menu)
     .use(Radio)
-    .use(Form)
     .use(Select)
     .use(Tag)
     .use(InputNumber)
+    .use(Tabs)
 
   // Config global notification
   app.config.globalProperties.$notification = notification

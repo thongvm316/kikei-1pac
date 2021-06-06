@@ -31,12 +31,11 @@ axios.interceptors.response.use(
     if (response.data) {
       response.data = deepCopy(humps.camelizeKeys(response.data))
     }
-    store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', content: 'Thành công' })
 
     return response
   },
 
-  function(error) {
+  function (error) {
     if (error.response) {
       const { data } = error.response
       const errorMessage = data['error-message'] || data.errorMessage || 'fall.back.error'

@@ -9,6 +9,12 @@
   border-color: $color-primary-6;
 }
 
+.ant-btn-danger:hover {
+  color: $color-grey-100;
+  background-color: $color-additional-red-4;
+  border-color: $color-additional-red-5;
+}
+
 .ant-btn-link:hover {
   border-color: transparent;
   background-color: transparent;

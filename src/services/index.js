@@ -1,6 +1,6 @@
 import StorageService from './storage'
 import AuthService from './auth'
-import BankAccountService from './bank-account'
+import BankAccountsService from './bank-accounts'
 import CategoryService from './category'
 import SubCategoryService from './sub-category'
 import GroupService from './group'
@@ -10,7 +10,7 @@ import CompanyService from './company'
 const repositories = {
   StorageService,
   AuthService,
-  BankAccountService,
+  BankAccountsService,
   CategoryService,
   SubCategoryService,
   DepositService,

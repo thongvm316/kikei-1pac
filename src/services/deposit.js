@@ -5,7 +5,7 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  create(data) {
-    return apiCaller({ method: 'POST', url: `${RESOURCES.create}`, data })
+  getDeposit(data, params) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   }
 }
