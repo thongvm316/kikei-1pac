@@ -13,8 +13,6 @@ export default function useLoginService(params, loading) {
 
       // store auth profile
       StorageService.set(storageKeys.authProfile, response.data.result)
-    } catch (e) {
-      throw e
     } finally {
       loading.value = false
     }
