@@ -186,7 +186,7 @@
 <script>
 import { defineComponent, defineAsyncComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
-import { getGroupList, getBankAccounts, getCategory, getSubCategory } from '../composables/useDepositService'
+import { getGroups, getBankAccounts, getCategory, getSubCategory } from '../composables/useDepositService'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
@@ -320,7 +320,7 @@ export default defineComponent({
       const { result: bankAccountResult = [] } = await getBankAccounts()
       bankAccountList.value = bankAccountResult
 
-      const { result: groupResult = [] } = await getGroupList()
+      const { result: groupResult = [] } = await getGroups()
       groupList.value = groupResult
     })
 

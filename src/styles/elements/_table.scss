@@ -31,3 +31,10 @@
 .ant-table-row-level-1 .ant-table-selection-column .ant-checkbox-wrapper {
   display: none;
 }
+
+.ant-table-placeholder {
+  color: $color-grey-15;
+  font-size: 20px;
+  line-height: 28px;
+  padding: 48px 0;
+}

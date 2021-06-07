@@ -17,3 +17,39 @@
 .u-justify-between {
   justify-content: space-between;
 }
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.mr-8 {
+  margin-right: 8px;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-grey-55 {
+  color: $color-grey-55;
+}
+
+.text-additional-blue-6 {
+  color: $color-additional-blue-6;
+}
+
+.d-inline-block {
+  display: inline-block;
+}

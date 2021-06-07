@@ -89,7 +89,7 @@ import { useStore } from 'vuex'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
-import { getDeposit, getGroupList, getBankAccounts, deleteDeposit } from './composables/useDepositService'
+import { getDeposit, getGroups, getBankAccounts, deleteDeposit } from './composables/useDepositService'
 import { debounce } from '@/helpers/debounce'
 import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
@@ -207,7 +207,7 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      const groupList = await getGroupList()
+      const groupList = await getGroups()
       tabListGroup.value = groupList.result
       currentActiveIdGroup.value = groupList.result[0].id
 

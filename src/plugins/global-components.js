@@ -12,6 +12,7 @@ import {
   Select,
   Form,
   Input,
+  InputNumber,
   Icon,
   ConfigProvider,
   Breadcrumb,
@@ -20,8 +21,8 @@ import {
   Radio,
   Tag,
   notification,
-  InputNumber,
-  Tabs
+  Tabs,
+  Tooltip
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -36,6 +37,7 @@ const globalComponents = (app) => {
     .use(Modal)
     .use(Form)
     .use(Input)
+    .use(InputNumber)
     .use(Icon)
     .use(ConfigProvider)
     .use(Breadcrumb)
@@ -44,8 +46,8 @@ const globalComponents = (app) => {
     .use(Radio)
     .use(Select)
     .use(Tag)
-    .use(InputNumber)
     .use(Tabs)
+    .use(Tooltip)
 
   // Config global notification
   app.config.globalProperties.$notification = notification

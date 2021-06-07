@@ -5,17 +5,23 @@ import CategoryService from './category'
 import SubCategoryService from './sub-category'
 import GroupService from './group'
 import DepositService from './deposit'
+import AccountService from './account'
 import CompanyService from './company'
+import ProjectService from './project'
+import LogService from './logs'
 
 const repositories = {
   StorageService,
+  AccountService,
   AuthService,
   BankAccountsService,
   CategoryService,
   SubCategoryService,
   DepositService,
   GroupService,
-  CompanyService
+  CompanyService,
+  ProjectService,
+  LogService
 }
 
 export default {
