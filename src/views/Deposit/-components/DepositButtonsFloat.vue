@@ -5,7 +5,7 @@
     width="350px"
     class="deposit-buttons-float">
     <template #footer>
-      <a-button>
+      <a-button @click="$emit('on-edit-record-deposit')">
         <template #icon>
           <span class="btn-icon">
             <edit-icon />

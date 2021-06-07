@@ -1,4 +1,6 @@
 export default {
+  type_deposit_sales: 'xxx',
+  type_deposit_payment: 'yyy',
   company_name: {
     title_search: '検索',
     key_search: 'キーワード',

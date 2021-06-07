@@ -1,4 +1,10 @@
 export default {
+  deposit_list: {
+    type_deposit_sales: 'Sales',
+    type_deposit_payment: 'Payments',
+    type_deposit_cash_transfer: 'Cash Transfer',
+    type_unclear_money: 'Unclear Money'
+  },
   company_name: {
     title_search: '検索',
     key_search: 'キーワード',

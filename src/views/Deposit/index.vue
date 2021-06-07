@@ -6,7 +6,7 @@
         CSVファイルダウンロード
       </a-button>
 
-      <a-button type="primary" class="u-ml-12">
+      <a-button @click="$router.push({ name: 'deposit-new' })" type="primary" class="u-ml-12">
         <template #icon><span class="btn-icon"><line-add-icon /></span></template>
         新規入出金追加
       </a-button>
@@ -76,6 +76,7 @@
   <deposit-buttons-float
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
+    @on-edit-record-deposit="$router.push({ path: `/deposit/1/edit` })"
     v-model:visible="isVisibleDepositButtonsFloat" />
   <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
 </template>

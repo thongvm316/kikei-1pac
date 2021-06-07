@@ -20,7 +20,7 @@
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false">
     <template #typeName="{ record }">
-      <span :class="`type-${record.type}`">{{ record.typeName }}</span>
+      <span :class="`type-${record.type}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
     </template>
 
     <template #deposit="{ record }">
@@ -172,10 +172,18 @@ export default defineComponent({
         .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
           border-bottom: 1px solid $color-grey-85;
         }
+      } @else {
+        .ant-table-row.is-expand-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
+          background-color: $color-grey-100;
+        }
       }
     } @else {
       .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
         border-bottom: 0;
+      }
+
+      .ant-table-row.is-expand-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
+        background-color: $color-grey-100;
       }
     }
   }
