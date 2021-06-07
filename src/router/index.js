@@ -147,6 +147,12 @@ const routes = [
             name: 'setting-4',
             component: lazyLoadRoute('Setting-4'),
             meta: { title: `Setting - 4 | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.setting' }
+          },
+          {
+            path: 'logs',
+            name: 'logs',
+            component: lazyLoadRoute('ActivityLog'),
+            meta: { title: `Activity Log | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.logs' }
           }
         ]
       }

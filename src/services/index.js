@@ -4,6 +4,7 @@ import AccountService from './account'
 import CompanyService from './company'
 import ProjectService from './project'
 import GroupService from './group'
+import LogService from './logs'
 
 const repositories = {
   StorageService,
@@ -11,7 +12,8 @@ const repositories = {
   AuthService,
   CompanyService,
   ProjectService,
-  GroupService
+  GroupService,
+  LogService
 }
 
 export default {

@@ -7,6 +7,7 @@ import table from './table'
 import action from './action'
 import project from './project'
 import deposit from './deposit'
+import logs from './logs'
 
 export default {
   errors,
@@ -18,5 +19,6 @@ export default {
   action,
   project,
   action,
-  deposit
+  deposit,
+  logs
 }
