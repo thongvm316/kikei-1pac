@@ -322,13 +322,8 @@ export default defineComponent({
       // eslint-disable-next-line no-useless-catch
       try {
         const { createCompany } = useCreateCompanyService(data)
-        const resp = await createCompany()
-        console.log(resp)
-
-        // if (resp && Object.keys(resp.data).length) {
-        //   await this.onSuccess(this.$t('message_success'), this.$t('create_message_successfully'))
-        //   this.$router.push({ name: 'news.index' }, () => {})
-        // }
+        await createCompany()
+        router.push({ name: 'company' }).catch((err) => err)
       } catch (err) {
         throw err
       }
