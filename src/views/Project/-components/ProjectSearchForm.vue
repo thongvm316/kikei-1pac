@@ -16,9 +16,16 @@
                 <a-select
                   v-model:value="groupValue"
                   mode="multiple"
+                  dropdownClassName="multiple-select-custom"
+                  show-arrow
+                  :max-tag-count="0"
                   :placeholder="$t('project.group_name')"
                   style="width: 152px"
-                >
+                  option-label-prop="label">
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
+
                   <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
                     {{ group.name }}
                   </a-select-option>
@@ -37,9 +44,15 @@
                 <a-select
                   v-model:value="accountValue"
                   mode="multiple"
+                  dropdownClassName="multiple-select-custom"
+                  show-arrow
+                  :max-tag-count="0"
                   :placeholder="$t('project.account_name')"
                   style="width: 152px"
                 >
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
                   <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
                     {{ account.fullname }}
                   </a-select-option>

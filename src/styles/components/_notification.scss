@@ -1,0 +1,21 @@
+.ant-notification-notice {
+  &.success {
+    background-color: $color-grey-26;
+
+    .ant-notification-notice-message {
+      color: $color-grey-100;
+    }
+  }
+
+  &.error {
+    background-color: $color-additional-red-6;
+
+    .ant-notification-notice-message {
+      color: $color-grey-100;
+    }
+  }
+
+  .ant-notification-close-icon svg {
+    color: $color-grey-100;
+  }
+}

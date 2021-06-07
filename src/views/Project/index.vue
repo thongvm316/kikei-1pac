@@ -273,7 +273,7 @@ export default defineComponent({
       // clear selected value
       targetProjectSelected.value = {}
       // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5 });
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'success' });
     }
 
     onBeforeMount(() => { fetchProjectDatas() })

@@ -39,7 +39,7 @@
           <a-checkbox :checked="true" />
         </template>
 
-        <a-select-option v-for="option in bankAccountList" :key="option.id">
+        <a-select-option :label="option.name" v-for="option in bankAccountList" :key="option.id">
           {{ option.name }}
         </a-select-option>
       </a-select>
@@ -85,6 +85,7 @@
 import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { notification } from 'ant-design-vue'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -134,6 +135,9 @@ export default defineComponent({
       dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
       isVisibleDepositModal.value = false
       isLoadingDataTable.value = false
+
+      // show notification
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
     }
 
     const onCopyRecordDeposit = () => {
