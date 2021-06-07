@@ -13,10 +13,10 @@
 
     <a-form-item name="type" :label="$t('deposit.new.type')">
       <a-radio-group v-model:value="params.type">
-        <a-radio value="deposit">{{ $t('deposit.new.type_deposit') }}</a-radio>
-        <a-radio value="withdrawal">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
-        <a-radio value="transfer">{{ $t('deposit.new.type_transfer') }}</a-radio>
-        <a-radio value="unclear">{{ $t('deposit.new.type_unclear') }}</a-radio>
+        <a-radio :value="0">{{ $t('deposit.new.type_deposit') }}</a-radio>
+        <a-radio :value="1">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
+        <a-radio :value="2">{{ $t('deposit.new.type_transfer') }}</a-radio>
+        <a-radio :value="3">{{ $t('deposit.new.type_unclear') }}</a-radio>
       </a-radio-group>
     </a-form-item>
 
@@ -184,9 +184,25 @@
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
+import {
+  defineComponent,
+  defineAsyncComponent,
+  reactive,
+  ref,
+  watch,
+  computed,
+  onBeforeMount,
+  toRefs,
+  onMounted
+} from 'vue'
 import { useStore } from 'vuex'
-import { getGroups, getBankAccounts, getCategory, getSubCategory } from '../composables/useDepositService'
+import {
+  getGroups,
+  getBankAccounts,
+  getCategory,
+  getSubCategory,
+  createDeposit
+} from '../composables/useDepositService'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
@@ -196,7 +212,42 @@ export default defineComponent({
     SearchCompanyName
   },
 
-  setup() {
+  props: {
+    depositState: {
+      type: Object,
+      required: true,
+      default() {
+        return {
+          date: null,
+          type: '',
+          categoryId: undefined,
+          subcategoryId: undefined,
+          companyName: '',
+          purpose: 'deposit FORM',
+          statisticsMonth: null,
+          groupId: undefined,
+          withdrawalBankAccountId: undefined,
+          withdrawalMoney: 0,
+          depositBankAccountId: undefined,
+          depositMoney: 0,
+          tags: [],
+          memo: '',
+          numberOfDividedMonth: 0,
+          repeated: 3,
+          repeatedExpiredDate: null,
+          repeatedOption: 1,
+          repeatedInterval: 1,
+          confirmed: true
+        }
+      }
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  setup(props) {
     const store = useStore()
     const depositNewRef = ref()
     const isLoading = ref(false)
@@ -223,35 +274,28 @@ export default defineComponent({
     // copied record
     const currentCopiedRecord = ref()
 
-    const params = reactive({
-      date: null,
-      type: '',
-      categoryId: undefined,
-      subcategoryId: undefined,
-      companyName: '',
-      purpose: '',
-      statisticsMonth: null,
-      groupId: undefined,
-      withdrawalBankAccountId: undefined,
-      withdrawalMoney: 0,
-      depositBankAccountId: undefined,
-      depositMoney: 0,
-      tags: [],
-      memo: '',
-      // numberOfDividedMonth: 0,
-      repeated: 3,
-      repeatedExpiredDate: null,
-      // repeatedOption: '12',
-      // repeatedInterval: 2,
-      confirmed: true,
-      createdBy: 1,
-      updatedBy: 1
-    })
+    const params = reactive(props.depositState)
+
+    watch(
+      () => props.depositState,
+      (val) => {
+        // params = val
+        console.log('new deposit state:::', val)
+      }
+    )
+
+    // const a = ref()
+    // onMounted(() => {
+    //   // eslint-disable-next-line no-const-assign
+    //   a.value = deepCopy(depositState)
+
+    //   console.log('a:::', a.value)
+    // })
 
     // form validator rules
     const depositNewFormRules = {
       date: [{ required: true, message: 'Please select date', trigger: 'change', type: 'object' }],
-      type: [{ required: true, message: 'Please select deposit type', trigger: 'change' }],
+      type: [{ required: true, message: 'Please select deposit type', trigger: 'change', type: 'number' }],
       categoryId: [{ required: true, message: 'Please input category', trigger: 'change', type: 'number' }],
       subcategoryId: [{ required: true, message: 'Please input sub category', trigger: 'change', type: 'number' }],
       purpose: [{ required: true, message: 'Please input deposit title', trigger: 'change' }],
@@ -291,16 +335,18 @@ export default defineComponent({
 
     // handle validator when submit form
     const onSubmitForm = async () => {
-      // try {
-      const validateRes = await depositNewRef.value.validate()
+      isLoading.value = true
+      try {
+        const validateRes = await depositNewRef.value.validate()
 
-      if (validateRes) {
-        console.log('comfirm success', params)
-        // TODO: request creaete deposit
+        if (validateRes) {
+          console.log('comfirm success', params)
+
+          await createDeposit(params)
+        }
+      } finally {
+        isLoading.value = false
       }
-      // } catch (e) {
-      //   throw e
-      // }
     }
 
     const applyCopiedRecordToAddNewDeposit = () => {
@@ -309,35 +355,52 @@ export default defineComponent({
       store.commit('deposit/CLEAR_RECORD_DEPOSIT')
     }
 
+    const fetchCategoryList = async (type) => {
+      const { result: categoryResult = [] } = await getCategory({ divisionType: type })
+      categoryList.value = categoryResult?.data || []
+    }
+
+    const fetchBankAccounts = async (id) => {
+      const { result: bankAccountResult = [] } = await getBankAccounts({ groupId: id })
+      bankAccountList.value = bankAccountResult?.data || []
+    }
+
+    const fetchSubCategory = async (id) => {
+      const { result: subCategoryResult = [] } = await getSubCategory({ categoryId: id })
+      subCategoryList.value = subCategoryResult?.data || []
+    }
+
     // fetch list data
     onBeforeMount(async () => {
-      const { result: categoryResult = [] } = await getCategory()
-      categoryList.value = categoryResult
-
-      const { result: subCategoryResult = [] } = await getSubCategory()
-      subCategoryList.value = subCategoryResult
-
-      const { result: bankAccountResult = [] } = await getBankAccounts()
-      bankAccountList.value = bankAccountResult
-
       const { result: groupResult = [] } = await getGroups()
-      groupList.value = groupResult
+      groupList.value = groupResult?.data || []
     })
 
     watch(
       () => params.type,
-      () => {
-        isCategoryDisabled.value = params.type === 'transfer' || params.type === 'unclear'
-        isAdvandceCurrency.value = params.type === 'transfer'
-        isShowCaptionCurrency.value = params.type === 'unclear'
+      (type) => {
+        isCategoryDisabled.value = type === 2 || type === 3
+        isAdvandceCurrency.value = type === 2
+        isShowCaptionCurrency.value = type === 3
+
+        fetchCategoryList(type)
       }
     )
 
-    // TODO: check value to show company name select
     watch(
       () => params.categoryId,
+      (id) => {
+        fetchSubCategory(id)
+
+        isCompanySelection.value =
+          categoryList.value.findIndex((item) => item.id === id && item.subcategory_kind === 20) !== -1
+      }
+    )
+
+    watch(
+      () => params.groupId,
       (val) => {
-        isCompanySelection.value = val === 1
+        fetchBankAccounts(val)
       }
     )
 

@@ -192,11 +192,11 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       const dataCategory = await getCategory()
-      categoryList.value = toCategoryOptions(dataCategory.result)
+      categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       state.checkedCategotyList = [categoryList.value[0].value]
 
       const dataSubCategory = await getSubCategory({ categoryId: 8 })
-      subCategoryList.value = toSubCategoryOptions(dataSubCategory.result)
+      subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       state.checkedSubCategotyList = [subCategoryList.value[0].value]
     })
 

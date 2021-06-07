@@ -5,18 +5,17 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  createDeposit(data, params) {
-    return apiCaller({ method: 'POST', url: RESOURCES.deposit, params, data })
+  createDeposit(data) {
+    return apiCaller({ method: 'POST', url: RESOURCES.deposit, data })
   },
 
   getDeposit(data, params) {
     return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   },
 
-  // TODO: waiting BE
-  // getDepositDetail(id) {
-  //   return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/`,  })
-  // },
+  getDepositDetail(depositId) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}` })
+  },
 
   deleteDeposit(depositId) {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/${depositId}` })

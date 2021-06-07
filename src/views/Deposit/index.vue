@@ -142,7 +142,7 @@ export default defineComponent({
 
     const onCopyRecordDeposit = () => {
       // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new', params: { record: currentSelectedRecord.value } })
+      router.push({ name: 'deposit-new', params: { depositState: currentSelectedRecord.value } })
     }
 
     // const tableVal = reactive({
@@ -179,7 +179,7 @@ export default defineComponent({
       e.target.checked ? currentSelectedRowKeys.value = keyRowList.map(item => item.key) : currentSelectedRowKeys.value = []
     }
 
-    const createDataTableFormat = (data) => {
+    const createDataTableFormat = (data = []) => {
       return data.map(item => {
         let typeName
         typeDepositEnums.forEach(type => (type.type === item.type) && (typeName = type.name))
@@ -213,11 +213,11 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       const groupList = await getGroups()
-      tabListGroup.value = groupList.result
-      currentActiveIdGroup.value = groupList.result[0].id
+      tabListGroup.value = groupList.result?.data || []
+      currentActiveIdGroup.value = (groupList.result?.data || [])[0].id
 
-      const bankAccounts = await getBankAccounts({ groupId: 1 })
-      bankAccountList.value = bankAccounts.result
+      const bankAccounts = await getBankAccounts({ group_id: currentActiveIdGroup.value })
+      bankAccountList.value = bankAccounts.result?.data || []
 
       const { tab } = router.currentRoute._value.query
       const idGroupList = tabListGroup.value.map(item => item.id)

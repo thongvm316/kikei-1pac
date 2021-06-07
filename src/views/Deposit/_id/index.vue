@@ -1,17 +1,16 @@
 <template>
   <div class="deposit-edit container">
-    <deposit-form />
+    <deposit-form :deposit-state="depositState" :edit="true" />
   </div>
 </template>
 
 <script>
-import { defineComponent, onBeforeMount } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import DepositForm from '../-components/DepositForm.vue'
 
-// TODO: waiting for api
-// import { getDepositDetail } from '../composables/useDepositService'
+import { getDepositDetail } from '../composables/useDepositService'
 
 export default defineComponent({
   name: 'DepositEditPage',
@@ -22,16 +21,25 @@ export default defineComponent({
 
   setup() {
     const route = useRoute()
-    const fetchDepositDetail = () => {
+    const depositState = ref()
+
+    const fetchDepositDetail = async () => {
       const depositId = route.params.id
       if (!depositId) return
 
-      console.log('depositId', depositId)
+      const { result = {} } = await getDepositDetail(depositId)
+      depositState.value = result?.data || []
+
+      console.log('depositId', depositId, result)
     }
 
     onBeforeMount(() => {
       fetchDepositDetail()
     })
+
+    return {
+      depositState
+    }
   }
 })
 </script>

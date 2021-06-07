@@ -1,6 +1,6 @@
 <template>
   <div class="k-deposit-new container">
-    <deposit-form />
+    <deposit-form :deposit-state="depositState" />
   </div>
 </template>
 
@@ -16,15 +16,15 @@ export default defineComponent({
   },
 
   props: {
-    record: {
-      type: Object
+    // eslint-disable-next-line vue/require-default-prop
+    depositState: {
+      type: Object,
+      required: false
     }
   },
 
   setup(props) {
-    console.log('record props:::', props.record)
+    console.log('props:::', props)
   }
 })
 </script>
-
-<style lang="scss"></style>

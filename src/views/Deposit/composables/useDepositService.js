@@ -36,9 +36,9 @@ export const getBankAccounts = async (params) => {
   }
 }
 
-export const getCategory = async () => {
+export const getCategory = async (params) => {
   try {
-    const { data } = await CategoryService.getCategory()
+    const { data } = await CategoryService.getCategory(params)
 
     return data
   } catch (error) {
@@ -64,19 +64,20 @@ export const deleteDeposit = async (id) => {
   }
 }
 
-export const createDeposit = async (params, data) => {
+export const createDeposit = async (data) => {
   try {
-    await DepositService.createDeposit(params, data)
+    await DepositService.createDeposit(data)
   } catch (error) {
     throw error
   }
 }
 
-// TODO: waiting BE API
-// export const getDepositDetail = async (id) => {
-//   try {
-//     await DepositService.getDepositDetail(id)
-//   } catch (error) {
-//     throw error
-//   }
-// }
+export const getDepositDetail = async (id) => {
+  try {
+    const { data } = await DepositService.getDepositDetail(id)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
