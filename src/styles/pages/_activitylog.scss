@@ -1,0 +1,34 @@
+.activity-log{
+  .ant-table-content{
+
+    .ant-dropdown-link{
+      color: #064780;
+    }
+  }
+}
+
+.search-activity-log {
+  .ant-modal-footer {
+    padding: 16px 182px;
+
+    form {
+      width: 100%;
+    }
+
+    .form-content {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      width: 120px;
+      text-align: left;
+    }
+
+    .form-select {
+      text-align: left;
+    }
+  }
+}

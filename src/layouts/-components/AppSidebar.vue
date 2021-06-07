@@ -142,6 +142,10 @@ export default defineComponent({
           {
             name: 'setting-4',
             label: 'breadcrumb.setting'
+          },
+          {
+            name: 'logs',
+            label: 'breadcrumb.logs'
           }
         ]
       }
