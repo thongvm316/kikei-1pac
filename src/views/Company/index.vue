@@ -3,7 +3,10 @@
     <Search @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary"><add-icon class="add-icon" /> 新規企業追加</a-button>
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
+        <add-icon class="add-icon" />
+        {{ $t('company.add_company') }}
+      </a-button>
     </div>
 
     <div class="list-table">
@@ -29,30 +32,34 @@
           <p class="pl-32">{{ text }}</p>
         </template>
       </a-table>
-
-      <ModalAction v-if="recordVisible.visible" />
     </div>
+
+    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
+
+    <ModalDelete v-model:visible="openDelete" @delete="handleDeleteRecord($event)" />
   </section>
 </template>
 
 <script>
 import { defineComponent, computed, ref, reactive, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
+import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
-import Search from '@/views/Company/Search'
+import Search from '@/views/Company/-components/Search'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
+import ModalDelete from '@/components/ModalDelete'
 
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, Search, AddIcon },
+  components: { ModalAction, Search, AddIcon, ModalDelete },
 
   mixins: [Table],
 
@@ -66,8 +73,10 @@ export default defineComponent({
 
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const { t } = useI18n()
 
+    const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
     const filter = ref({})
@@ -131,15 +140,38 @@ export default defineComponent({
         pageSize: pagination.pageSize
       }
 
-      await fetchlist(params)
+      await fetchList(params, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchlist({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
-    const fetchlist = async (params = {}, data) => {
+    const handleDeleteRecord = async () => {
+      try {
+        const { deleteCompany } = useDeleteCompanyService(recordVisible.value.id)
+        await deleteCompany()
+      } catch (error) {
+        console.log(error)
+      }
+      openDelete.value = false
+      recordVisible.value.visible = false
+      // alert message delete success
+      // await this.onSuccess(this.$t('message_success'), this.$t('delete_message_successfully'))
+      await fetchList({ pageNumber: 1, pageSize: 30 })
+    }
+
+    const handleEditRecord = () => {
+      router.push({
+        name: 'company-edit',
+        params: {
+          id: recordVisible.value.id
+        }
+      })
+    }
+
+    const fetchList = async (params = {}, data) => {
       isLoading.value = true
 
       try {
@@ -181,13 +213,16 @@ export default defineComponent({
       columns,
       isLoading,
       t,
+      openDelete,
       state,
       rowSelection,
       recordVisible,
+      handleDeleteRecord,
+      handleEditRecord,
       customRow,
       handleChange,
       onFilterChange,
-      fetchlist
+      fetchList
     }
   }
 })

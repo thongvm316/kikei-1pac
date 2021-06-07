@@ -1,3 +1,27 @@
 .ant-form-vertical .ant-form-item {
   padding-bottom: 0;
 }
+
+.card-common {
+  padding: 24px 32px;
+
+  .form-group {
+    margin-bottom: 16px;
+    .form-content {
+      .form-label.required:after {
+        content: "*";
+        margin-left: .25rem;
+        color: #cd201f;
+      }
+
+      .form-input {
+        margin-top: 5px;
+        .ant-checkbox-group {
+          label:first-child {
+            margin-right: 15px;
+          }
+        }
+      }
+    }
+  }
+}

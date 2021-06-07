@@ -1,10 +1,10 @@
 <template>
   <div class="box-btn">
-    <a-button class="btn-edit">
+    <a-button class="btn-edit" @click="$emit('edit', $event)">
       <template #icon><FormOutlined /></template>
       {{ t('action.edit') }}
     </a-button>
-    <a-button class="btn-delete">
+    <a-button class="btn-delete" @click="$emit('delete', $event)">
       <template #icon><DeleteOutlined /></template>
       {{ t('action.delete') }}
     </a-button>
@@ -18,14 +18,15 @@ import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'ModalAction',
+
   components: { FormOutlined, DeleteOutlined },
+
+  emits: ['edit', 'delete'],
 
   setup() {
     const { t } = useI18n()
 
-    return {
-      t
-    }
+    return { t }
   }
 })
 </script>
