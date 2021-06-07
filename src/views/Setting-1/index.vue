@@ -26,7 +26,7 @@
                 <label class="label-input">
                   {{ $t('company.division') }}
                 </label>
-                <a-checkbox-group v-model:value="filter.divition">
+                <a-checkbox-group v-model:value="filter.divisions">
                   <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
                 </a-checkbox-group>
               </div>
@@ -131,7 +131,7 @@ export default defineComponent({
     const height = ref(0)
     const isLoading = ref(false)
 
-    const filter = reactive({ key_search: '', divition: [], country_id: [], currency_id: [] })
+    const filter = reactive({ key_search: '', divisions: [], country_id: [], currency_id: [] })
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
