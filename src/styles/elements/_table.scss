@@ -32,9 +32,56 @@
   display: none;
 }
 
+#list-table {
+  .ant-table-tbody > tr > td {
+    padding: 23px 16px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 15px 16px;
+    line-height: 16px;
+
+    .ant-table-column-sorters {
+      display: flex;
+    }
+  }
+
+  .ant-table-tbody > tr > td:nth-child(2),
+  .ant-table-thead > tr > th:nth-child(2) {
+    padding-left: 32px;
+  }
+
+  .ant-table-tbody > tr {
+    cursor: pointer;
+  }
+}
+
 .ant-table-placeholder {
   color: $color-grey-15;
   font-size: 20px;
   line-height: 28px;
-  padding: 48px 0;
+  padding: 0;
+  height: calc(100vh - 168px);
+}
+
+.ant-table-pagination.ant-pagination {
+  margin-top: 0;
+}
+
+.ant-empty-image {
+  display: none;
+}
+
+.ant-empty-normal {
+  margin: 48px 0;
+}
+
+.ant-empty-description {
+  color: $color-grey-0;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.ant-table-content {
+  border: 1px solid $color-grey-75;
 }

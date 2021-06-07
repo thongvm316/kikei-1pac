@@ -1,11 +1,7 @@
 <template>
-  <a-modal
-    v-model:visible="visible"
-    :closable="false"
-    width="470px"
-    class="deposit-buttons-float">
+  <a-modal v-model:visible="visible" :closable="false" width="500px" class="deposit-buttons-float">
     <template #footer>
-      <a-button @click="$emit('on-go-to-edit-project')" size="large">
+      <a-button size="large" @click="$emit('on-go-to-edit-project')">
         <template #icon>
           <span class="btn-icon">
             <edit-icon />
@@ -14,7 +10,7 @@
         編集
       </a-button>
 
-      <a-button @click="$emit('on-copy-project')" size="large">
+      <a-button size="large" @click="$emit('on-copy-project')">
         <template #icon>
           <span class="btn-icon">
             <copy-icon />
@@ -54,16 +50,16 @@ import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
 export default defineComponent({
   name: 'ProjectFloatButtons',
 
-  setup() {
-    const visible = ref()
-    return { visible }
-  },
-
   components: {
     DeleteIcon,
     EditIcon,
     CopyIcon,
     ToDepositIcon
+  },
+
+  setup() {
+    const visible = ref()
+    return { visible }
   }
 })
 </script>

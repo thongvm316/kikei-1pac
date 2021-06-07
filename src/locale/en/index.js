@@ -4,8 +4,10 @@ import company from './company'
 import financing from './financing'
 import table from './table'
 import action from './action'
-import deposit from './deposit'
+import modal from './modal'
+import common from './common'
 import project from './project'
+import deposit from './deposit'
 import logs from './logs'
 
 export default {
@@ -15,7 +17,9 @@ export default {
   financing,
   table,
   action,
-  deposit,
+  modal,
+  common,
   project,
+  deposit,
   logs
 }

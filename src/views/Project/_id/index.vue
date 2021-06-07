@@ -14,16 +14,16 @@ import ProjectForm from '../-components/ProjectForm'
 export default defineComponent({
   name: 'ProjectEditPage',
 
+  components: {
+    ProjectForm
+  },
+
   setup() {
     const route = useRoute()
     const fetchProject = () => {
       const projectId = route.params.id
       if (projectId) return
     }
-  },
-
-  components: {
-    ProjectForm
   }
 })
 </script>
