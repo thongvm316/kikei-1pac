@@ -5,7 +5,7 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getSubCategory() {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.subCategory}` })
+  getSubCategory(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.subCategory}`, params })
   }
 }

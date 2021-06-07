@@ -1,6 +1,10 @@
 export default {
-  type_deposit_sales: 'xxx',
-  type_deposit_payment: 'yyy',
+  deposit_list: {
+    type_deposit_sales: 'Sales',
+    type_deposit_payment: 'Payments',
+    type_deposit_cash_transfer: 'Cash Transfer',
+    type_unclear_money: 'Unclear Money'
+  },
   company_name: {
     title_search: '検索',
     key_search: 'キーワード',
@@ -60,5 +64,20 @@ export default {
   classification: '区分',
   country: '国',
   currency: '通貨',
-  place_input: '入力してください'
+  place_input: '入力してください',
+
+  csv: {
+    header: {
+      confirmed: 'Confirmed',
+      date: '入出金日',
+      statictis_month: '計上月',
+      deposit_money: '入出金額',
+      withdraw_money: 'Withdraw money',
+      balance: '残高',
+      type_name: '区分',
+      category: '大分類',
+      sub_category: '中分類',
+      purpose: '項目名'
+    }
+  }
 }

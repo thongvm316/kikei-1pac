@@ -195,7 +195,7 @@ export default defineComponent({
       categoryList.value = toCategoryOptions(dataCategory.result)
       state.checkedCategotyList = [categoryList.value[0].value]
 
-      const dataSubCategory = await getSubCategory()
+      const dataSubCategory = await getSubCategory({ categoryId: 8 })
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result)
       state.checkedSubCategotyList = [subCategoryList.value[0].value]
     })

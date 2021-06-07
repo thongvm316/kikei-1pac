@@ -1,7 +1,7 @@
 <template>
   <div class="u-mx-32">
     <div class="u-flex u-justify-end u-mt-24 u-mb-16">
-      <a-button>
+      <a-button @click="exportDepositAsCsvFile">
         <template #icon><span class="btn-icon"><line-down-icon /></span></template>
         CSVファイルダウンロード
       </a-button>
@@ -27,7 +27,7 @@
       <a-select
         v-model:value="searchKeyMultipleSelect"
         show-arrow
-        :maxTagCount="0"
+        :max-tag-count="1"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
@@ -40,7 +40,7 @@
         </template>
 
         <a-select-option v-for="option in bankAccountList" :key="option.id">
-          {{ option.number }}
+          {{ option.name }}
         </a-select-option>
       </a-select>
 
@@ -84,13 +84,14 @@
 <script>
 import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
 import { getDeposit, getGroups, getBankAccounts, deleteDeposit } from './composables/useDepositService'
 import { debounce } from '@/helpers/debounce'
+import { exportCSVFile } from '@/helpers/export-csv-file'
 import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
@@ -111,7 +112,7 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const route = useRoute()
-    const store = useStore()
+    const { t } = useI18n()
 
     const currentSelectedRecord = ref()
 
@@ -211,7 +212,7 @@ export default defineComponent({
       tabListGroup.value = groupList.result
       currentActiveIdGroup.value = groupList.result[0].id
 
-      const bankAccounts = await getBankAccounts()
+      const bankAccounts = await getBankAccounts({ groupId: 1 })
       bankAccountList.value = bankAccounts.result
 
       const { tab } = router.currentRoute._value.query
@@ -244,6 +245,54 @@ export default defineComponent({
       await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
     }
 
+    const exportObj = reactive({
+      header: [
+        t('deposit.csv.header.confirmed'),
+        t('deposit.csv.header.date'),
+        t('deposit.csv.header.statictis_month'),
+        t('deposit.csv.header.deposit_money'),
+        t('deposit.csv.header.withdraw_money'),
+        t('deposit.csv.header.balance'),
+        t('deposit.csv.header.type_name'),
+        t('deposit.csv.header.category'),
+        t('deposit.csv.header.sub_category'),
+        t('deposit.csv.header.purpose')
+      ],
+      fileTitle: 'Deposit',
+      labels: [
+        { field: 'confirmed', formatBy: 'format_bolean_text_confirmed' },
+        { field: 'date', formatBy: 'moment_l' },
+        { field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
+        'depositMoney',
+        'withdrawalMoney',
+        'balance',
+        { field: 'type', formatBy: 'format_deposit_type_name' },
+        'categoryName',
+        'subcategoryName',
+        'purpose'
+      ],
+      items: []
+    })
+
+    const exportDepositAsCsvFile = async () => {
+      // console.log('csv')
+      const dataRequest = {
+        groupId: tabListGroup.value[0].id,
+        pageSize: 99999,
+        pageNumber: 1,
+        bankAccountId: currentBankAccountList.value
+      }
+      const { data } = await getDeposit(dataRequest)
+      // if (data.result.data.includes[0].bankAccounts) {
+      //   console.log('have ');
+      // } else {
+      //   console.log('deo');
+      // }
+      console.log(data.result.data)
+      exportObj.items = data.result.data
+      exportCSVFile(exportObj)
+    }
+
     return {
       checkAllRowTable,
       searchKeyMultipleSelect,
@@ -269,7 +318,8 @@ export default defineComponent({
       onOpenDepositButtonsFloat,
       onOpenDeleteDepositModal,
       onDeleteDepositRecord,
-      onCopyRecordDeposit
+      onCopyRecordDeposit,
+      exportDepositAsCsvFile
     }
   }
 })

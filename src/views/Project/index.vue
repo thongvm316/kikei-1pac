@@ -253,6 +253,7 @@ export default defineComponent({
 
     const exportProjectAsCsvFile = async () => {
       const { projectList } = await getProjectList({ pageSize: 99999, pageNumber: 1 }, loading)
+      console.log(projectList)
       exportObj.items = projectList
       exportCSVFile(exportObj)
     }

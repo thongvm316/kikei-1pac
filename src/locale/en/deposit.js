@@ -64,5 +64,20 @@ export default {
   classification: '区分',
   country: '国',
   currency: '通貨',
-  place_input: '入力してください'
+  place_input: '入力してください',
+
+  csv: {
+    header: {
+      confirmed: 'Confirmed',
+      date: 'Date',
+      statictis_month: 'Statictis Month',
+      deposit_money: 'Deposit money',
+      withdraw_money: 'Withdraw money',
+      balance: 'Balance',
+      type_name: 'Type name',
+      category: 'Category',
+      sub_category: 'Sub category',
+      purpose: 'Purpose'
+    }
+  }
 }

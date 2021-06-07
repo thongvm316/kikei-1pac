@@ -5,7 +5,7 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getBankAccounts() {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.bankAccount}` })
+  getBankAccounts(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.bankAccount}`, params })
   }
 }

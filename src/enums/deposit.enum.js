@@ -36,3 +36,10 @@ export const typeDepositEnums = Object.freeze([
   { type: 30, name: 'type_deposit_cash_transfer' }, // grey-15
   { type: 40, name: 'type_unclear_money' } // - red; + grey-15
 ])
+
+// export const typeDepositEnums = Object.freeze({
+//   10: 'type_deposit_sales', // red
+//   20: 'type_deposit_payment', // blue
+//   30: 'type_deposit_cash_transfer', // grey-15
+//   40: 'type_unclear_money' // - red; + grey-15
+// })
