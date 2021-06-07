@@ -115,7 +115,6 @@ export default defineComponent({
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta, 'bottom') }
-    to.meta['company'] = {}
     next()
   },
 
@@ -212,9 +211,11 @@ export default defineComponent({
     }
 
     const handleSelectCompany = () => {
-      route.meta['company'] = { ...tmpCompany.value }
-      console.log(tmpCompany.value)
-      console.log(route.meta['company'])
+      setTimeout(() => {
+        route.meta['company'] = { ...tmpCompany.value }
+        visible.value = false
+        console.log(route.meta['company'])
+      }, 0)
     }
 
     const fetchList = async (params = {}, data) => {
