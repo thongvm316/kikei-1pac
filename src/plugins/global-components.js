@@ -11,14 +11,16 @@ import {
   Modal,
   Form,
   Input,
+  InputNumber,
   Icon,
   ConfigProvider,
   Breadcrumb,
   Popover,
   Menu,
-  notification,
   Select,
-  Radio
+  Radio,
+  Tooltip,
+  notification
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -33,6 +35,7 @@ const globalComponents = (app) => {
     .use(Modal)
     .use(Form)
     .use(Input)
+    .use(InputNumber)
     .use(Icon)
     .use(ConfigProvider)
     .use(Breadcrumb)
@@ -40,6 +43,8 @@ const globalComponents = (app) => {
     .use(Menu)
     .use(Select)
     .use(Radio)
+    .use(Tooltip)
+
   // Config global notification
   app.config.globalProperties.$notification = notification
 }
