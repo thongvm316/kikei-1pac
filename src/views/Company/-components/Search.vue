@@ -88,12 +88,6 @@ export default defineComponent({
       }
     })
 
-    const headline = ref(null)
-
-    onMounted(() => {
-      console.log(headline.value.textContent)
-    })
-
     const handleCancel = () => {
       visible.value = false
     }
@@ -104,7 +98,6 @@ export default defineComponent({
     }
 
     return {
-      headline,
       visible,
       DIVISION,
       COUNTRY,
