@@ -228,10 +228,10 @@
         dataGroups.value = await useGroupList()
         // statuses
         const statuses = await getProjectStatuses()
-        dataStatuses.value = toStatusOptions(statuses)
+        dataStatuses.value = toStatusOptions(statuses.data)
         // accuracies
         const accuracies = await getProjectAccuracies()
-        dataAccuracies.value = toAccuracyOptions(accuracies)
+        dataAccuracies.value = toAccuracyOptions(accuracies.data)
       })
 
       const visible = computed({

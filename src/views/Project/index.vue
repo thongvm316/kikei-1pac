@@ -55,12 +55,12 @@
         <p
           v-if="record.accuracyName.toUpperCase() === 'S'"
           class="mb-0 text-center font-bold text-additional-blue-6">
-          <a-tooltip color="#262626" :title="record.accuracyName">
+          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
         </p>
         <p v-else class="mb-0 text-center font-bold text-grey-55">
-          <a-tooltip color="#262626" :title="record.accuracyName">
+          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
         </p>

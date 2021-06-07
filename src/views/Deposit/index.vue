@@ -180,6 +180,8 @@ export default defineComponent({
     }
 
     const createDataTableFormat = (data = []) => {
+      if (!data) return
+
       return data.map(item => {
         let typeName
         typeDepositEnums.forEach(type => (type.type === item.type) && (typeName = type.name))

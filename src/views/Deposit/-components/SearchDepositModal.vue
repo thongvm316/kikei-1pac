@@ -44,7 +44,7 @@
               <label class="form-label">区分</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedTypeDepositList" :options="typeDepositList"  />
+                <a-checkbox-group v-model:value="checkedTypeDepositList" :options="typeDepositList" />
               </div>
             </div>
           </div>
@@ -111,9 +111,7 @@ import { typeDepositEnums } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDepositService'
 
-const typeDepositList = typeDepositEnums.map(item => {
-  return { value: item.type, label: item.name }
-})
+const typeDepositList = typeDepositEnums.map(item => ({ value: item.type, label: item.name }))
 
 export default defineComponent({
   name: 'SearchDepositModal',
