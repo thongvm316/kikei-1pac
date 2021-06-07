@@ -18,7 +18,12 @@
 
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
-    :expand-icon-as-cell="false">
+    :expand-icon-as-cell="false"
+  >
+    <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.updatedAt) }}</template>
+
+    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.updatedAt) }}</template>
+
     <template #typeName="{ record }">
       <span :class="`type-${record.type}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
     </template>
@@ -41,11 +46,11 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, onBeforeMount, ref, toRefs } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
 
 const columnsDeposit = [
-  { title: '入出金日', dataIndex: 'date', key: 'date', align: 'left', sorter: true },
-  { title: '計上月', dataIndex: 'statisticsMonth', key: 'statisticsMonth', sorter: true },
+  { title: '入出金日', dataIndex: 'date', key: 'date', align: 'left', slots: { customRender: 'renderDepositUpdatedAt' }, sorter: true },
+  { title: '計上月', dataIndex: 'statisticsMonth', key: 'statisticsMonth', slots: { customRender: 'renderDepositStatictis' }, sorter: true },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
   { title: '項目名', dataIndex: 'purpose', key: 'purpose', slots: { customRender: 'purpose' } },
@@ -60,7 +65,6 @@ export default defineComponent({
   name: 'DepositTable',
 
   props: {
-    // value: Object,
     indeterminateCheckAllRows: Boolean,
     checkAllRowTable: Boolean,
     currentSelectedRowKeys: Array,
@@ -72,14 +76,6 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    // const { indeterminateCheckAllRows,
-    // checkAllRowTable,
-    // currentSelectedRowKeys,
-    // dataDeposit,
-    // isLoadingDataTable,
-    // expandedRowKeys,
-    // expandIconColumnIndex } = toRefs(props.value)
-
     const currentRowClick = ref()
 
     const onSelectChangeRow = (selectedRowKeys) => {

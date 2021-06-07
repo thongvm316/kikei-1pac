@@ -28,11 +28,11 @@
         v-model:value="searchKeyMultipleSelect"
         show-arrow
         :max-tag-count="1"
+        option-label-prop="label"
+        dropdownClassName="multiple-select-custom"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
-        option-label-prop="label"
-        dropdownClassName="multiple-select-custom"
         :defaultActiveFirstOption="false"
         @change="onHandleChangeBankAcountSelect">
         <template #menuItemSelectedIcon>
@@ -116,44 +116,6 @@ export default defineComponent({
     const { t } = useI18n()
 
     const currentSelectedRecord = ref()
-
-    const onOpenDepositButtonsFloat = (record) => {
-      if (record.confirmed) return
-
-      currentSelectedRecord.value = record
-      isVisibleDepositButtonsFloat.value = true
-    }
-
-    const onOpenDeleteDepositModal = () => {
-      isVisibleDepositButtonsFloat.value = false
-      isVisibleDepositModal.value = true
-    }
-
-    const onDeleteDepositRecord = async () => {
-      isLoadingDataTable.value = true
-      await deleteDeposit(currentSelectedRecord.value.id)
-      dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
-      isVisibleDepositModal.value = false
-      isLoadingDataTable.value = false
-
-      // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
-    }
-
-    const onCopyRecordDeposit = () => {
-      // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new', params: { depositState: currentSelectedRecord.value } })
-    }
-
-    // const tableVal = reactive({
-    //   indeterminateCheckAllRows: false,
-    //   checkAllRowTable: false,
-    //   currentSelectedRowKeys: [],
-    //   dataDeposit: [],
-    //   isLoadingDataTable: true,
-    //   expandedRowKeys: [],
-    //   expandIconColumnIndex: null
-    // })
 
     const isVisibleDepositButtonsFloat = ref()
     const isVisibleDepositModal = ref()
@@ -281,7 +243,6 @@ export default defineComponent({
     })
 
     const exportDepositAsCsvFile = async () => {
-      // console.log('csv')
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
         pageSize: 99999,
@@ -289,14 +250,36 @@ export default defineComponent({
         bankAccountId: currentBankAccountList.value
       }
       const { data } = await getDeposit(dataRequest)
-      // if (data.result.data.includes[0].bankAccounts) {
-      //   console.log('have ');
-      // } else {
-      //   console.log('deo');
-      // }
-      console.log(data.result.data)
       exportObj.items = data.result.data
       exportCSVFile(exportObj)
+    }
+
+    const onOpenDepositButtonsFloat = (record) => {
+      if (record.confirmed) return
+
+      currentSelectedRecord.value = record
+      isVisibleDepositButtonsFloat.value = true
+    }
+
+    const onOpenDeleteDepositModal = () => {
+      isVisibleDepositButtonsFloat.value = false
+      isVisibleDepositModal.value = true
+    }
+
+    const onDeleteDepositRecord = async () => {
+      isLoadingDataTable.value = true
+      await deleteDeposit(currentSelectedRecord.value.id)
+      dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
+      isVisibleDepositModal.value = false
+      isLoadingDataTable.value = false
+
+      // show notification
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
+    }
+
+    const onCopyRecordDeposit = () => {
+      // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      router.push({ name: 'deposit-new', params: { depositState: currentSelectedRecord.value } })
     }
 
     return {
