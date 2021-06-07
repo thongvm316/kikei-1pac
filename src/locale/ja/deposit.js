@@ -3,7 +3,8 @@ export default {
     type_deposit_sales: 'Sales',
     type_deposit_payment: 'Payments',
     type_deposit_cash_transfer: 'Cash Transfer',
-    type_unclear_money: 'Unclear Money'
+    type_unclear_money: 'Unclear Money',
+    type_none: '-'
   },
   company_name: {
     title_search: '検索',

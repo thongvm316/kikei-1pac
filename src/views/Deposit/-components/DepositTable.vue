@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1500 }"
+    :scroll="{ x: auto, y: 610 }"
     @expand="onClickExpandRowButton"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
@@ -22,14 +22,14 @@
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.updatedAt) }}</template>
 
-    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.updatedAt) }}</template>
+    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.statictisMonth) }}</template>
 
     <template #typeName="{ record }">
-      <span :class="`type-${record.type}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
+      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
     </template>
 
     <template #deposit="{ record }">
-      <span :class="`type-${record.type}`">{{ record.deposit }}</span>
+      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ record.deposit }}</span>
     </template>
 
     <template #action="{ record }">
@@ -139,6 +139,10 @@ export default defineComponent({
     display: none;
   }
 
+  tr, td {
+    white-space: nowrap;
+  }
+
   table tbody {
     .ant-table-row {
       cursor: pointer;
@@ -187,14 +191,31 @@ export default defineComponent({
   $text-color-type: (
     10: $color-additional-blue-6,
     20: $color-additional-red-6,
-    30: $color-grey-15,
-    40: $color-grey-15
+    30: $color-grey-15
   );
 
   @each $key, $val in $text-color-type {
     .type-#{$key} {
       color: #{$val};
     }
+  }
+
+  .type-40 {
+    &.deposit {
+      color: $color-additional-blue-6;
+    }
+
+    &.withdraw {
+      color: $color-additional-red-6;
+    }
+  }
+
+  .bank-type_deposit_sales {
+    color: $color-additional-blue-6;
+  }
+
+  .bank-type_deposit_payment {
+    color: $color-additional-red-6;
   }
 }
 </style>

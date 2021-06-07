@@ -6,10 +6,12 @@ const { t } = i18n.global
 export default {
   /* ---------------------- date time format ---------------------------- */
   moment_l(value) {
+    if (value === null) return ''
     return `${moment(value).format('DD/MM/YYYY')}`
   },
 
   moment_mm_dd(value) {
+    if (value === null) return ''
     return `${moment(value).format('MM/YYYY')}`
   },
 

@@ -137,6 +137,8 @@ export default defineComponent({
     const totalRecords = ref()
     const expandIconColumnIndex = ref()
 
+    const currentPageNumber = ref()
+
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
       const keyRowList = dataDeposit.value.filter(item => !item.confirmed)
@@ -150,17 +152,52 @@ export default defineComponent({
         let typeName
         typeDepositEnums.forEach(type => (type.type === item.type) && (typeName = type.name))
 
+        const typeNameBank = (depositMoney, withdrawMoney) => {
+          if (depositMoney > withdrawMoney) {
+            return 'type_deposit_sales'
+          } else if (depositMoney < withdrawMoney) {
+            return 'type_deposit_payment'
+          } else {
+            return 'type_none'
+          }
+        }
+
+        const depositBank = (depositMoney, withdrawMoney) => {
+          if (depositMoney > withdrawMoney) {
+            return depositMoney
+          } else if (depositMoney < withdrawMoney) {
+            return withdrawMoney
+          } else {
+            return '-'
+          }
+        }
+
+        const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
+          if (type === 10) {
+            return depositMoney
+          } else if (type === 20) {
+            return withdrawMoney
+          } else if (type === 30) {
+            return depositMoney > 0 ? depositMoney : withdrawMoney
+          } else {
+            return depositMoney > 0 ? depositMoney : `- ${withdrawMoney}`
+          }
+        }
+
         return Object.assign(item,
           {
             key: item.id,
             children: item.bankAccounts ? item.bankAccounts.map(
               bank => Object.assign(bank,
-                { type: 10 },
+                {updatedAt: null},
+                {statictisMonth: null},
+                { class: typeNameBank(bank.deposit, bank.withdrawal) },
                 { key: item.id },
                 { purpose: `${bank.name} (${bank.currency})` },
-                { typeName }))
-                : [],
-            deposit: '100000',
+                { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
+                { deposit: depositBank(bank.deposit, bank.withdrawal) }))
+              : [],
+            deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
             typeName
           })
       })
@@ -199,7 +236,7 @@ export default defineComponent({
     const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
-      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId })
+      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId }, { pageNumber: currentPageNumber.value })
       expandIconColumnIndex.value = 10 // TODO: columns count
       bankAccountId.length ? expandedRowKeys.value = dataDeposit.value.map(item => item.key) : expandedRowKeys.value = []
     }, 800)
@@ -212,7 +249,8 @@ export default defineComponent({
     }
 
     const handleChangePage = async (pageNumber) => {
-      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
+      const res = await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
+      currentPageNumber.value = pageNumber
     }
 
     const exportObj = reactive({
@@ -300,6 +338,7 @@ export default defineComponent({
       expandIconColumnIndex,
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
+      currentPageNumber,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,
