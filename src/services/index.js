@@ -5,6 +5,7 @@ import CompanyService from './company'
 import ProjectService from './project'
 import GroupService from './group'
 import LogService from './logs'
+import FinancingService from './financing'
 
 const repositories = {
   StorageService,
@@ -13,6 +14,7 @@ const repositories = {
   CompanyService,
   ProjectService,
   GroupService,
+  FinancingService,
   LogService
 }
 
