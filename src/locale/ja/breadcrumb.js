@@ -8,5 +8,6 @@ export default {
   category: '登録大分類',
   setting: '登録設定',
   edit: '登録',
-  new: '登録'
+  new: '登録',
+  logs: '活動記録'
 }

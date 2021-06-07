@@ -1,17 +1,36 @@
-// https://medium.com/@danny.pule/export-json-to-csv-file-using-javascript-a0b7bc5b00d2
+import { isString } from 'lodash-es'
+import globalFilters from '@/filters'
 
-const convertToCSV = (objArray) => {
+const convertToCSV = (header, labels, objArray) => {
+  if (!labels.length) throw new Error('Please set labels')
   let array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray
   let str = ''
 
+  // build header first
+  let headLine = ''
+  for (let k = 0; k < header.length; k++) {
+    if (k !== 0) headLine += ","
+    headLine += header[k]
+  }
+  str += headLine + '\r\n'
+
+  // build content
   for (let i = 0; i < array.length; i++) {
     let line = ''
 
-    for (let index in array[i]) {
+    for (let j = 0; j < labels.length; j++) {
       // eslint-disable-next-line no-extra-boolean-cast
       if (!!line) line += ','
 
-      line += array[i][index]
+      // check label item to formatted value
+      if (isString(labels[j])) {
+        line += array[i][labels[j]]
+      } else {
+        const formatBy = labels[j].formatBy
+        if (!formatBy) throw new Error('Please set formatter')
+
+        line += globalFilters[labels[j].formatBy](array[i][labels[j].field])
+      }
     }
 
     str += line + '\r\n'
@@ -20,15 +39,11 @@ const convertToCSV = (objArray) => {
   return str
 }
 
-const exportCSVFile = (headers, items, fileTitle) => {
-  if (headers) {
-    items.unshift(headers)
-  }
-
+const exportCSVFile = ({ header, labels, items, fileTitle }) => {
   // Convert Object to JSON
   let jsonObject = JSON.stringify(items)
-  let csv = convertToCSV(jsonObject)
-  let exportedFilenmae = fileTitle + '.csv' || 'export.csv'
+  let csv = convertToCSV(header, labels, jsonObject)
+  let exportedFilenmae = fileTitle ? `${fileTitle}.csv` : 'export.csv'
   let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   if (navigator.msSaveBlob) {
     // IE 10+

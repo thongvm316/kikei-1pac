@@ -8,5 +8,6 @@ export default {
   category: 'Category',
   setting: 'Setting',
   edit: 'Edit',
-  new: 'New'
+  new: 'New',
+  logs: 'Activity Log'
 }
