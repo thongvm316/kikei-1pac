@@ -120,6 +120,9 @@
                 }
               }
             }
+            .ant-table-placeholder {
+              height: calc(100vh - 294px);
+            }
           }
         }
       }

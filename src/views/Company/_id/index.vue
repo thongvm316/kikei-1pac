@@ -16,7 +16,7 @@ export default defineComponent({
     const { companyDetail } = useGetCompanyDetailService(to.params.id)
     const resp = await companyDetail()
 
-    to.meta['detail'] = resp.result
+    to.meta['detail'] = resp.result.data
 
     next()
   }

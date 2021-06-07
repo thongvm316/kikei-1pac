@@ -36,13 +36,18 @@
   .ant-table-thead > tr > th:nth-child(2) {
     padding-left: 32px;
   }
+  
+  .ant-table-tbody > tr {
+    cursor: pointer;
+  }
 }
 
 .ant-table-placeholder {
   color: $color-grey-15;
   font-size: 20px;
   line-height: 28px;
-  padding: 48px 0;
+  padding: 0;
+  height: calc(100vh - 168px);
 }
 
 .ant-table-pagination.ant-pagination {
@@ -51,11 +56,6 @@
 
 .ant-empty-image {
   display: none;
-}
-
-.ant-table-placeholder {
-  padding: 0;
-  height: calc(100vh - 164px);
 }
 
 .ant-empty-normal {
