@@ -85,6 +85,7 @@
 import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 import { notification } from 'ant-design-vue'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -114,6 +115,7 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const { t } = useI18n()
+    const store = useStore()
 
     const currentSelectedRecord = ref()
 
@@ -278,8 +280,8 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new', params: { depositState: currentSelectedRecord.value } })
+      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      router.push({ name: 'deposit-new' })
     }
 
     return {
