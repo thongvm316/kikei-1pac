@@ -114,9 +114,27 @@ const routes = [
         children: [
           {
             path: 'company',
-            name: 'company',
-            component: lazyLoadRoute('Company'),
-            meta: { title: `Company | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.company' }
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Company | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.company' },
+            children: [
+              {
+                path: '',
+                name: 'company',
+                component: lazyLoadRoute('Company')
+              },
+              {
+                path: 'new',
+                name: 'company-new',
+                component: lazyLoadRoute('Company/new'),
+                meta: { title: `New Company | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.new' }
+              },
+              {
+                path: ':id/edit',
+                name: 'company-edit',
+                component: lazyLoadRoute('Company/_id'),
+                meta: { title: `Edit Company | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.edit' }
+              }
+            ]
           },
           {
             path: 'category',

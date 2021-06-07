@@ -8,7 +8,7 @@
       max-height="85%"
     >
       <template #footer>
-        <div class="form-deposit">
+        <div class="form-company__search">
           <form class="form-left" @submit.prevent="onSearch">
             <!-- Keyword -->
             <div class="form-group">
@@ -26,8 +26,8 @@
                 <label class="label-input">
                   {{ $t('company.division') }}
                 </label>
-                <a-checkbox-group v-model:value="filter.divition">
-                  <a-checkbox v-for="item in DIVITION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                <a-checkbox-group v-model:value="filter.divisions">
+                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
@@ -51,7 +51,7 @@
                   {{ $t('company.currency') }}
                 </label>
                 <a-checkbox-group v-model:value="filter.currency_id">
-                  <a-checkbox v-for="item in CURRENTCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                  <a-checkbox v-for="item in CURRENCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
@@ -72,11 +72,8 @@
           :data-source="dataSource"
           :row-key="(record) => record.id"
           :loading="isLoading"
-          :pagination="{
-            ...pagination,
-            showTotal: showTotal
-          }"
-          :scroll="{ y: height - 384 }"
+          :pagination="pagination"
+          :scroll="{ y: height - 330 }"
           :custom-row="customRow"
           size="middle"
           @change="handleChange"
@@ -102,7 +99,7 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import Table from '@/mixins/table.mixin'
-import { DIVITION, COUNTRY, CURRENTCY } from '@/enums/company.enum'
+import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
 
 export default defineComponent({
   name: 'Search',
@@ -134,7 +131,7 @@ export default defineComponent({
     const height = ref(0)
     const isLoading = ref(false)
 
-    const filter = reactive({ key_search: '', divition: [], country_id: [], currency_id: [] })
+    const filter = reactive({ key_search: '', divisions: [], country_id: [], currency_id: [] })
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
@@ -197,12 +194,12 @@ export default defineComponent({
         pageSize: pagination.pageSize
       }
 
-      await fetchlist(params, filter)
+      await fetchList(params, filter)
     }
 
-    const onSearch = () => {
+    const onSearch = async () => {
       filters.value = { ...deleteEmptyValue(filter) }
-      fetchlist({ pageNumber: 1, pageSize: 30 }, filters.value)
+      await fetchList({ pageNumber: 1, pageSize: 30 }, filters.value)
     }
 
     const customRow = (record) => {
@@ -214,11 +211,14 @@ export default defineComponent({
     }
 
     const handleSelectCompany = () => {
-      route.meta['company'] = { ...tmpCompany.value }
-      console.log(route.meta['company'])
+      setTimeout(() => {
+        route.meta['company'] = { ...tmpCompany.value }
+        visible.value = false
+        console.log(route.meta['company'])
+      }, 0)
     }
 
-    const fetchlist = async (params = {}, data) => {
+    const fetchList = async (params = {}, data) => {
       isLoading.value = true
 
       try {
@@ -247,12 +247,12 @@ export default defineComponent({
       height,
       handleChange,
       onSearch,
-      fetchlist,
+      fetchList,
       handleSelectCompany,
       customRow,
-      CURRENTCY,
+      CURRENCY,
       COUNTRY,
-      DIVITION
+      DIVISION
     }
   }
 })

@@ -1,10 +1,10 @@
-export const DIVITION = [
+export const DIVISION = [
   {
-    id: 1,
+    id: 0,
     value: '顧客'
   },
   {
-    id: 2,
+    id: 1,
     value: 'パートナー'
   }
 ]
@@ -20,7 +20,7 @@ export const COUNTRY = [
   }
 ]
 
-export const CURRENTCY = [
+export const CURRENCY = [
   {
     id: 1,
     value: 'JPY'
@@ -28,5 +28,16 @@ export const CURRENTCY = [
   {
     id: 2,
     value: 'VND'
+  }
+]
+
+export const PAYMENT = [
+  {
+    id: 1,
+    value: 'next_month_end'
+  },
+  {
+    id: 2,
+    value: 'end_of_month_after_next'
   }
 ]

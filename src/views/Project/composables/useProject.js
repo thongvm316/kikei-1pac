@@ -37,7 +37,7 @@ export const addProject = async (data) => {
   try {
     const response = await ProjectService.addProject(data)
     return response
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }
@@ -46,7 +46,7 @@ export const deleteProject = async (projectId) => {
   try {
     const response = await ProjectService.deleteProject(projectId)
     return response
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }
@@ -55,7 +55,7 @@ export const getProjectStatuses = async () => {
   try {
     const { data } = await ProjectService.getProjectStatuses()
     return data.result || []
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }
@@ -64,7 +64,7 @@ export const getProjectAccuracies = async () => {
   try {
     const { data } = await ProjectService.getProjectAccuracies()
     return data.result || []
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }
