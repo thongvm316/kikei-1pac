@@ -19,7 +19,7 @@
             <label class="label-input">
               {{ $t('company.classification') }}
             </label>
-            <a-checkbox-group v-model:value="filter.division">
+            <a-checkbox-group v-model:value="filter.divisions">
               <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
@@ -64,14 +64,14 @@
 </template>
 
 <script>
-import { defineComponent, reactive, computed, ref, onMounted } from 'vue'
+import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
 
 export default defineComponent({
-  name: 'Search',
+  name: 'CompanySearchForm',
 
   components: { SearchIcon },
 
@@ -80,7 +80,7 @@ export default defineComponent({
   setup(props, context) {
     const store = useStore()
     const route = useRoute()
-    const filter = reactive({ key_search: '', division: [], country_id: [], currency_id: [] })
+    const filter = reactive({ key_search: '', divisions: [], country_id: [], currency_id: [] })
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
       set: (val) => {

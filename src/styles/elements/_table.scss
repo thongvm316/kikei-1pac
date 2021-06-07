@@ -24,3 +24,32 @@
   line-height: 28px;
   padding: 48px 0;
 }
+
+.ant-table-pagination.ant-pagination {
+  margin-top: 0;
+}
+
+.ant-empty-image {
+  display: none;
+}
+
+.ant-table-placeholder {
+  padding: 0;
+  height: calc(100vh - 164px);
+}
+
+.ant-empty-normal {
+  margin: 48px 0;
+}
+
+.ant-empty-description {
+  color: $color-grey-0;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.ant-table-content {
+  border: 1px solid $color-grey-75;
+}
+
+

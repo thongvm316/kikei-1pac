@@ -10,5 +10,5 @@ export default {
   account_name: 'Account Name',
   type: 'Type',
   status: 'Status',
-  title_search: 'Search',
+  title_search: 'Search'
 }

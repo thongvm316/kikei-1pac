@@ -1,15 +1,15 @@
 <template>
-  <Form />
+  <company-form />
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import Form from '@/views/Company/-components/Form'
+import CompanyForm from '@/views/Company/-components/CompanyForm'
 
 export default defineComponent({
   name: 'CompanyNewPage',
 
-  components: { Form }
+  components: { CompanyForm }
 })
 </script>
 

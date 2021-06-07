@@ -1,6 +1,6 @@
 <template>
   <section>
-    <Search @filter-changed="onFilterChange($event)" />
+    <company-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
       <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
@@ -51,7 +51,7 @@ import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
-import Search from '@/views/Company/-components/Search'
+import CompanySearchForm from '@/views/Company/-components/CompanySearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
@@ -59,7 +59,7 @@ import ModalDelete from '@/components/ModalDelete'
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, Search, AddIcon, ModalDelete },
+  components: { ModalAction, CompanySearchForm, AddIcon, ModalDelete },
 
   mixins: [Table],
 
@@ -242,6 +242,7 @@ export default defineComponent({
     text-align: center;
     display: flex;
     align-items: center;
+    margin-bottom: 16px;
 
     .add-icon {
       margin-right: 10.33px;

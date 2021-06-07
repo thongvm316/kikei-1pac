@@ -9,7 +9,7 @@ const convertToCSV = (header, labels, objArray) => {
   // build header first
   let headLine = ''
   for (let k = 0; k < header.length; k++) {
-    if (k !== 0) headLine += ","
+    if (k !== 0) headLine += ','
     headLine += header[k]
   }
   str += headLine + '\r\n'

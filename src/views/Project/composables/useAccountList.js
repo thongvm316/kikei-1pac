@@ -5,7 +5,7 @@ export const useAccountList = async () => {
   try {
     const { data } = await AccountService.getAccounts()
     return data.result.data || []
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }

@@ -27,7 +27,7 @@
       <div class="form-group">
         <Field
           v-slot="{ field, handleChange }"
-          v-model="form.division"
+          v-model="form.divisions"
           :name="$t('company.classification')"
           rules="required"
         >
@@ -265,13 +265,13 @@ import useUpdateCompanyService from '@/views/Company/composables/useUpdateCompan
 import useCreateCompanyService from '@/views/Company/composables/useCreateCompanyService'
 
 export default defineComponent({
-  name: 'FormCompany',
+  name: 'CompanyForm',
 
   setup() {
     let form = ref({
       code: '',
       name: '',
-      division: [],
+      divisions: [],
       slack_code: '',
       country_id: undefined,
       currency_id: undefined,
@@ -295,7 +295,7 @@ export default defineComponent({
     }
 
     const handleSubmit = () => {
-      let data = { ...form }
+      let data = { ...form.value }
       data = { ...deleteEmptyValue(data) }
 
       if (route.name === 'company-edit') {
@@ -309,8 +309,8 @@ export default defineComponent({
       const id = route.params.id
       // eslint-disable-next-line no-useless-catch
       try {
-        const { updateCompany } = useUpdateCompanyService()
-        await updateCompany(id, data)
+        const { updateCompany } = useUpdateCompanyService(id, data)
+        await updateCompany()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
         await router.push({ name: 'company' }).catch((err) => err)
       } catch (err) {

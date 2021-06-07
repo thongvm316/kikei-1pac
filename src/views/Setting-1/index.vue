@@ -8,7 +8,7 @@
       max-height="85%"
     >
       <template #footer>
-        <div class="form-deposit">
+        <div class="form-company__search">
           <form class="form-left" @submit.prevent="onSearch">
             <!-- Keyword -->
             <div class="form-group">
@@ -72,11 +72,8 @@
           :data-source="dataSource"
           :row-key="(record) => record.id"
           :loading="isLoading"
-          :pagination="{
-            ...pagination,
-            showTotal: showTotal
-          }"
-          :scroll="{ y: height - 384 }"
+          :pagination="pagination"
+          :scroll="{ y: height - 330 }"
           :custom-row="customRow"
           size="middle"
           @change="handleChange"

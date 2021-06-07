@@ -2,34 +2,21 @@
   <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
     <a-form-item name="companyId" label="クライアント名">
       <div>
-        <span class="text-grey-55 mr-8" v-if="!!companyOwnerData">{{ companyOwnerData.name }}</span>
+        <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
     </a-form-item>
 
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input
-        value=""
-        disabled
-        style="width: 116px"
-        placeholder="GXX-YYYY-ZZZ"
-      />
+      <a-input value="" disabled style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
     </a-form-item>
 
     <a-form-item name="name" label="プロジェクト名">
-      <a-input
-        v-model:value="projectParams.name"
-        placeholder="入力してください"
-        style="width: 300px"
-      />
+      <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item name="clientInCharge" label="顧客担当">
-      <a-input
-        v-model:value="projectParams.clientInCharge"
-        placeholder="入力してください"
-        style="width: 300px"
-      />
+      <a-input v-model:value="projectParams.clientInCharge" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item name="type" label="区分">
@@ -37,11 +24,7 @@
     </a-form-item>
 
     <a-form-item name="statusId" label="ステータス">
-      <a-select
-        v-model:value="projectParams.statusId"
-        placeholder="選択してください"
-        style="width: 164px"
-      >
+      <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
           {{ status.name }}
         </a-select-option>
@@ -49,11 +32,7 @@
     </a-form-item>
 
     <a-form-item name="accuracyId" label="受注確度">
-      <a-select
-        v-model:value="projectParams.accuracyId"
-        placeholder="選択してください"
-        style="width: 164px"
-      >
+      <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
           {{ accuracy.code }} ({{ accuracy.name }})
         </a-select-option>
@@ -90,11 +69,7 @@
     </a-form-item>
 
     <a-form-item name="groupId" label="請求グループ">
-      <a-select
-        v-model:value="projectParams.groupId"
-        placeholder="選択してください"
-        style="width: 164px"
-      >
+      <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
           {{ group.name }}
         </a-select-option>
@@ -102,19 +77,11 @@
     </a-form-item>
 
     <a-form-item name="director" label="ディレクタ（予定）">
-      <a-input
-        v-model:value="projectParams.director"
-        placeholder="入力してください"
-        style="width: 300px"
-      />
+      <a-input v-model:value="projectParams.director" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item name="accountId" label="営業担当">
-      <a-select
-        v-model:value="projectParams.accountId"
-        placeholder="入力してください"
-        style="width: 164px"
-      >
+      <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
           {{ account.fullname }}
         </a-select-option>
@@ -122,11 +89,7 @@
     </a-form-item>
 
     <a-form-item name="money" label="金額">
-      <a-input-number
-        v-model:value="projectParams.money"
-        placeholder="入力してください"
-        style="width: 300px"
-      />
+      <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item name="adProjectOrders" label="外注">
@@ -144,11 +107,7 @@
             </div>
             <div>
               <p>金額</p>
-              <a-input-number
-                v-model:value="order.money"
-                placeholder="タグを入力してください"
-                style="width: 164px"
-              />
+              <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
             </div>
             <div>
               <p>Action</p>
@@ -169,24 +128,16 @@
     </a-form-item>
 
     <a-form-item name="tag" label="タグ">
-      <a-input
-        v-model:value="projectParams.tag"
-        placeholder="タグを入力してください"
-        style="width: 300px"
-      />
+      <a-input v-model:value="projectParams.tag" placeholder="タグを入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item name="memo" label="メモ">
-      <a-input
-        v-model:value="projectParams.memo"
-        placeholder="入力してください"
-        style="width: 300px"
-      />
+      <a-input v-model:value="projectParams.memo" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
 
     <a-form-item>
       <a-button @click="$router.go(-1)">キャンセル</a-button>
-      <a-button type="primary" :loading="loading" @click="onSubmit" style="margin-left: 8px">登録</a-button>
+      <a-button type="primary" :loading="loading" style="margin-left: 8px" @click="onSubmit">登録</a-button>
     </a-form-item>
   </a-form>
 
@@ -208,6 +159,12 @@ import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'ProjectForm',
+
+  components: {
+    CalendarOutlined,
+    ProjectCompanyForm,
+    LineAddIcon
+  },
 
   props: {
     edit: Boolean
@@ -254,16 +211,20 @@ export default defineComponent({
       companyId: [{ type: 'number', required: true, message: 'Please select company', trigger: 'change' }],
       name: [{ required: true, message: 'Please input project name', trigger: 'change' }],
       statusId: [{ type: 'number', required: true, message: 'Please select status', trigger: 'change' }],
-      accuracyId: [{ type: 'number',required: true, message: 'Please select accuracy', trigger: 'change' }],
-      statisticsMonth: [{ type: 'object', required: true, message: 'Please select statistics month', trigger: ['blur', 'change'] }],
-      statisticsMonths: [{ type: 'array', required: true, message: 'Please select statistics months', trigger: ['blur', 'change'] }],
+      accuracyId: [{ type: 'number', required: true, message: 'Please select accuracy', trigger: 'change' }],
+      statisticsMonth: [
+        { type: 'object', required: true, message: 'Please select statistics month', trigger: ['blur', 'change'] }
+      ],
+      statisticsMonths: [
+        { type: 'array', required: true, message: 'Please select statistics months', trigger: ['blur', 'change'] }
+      ],
       groupId: [{ type: 'number', required: true, message: 'Please select group', trigger: 'change' }],
       accountId: [{ type: 'number', required: true, message: 'Please select account', trigger: 'change' }],
       money: [{ type: 'number', required: true, message: 'Please input valid money', trigger: 'change' }]
     })
 
     /* --------------------- handle search company ------------------- */
-    const addDummyOutsourceData = () =>  {
+    const addDummyOutsourceData = () => {
       const emptyOutsourceData = {
         companyId: '',
         companyName: '',
@@ -274,7 +235,7 @@ export default defineComponent({
     }
 
     const removeOutsourceData = (order) => {
-      const index = companyOutsources.findIndex(data => data.key === order.key)
+      const index = companyOutsources.findIndex((data) => data.key === order.key)
       if (index < 0) return
 
       companyOutsources.splice(index, 1)
@@ -325,7 +286,7 @@ export default defineComponent({
 
     const highestAccuracyRequired = computed(() => {
       if (!projectParams.accuracyId || dataAccuracies.value.length <= 0) return false
-      const accuracy = dataAccuracies.value.filter(da => da.id === projectParams.accuracyId)[0]
+      const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.accuracyId)[0]
       if (!accuracy) return false
       // TODO: hard check more
       return accuracy.code === 'S'
@@ -341,7 +302,7 @@ export default defineComponent({
     /* ------------------- api intergration --------------------------- */
     const projectOutsouringOrders = () => {
       if (companyOutsources.length <= 0) return null
-      return companyOutsources.map(item => {
+      return companyOutsources.map((item) => {
         const shadownItem = {
           id: item.id ? item.id : null,
           companyId: item.companyId,
@@ -358,12 +319,14 @@ export default defineComponent({
       let dataRequest = {
         ...projectParams,
         releaseDate: projectParams.releaseDate ? moment(projectParams.releaseDate).format('YYYY-MM-DD') : null,
-        statisticsFromMonth: projectParams.type === 0
-          ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
-          : moment(projectParams.statisticsMonths[0]).format('YYYY-MM-DD'),
-        statisticsToMonth: projectParams.type === 0
-          ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
-          : moment(projectParams.statisticsMonths[1]).format('YYYY-MM-DD'),
+        statisticsFromMonth:
+          projectParams.type === 0
+            ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
+            : moment(projectParams.statisticsMonths[0]).format('YYYY-MM-DD'),
+        statisticsToMonth:
+          projectParams.type === 0
+            ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
+            : moment(projectParams.statisticsMonths[1]).format('YYYY-MM-DD'),
         adProjectOrders: projectOutsouringOrders()
       }
 
@@ -379,7 +342,7 @@ export default defineComponent({
         if (validateRes) {
           addProject(projectDataRequest.value)
         }
-      } catch(e) {
+      } catch (e) {
         console.log(e)
       }
     }
@@ -419,12 +382,6 @@ export default defineComponent({
       selectCompany,
       onSubmit
     }
-  },
-
-  components: {
-    CalendarOutlined,
-    ProjectCompanyForm,
-    LineAddIcon
   }
 })
 </script>

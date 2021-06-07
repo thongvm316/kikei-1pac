@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppSidebar from './-components/AppSidebar'
@@ -35,6 +35,13 @@ export default defineComponent({
   setup() {
     const locales = ref({ en: localeEn, ja: localeJa })
     const { locale } = useI18n()
+
+    onMounted(() => {
+      locales.value = {
+        en: { ...locales.value.en, Empty: { description: 'No Data' } },
+        ja: { ...locales.value.ja, Empty: { description: '該当する入出金が見つかりませんでした。' } }
+      }
+    })
 
     return { locale, locales }
   }

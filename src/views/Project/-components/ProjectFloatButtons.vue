@@ -1,11 +1,7 @@
 <template>
-  <a-modal
-    v-model:visible="locaVisible"
-    :closable="false"
-    width="438px"
-    class="deposit-buttons-float">
+  <a-modal v-model:visible="locaVisible" :closable="false" width="438px" class="deposit-buttons-float">
     <template #footer>
-      <a-button @click="$emit('on-go-to-edit-project')" size="large">
+      <a-button size="large" @click="$emit('on-go-to-edit-project')">
         <template #icon>
           <span class="btn-icon">
             <!-- <edit-icon /> -->
@@ -14,7 +10,7 @@
         編集
       </a-button>
 
-      <a-button @click="$emit('on-copy-project')" size="large">
+      <a-button size="large" @click="$emit('on-copy-project')">
         <template #icon>
           <span class="btn-icon">
             <!-- <copy-icon /> -->
@@ -45,15 +41,15 @@ import { defineComponent, ref } from 'vue'
 export default defineComponent({
   name: 'ProjectFloatButtons',
 
-  setup() {
-    const visible = ref()
-    return { visible }
-  },
-
   components: {
     // DeleteIcon,
     // EditIcon,
     // CopyIcon
+  },
+
+  setup() {
+    const visible = ref()
+    return { visible }
   }
 })
 </script>

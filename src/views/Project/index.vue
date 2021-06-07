@@ -8,7 +8,7 @@
         CSVファイルダウンロード
       </a-button>
 
-      <a-button @click="$router.push({ name: 'project-new' })" type="primary">
+      <a-button type="primary" @click="$router.push({ name: 'project-new' })">
         <template #icon>
           <span class="btn-icon"><line-add-icon /></span>
         </template>
@@ -17,8 +17,8 @@
     </div>
 
     <a-pagination
-      class="project__pagination"
       v-model:current="currentPage"
+      class="project__pagination"
       :total="pagination.totalRecords"
       :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
       :page-size="pagination.pageSize"
@@ -35,8 +35,8 @@
       :locale="{ emptyText: '該当するプロジェクトが見つかりませんでした。' }"
       :pagination="false"
       :scroll="{ x: true }"
-      :custom-row="onCustomRow">
-
+      :custom-row="onCustomRow"
+    >
       <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
@@ -45,16 +45,17 @@
       </template>
 
       <template #projectMoneyTitle>
-        <span class="d-inline-block text-right">{{ $t('project.money') }} <br /> (JPY) </span>
+        <span class="d-inline-block text-right"
+          >{{ $t('project.money') }} <br />
+          (JPY)
+        </span>
       </template>
       <template #renderProjectMoney="{ record }">
         {{ $filters.number_with_commas(record.money) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">
-        <p
-          v-if="record.accuracyName.toUpperCase() === 'S'"
-          class="mb-0 text-center font-bold text-additional-blue-6">
+        <p v-if="record.accuracyName.toUpperCase() === 'S'" class="mb-0 text-center font-bold text-additional-blue-6">
           <a-tooltip color="#262626" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
@@ -78,18 +79,15 @@
 
   <project-float-buttons
     v-model:visible="isOpenFloatButtons"
-    @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id:targetProjectSelected.id} })"
+    @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
   />
 
-  <a-modal
-    v-model:visible="isDeleteConfirmModalOpen"
-    title="削除"
-    width="380px">
+  <a-modal v-model:visible="isDeleteConfirmModalOpen" title="削除" width="380px">
     <template #footer>
       <p>プロジェクト名 を削除してもよろしですか？</p>
       <a-button @click="isDeleteConfirmModalOpen = false">キャンセル</a-button>
-      <a-button @click="deleteProjectCaller" type="danger">削除</a-button>
+      <a-button type="danger" @click="deleteProjectCaller">削除</a-button>
     </template>
   </a-modal>
 </template>
@@ -108,6 +106,13 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 export default defineComponent({
   name: 'ProjectPage',
 
+  components: {
+    ProjectSearchForm,
+    ProjectFloatButtons,
+    LineDownIcon,
+    LineAddIcon
+  },
+
   setup() {
     const { t } = useI18n()
     const loading = ref(false)
@@ -115,7 +120,7 @@ export default defineComponent({
     let pagination = ref({
       pageSize: 10,
       pageNumber: 1
-    });
+    })
     const projectDatas = ref([])
     const columns = [
       {
@@ -141,13 +146,13 @@ export default defineComponent({
         dataIndex: 'typeName',
         key: 'typeName',
         title: '',
-        colSpan: 0,
+        colSpan: 0
       },
       {
         dataIndex: 'statusName',
         key: 'statusName',
         title: '',
-        colSpan: 0,
+        colSpan: 0
       },
       {
         dataIndex: 'accuracyName',
@@ -262,7 +267,7 @@ export default defineComponent({
       await deleteProject(targetProjectSelected.value.id)
 
       // remove data in list
-      const index = projectDatas.value.findIndex(project => project.id === targetProjectSelected.value.id)
+      const index = projectDatas.value.findIndex((project) => project.id === targetProjectSelected.value.id)
       projectDatas.value.splice(index, 1)
 
       // close all modal
@@ -272,10 +277,12 @@ export default defineComponent({
       // clear selected value
       targetProjectSelected.value = {}
       // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5 });
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5 })
     }
 
-    onBeforeMount(() => { fetchProjectDatas() })
+    onBeforeMount(() => {
+      fetchProjectDatas()
+    })
 
     watch(currentPage, fetchProjectDatas)
 
@@ -294,52 +301,45 @@ export default defineComponent({
       exportProjectAsCsvFile,
       deleteProjectCaller
     }
-  },
-
-  components: {
-    ProjectSearchForm,
-    ProjectFloatButtons,
-    LineDownIcon,
-    LineAddIcon
   }
 })
 </script>
 
 <style lang="scss" scoped>
-  @import '@/styles/shared/mixins';
+@import '@/styles/shared/mixins';
 
-  .project {
-    &__filters {
-      @include flexbox(flex-end, flex-end);
-      flex-direction: column;
-      padding: 24px 32px 16px;
-    }
+.project {
+  &__filters {
+    @include flexbox(flex-end, flex-end);
+    flex-direction: column;
+    padding: 24px 32px 16px;
+  }
 
-    &__buttons {
-      button + button {
-        margin-left: 12px;
-      }
-    }
-
-    &__pagination {
-      margin-top: 16px;
-    }
-
-    &__list {
-      white-space: nowrap;
+  &__buttons {
+    button + button {
+      margin-left: 12px;
     }
   }
 
-  :deep(.ant-table-tbody > tr > td) {
-    cursor: pointer;
+  &__pagination {
+    margin-top: 16px;
   }
 
-  :deep(.ant-table-tbody > tr > td:nth-child(3)),
-  :deep(.ant-table-tbody > tr > td:nth-child(4)) {
-    padding: 0;
+  &__list {
+    white-space: nowrap;
   }
+}
 
-  :deep(.ant-table-tbody > tr > td:nth-child(3)) {
-    padding-right: 8px;
-  }
+:deep(.ant-table-tbody > tr > td) {
+  cursor: pointer;
+}
+
+:deep(.ant-table-tbody > tr > td:nth-child(3)),
+:deep(.ant-table-tbody > tr > td:nth-child(4)) {
+  padding: 0;
+}
+
+:deep(.ant-table-tbody > tr > td:nth-child(3)) {
+  padding-right: 8px;
+}
 </style>

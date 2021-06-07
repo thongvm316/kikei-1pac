@@ -1,16 +1,16 @@
 <template>
-  <Form />
+  <company-form />
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import Form from '@/views/Company/-components/Form'
+import CompanyForm from '@/views/Company/-components/CompanyForm'
 import useGetCompanyDetailService from '@/views/Company/composables/useGetCompanyDetailService'
 
 export default defineComponent({
   name: 'CompanyEditPage',
 
-  components: { Form },
+  components: { CompanyForm },
 
   async beforeRouteEnter(to, from, next) {
     const { companyDetail } = useGetCompanyDetailService(to.params.id)
