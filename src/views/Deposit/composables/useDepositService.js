@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import services from '@/services'
 const DepositService = services.get('DepositService')
 const GroupService = services.get('GroupService')
@@ -62,3 +63,20 @@ export const deleteDeposit = async (id) => {
     throw error
   }
 }
+
+export const createDeposit = async (params, data) => {
+  try {
+    await DepositService.createDeposit(params, data)
+  } catch (error) {
+    throw error
+  }
+}
+
+// TODO: waiting BE API
+// export const getDepositDetail = async (id) => {
+//   try {
+//     await DepositService.getDepositDetail(id)
+//   } catch (error) {
+//     throw error
+//   }
+// }

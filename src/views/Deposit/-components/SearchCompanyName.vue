@@ -115,7 +115,7 @@
 <script>
 import { defineComponent, reactive, ref, onBeforeMount, watch, toRefs } from 'vue'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/deposit.enum'
-import useSearchCompany from '../composables/useSearchCompany'
+import { getCompanyList } from '../composables/useSearchCompany'
 
 const columns = [
   { title: '選択', dataIndex: 'select', key: 'select', slots: { customRender: 'action' } },
@@ -141,8 +141,6 @@ export default defineComponent({
   },
 
   setup(_, context) {
-    const { getCompanyList } = useSearchCompany()
-
     const isTableLoading = ref(false)
     const isFilterloading = ref(false)
     const companyListData = ref([])

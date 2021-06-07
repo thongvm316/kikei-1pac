@@ -136,8 +136,8 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new' })
+      // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      router.push({ name: 'deposit-new', params: { record: currentSelectedRecord.value } })
     }
 
     // const tableVal = reactive({
