@@ -9,30 +9,30 @@
       </a-button>
     </div>
 
-    <div class="list-table">
-      <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :row-key="(record) => record.id"
-        :loading="isLoading"
-        :pagination="{
-          ...pagination,
-          showTotal: showTotal
-        }"
-        :custom-row="customRow"
-        :row-selection="rowSelection"
-        size="middle"
-        @change="handleChange"
-      >
-        <!-- Name -->
-        <template #customTitle>
-          <span class="pl-32">{{ t('company.company_name') }}</span>
-        </template>
-        <template #name="{ text }">
-          <p class="pl-32">{{ text }}</p>
-        </template>
-      </a-table>
-    </div>
+    <a-table
+      id="list-table"
+      :columns="columns"
+      :data-source="dataSource"
+      :row-key="(record) => record.id"
+      :loading="isLoading"
+      :pagination="{
+        ...pagination,
+        showTotal: showTotal
+      }"
+      :custom-row="customRow"
+      :row-selection="rowSelection"
+      :scroll="{ y: height - 211 }"
+      size="middle"
+      @change="handleChange"
+    >
+      <!-- Name -->
+      <template #customTitle>
+        <span class="m-0">{{ t('company.company_name') }}</span>
+      </template>
+      <template #name="{ text }">
+        <p class="m-0">{{ text }}</p>
+      </template>
+    </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
 
@@ -82,6 +82,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
+    const height = ref(0)
 
     let tempRow = reactive([])
     const state = reactive({ selectedRowKeys: [] })
@@ -132,7 +133,14 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
     })
+
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
 
     const handleChange = async (pagination) => {
       const params = {
@@ -217,6 +225,7 @@ export default defineComponent({
       state,
       rowSelection,
       recordVisible,
+      height,
       handleDeleteRecord,
       handleEditRecord,
       customRow,

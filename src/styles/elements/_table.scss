@@ -18,6 +18,26 @@
   line-height: 18px;
 }
 
+#list-table {
+  .ant-table-tbody > tr > td {
+    padding: 23px 16px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 15px 16px;
+    line-height: 16px;
+  
+    .ant-table-column-sorters {
+      display: flex;
+    }
+  }
+  
+  .ant-table-tbody > tr > td:nth-child(2),
+  .ant-table-thead > tr > th:nth-child(2) {
+    padding-left: 32px;
+  }
+}
+
 .ant-table-placeholder {
   color: $color-grey-15;
   font-size: 20px;
