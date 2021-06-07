@@ -13,7 +13,7 @@
         </template>
         クリア
       </a-button>
-      <a-button>
+      <a-button @click="$emit('on-copy-record-deposit')">
         <template #icon>
           <span class="btn-icon">
             <copy-icon />

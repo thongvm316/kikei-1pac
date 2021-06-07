@@ -180,6 +180,7 @@
 
 <script>
 import { defineComponent, defineAsyncComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 import useDepositNewService from '../composables/useDepositNewService'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
@@ -191,6 +192,7 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
     const depositNewRef = ref()
     const isLoading = ref(false)
 
@@ -212,6 +214,9 @@ export default defineComponent({
     const isCategoryDisabled = ref(false)
     const isAdvandceCurrency = ref(false)
     const isShowCaptionCurrency = ref(false)
+
+    // copied record
+    const currentCopiedRecord = ref()
 
     const params = reactive({
       date: null,
@@ -292,8 +297,16 @@ export default defineComponent({
       // }
     }
 
+    const applyCopiedRecordToAddNewDeposit = () => {
+      console.log(store.state.deposit.recordDeposit)
+      currentCopiedRecord.value = store.state.deposit.recordDeposit
+      store.commit('deposit/CLEAR_RECORD_DEPOSIT')
+    }
+
     // fetch list data
     onBeforeMount(async () => {
+      applyCopiedRecordToAddNewDeposit()
+
       const { getCategoryList, getSubCategoryList, getBankAccountList, getGroupList } = useDepositNewService()
 
       const { result: categoryResult = [] } = await getCategoryList()

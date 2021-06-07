@@ -73,13 +73,17 @@
   </div>
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
-  <deposit-buttons-float @on-open-delete-deposit-modal="onOpenDeleteDepositModal" v-model:visible="isVisibleDepositButtonsFloat" />
+  <deposit-buttons-float
+    @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
+    @on-copy-record-deposit="onCopyRecordDeposit"
+    v-model:visible="isVisibleDepositButtonsFloat" />
   <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
 </template>
 
 <script>
 import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -106,6 +110,7 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const route = useRoute()
+    const store = useStore()
 
     const currentSelectedRecord = ref()
 
@@ -121,11 +126,18 @@ export default defineComponent({
       isVisibleDepositModal.value = true
     }
 
-    const onDeleteDepositRecord = () => {
-      deleteDeposit(currentSelectedRecord.value.id)
+    const onDeleteDepositRecord = async () => {
+      isLoadingDataTable.value = true
+      await deleteDeposit(currentSelectedRecord.value.id)
+      dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
+      isVisibleDepositModal.value = false
+      isLoadingDataTable.value = false
     }
 
-
+    const onCopyRecordDeposit = () => {
+      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      router.push({ name: 'deposit-new' })
+    }
 
     // const tableVal = reactive({
     //   indeterminateCheckAllRows: false,
@@ -255,7 +267,8 @@ export default defineComponent({
       getDataDeposit,
       onOpenDepositButtonsFloat,
       onOpenDeleteDepositModal,
-      onDeleteDepositRecord
+      onDeleteDepositRecord,
+      onCopyRecordDeposit
     }
   }
 })
