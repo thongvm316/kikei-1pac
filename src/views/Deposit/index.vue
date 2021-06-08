@@ -77,7 +77,7 @@
     v-model:disable-button="disableButton"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="$router.push({ path: `/deposit/1/edit` })"
+    @on-edit-record-deposit="onEditRecordDeposit"
     v-model:visible="isVisibleDepositButtonsFloat" />
   <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
 </template>
@@ -314,14 +314,22 @@ export default defineComponent({
       dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
       isVisibleDepositModal.value = false
       isLoadingDataTable.value = false
+      isVisibleDepositButtonsFloat.value = false
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', duration: 5, message: 'プロジェクト名 を削除しました' })
     }
 
     const onCopyRecordDeposit = () => {
-      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      store.commit('deposit/STORE_RECORD_DEPOSIT', { id: currentSelectedRecord.value?.id })
       router.push({ name: 'deposit-new' })
+    }
+
+    const onEditRecordDeposit = () => {
+      const depositId = currentSelectedRecord.value?.id
+      if (!depositId) return
+
+      router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
 
     return {
@@ -350,6 +358,7 @@ export default defineComponent({
       getDataDeposit,
       onOpenDepositButtonsFloat,
       onOpenDeleteDepositModal,
+      onEditRecordDeposit,
       onDeleteDepositRecord,
       onCopyRecordDeposit,
       exportDepositAsCsvFile
