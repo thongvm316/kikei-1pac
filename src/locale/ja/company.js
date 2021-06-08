@@ -25,5 +25,6 @@ export default {
   company_code_3: '会社コード(Slack用)',
   add_company: '新規企業追加',
   next_month_end: '月末締め翌月末払い',
-  end_of_month_after_next: '月末締め翌々月末払い'
+  end_of_month_after_next: '月末締め翌々月末払い',
+  clear: 'クリア'
 }

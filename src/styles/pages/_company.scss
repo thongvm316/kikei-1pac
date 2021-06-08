@@ -84,12 +84,13 @@
             }
           }
           
-          .ant-btn {
+          .box-action {
             position: absolute;
             bottom: 0;
+            display: flex;
             @media only screen and (max-height : 680px) {
               position: unset;
-              margin-bottom: 24px;
+              padding-bottom: 24px;
             }
           }
         }
