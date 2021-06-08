@@ -11,10 +11,17 @@
               <div class="form-select">
                 <a-select
                   v-model:value="groupValue"
+                  show-arrow
+                  :max-tag-count="0"
+                  option-label-prop="label"
+                  dropdownClassName="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.group_name')"
                   style="width: 152px"
                 >
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
                   <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
                     {{ group.name }}
                   </a-select-option>
@@ -32,10 +39,17 @@
               <div class="form-select">
                 <a-select
                   v-model:value="accountValue"
+                  show-arrow
+                  :max-tag-count="0"
+                  option-label-prop="label"
+                  dropdownClassName="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.account_name')"
                   style="width: 152px"
                 >
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
                   <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
                     {{ account.fullname }}
                   </a-select-option>
@@ -208,12 +222,13 @@ export default defineComponent({
       // accounts
       dataAccounts.value = await useAccountList()
       // groups
-      dataGroups.value = await useGroupList()
+      const { data: groups } = await getProjectStatuses()
+      dataGroups.value = groups
       // statuses
-      const statuses = await getProjectStatuses()
+      const { data: statuses } = await getProjectStatuses()
       dataStatuses.value = toStatusOptions(statuses)
       // accuracies
-      const accuracies = await getProjectAccuracies()
+      const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = toAccuracyOptions(accuracies)
     })
 

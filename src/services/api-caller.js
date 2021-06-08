@@ -40,13 +40,13 @@ axios.interceptors.response.use(
     if (error.response) {
       const { data } = error.response
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
-      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', content: errorMessage.replaceAll('.', '_') })
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', message: `errors.${errorMessage.replaceAll('.', '_')}` })
     }
 
     // clear all aut profile & global state when logout
     if (error.response && error.response.status === 401) {
       clearAllGlobalData()
-      router.push({ name: 'login' })
+      router.push('/login')
     }
 
     return Promise.reject(error)

@@ -8,7 +8,8 @@ export default {
   getLists(params = {}, data) {
     return apiCaller({
       method: 'POST',
-      url: `${RESOURCES.company}/search?page_number=${params.pageNumber}&page_size=${params.pageSize}`,
+      url: `${RESOURCES.company}/search`,
+      params,
       data
     })
   },

@@ -1,9 +1,18 @@
 import moment from 'moment'
+import { typeDepositEnums } from '@/enums/deposit.enum'
+import i18n from '@/locale'
+const { t } = i18n.global
 
 export default {
   /* ---------------------- date time format ---------------------------- */
   moment_l(value) {
-    return `${moment(value).format('DD/MM/YYYY')}`
+    if (!value) return ''
+    return `${moment(new Date(value)).format('DD/MM/YYYY')}`
+  },
+
+  moment_mm_dd(value) {
+    if (!value) return ''
+    return `${moment(new Date(value)).format('MM/YYYY')}`
   },
 
   /* ---------------------- number & price format ----------------------- */
@@ -16,7 +25,18 @@ export default {
           .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       : 0
     return floatNumberFormatted
-  }
+  },
 
-  // add more format here
+  format_bolean_text_confirmed(value) {
+    if(!value) return 'No'
+
+    return 'Yes'
+  },
+
+  format_deposit_type_name(value) {
+    const type = typeDepositEnums.filter(item => item.type === value)[0]
+    if (!type) return ''
+
+    return t(`deposit.deposit_list.${type.name}`)
+  }
 }

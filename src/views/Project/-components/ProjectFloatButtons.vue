@@ -1,10 +1,10 @@
 <template>
-  <a-modal v-model:visible="locaVisible" :closable="false" width="438px" class="deposit-buttons-float">
+  <a-modal v-model:visible="visible" :closable="false" width="500px" class="deposit-buttons-float">
     <template #footer>
       <a-button size="large" @click="$emit('on-go-to-edit-project')">
         <template #icon>
           <span class="btn-icon">
-            <!-- <edit-icon /> -->
+            <edit-icon />
           </span>
         </template>
         編集
@@ -13,18 +13,25 @@
       <a-button size="large" @click="$emit('on-copy-project')">
         <template #icon>
           <span class="btn-icon">
-            <!-- <copy-icon /> -->
+            <copy-icon />
           </span>
         </template>
         複製
       </a-button>
 
-      <a-button size="large" @click="$emit('on-go-to-deposit')">入出金明細</a-button>
+      <a-button size="large" @click="$emit('on-go-to-deposit')">
+        <template #icon>
+          <span class="btn-icon">
+            <to-deposit-icon />
+          </span>
+        </template>
+        入出金明細
+      </a-button>
 
       <a-button size="large" @click="$emit('on-confirm-delete')">
         <template #icon>
           <span class="btn-icon">
-            <!-- <delete-icon /> -->
+            <delete-icon />
           </span>
         </template>
         削除
@@ -35,16 +42,19 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-// import DeleteIcon from '@/assets/icons/ico_delete.svg'
-// import EditIcon from '@/assets/icons/ico_edit.svg'
-// import CopyIcon from '@/assets/icons/ico_copy.svg'
+import DeleteIcon from '@/assets/icons/ico_delete.svg'
+import EditIcon from '@/assets/icons/ico_edit.svg'
+import CopyIcon from '@/assets/icons/ico_copy.svg'
+import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
+
 export default defineComponent({
   name: 'ProjectFloatButtons',
 
   components: {
-    // DeleteIcon,
-    // EditIcon,
-    // CopyIcon
+    DeleteIcon,
+    EditIcon,
+    CopyIcon,
+    ToDepositIcon
   },
 
   setup() {

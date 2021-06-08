@@ -9,6 +9,7 @@ import {
   Layout,
   Collapse,
   Modal,
+  Select,
   Form,
   Input,
   InputNumber,
@@ -17,10 +18,11 @@ import {
   Breadcrumb,
   Popover,
   Menu,
-  Select,
   Radio,
-  Tooltip,
-  notification
+  Tag,
+  notification,
+  Tabs,
+  Tooltip
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -41,8 +43,10 @@ const globalComponents = (app) => {
     .use(Breadcrumb)
     .use(Popover)
     .use(Menu)
-    .use(Select)
     .use(Radio)
+    .use(Select)
+    .use(Tag)
+    .use(Tabs)
     .use(Tooltip)
 
   // Config global notification

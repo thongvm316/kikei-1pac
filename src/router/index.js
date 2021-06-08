@@ -203,7 +203,8 @@ router.beforeEach((to, _, next) => {
 
   const isRouteFree = ROUTING_FREE.indexOf(to.name) >= 0
   const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
-  if (authProfile) {
+  // eslint-disable-next-line no-extra-boolean-cast
+  if (!!authProfile) {
     // store data to state if need
     if (!store.state.auth.authProfile) {
       store.commit('auth/STORE_AUTH_PROFILE', authProfile)

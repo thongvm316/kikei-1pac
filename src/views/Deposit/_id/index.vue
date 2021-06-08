@@ -1,12 +1,19 @@
 <template>
-  <div>Deposit edit page</div>
+  <div class="deposit-edit container">
+    <deposit-form :edit="true" />
+  </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
+import DepositForm from '../-components/DepositForm.vue'
 
 export default defineComponent({
-  name: 'DepositEditPage'
+  name: 'DepositEditPage',
+
+  components: {
+    DepositForm
+  }
 })
 </script>
 

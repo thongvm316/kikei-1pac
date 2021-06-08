@@ -5,11 +5,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import ProjectForm from '../-components/ProjectForm'
-// TODO: waiting for api
-// import { getProject } from '../composables/useProject'
+import { getProject } from '../composables/useProject'
 
 export default defineComponent({
   name: 'ProjectEditPage',
@@ -20,9 +19,20 @@ export default defineComponent({
 
   setup() {
     const route = useRoute()
-    const fetchProject = () => {
+    const project = {}
+
+    const fetchProject = async () => {
       const projectId = route.params.id
-      if (projectId) return
+      if (!projectId) return
+
+      project.value = await getProject(projectId)
+      console.log(project.value)
+    }
+
+    onBeforeMount(() => { fetchProject() })
+
+    return {
+      project
     }
   }
 })

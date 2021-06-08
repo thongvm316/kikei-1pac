@@ -55,13 +55,15 @@
       </template>
 
       <template #renderProjectAccuracy="{ record }">
-        <p v-if="record.accuracyName.toUpperCase() === 'S'" class="mb-0 text-center font-bold text-additional-blue-6">
-          <a-tooltip color="#262626" :title="record.accuracyName">
+        <p
+          v-if="record.accuracyName.toUpperCase() === 'S'"
+          class="mb-0 text-center font-bold text-additional-blue-6">
+          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
         </p>
         <p v-else class="mb-0 text-center font-bold text-grey-55">
-          <a-tooltip color="#262626" :title="record.accuracyName">
+          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
         </p>
@@ -83,7 +85,7 @@
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
   />
 
-  <a-modal v-model:visible="isDeleteConfirmModalOpen" title="削除" width="380px">
+  <a-modal v-model:visible="isDeleteConfirmModalOpen" centered title="削除" width="380px">
     <template #footer>
       <p>プロジェクト名 を削除してもよろしですか？</p>
       <a-button @click="isDeleteConfirmModalOpen = false">キャンセル</a-button>
@@ -95,9 +97,8 @@
 <script>
 import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { notification } from 'ant-design-vue'
-import { exportCSVFile } from '@/helpers/export-csv-file'
-import { getProjectList, deleteProject } from './composables/useProject'
+import { useStore } from 'vuex'
+import { getProjectList, deleteProject, exportProject } from './composables/useProject'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ProjectFloatButtons from './-components/ProjectFloatButtons'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -115,6 +116,7 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n()
+    const store = useStore()
     const loading = ref(false)
     const currentPage = ref(1)
     let pagination = ref({
@@ -216,39 +218,6 @@ export default defineComponent({
       }
     }
 
-    const exportObj = reactive({
-      header: [
-        t('project.updated_date'),
-        'Project Code',
-        t('project.project_name'),
-        'Company Name',
-        t('project.type'),
-        t('project.status'),
-        t('project.accuracy_name'),
-        t('project.release_date'),
-        t('project.money'),
-        t('project.statistics_from_month'),
-        t('project.group_name'),
-        t('project.account_name')
-      ],
-      fileTitle: 'project',
-      labels: [
-        { field: 'updatedAt', formatBy: 'moment_l' },
-        'code',
-        'name',
-        'companyName',
-        'typeName',
-        'statusName',
-        'accuracyName',
-        { field: 'releaseDate', formatBy: 'moment_l' },
-        'money',
-        { field: 'statisticsFromMonth', formatBy: 'moment_l' },
-        'groupName',
-        'accountName'
-      ],
-      items: []
-    })
-
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
       const { projectList, pageData } = await getProjectList(pagination.value, loading, data)
@@ -258,8 +227,7 @@ export default defineComponent({
 
     const exportProjectAsCsvFile = async () => {
       const { projectList } = await getProjectList({ pageSize: 99999, pageNumber: 1 }, loading)
-      exportObj.items = projectList
-      exportCSVFile(exportObj)
+      exportProject(projectList)
     }
 
     const deleteProjectCaller = async () => {
@@ -277,13 +245,10 @@ export default defineComponent({
       // clear selected value
       targetProjectSelected.value = {}
       // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5 })
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', duration: 5, message: 'プロジェクト名 を削除しました' })
     }
 
-    onBeforeMount(() => {
-      fetchProjectDatas()
-    })
-
+    onBeforeMount(() => { fetchProjectDatas() })
     watch(currentPage, fetchProjectDatas)
 
     return {

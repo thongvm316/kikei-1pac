@@ -16,16 +16,10 @@
   margin: 0;
 }
 
-.ant-table-selection-column {
-  span {
-    display: none;
-  }
-}
-
 .ant-layout {
   position: relative;
   max-height: 100vh;
-  
+
   .box-btn {
     width: auto;
     margin: 0 auto;
@@ -39,7 +33,7 @@
     transform: translateX(-50%);
     box-shadow: 2px 2px 24px rgba(50, 50, 71, 0.25);
     border-radius: 2px;
-    
+
     .btn-edit {
       margin-right: 12px;
     }
