@@ -111,8 +111,6 @@ import { typeDepositEnums } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDepositService'
 
-const typeDepositList = typeDepositEnums.map(item => ({ value: item.type, label: item.name }))
-
 export default defineComponent({
   name: 'SearchDepositModal',
 
@@ -126,6 +124,8 @@ export default defineComponent({
     const store = useStore()
     const route = useRoute()
     const { t, locale } = useI18n()
+
+    const typeDepositList = typeDepositEnums.map(item => ({ value: item.type, label: t(`deposit.deposit_list.${item.name}`) }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
     const categoryList = ref([])
@@ -176,7 +176,7 @@ export default defineComponent({
       if (!options) return
 
       return options.map(item => {
-        return { value: item.id, label: item.name  }
+        return { value: item.id, label: item.name }
       })
     }
 
