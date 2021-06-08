@@ -229,9 +229,7 @@ export default defineComponent({
   },
 
   props: {
-    edit: Boolean,
-    // eslint-disable-next-line vue/require-default-prop
-    recordEdit: Object
+    edit: Boolean
   },
 
   setup(props) {
@@ -278,7 +276,7 @@ export default defineComponent({
         withdrawalBankAccountId: undefined,
         withdrawalMoney: 0,
         depositBankAccountId: undefined,
-        depositMoney: 90,
+        depositMoney: 0,
         tag: [],
         memo: '',
         numberOfDividedMonth: 0,
@@ -293,7 +291,7 @@ export default defineComponent({
     })
 
     // form validator rules
-    const depositNewFormRules = {
+    const depositNewFormRules = ref({
       date: [{ required: true, message: 'Please select date', trigger: 'change', type: 'object' }],
       type: [{ required: true, message: 'Please select deposit type', trigger: 'change', type: 'number' }],
       categoryId: [{ required: true, message: 'Please input category', trigger: 'change', type: 'number' }],
@@ -314,7 +312,7 @@ export default defineComponent({
       ],
       depositMoney: [{ required: true, message: 'Please select withdrawal money', trigger: 'change', type: 'number' }],
       tag: [{ required: true, message: 'Please input tag', trigger: 'blur', type: 'array' }]
-    }
+    })
 
     /* --------------------- methods ------------------- */
     const formatDateField = (obj = {}) => {
@@ -379,10 +377,12 @@ export default defineComponent({
               : null,
             tag: params.data.tag.toString(),
             // TODO: need fix width depositBankAccountId undefined
-            depositBankAccountId: isAdvandceCurrency.value ? params.data.depositBankAccountId : 1
+            depositBankAccountId: isAdvandceCurrency.value ? params.data.depositBankAccountId : 1,
+            depositMoney: isAdvandceCurrency.value ? params.data.depositMoney : 1
           }
 
           await createDeposit(depositDataRequest)
+          depositNewRef.value.resetFields()
           message.success('Create deposit is success')
         }
       } catch (e) {
@@ -400,6 +400,8 @@ export default defineComponent({
     }
 
     const fetchBankAccounts = async (id) => {
+      if (!id) return
+
       const { result: bankAccountResult = [] } = await getBankAccounts({ groupId: id })
       bankAccountList.value = bankAccountResult?.data || []
     }
@@ -462,6 +464,34 @@ export default defineComponent({
         fetchBankAccounts(groupId)
       }
     )
+
+    watch(isAdvandceCurrency, () => {
+      if (isAdvandceCurrency.value) {
+        depositNewFormRules.value.categoryId = []
+        depositNewFormRules.value.subcategoryId = []
+      } else {
+        depositNewFormRules.value.categoryId = [
+          { required: true, message: 'Please input category', trigger: 'change', type: 'number' }
+        ]
+        depositNewFormRules.value.subcategoryId = [
+          { required: true, message: 'Please input sub category', trigger: ['change', 'blur'], type: 'number' }
+        ]
+      }
+    })
+
+    watch(isCategoryDisabled, () => {
+      if (isCategoryDisabled.value) {
+        depositNewFormRules.value.depositBankAccountId = []
+        depositNewFormRules.value.depositMoney = []
+      } else {
+        depositNewFormRules.value.depositBankAccountId = [
+          { required: true, message: 'Please input bank account', trigger: 'change', type: 'number' }
+        ]
+        depositNewFormRules.value.depositMoney = [
+          { required: true, message: 'Please select withdrawal money', trigger: 'change', type: 'number' }
+        ]
+      }
+    })
 
     return {
       depositNewRef,
@@ -564,7 +594,9 @@ $field-max-width: 500px;
 
   .ant-form-item-label > label {
     color: $color-grey-15;
+  }
 
+  .ant-form-item-label > label.ant-form-item-required {
     &:after {
       display: inline-block;
       margin-left: 4px;
