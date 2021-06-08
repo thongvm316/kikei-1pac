@@ -1,4 +1,11 @@
 .ant-notification-notice {
+  line-height: 1;
+
+  .ant-notification-notice-message {
+    line-height: 1;
+    margin-bottom: 0;
+  }
+
   &.success {
     background-color: $color-grey-26;
 

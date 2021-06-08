@@ -1,28 +1,39 @@
 <template>
   <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
+    <!-- companyID -->
     <a-form-item name="companyId" label="クライアント名">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
     </a-form-item>
+    <!-- companyID -->
 
+    <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input value="" disabled style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input :value="projectParams.code" disabled style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
     </a-form-item>
+    <!-- code -->
 
+    <!-- name -->
     <a-form-item name="name" label="プロジェクト名">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- name -->
 
+    <!-- clientInCharge -->
     <a-form-item name="clientInCharge" label="顧客担当">
       <a-input v-model:value="projectParams.clientInCharge" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- clientInCharge -->
 
+    <!-- type -->
     <a-form-item name="type" label="区分">
       <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
     </a-form-item>
+    <!-- type -->
 
+    <!-- status -->
     <a-form-item name="statusId" label="ステータス">
       <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
@@ -30,7 +41,9 @@
         </a-select-option>
       </a-select>
     </a-form-item>
+    <!-- status -->
 
+    <!-- accuracy -->
     <a-form-item name="accuracyId" label="受注確度">
       <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
@@ -38,11 +51,15 @@
         </a-select-option>
       </a-select>
     </a-form-item>
+    <!-- accuracy -->
 
+    <!-- release date -->
     <a-form-item name="releaseDate" label="リリース日（予定）">
       <a-date-picker v-model:value="projectParams.releaseDate" format="YYYY/MM/DD" placeholder="YYYY/MM/DD" />
     </a-form-item>
+    <!-- release date -->
 
+    <!-- statistics month -->
     <a-form-item v-if="projectParams.type === 0" name="statisticsMonth" label="計上予定月">
       <a-month-picker
         v-model:value="projectParams.statisticsMonth"
@@ -67,7 +84,9 @@
         </template>
       </a-range-picker>
     </a-form-item>
+    <!-- statistics month -->
 
+    <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
@@ -75,11 +94,15 @@
         </a-select-option>
       </a-select>
     </a-form-item>
+    <!-- groupID -->
 
+    <!-- director -->
     <a-form-item name="director" label="ディレクタ（予定）">
       <a-input v-model:value="projectParams.director" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- director -->
 
+    <!-- accountID -->
     <a-form-item name="accountId" label="営業担当">
       <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
@@ -87,11 +110,15 @@
         </a-select-option>
       </a-select>
     </a-form-item>
+    <!-- accountID -->
 
+    <!-- money -->
     <a-form-item name="money" label="金額">
       <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- money -->
 
+    <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
       <div class="outsource">
         <template v-for="(order, index) in companyOutsources" :key="order.key">
@@ -100,7 +127,7 @@
               <p>会社名</p>
               <div v-if="order.companyId" class="outsource__company-info">
                 <p class="text-grey-500">{{ order.companyName }}</p>
-                <p @click="removeCompany(order)">削除</p>
+                <p @click="removeCompanyOnSearchForm(order)">削除</p>
               </div>
 
               <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
@@ -126,14 +153,19 @@
         <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (VND)</p>
       </div>
     </a-form-item>
+    <!-- projectOrders -->
 
+    <!-- tag  -->
     <a-form-item name="tag" label="タグ">
       <a-input v-model:value="projectParams.tag" placeholder="タグを入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- tag  -->
 
+    <!-- memo -->
     <a-form-item name="memo" label="メモ">
       <a-input v-model:value="projectParams.memo" placeholder="入力してください" style="width: 300px" />
     </a-form-item>
+    <!-- memo -->
 
     <a-form-item>
       <a-button @click="$router.go(-1)">キャンセル</a-button>
@@ -141,7 +173,7 @@
     </a-form-item>
   </a-form>
 
-  <project-company-form v-model:visible="isCompanySearchFormOpen" @select-company="selectCompany" />
+  <project-company-form v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
 </template>
 
 <script>
@@ -167,16 +199,17 @@ export default defineComponent({
   },
 
   props: {
-    edit: Boolean
+    project: Object
   },
 
   setup(props) {
-    const edit = props.edit
-
+    const projectProp = props.project
     const prjectFormRef = ref()
-    const projectParams = reactive({
+
+    const projectParams = ref({
       companyId: null,
       name: '',
+      code: '',
       clientInCharge: '',
       type: PROJECT_TYPES[0].value,
       statusId: null,
@@ -198,7 +231,7 @@ export default defineComponent({
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    const companyOutsources = reactive([])
+    let companyOutsources = reactive([])
 
     const dataTypes = reactive(PROJECT_TYPES)
     const dataAccounts = ref([])
@@ -250,9 +283,9 @@ export default defineComponent({
       }
     }
 
-    const selectCompany = (payload) => {
+    const selectCompanyOnSearchForm = (payload) => {
       if (companyTargetSearch.value === 'owner') {
-        projectParams.companyId = parseInt(payload.id)
+        projectParams.value.companyId = parseInt(payload.id)
         companyOwnerData.value = payload
       } else {
         const order = companyOutsources[outsouringCompanyTarget.value]
@@ -263,12 +296,13 @@ export default defineComponent({
       }
     }
 
-    const removeCompany = (order) => {
+    const removeCompanyOnSearchForm = (order) => {
       order.companyId = ''
       order.companyName = ''
     }
     /* --------------------- ./handle search company ------------------- */
 
+    /* --------------------- handle project orders --------------------- */
     const dynamicBaseOnAccuracy = () => {
       if (highestAccuracyRequired.value) {
         projectFormRules.value.tag = [{ required: true, message: 'Please input tag', trigger: 'change' }]
@@ -285,19 +319,38 @@ export default defineComponent({
     })
 
     const highestAccuracyRequired = computed(() => {
-      if (!projectParams.accuracyId || dataAccuracies.value.length <= 0) return false
-      const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.accuracyId)[0]
+      if (!projectParams.value.accuracyId || dataAccuracies.value.length <= 0) return false
+      const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.value.accuracyId)[0]
       if (!accuracy) return false
       // TODO: hard check more
       return accuracy.code === 'S'
     })
+    /* --------------------- ./handle project orders --------------------- */
 
-    /* -------------------- init data if edit ------------------------- */
-    // TODO: waiting for API
-    // const initProjectData = () => {
+    /* -------------------- init data when project props ------------------------- */
+    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
 
-    // }
-    /* -------------------- ./init data if edit ------------------------- */
+    const initProjectPropData = () => {
+      if (!projectProp.value) return
+      const { value: projectPropValue } = projectProp
+      projectParams.value = {
+        ...projectParams.value,
+        ...deepCopy(projectPropValue)
+      }
+
+      // init date month value
+      projectParams.value.releaseDate = toDateFormat(projectPropValue.releaseDate, 'YYYY/MM/DD')
+      projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
+      projectParams.value.statisticsMonths = [toDateFormat(projectPropValue.statisticsFromMonth), toDateFormat(projectPropValue.statisticsEndMonth)]
+
+      // init dummy project orders
+      if (projectParams.value.adProjectOrders) {
+        for(let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
+          companyOutsources.push(deepCopy(projectParams.value.adProjectOrders[i]))
+        }
+      }
+    }
+    /* -------------------- ./init data when project props ------------------------- */
 
     /* ------------------- api intergration --------------------------- */
     const projectOutsouringOrders = () => {
@@ -316,17 +369,18 @@ export default defineComponent({
     }
 
     const projectDataRequest = computed(() => {
+      const { value: projectParamsValue } = projectParams
       let dataRequest = {
-        ...projectParams,
-        releaseDate: projectParams.releaseDate ? moment(projectParams.releaseDate).format('YYYY-MM-DD') : null,
+        ...projectParamsValue,
+        releaseDate: projectParamsValue.releaseDate ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD') : null,
         statisticsFromMonth:
-          projectParams.type === 0
-            ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParams.statisticsMonths[0]).format('YYYY-MM-DD'),
+          projectParamsValue.type === 0
+            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
+            : moment(projectParamsValue.statisticsMonths[0]).format('YYYY-MM-DD'),
         statisticsToMonth:
-          projectParams.type === 0
-            ? moment(projectParams.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParams.statisticsMonths[1]).format('YYYY-MM-DD'),
+          projectParamsValue.type === 0
+            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
+            : moment(projectParamsValue.statisticsMonths[1]).format('YYYY-MM-DD'),
         adProjectOrders: projectOutsouringOrders()
       }
 
@@ -350,15 +404,21 @@ export default defineComponent({
 
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
     onBeforeMount(async () => {
+      /* ------------------- get all datas --------------------------- */
       dataAccounts.value = await useAccountList()
       // groups
-      dataGroups.value = await useGroupList()
+      const { data: groups } = await useGroupList()
+      dataGroups.value = groups
       // statuses
-      const statuses = await getProjectStatuses()
+      const { data: statuses } = await getProjectStatuses()
       dataStatuses.value = statuses
       // accuracies
-      const accuracies = await getProjectAccuracies()
+      const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = accuracies
+      /* ------------------- ./get all datas --------------------------- */
+
+      // init project params
+      initProjectPropData()
     })
 
     return {
@@ -378,8 +438,8 @@ export default defineComponent({
       openCompanySearchForm,
       addDummyOutsourceData,
       removeOutsourceData,
-      removeCompany,
-      selectCompany,
+      removeCompanyOnSearchForm,
+      selectCompanyOnSearchForm,
       onSubmit
     }
   }
