@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: auto, y: 610 }"
+    :scroll="{ y: 610 }"
     @expand="onClickExpandRowButton"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
