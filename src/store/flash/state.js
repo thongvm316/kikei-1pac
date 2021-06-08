@@ -1,9 +1,9 @@
 const state = {
   message: {
     variant: 'open',
-    content: '',
-    top: '48px',
-    duration: 2
+    message: '',
+    placement: 'bottomLeft',
+    duration: 3
   }
 }
 
