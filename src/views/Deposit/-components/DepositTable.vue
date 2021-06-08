@@ -93,7 +93,6 @@ export default defineComponent({
         onClick: (event) => {
           currentRowClick.value = record.key
           emit('on-open-deposit-buttons-float', record)
-          console.log(currentRowClick.value)
         }
       }
     }
@@ -141,6 +140,10 @@ export default defineComponent({
 
   tr, td {
     white-space: nowrap;
+  }
+
+  .ant-table-tbody > tr.ant-table-row-selected td {
+    background-color: $color-grey-100 !important;
   }
 
   table tbody {
