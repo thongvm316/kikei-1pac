@@ -131,8 +131,8 @@ export default defineComponent({
     const categoryList = ref([])
     const subCategoryList = ref([])
     const confirmedList = ref([
-      { value: 1, label: 'Yes' },
-      { value: 2, label: 'No' }
+      { value: true, label: 'Yes' },
+      { value: false, label: 'No' }
     ])
 
     const state = reactive({
@@ -193,7 +193,7 @@ export default defineComponent({
       categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       state.checkedCategotyList = [categoryList.value[0].value]
 
-      const dataSubCategory = await getSubCategory({ categoryId: 8 })
+      const dataSubCategory = await getSubCategory()
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       state.checkedSubCategotyList = [subCategoryList.value[0].value]
     })
