@@ -38,8 +38,11 @@ axios.interceptors.response.use(
 
   function (error) {
     if (error.response) {
+      error.response = deepCopy(humps.camelizeKeys(error.response))
       const { data } = error.response
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
+      // clear flash message in store first
+      store.commit('auth/CLEAR_AUTH_PROFILE')
       store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', message: `errors.${errorMessage.replaceAll('.', '_')}` })
     }
 
