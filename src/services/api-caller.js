@@ -40,7 +40,10 @@ axios.interceptors.response.use(
     if (error.response) {
       const { data } = error.response
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
-      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', message: `errors.${errorMessage.replaceAll('.', '_')}` })
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'error',
+        message: `errors.${errorMessage.replaceAll('.', '_')}`
+      })
     }
 
     // clear all aut profile & global state when logout

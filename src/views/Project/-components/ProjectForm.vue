@@ -341,11 +341,14 @@ export default defineComponent({
       // init date month value
       projectParams.value.releaseDate = toDateFormat(projectPropValue.releaseDate, 'YYYY/MM/DD')
       projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
-      projectParams.value.statisticsMonths = [toDateFormat(projectPropValue.statisticsFromMonth), toDateFormat(projectPropValue.statisticsEndMonth)]
+      projectParams.value.statisticsMonths = [
+        toDateFormat(projectPropValue.statisticsFromMonth),
+        toDateFormat(projectPropValue.statisticsEndMonth)
+      ]
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
-        for(let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
+        for (let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
           companyOutsources.push(deepCopy(projectParams.value.adProjectOrders[i]))
         }
       }
@@ -372,7 +375,9 @@ export default defineComponent({
       const { value: projectParamsValue } = projectParams
       let dataRequest = {
         ...projectParamsValue,
-        releaseDate: projectParamsValue.releaseDate ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD') : null,
+        releaseDate: projectParamsValue.releaseDate
+          ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD')
+          : null,
         statisticsFromMonth:
           projectParamsValue.type === 0
             ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')

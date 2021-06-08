@@ -55,9 +55,7 @@
       </template>
 
       <template #renderProjectAccuracy="{ record }">
-        <p
-          v-if="record.accuracyName.toUpperCase() === 'S'"
-          class="mb-0 text-center font-bold text-additional-blue-6">
+        <p v-if="record.accuracyName.toUpperCase() === 'S'" class="mb-0 text-center font-bold text-additional-blue-6">
           <a-tooltip color="#FFFFFF" :title="record.accuracyName">
             {{ record.accuracyName }}
           </a-tooltip>
@@ -245,10 +243,16 @@ export default defineComponent({
       // clear selected value
       targetProjectSelected.value = {}
       // show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', duration: 5, message: 'プロジェクト名 を削除しました' })
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: 'プロジェクト名 を削除しました'
+      })
     }
 
-    onBeforeMount(() => { fetchProjectDatas() })
+    onBeforeMount(() => {
+      fetchProjectDatas()
+    })
     watch(currentPage, fetchProjectDatas)
 
     return {

@@ -68,7 +68,7 @@ export const getProject = async (projectId) => {
   try {
     const { data: response } = await ProjectService.getProject(projectId)
     return response?.result?.data || {}
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }

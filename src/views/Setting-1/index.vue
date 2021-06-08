@@ -26,8 +26,10 @@
                 <label class="label-input">
                   {{ $t('company.division') }}
                 </label>
-                <a-checkbox-group v-model:value="filter.divisions">
-                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                <a-checkbox-group v-model:value="filter.division">
+                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                    $t(`company.${item.value}`)
+                  }}</a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
@@ -137,7 +139,7 @@ export default defineComponent({
 
     const initialState = {
       key_search: '',
-      divisions: [],
+      division: [],
       country_id: [],
       currency_id: []
     }
@@ -201,7 +203,7 @@ export default defineComponent({
 
     const handleClear = async () => {
       Object.assign(filter, initialState)
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await fetchList({ pageNumber: 1, pageSize: 30 })
     }
 
     const handleChange = async (pagination) => {

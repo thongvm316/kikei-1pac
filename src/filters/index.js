@@ -28,13 +28,13 @@ export default {
   },
 
   format_bolean_text_confirmed(value) {
-    if(!value) return 'No'
+    if (!value) return 'No'
 
     return 'Yes'
   },
 
   format_deposit_type_name(value) {
-    const type = typeDepositEnums.filter(item => item.type === value)[0]
+    const type = typeDepositEnums.filter((item) => item.type === value)[0]
     if (!type) return ''
 
     return t(`deposit.deposit_list.${type.name}`)

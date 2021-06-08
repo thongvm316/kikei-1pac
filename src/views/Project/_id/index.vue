@@ -29,7 +29,9 @@ export default defineComponent({
       console.log(project.value)
     }
 
-    onBeforeMount(() => { fetchProject() })
+    onBeforeMount(() => {
+      fetchProject()
+    })
 
     return {
       project

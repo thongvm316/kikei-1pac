@@ -12,22 +12,22 @@ export const DIVISION = [
 export const COUNTRY = [
   {
     id: 1,
-    value: 'Japan'
+    value: 'Vietnam'
   },
   {
     id: 2,
-    value: 'Vietnam'
+    value: 'Japan'
   }
 ]
 
 export const CURRENCY = [
   {
     id: 1,
-    value: 'JPY'
+    value: 'VND'
   },
   {
     id: 2,
-    value: 'VND'
+    value: 'JPY'
   }
 ]
 

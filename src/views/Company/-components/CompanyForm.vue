@@ -36,7 +36,9 @@
 
             <div class="form-input">
               <a-checkbox-group :value="field.value" @change="handleChange">
-                <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                  $t(`company.${item.value}`)
+                }}</a-checkbox>
               </a-checkbox-group>
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.classification')" class="errors">

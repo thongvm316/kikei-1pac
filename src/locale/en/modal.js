@@ -1,6 +1,6 @@
 export default {
-  title: '',
+  title: 'Delete',
   cancel: 'Cancel',
   delete: 'Delete',
-  message: ''
+  message_en: 'Do you want to delete'
 }
