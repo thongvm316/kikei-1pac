@@ -28,11 +28,11 @@
         v-model:value="searchKeyMultipleSelect"
         show-arrow
         :max-tag-count="1"
+        option-label-prop="label"
+        dropdownClassName="multiple-select-custom"
         mode="multiple"
         placeholder="Select a bank"
         style="width: 200px"
-        option-label-prop="label"
-        dropdownClassName="multiple-select-custom"
         :defaultActiveFirstOption="false"
         @change="onHandleChangeBankAcountSelect">
         <template #menuItemSelectedIcon>
@@ -85,6 +85,7 @@
 import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 import { notification } from 'ant-design-vue'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -114,46 +115,9 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const { t } = useI18n()
+    const store = useStore()
 
     const currentSelectedRecord = ref()
-
-    const onOpenDepositButtonsFloat = (record) => {
-      if (record.confirmed) return
-
-      currentSelectedRecord.value = record
-      isVisibleDepositButtonsFloat.value = true
-    }
-
-    const onOpenDeleteDepositModal = () => {
-      isVisibleDepositButtonsFloat.value = false
-      isVisibleDepositModal.value = true
-    }
-
-    const onDeleteDepositRecord = async () => {
-      isLoadingDataTable.value = true
-      await deleteDeposit(currentSelectedRecord.value.id)
-      dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
-      isVisibleDepositModal.value = false
-      isLoadingDataTable.value = false
-
-      // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
-    }
-
-    const onCopyRecordDeposit = () => {
-      // store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new', params: { depositState: currentSelectedRecord.value } })
-    }
-
-    // const tableVal = reactive({
-    //   indeterminateCheckAllRows: false,
-    //   checkAllRowTable: false,
-    //   currentSelectedRowKeys: [],
-    //   dataDeposit: [],
-    //   isLoadingDataTable: true,
-    //   expandedRowKeys: [],
-    //   expandIconColumnIndex: null
-    // })
 
     const isVisibleDepositButtonsFloat = ref()
     const isVisibleDepositModal = ref()
@@ -173,6 +137,8 @@ export default defineComponent({
     const totalRecords = ref()
     const expandIconColumnIndex = ref()
 
+    const currentPageNumber = ref()
+
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
       const keyRowList = dataDeposit.value.filter(item => !item.confirmed)
@@ -186,17 +152,52 @@ export default defineComponent({
         let typeName
         typeDepositEnums.forEach(type => (type.type === item.type) && (typeName = type.name))
 
+        const typeNameBank = (depositMoney, withdrawMoney) => {
+          if (depositMoney > withdrawMoney) {
+            return 'type_deposit_sales'
+          } else if (depositMoney < withdrawMoney) {
+            return 'type_deposit_payment'
+          } else {
+            return 'type_none'
+          }
+        }
+
+        const depositBank = (depositMoney, withdrawMoney) => {
+          if (depositMoney > withdrawMoney) {
+            return depositMoney
+          } else if (depositMoney < withdrawMoney) {
+            return withdrawMoney
+          } else {
+            return '-'
+          }
+        }
+
+        const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
+          if (type === 10) {
+            return depositMoney
+          } else if (type === 20) {
+            return withdrawMoney
+          } else if (type === 30) {
+            return depositMoney > 0 ? depositMoney : withdrawMoney
+          } else {
+            return depositMoney > 0 ? depositMoney : `- ${withdrawMoney}`
+          }
+        }
+
         return Object.assign(item,
           {
             key: item.id,
             children: item.bankAccounts ? item.bankAccounts.map(
               bank => Object.assign(bank,
-                { type: 10 },
+                { date: null },
+                { statisticsMonth: null },
+                { class: typeNameBank(bank.deposit, bank.withdrawal) },
                 { key: item.id },
                 { purpose: `${bank.name} (${bank.currency})` },
-                { typeName }))
-                : [],
-            deposit: '100000',
+                { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
+                { deposit: depositBank(bank.deposit, bank.withdrawal) }))
+              : [],
+            deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
             typeName
           })
       })
@@ -235,7 +236,7 @@ export default defineComponent({
     const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
-      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId })
+      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId }, { pageNumber: currentPageNumber.value })
       expandIconColumnIndex.value = 10 // TODO: columns count
       bankAccountId.length ? expandedRowKeys.value = dataDeposit.value.map(item => item.key) : expandedRowKeys.value = []
     }, 800)
@@ -248,7 +249,8 @@ export default defineComponent({
     }
 
     const handleChangePage = async (pageNumber) => {
-      await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
+      const res = await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value }, { pageNumber })
+      currentPageNumber.value = pageNumber
     }
 
     const exportObj = reactive({
@@ -281,7 +283,6 @@ export default defineComponent({
     })
 
     const exportDepositAsCsvFile = async () => {
-      // console.log('csv')
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
         pageSize: 99999,
@@ -289,14 +290,36 @@ export default defineComponent({
         bankAccountId: currentBankAccountList.value
       }
       const { data } = await getDeposit(dataRequest)
-      // if (data.result.data.includes[0].bankAccounts) {
-      //   console.log('have ');
-      // } else {
-      //   console.log('deo');
-      // }
-      console.log(data.result.data)
       exportObj.items = data.result.data
       exportCSVFile(exportObj)
+    }
+
+    const onOpenDepositButtonsFloat = (record) => {
+      if (record.confirmed) return
+
+      currentSelectedRecord.value = record
+      isVisibleDepositButtonsFloat.value = true
+    }
+
+    const onOpenDeleteDepositModal = () => {
+      isVisibleDepositButtonsFloat.value = false
+      isVisibleDepositModal.value = true
+    }
+
+    const onDeleteDepositRecord = async () => {
+      isLoadingDataTable.value = true
+      await deleteDeposit(currentSelectedRecord.value.id)
+      dataDeposit.value = dataDeposit.value.filter(item => item.id !== currentSelectedRecord.value.id)
+      isVisibleDepositModal.value = false
+      isLoadingDataTable.value = false
+
+      // show notification
+      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
+    }
+
+    const onCopyRecordDeposit = () => {
+      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
+      router.push({ name: 'deposit-new' })
     }
 
     return {
@@ -315,6 +338,7 @@ export default defineComponent({
       expandIconColumnIndex,
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
+      currentPageNumber,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

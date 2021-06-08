@@ -93,7 +93,7 @@
               :disabled="record.disabled"
               type="primary"
               class="table-deposit__select-btn"
-              @click="handleSelectCompany(record.name)"
+              @click="handleSelectCompany(record)"
             >
               確定
             </a-button>
@@ -137,6 +137,10 @@ export default defineComponent({
     companyName: {
       type: String,
       required: true
+    },
+    subcategoryId: {
+      type: Number,
+      required: true
     }
   },
 
@@ -171,8 +175,9 @@ export default defineComponent({
     }
 
     // update state in parent
-    const handleSelectCompany = (name) => {
-      context.emit('update:companyName', name)
+    const handleSelectCompany = (record) => {
+      context.emit('update:companyName', record.name)
+      context.emit('update:subcategoryId', record.id)
       context.emit('update:visible', false)
     }
 

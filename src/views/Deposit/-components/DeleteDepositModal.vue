@@ -1,6 +1,7 @@
 <template>
   <a-modal
     v-model:visible="visible"
+    centered
     title="削除"
     width="380px">
     <template #footer>
