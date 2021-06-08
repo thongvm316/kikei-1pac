@@ -74,6 +74,7 @@
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
   <deposit-buttons-float
+    v-model:disable-button="disableButton"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
     @on-edit-record-deposit="$router.push({ path: `/deposit/1/edit` })"
@@ -82,11 +83,10 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, toRef } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { notification } from 'ant-design-vue'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -116,6 +116,8 @@ export default defineComponent({
     const route = useRoute()
     const { t } = useI18n()
     const store = useStore()
+
+    const disableButton = ref()
 
     const currentSelectedRecord = ref()
 
@@ -295,14 +297,14 @@ export default defineComponent({
     }
 
     const onOpenDepositButtonsFloat = (record) => {
-      if (record.confirmed) return
-
       currentSelectedRecord.value = record
+      disableButton.value = record.confirmed
       isVisibleDepositButtonsFloat.value = true
     }
 
     const onOpenDeleteDepositModal = () => {
-      isVisibleDepositButtonsFloat.value = false
+      if (currentSelectedRecord.value.confirmed) return
+
       isVisibleDepositModal.value = true
     }
 
@@ -314,7 +316,7 @@ export default defineComponent({
       isLoadingDataTable.value = false
 
       // show notification
-      notification.open({ message: 'プロジェクト名 を削除しました', placement: 'bottomLeft', duration: 5, class: 'error' });
+      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', duration: 5, message: 'プロジェクト名 を削除しました' })
     }
 
     const onCopyRecordDeposit = () => {
@@ -339,6 +341,7 @@ export default defineComponent({
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
       currentPageNumber,
+      disableButton,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

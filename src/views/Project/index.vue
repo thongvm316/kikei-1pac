@@ -231,8 +231,6 @@ export default defineComponent({
     }
 
     const deleteProjectCaller = async () => {
-      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', duration: 5, message: 'プロジェクト名 を削除しました' })
-      return
       if (!targetProjectSelected.value || (targetProjectSelected.value && !targetProjectSelected.value.id)) return
       await deleteProject(targetProjectSelected.value.id)
 
