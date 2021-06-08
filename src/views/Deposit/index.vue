@@ -237,7 +237,7 @@ export default defineComponent({
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
       await getDataDeposit({ groupId: currentActiveIdGroup.value, bankAccountId }, { pageNumber: currentPageNumber.value })
-      expandIconColumnIndex.value = 10 // TODO: columns count
+      expandIconColumnIndex.value = 9 // TODO: columns count
       bankAccountId.length ? expandedRowKeys.value = dataDeposit.value.map(item => item.key) : expandedRowKeys.value = []
     }, 800)
 

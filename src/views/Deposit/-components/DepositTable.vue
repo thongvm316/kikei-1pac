@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ y: 610 }"
+    :scroll="{x: 1000, y: 610 }"
     @expand="onClickExpandRowButton"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
@@ -57,8 +57,7 @@ const columnsDeposit = [
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
   { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
   { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance' } },
-  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' },
-  { title: '', align: 'left', width: '48px' }
+  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' }
 ]
 
 export default defineComponent({
@@ -138,7 +137,7 @@ export default defineComponent({
     display: none;
   }
 
-  tr, td {
+  td {
     white-space: nowrap;
   }
 
@@ -157,6 +156,17 @@ export default defineComponent({
 
     tr.is-clicked-row.ant-table-row-level-0 td {
       background-color: $color-primary-1 !important;
+    }
+
+    tr td:last-child {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+
+      .ant-table-row-expand-icon {
+        margin-right: 0;
+        margin-left: 16px;
+      }
     }
   }
 
