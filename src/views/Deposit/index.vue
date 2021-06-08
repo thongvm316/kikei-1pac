@@ -189,8 +189,8 @@ export default defineComponent({
             key: item.id,
             children: item.bankAccounts ? item.bankAccounts.map(
               bank => Object.assign(bank,
-                {updatedAt: null},
-                {statictisMonth: null},
+                { date: null },
+                { statisticsMonth: null },
                 { class: typeNameBank(bank.deposit, bank.withdrawal) },
                 { key: item.id },
                 { purpose: `${bank.name} (${bank.currency})` },

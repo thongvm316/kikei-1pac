@@ -20,9 +20,9 @@
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false"
   >
-    <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.updatedAt) }}</template>
+    <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
-    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.statictisMonth) }}</template>
+    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.statisticsMonth) }}</template>
 
     <template #typeName="{ record }">
       <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
