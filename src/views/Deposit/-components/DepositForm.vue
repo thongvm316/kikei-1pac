@@ -343,6 +343,8 @@ export default defineComponent({
       isOpenModalCompany.value = true
     }
 
+    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
+
     const convertDataToForm = (obj = {}) => {
       const {
         type,
@@ -354,11 +356,17 @@ export default defineComponent({
         statisticsMonth,
         repeatedExpiredDate,
         tags,
+        withdrawalBankAccountId,
+        withdrawalMoney,
+        depositBankAccountId,
+        depositMoney,
         ...restData
       } = obj
       const subcategoryKind = adCategory?.subcategoryKind
 
+      // select sub category
       let subcategoryId = undefined
+
       if (type !== 40) {
         switch (subcategoryKind) {
           case 10:
@@ -377,19 +385,58 @@ export default defineComponent({
         }
       }
 
+      // set banks params
+      let _withdrawalBankAccountId = undefined
+      let _withdrawalMoney = 0
+      let _depositBankAccountId = undefined
+      let _depositMoney = 0
+
+      switch (type) {
+        case 10:
+          _withdrawalBankAccountId = depositBankAccountId
+          _withdrawalMoney = depositMoney
+          _depositBankAccountId = undefined
+          _depositMoney = 0
+          break
+        case 20:
+          _withdrawalBankAccountId = withdrawalBankAccountId
+          _withdrawalMoney = withdrawalMoney
+          _depositBankAccountId = undefined
+          _depositMoney = 0
+          break
+        case 30:
+          _withdrawalBankAccountId = withdrawalBankAccountId
+          _withdrawalMoney = withdrawalMoney
+          _depositBankAccountId = depositBankAccountId
+          _depositMoney = depositMoney
+          break
+        case 40:
+          _withdrawalBankAccountId = withdrawalBankAccountId ? withdrawalBankAccountId : depositBankAccountId
+          _withdrawalMoney = withdrawalBankAccountId ? withdrawalMoney : depositMoney
+          _depositBankAccountId = undefined
+          _depositMoney = 0
+          break
+      }
+
       return {
         ...restData,
         type,
         categoryId: type === 40 ? undefined : adCategory?.id,
         subcategoryId: subcategoryId,
-        date: date ? moment(date).format('YYYY-MM-DD') : null,
-        statisticsMonth: statisticsMonth ? moment(statisticsMonth).format('YYYY-MM-DD') : null,
-        repeatedExpiredDate: repeatedExpiredDate ? moment(repeatedExpiredDate).format('YYYY-MM-DD') : null,
-        tags: tags.filter(Boolean)
+        date: date ? toDateFormat(date, 'YYYY/MM/DD') : null,
+        statisticsMonth: statisticsMonth ? toDateFormat(statisticsMonth, 'YYYY/MM/DD') : null,
+        repeatedExpiredDate: repeatedExpiredDate ? toDateFormat(repeatedExpiredDate, 'YYYY/MM/DD') : null,
+        tags: tags.filter(Boolean),
+        withdrawalBankAccountId: _withdrawalBankAccountId,
+        withdrawalMoney: _withdrawalMoney,
+        depositBankAccountId: _depositBankAccountId,
+        depositMoney: _depositMoney
       }
     }
 
     const convertDepositDataRequest = (data = {}) => {
+      const categoryId = data.categoryId ? data.categoryId : 1 // TODO: type === 40 don't need select category
+      const subcategoryId = data.subcategoryId ? data.subcategoryId : 1 // TODO: type === 40 don't need select sub-category
       const date = data.date ? moment(data.date).format('YYYY-MM-DD') : null
       const statisticsMonth = data.statisticsMonth ? moment(data.statisticsMonth).format('YYYY-MM-DD') : null
       const repeatedExpiredDate = data.repeatedExpiredDate ? moment(data.statisticsMonth).format('YYYY-MM-DD') : null
@@ -430,6 +477,8 @@ export default defineComponent({
       return {
         ...data,
         date,
+        categoryId,
+        subcategoryId,
         statisticsMonth,
         repeatedExpiredDate,
         withdrawalBankAccountId,
