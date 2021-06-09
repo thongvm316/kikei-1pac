@@ -83,6 +83,7 @@
     v-model:visible="isOpenFloatButtons"
     @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
+    @on-copy-project="cloneProject"
   />
 
   <a-modal v-model:visible="isDeleteConfirmModalOpen" centered title="削除" width="380px">
@@ -95,9 +96,10 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ProjectFloatButtons from './-components/ProjectFloatButtons'
@@ -117,6 +119,7 @@ export default defineComponent({
   setup() {
     const { t } = useI18n()
     const store = useStore()
+    const router = useRouter()
     const loading = ref(false)
     const currentPage = ref(1)
     let pagination = ref({
@@ -218,6 +221,10 @@ export default defineComponent({
       }
     }
 
+    const cloneProject = () => {
+      router.push({ name: 'project-new', query: { selectedId: targetProjectSelected.value.id } })
+    }
+
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
       const { projectList, pageData } = await getProjectList(pagination.value, loading, data)
@@ -261,6 +268,7 @@ export default defineComponent({
       isDeleteConfirmModalOpen,
       targetProjectSelected,
       onCustomRow,
+      cloneProject,
       projectDatas,
       fetchProjectDatas,
       exportProjectAsCsvFile,
