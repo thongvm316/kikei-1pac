@@ -109,9 +109,9 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
-import { typeDepositEnums } from '@/enums/deposit.enum'
+import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
-import { getCategory, getSubCategory } from '../composables/useDepositService'
+import { getCategory, getSubCategory } from '../composables/useDeposit'
 
 export default defineComponent({
   name: 'SearchDepositModal',
@@ -127,10 +127,7 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = typeDepositEnums.map((item) => ({
-      value: item.type,
-      label: t(`deposit.deposit_list.${item.name}`)
-    }))
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map(item => ({ value: item, label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`) }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
     const categoryList = ref([])

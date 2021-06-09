@@ -30,9 +30,10 @@ export const CURRENCY = [
     label: 'JPY'
   }
 ]
-export const typeDepositEnums = Object.freeze([
-  { type: 10, name: 'type_deposit_sales' },
-  { type: 20, name: 'type_deposit_payment' },
-  { type: 30, name: 'type_deposit_cash_transfer' },
-  { type: 40, name: 'type_unclear_money' }
-])
+
+export const TYPE_NAME_DEPOSIT = Object.freeze({
+  10: 'type_deposit_sales',
+  20: 'type_deposit_payment',
+  30: 'type_deposit_cash_transfer',
+  40: 'type_unclear_money'
+})
