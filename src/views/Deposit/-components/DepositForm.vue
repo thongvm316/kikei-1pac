@@ -220,7 +220,7 @@ import {
   createDeposit,
   getDepositDetail,
   updateDeposit
-} from '../composables/useDepositService'
+} from '../composables/useDeposit'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({

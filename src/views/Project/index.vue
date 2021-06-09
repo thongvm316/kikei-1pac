@@ -133,7 +133,7 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt'
         },
-        sorter: (a, b) => a.name.length - b.name.length
+        sorter: (a, b) => (new Date(a.updated_at)).getTime() - (new Date(b.updated_at)).getTime()
       },
       {
         dataIndex: 'projectCombineName',

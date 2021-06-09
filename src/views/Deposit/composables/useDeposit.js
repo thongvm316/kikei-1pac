@@ -1,5 +1,8 @@
 /* eslint-disable no-useless-catch */
 import services from '@/services'
+import { uniqueId } from 'lodash-es'
+import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
+
 const DepositService = services.get('DepositService')
 const GroupService = services.get('GroupService')
 const BankAccountsService = services.get('BankAccountsService')
@@ -81,6 +84,61 @@ export const getDepositDetail = async (id) => {
   } catch (error) {
     throw error
   }
+}
+
+const typeNameBank = (depositMoney, withdrawMoney) => {
+  if (depositMoney > withdrawMoney) {
+    return TYPE_NAME_DEPOSIT[10]
+  } else if (depositMoney < withdrawMoney) {
+    return TYPE_NAME_DEPOSIT[20]
+  } else {
+    return 'type_none'
+  }
+}
+
+const depositBank = (depositMoney, withdrawMoney) => {
+  if (depositMoney > withdrawMoney) {
+    return depositMoney
+  } else if (depositMoney < withdrawMoney) {
+    return withdrawMoney
+  } else {
+    return '-'
+  }
+}
+
+const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
+  if (type === 10) {
+    return depositMoney
+  } else if (type === 20) {
+    return withdrawMoney
+  } else if (type === 30) {
+    return depositMoney > 0 ? depositMoney : withdrawMoney
+  } else {
+    return depositMoney > 0 ? depositMoney : `-${withdrawMoney}`
+  }
+}
+
+export const createDataTableFormat = (data) => {
+  if (!data.length) return
+
+  return data.map(item => {
+    return Object.assign(item,
+      {
+        key: item.id,
+        children: item.bankAccounts ? item.bankAccounts.map(
+          bank => Object.assign(bank,
+            { date: null },
+            { statisticsMonth: null },
+            { class: typeNameBank(bank.deposit, bank.withdrawal) },
+            { key: uniqueId('expand-row') },
+            { purpose: `${bank.name} (${bank.currency})` },
+            { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
+            { deposit: depositBank(bank.deposit, bank.withdrawal) }))
+          : [],
+        deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
+        typeName: TYPE_NAME_DEPOSIT[item.type]
+      })
+  })
 }
 
 export const updateDeposit = async (depositId, data) => {
