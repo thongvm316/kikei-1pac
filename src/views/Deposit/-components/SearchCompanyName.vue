@@ -47,9 +47,9 @@
           :data-source="companyListData"
           :pagination="false"
           :expand-icon-as-cell="false"
-          :scroll="{ x: 600, y: 330 }"
+          :scroll="{ x: 1000, y: 350 }"
           :loading="isTableLoading"
-          table-layout="auto"
+          table-layout="fixed"
         >
           <template #action="{ record }">
             <a-button
@@ -126,13 +126,32 @@ export default defineComponent({
         title: t('deposit.company_name.table_header_select'),
         dataIndex: 'select',
         key: 'select',
-        slots: { customRender: 'action' }
+        slots: { customRender: 'action' },
+        width: 86
       },
-      { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name' },
-      { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code' },
-      { title: t('deposit.company_name.table_header_country'), dataIndex: 'countryName', key: 'countryName' },
-      { title: t('deposit.company_name.table_header_currency'), dataIndex: 'currencyCode', key: 'currencyCode' },
-      { title: t('deposit.company_name.table_header_division'), dataIndex: 'divisionName', key: 'divisionName' }
+      { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name', ellipsis: true },
+      { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code', ellipsis: true },
+      {
+        title: t('deposit.company_name.table_header_country'),
+        dataIndex: 'countryName',
+        key: 'countryName',
+        ellipsis: true,
+        width: 100
+      },
+      {
+        title: t('deposit.company_name.table_header_currency'),
+        dataIndex: 'currencyCode',
+        key: 'currencyCode',
+        ellipsis: true,
+        width: 60
+      },
+      {
+        title: t('deposit.company_name.table_header_division'),
+        dataIndex: 'divisionName',
+        key: 'divisionName',
+        ellipsis: true,
+        width: 200
+      }
     ]
 
     const fetchCompanyList = async () => {
