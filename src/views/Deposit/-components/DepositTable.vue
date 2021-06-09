@@ -162,6 +162,7 @@ export default defineComponent({
       display: flex;
       flex-direction: row-reverse;
       align-items: center;
+      justify-content: center;
 
       .ant-table-row-expand-icon {
         margin-right: 0;
