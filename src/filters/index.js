@@ -17,7 +17,6 @@ export default {
 
   /* ---------------------- number & price format ----------------------- */
   number_with_commas(value) {
-    console.log(value)
     if (!value) return 0
     const floatNumberFormatted = value
       ? parseFloat(value)
