@@ -33,12 +33,11 @@
     </template>
 
     <template #deposit="{ record }">
-      <span
-        :class="`type-${record.type} bank-${record.class} ${
-          record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
-        }`"
-        >{{ record.deposit }}</span
-      >
+      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ $filters.number_with_commas(record.deposit) || '-' }}</span>
+    </template>
+
+    <template #balance="{ record }">
+      {{ $filters.number_with_commas(record.balance) }}
     </template>
 
     <template #action="{ record }">
@@ -60,34 +59,22 @@ const columnsDeposit = [
     key: 'date',
     align: 'left',
     slots: { customRender: 'renderDepositUpdatedAt' },
-    sorter: true
+    sorter: (a, b) => (new Date(a.date)).getTime() - (new Date(b.date)).getTime()
   },
   {
     title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
     slots: { customRender: 'renderDepositStatictis' },
-    sorter: true
+    sorter: (a, b) => (new Date(a.date)).getMonth() - (new Date(b.date)).getMonth()
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
   { title: '項目名', dataIndex: 'purpose', key: 'purpose', slots: { customRender: 'purpose' } },
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
-  {
-    dataIndex: 'deposit',
-    key: 'deposit',
-    align: 'right',
-    slots: { title: 'customTitleDeposit', customRender: 'deposit' }
-  },
-  { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance' } },
-  {
-    title: '確定',
-    dataIndex: 'action',
-    key: 'action',
-    slots: { customRender: 'action' },
-    width: '127px',
-    align: 'center'
-  }
+  { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
+  { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance', customRender: 'balance' } },
+  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' }
 ]
 
 export default defineComponent({
@@ -192,7 +179,8 @@ export default defineComponent({
       cursor: pointer;
     }
 
-    .is-expand-row td {
+    .is-expand-row td,
+    .ant-table-row.ant-table-row-level-1 td {
       border-bottom: 0;
     }
 
@@ -217,7 +205,7 @@ export default defineComponent({
     background-color: $color-grey-98;
   }
 
-  .ant-table-row.is-expand-row.ant-table-row-level-1:last-child td {
+  .ant-table-row.ant-table-row-level-1:last-child td {
     border-bottom: 1px solid $color-grey-85 !important;
   }
 
@@ -225,20 +213,20 @@ export default defineComponent({
   @for $i from 1 through ($columns) {
     @if ($i < 10) {
       @if ($i > 5) {
-        .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
+        .ant-table-row.ant-table-row-level-1 td:nth-child(#{$i}) {
           border-bottom: 1px solid $color-grey-85;
         }
       } @else {
-        .ant-table-row.is-expand-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
+        .ant-table-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
           background-color: $color-grey-100;
         }
       }
     } @else {
-      .ant-table-row.is-expand-row.ant-table-row-level-1 td:nth-child(#{$i}) {
+      .ant-table-row.ant-table-row-level-1 td:nth-child(#{$i}) {
         border-bottom: 0;
       }
 
-      .ant-table-row.is-expand-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
+      .ant-table-row.ant-table-row-level-1:hover > td:nth-child(#{$i}) {
         background-color: $color-grey-100;
       }
     }

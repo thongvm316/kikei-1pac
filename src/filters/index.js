@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { typeDepositEnums } from '@/enums/deposit.enum'
+import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 import i18n from '@/locale'
 const { t } = i18n.global
 
@@ -17,6 +17,7 @@ export default {
 
   /* ---------------------- number & price format ----------------------- */
   number_with_commas(value) {
+    if (value === '-') return '-'
     if (!value) return 0
     const floatNumberFormatted = value
       ? parseFloat(value)
@@ -27,16 +28,14 @@ export default {
     return floatNumberFormatted
   },
 
-  format_bolean_text_confirmed(value) {
-    if (!value) return 'No'
+  /* ---------------------- text & status ----------------------- */
+  format_bolean_confirmed_text(value) {
+    if(!value) return 'No'
 
     return 'Yes'
   },
 
-  format_deposit_type_name(value) {
-    const type = typeDepositEnums.filter((item) => item.type === value)[0]
-    if (!type) return ''
-
-    return t(`deposit.deposit_list.${type.name}`)
+  format_deposit_type_name_text(value) {
+    return t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[value]}`)
   }
 }

@@ -60,7 +60,12 @@
       />
     </div>
 
-    <a-tabs class="-mx-32" default-active-key="1" :animated="false" @change="onHandleChangeTabGroup">
+    <a-tabs
+      class="-mx-32"
+      v-model:active-key="activeKeyGroupTab"
+      default-active-key="1"
+      :animated="false"
+      @change="onHandleChangeTabGroup">
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
         <deposit-table
           v-model:expanded-row-keys="expandedRowKeys"
@@ -96,13 +101,13 @@ import { useStore } from 'vuex'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
-import { getDeposit, getGroups, getBankAccounts, deleteDeposit } from './composables/useDepositService'
+import { getDeposit, getGroups, getBankAccounts, deleteDeposit, createDataTableFormat } from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
-import { typeDepositEnums } from '@/enums/deposit.enum'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
+
 
 export default defineComponent({
   name: 'DepositPage',
@@ -122,14 +127,12 @@ export default defineComponent({
     const { t } = useI18n()
     const store = useStore()
 
+    const activeKeyGroupTab = ref(1)
     const disableButton = ref()
     const loadingExportCsvButton = ref()
-
     const currentSelectedRecord = ref()
-
     const isVisibleDepositButtonsFloat = ref()
     const isVisibleDepositModal = ref()
-
     const checkAllRowTable = ref()
     const indeterminateCheckAllRows = ref()
     const searchKeyMultipleSelect = ref([])
@@ -144,7 +147,6 @@ export default defineComponent({
     const currentBankAccountList = ref([])
     const totalRecords = ref()
     const expandIconColumnIndex = ref()
-
     const currentPageNumber = ref()
 
     const onSelectAllRowsByCustomCheckbox = (e) => {
@@ -155,73 +157,12 @@ export default defineComponent({
         : (currentSelectedRowKeys.value = [])
     }
 
-    const createDataTableFormat = (data = []) => {
-      if (!data) return
-
-      return data.map((item) => {
-        let typeName
-        typeDepositEnums.forEach((type) => type.type === item.type && (typeName = type.name))
-
-        const typeNameBank = (depositMoney, withdrawMoney) => {
-          if (depositMoney > withdrawMoney) {
-            return 'type_deposit_sales'
-          } else if (depositMoney < withdrawMoney) {
-            return 'type_deposit_payment'
-          } else {
-            return 'type_none'
-          }
-        }
-
-        const depositBank = (depositMoney, withdrawMoney) => {
-          if (depositMoney > withdrawMoney) {
-            return depositMoney
-          } else if (depositMoney < withdrawMoney) {
-            return withdrawMoney
-          } else {
-            return '-'
-          }
-        }
-
-        const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
-          if (type === 10) {
-            return depositMoney
-          } else if (type === 20) {
-            return withdrawMoney
-          } else if (type === 30) {
-            return depositMoney > 0 ? depositMoney : withdrawMoney
-          } else {
-            return depositMoney > 0 ? depositMoney : `- ${withdrawMoney}`
-          }
-        }
-
-        return Object.assign(item, {
-          key: item.id,
-          children: item.bankAccounts
-            ? item.bankAccounts.map(
-              Object.assign(
-                bank,
-                { date: null },
-                { statisticsMonth: null },
-                { class: typeNameBank(bank.deposit, bank.withdrawal) },
-                { key: item.id },
-                { purpose: `${bank.name} (${bank.currency})` },
-                { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
-                { deposit: depositBank(bank.deposit, bank.withdrawal) }
-              )
-            )
-            : [],
-          deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
-          typeName
-        })
-      })
-    }
-
     const getDataDeposit = async (data, params) => {
       try {
         isLoadingDataTable.value = true
         const res = await getDeposit(data, params)
-        dataDeposit.value = createDataTableFormat(res.data.result.data)
-        totalRecords.value = res.data.result.meta.totalRecords
+        dataDeposit.value = createDataTableFormat(res.data.result?.data || [])
+        totalRecords.value = res.data.result?.meta.totalRecords || 0
       } finally {
         isLoadingDataTable.value = false
       }
@@ -230,18 +171,20 @@ export default defineComponent({
     onBeforeMount(async () => {
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
-      currentActiveIdGroup.value = (groupList.result?.data || [])[0].id
+      currentActiveIdGroup.value = (groupList.result?.data || [])[0]?.id || 1
 
       const bankAccounts = await getBankAccounts({ group_id: currentActiveIdGroup.value })
       bankAccountList.value = bankAccounts.result?.data || []
 
-      const { tab } = router.currentRoute._value.query
-      const idGroupList = tabListGroup.value.map((item) => item.id)
-      const indexTab = idGroupList.findIndex((item) => item.toString() === tab)
+      const { tab } = route.query || 1
+      const idGroupList = tabListGroup.value.map(item => item.id)
+
+      const indexTab = idGroupList.findIndex(item => item.toString() === tab)
 
       if (indexTab < 0) {
         await getDataDeposit({ groupId: tabListGroup.value[0].id })
       } else {
+        activeKeyGroupTab.value = parseInt(tab)
         await getDataDeposit({ groupId: parseInt(tab) })
       }
     })
@@ -289,13 +232,13 @@ export default defineComponent({
       ],
       fileTitle: 'Deposit',
       labels: [
-        { field: 'confirmed', formatBy: 'format_bolean_text_confirmed' },
+        { field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
         { field: 'date', formatBy: 'moment_l' },
         { field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
         'depositMoney',
         'withdrawalMoney',
         'balance',
-        { field: 'type', formatBy: 'format_deposit_type_name' },
+        { field: 'type', formatBy: 'format_deposit_type_name_text' },
         'categoryName',
         'subcategoryName',
         'purpose'
@@ -337,13 +280,6 @@ export default defineComponent({
         })
 
         // TODO: LOCALE header csv
-        // const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts)).map(item => ({ value: item, label: t(`deposit.csv.header.${item}`) }))
-
-        // headerList.forEach(item => {
-        //   exportObj.header.push(item.label)
-        //   exportObj.labels.push(item.value)
-        // })
-
         const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts))
 
         headerList.forEach((item) => {
@@ -407,6 +343,7 @@ export default defineComponent({
       currentPageNumber,
       disableButton,
       loadingExportCsvButton,
+      activeKeyGroupTab,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,
