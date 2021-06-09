@@ -194,18 +194,20 @@
 
 <script>
 import { defineComponent, ref, reactive, onBeforeMount, computed, watch } from 'vue'
-import moment from 'moment'
-import { uniqueId } from 'lodash-es'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { CalendarOutlined } from '@ant-design/icons-vue'
+import moment from 'moment'
+
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../composables/useAccountList'
 import { useGroupList } from '../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses, addProject, editProject } from '../composables/useProject'
+import { initProjectOutsouringOrders, toProjectOutsouringOrdersRequestData, addProjectOrder } from '../composables/useProjectOrders'
+import { deepCopy } from '@/helpers/json-parser'
+import { fromDateObjectToDateTimeFormat } from '@/helpers/date-time-format'
+import { CalendarOutlined } from '@ant-design/icons-vue'
 import ProjectCompanyForm from './ProjectCompanyForm'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'ProjectForm',
@@ -279,17 +281,17 @@ export default defineComponent({
       money: [{ type: 'number', required: true, message: 'Please input valid money', trigger: 'change' }]
     })
 
-    /* --------------------- handle search company ------------------- */
-    const addDummyProjectOrder = () => {
-      const emptyOutsourceData = {
-        companyId: '',
-        companyName: '',
-        key: uniqueId('__outsource__'),
-        money: ''
+    const dynamicBaseOnAccuracy = () => {
+      if (highestAccuracyRequired.value) {
+        projectFormRules.value.tag = [{ required: true, message: 'Please input tag', trigger: 'change' }]
+        projectFormRules.value.memo = [{ required: true, message: 'Please input memo', trigger: 'change' }]
+      } else {
+        projectFormRules.value.tag = []
+        projectFormRules.value.memo = []
       }
-      localProjectOrders.value.push(deepCopy(emptyOutsourceData))
     }
 
+    /* --------------------- handle search company ------------------- */
     const removeProjectOrder = (order) => {
       const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
       if (index < 0) return
@@ -326,15 +328,7 @@ export default defineComponent({
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const dynamicBaseOnAccuracy = () => {
-      if (highestAccuracyRequired.value) {
-        projectFormRules.value.tag = [{ required: true, message: 'Please input tag', trigger: 'change' }]
-        projectFormRules.value.memo = [{ required: true, message: 'Please input tag', trigger: 'change' }]
-      } else {
-        projectFormRules.value.tag = []
-        projectFormRules.value.memo = []
-      }
-    }
+    const addDummyProjectOrder = () => { addProjectOrder(localProjectOrders) }
 
     const totalMoneyOutsourcing = computed(() => {
       if (localProjectOrders.value.length <= 0) return 0
@@ -351,8 +345,6 @@ export default defineComponent({
     /* --------------------- ./handle project orders --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
-
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
@@ -369,57 +361,32 @@ export default defineComponent({
       }
 
       // init date month value
-      projectParams.value.releaseDate = toDateFormat(projectPropValue.releaseDate, 'YYYY/MM/DD')
-      projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
-      projectParams.value.statisticsMonths = [toDateFormat(projectPropValue.statisticsFromMonth), toDateFormat(projectPropValue.statisticsToMonth)]
+      projectParams.value.releaseDate = projectPropValue.releaseDate ? moment(new Date(projectPropValue.releaseDate)) : null
+      projectParams.value.statisticsMonth = moment(new Date(projectPropValue.statisticsFromMonth))
+      projectParams.value.statisticsMonths = [moment(new Date(projectPropValue.statisticsFromMonth)), moment(new Date(projectPropValue.statisticsToMonth))]
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
-        for(let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
-          const { id, money, note, adCompany } = projectParams.value.adProjectOrders[i]
-          localProjectOrders.value.push({
-            key: uniqueId('__outsource__'),
-            id,
-            money,
-            note,
-            companyId: adCompany.id,
-            companyName: adCompany.name
-          })
-        }
+        initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
       }
     }
     /* -------------------- ./init data when project props ------------------------- */
 
     /* ------------------- api intergration --------------------------- */
-    const projectOutsouringOrders = () => {
-      if (localProjectOrders.value.length <= 0) return null
-      return localProjectOrders.value.map((item) => {
-        const shadownItem = {
-          id: item.id ? item.id : null,
-          companyId: item.companyId || null,
-          money: item.money || null,
-          note: '112233'
-        }
-        if (!shadownItem.id) delete shadownItem.id
-
-        return shadownItem
-      })
-    }
-
     const projectDataRequest = computed(() => {
       const { value: projectParamsValue } = projectParams
       let dataRequest = {
         ...projectParamsValue,
-        releaseDate: projectParamsValue.releaseDate ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD') : null,
+        releaseDate: projectParamsValue.releaseDate ? fromDateObjectToDateTimeFormat(projectParamsValue.releaseDate) : null,
         statisticsFromMonth:
           projectParamsValue.type === 0
-            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParamsValue.statisticsMonths[0]).format('YYYY-MM-DD'),
+            ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[0]),
         statisticsToMonth:
           projectParamsValue.type === 0
-            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParamsValue.statisticsMonths[1]).format('YYYY-MM-DD'),
-        adProjectOrders: projectOutsouringOrders()
+            ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
+        adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
       }
 
       delete dataRequest.statisticsMonth
