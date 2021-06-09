@@ -196,7 +196,10 @@ export default defineComponent({
         { groupId: currentActiveIdGroup.value, bankAccountId },
         { pageNumber: currentPageNumber.value }
       )
-      expandIconColumnIndex.value = 9 // TODO: columns count
+
+      const COLLUMNS_COUNT = 9
+      dataDeposit.value[0].bankAccounts?.length ? expandIconColumnIndex.value = COLLUMNS_COUNT : expandIconColumnIndex.value = 10
+
       bankAccountId.length
         ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
         : (expandedRowKeys.value = [])
