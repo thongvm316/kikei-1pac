@@ -20,7 +20,9 @@
               {{ $t('company.classification') }}
             </label>
             <a-checkbox-group v-model:value="filter.division">
-              <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+              <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                $t(`company.${item.value}`)
+              }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>

@@ -197,7 +197,6 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-      console.log(recordVisible.value.name)
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []

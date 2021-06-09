@@ -1,10 +1,10 @@
 <template>
   <div class="card-common">
     <!-- Form -->
-    <Form @submit="handleSubmit">
+    <form @submit="onSubmit">
       <!-- Company name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" :name="$t('company.company_name')" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.name" name="company_name" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.company_name') }}</label>
             <div class="form-input">
@@ -15,8 +15,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.company_name')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="company_name" class="errors">
+                {{ replaceField(message, 'company_name') }}
               </ErrorMessage>
             </div>
           </div>
@@ -25,28 +25,17 @@
 
       <!-- Classification -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.divisions"
-          :name="$t('company.classification')"
-          rules="required"
-        >
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.classification') }}</label>
+        <div class="form-content">
+          <label class="form-label required">{{ $t('company.classification') }}</label>
 
-            <div class="form-input">
-              <a-checkbox-group :value="field.value" @change="handleChange">
-                <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
-                  $t(`company.${item.value}`)
-                }}</a-checkbox>
-              </a-checkbox-group>
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.classification')" class="errors">
-                {{ message }}
-              </ErrorMessage>
-            </div>
+          <div class="form-input">
+            <a-radio-group v-model:value="form.division">
+              <a-radio v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                $t(`company.${item.value}`)
+              }}</a-radio>
+            </a-radio-group>
           </div>
-        </Field>
+        </div>
       </div>
 
       <!-- Company code -->
@@ -54,7 +43,7 @@
         <Field
           v-slot="{ field, handleChange }"
           v-model="form.code"
-          :name="$t('company.company_code_2')"
+          name="company_code_2"
           rules="required"
         >
           <div class="form-content">
@@ -67,8 +56,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.company_code_2')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="company_code_2" class="errors">
+                {{ replaceField(message, 'company_code_2') }}
               </ErrorMessage>
             </div>
           </div>
@@ -80,7 +69,7 @@
         <Field
           v-slot="{ field, handleChange }"
           v-model="form.slack_code"
-          :name="$t('company.company_code_3')"
+          name="company_code_3"
           rules="required"
         >
           <div class="form-content">
@@ -93,8 +82,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.company_code_3')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="company_code_3" class="errors">
+                {{ replaceField(message, 'company_code_3') }}
               </ErrorMessage>
             </div>
           </div>
@@ -106,7 +95,7 @@
         <Field
           v-slot="{ field, handleChange }"
           v-model="form.country_id"
-          :name="$t('company.country')"
+          name="country"
           rules="required"
         >
           <div class="form-content">
@@ -123,8 +112,8 @@
                 </a-select-option>
               </a-select>
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.country')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="country" class="errors">
+                {{ replaceField(message, 'country') }}
               </ErrorMessage>
             </div>
           </div>
@@ -136,7 +125,7 @@
         <Field
           v-slot="{ field, handleChange }"
           v-model="form.currency_id"
-          :name="$t('company.trading_currency')"
+          name="trading_currency"
           rules="required"
         >
           <div class="form-content">
@@ -153,8 +142,8 @@
                 </a-select-option>
               </a-select>
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.trading_currency')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="trading_currency" class="errors">
+                {{ replaceField(message, 'trading_currency') }}
               </ErrorMessage>
             </div>
           </div>
@@ -166,7 +155,7 @@
         <Field
           v-slot="{ field, handleChange }"
           v-model="form.payment_term"
-          :name="$t('company.payment_site')"
+          name="payment_site"
           rules="required"
         >
           <div class="form-content">
@@ -183,8 +172,8 @@
                 </a-select-option>
               </a-select>
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" :name="$t('company.payment_site')" class="errors">
-                {{ message }}
+              <ErrorMessage v-slot="{ message }" as="span" name="payment_site" class="errors">
+                {{ replaceField(message, 'payment_site') }}
               </ErrorMessage>
             </div>
           </div>
@@ -251,7 +240,7 @@
           {{ $route.name === 'company-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
-    </Form>
+    </form>
   </div>
 </template>
 
@@ -259,6 +248,8 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import { useForm } from 'vee-validate'
+import { useI18n } from 'vue-i18n'
 
 import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
 
@@ -273,7 +264,7 @@ export default defineComponent({
     let form = ref({
       code: '',
       name: '',
-      divisions: [],
+      division: 0,
       slack_code: '',
       country_id: undefined,
       currency_id: undefined,
@@ -284,7 +275,8 @@ export default defineComponent({
     })
     const router = useRouter()
     const route = useRoute()
-    // const { setErrors } = useForm()
+    const { setErrors, handleSubmit } = useForm()
+    const { t } = useI18n()
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'company-edit') {
@@ -296,7 +288,7 @@ export default defineComponent({
       router.push({ name: 'company' })
     }
 
-    const handleSubmit = () => {
+    const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
       data = { ...deleteEmptyValue(data) }
 
@@ -305,7 +297,7 @@ export default defineComponent({
       } else {
         createCompany(data)
       }
-    }
+    })
 
     const updateCompany = async (data) => {
       const id = route.params.id
@@ -325,10 +317,14 @@ export default defineComponent({
       try {
         const { createCompany } = useCreateCompanyService(data)
         await createCompany()
-        router.push({ name: 'company' }).catch((err) => err)
+        await router.push({ name: 'company' })
       } catch (err) {
         throw err
       }
+    }
+
+    const replaceField = (text, field) => {
+      return text.replace(field, t(`company.${field}`))
     }
 
     return {
@@ -338,9 +334,10 @@ export default defineComponent({
       CURRENCY,
       PAYMENT,
       handleCancel,
-      handleSubmit,
+      onSubmit,
       updateCompany,
-      createCompany
+      createCompany,
+      replaceField
     }
   }
 })

@@ -1,11 +1,15 @@
 export const DIVISION = [
   {
     id: 0,
-    value: '顧客'
+    value: 'customer'
   },
   {
     id: 1,
-    value: 'パートナー'
+    value: 'partner'
+  },
+  {
+    id: 2,
+    value: 'both'
   }
 ]
 

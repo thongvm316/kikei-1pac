@@ -28,6 +28,7 @@ export default {
   next_month_end: '月末締め翌月末払い',
   end_of_month_after_next: '月末締め翌々月末払い',
   clear: 'クリア',
-  顧客: '顧客',
-  パートナー: 'パートナー'
+  customer: '顧客',
+  partner: 'パートナー',
+  both: '顧客及、パートナー'
 }
