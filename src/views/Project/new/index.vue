@@ -13,6 +13,10 @@ import ProjectForm from '../-components/ProjectForm'
 export default defineComponent({
   name: 'ProjectNewPage',
 
+  components: {
+    ProjectForm
+  },
+
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -26,15 +30,13 @@ export default defineComponent({
       router.replace({ query: {} })
     }
 
-    onBeforeMount(() => { fetchProject() })
+    onBeforeMount(() => {
+      fetchProject()
+    })
 
     return {
       project
     }
-  },
-
-  components: {
-    ProjectForm
   }
 })
 </script>

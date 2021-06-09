@@ -43,7 +43,10 @@ axios.interceptors.response.use(
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
       // clear flash message in store first
       store.commit('auth/CLEAR_AUTH_PROFILE')
-      store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'error', message: `errors.${errorMessage.replaceAll('.', '_')}` })
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'error',
+        message: `errors.${errorMessage.replaceAll('.', '_')}`
+      })
     }
 
     // clear all aut profile & global state when logout

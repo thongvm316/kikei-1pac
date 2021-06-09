@@ -36,7 +36,7 @@
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
 
-    <ModalDelete v-model:visible="openDelete" @delete="handleDeleteRecord($event)" />
+    <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
 </template>
 
@@ -82,10 +82,11 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
+    const params = ref({})
     const height = ref(0)
 
-    let tempRow = reactive([])
     const state = reactive({ selectedRowKeys: [] })
+    let tempRow = reactive([])
 
     const rowSelection = computed(() => {
       return {
@@ -143,12 +144,12 @@ export default defineComponent({
     }
 
     const handleChange = async (pagination) => {
-      const params = {
+      params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize
       }
 
-      await fetchList(params, filter.value)
+      await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
@@ -167,7 +168,7 @@ export default defineComponent({
       recordVisible.value.visible = false
       // alert message delete success
       // await this.onSuccess(this.$t('message_success'), this.$t('delete_message_successfully'))
-      await fetchList({ pageNumber: 1, pageSize: 30 })
+      await fetchList(params.value)
     }
 
     const handleEditRecord = () => {
@@ -196,6 +197,7 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
+      console.log(recordVisible.value.name)
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
@@ -226,6 +228,7 @@ export default defineComponent({
       rowSelection,
       recordVisible,
       height,
+      params,
       handleDeleteRecord,
       handleEditRecord,
       customRow,
