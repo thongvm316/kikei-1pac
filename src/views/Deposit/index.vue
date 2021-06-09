@@ -384,8 +384,7 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      store.commit('deposit/STORE_RECORD_DEPOSIT', { id: currentSelectedRecord.value?.id })
-      router.push({ name: 'deposit-new' })
+      router.push({ name: 'deposit-new', query: { selectedId: currentSelectedRecord.value.id } })
     }
 
     const onEditRecordDeposit = () => {

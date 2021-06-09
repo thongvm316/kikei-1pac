@@ -1,33 +1,37 @@
 export const DIVISION = [
   {
     value: 0,
-    label: '顧客'
+    label: 'customer'
   },
   {
     value: 1,
-    label: 'パートナー'
+    label: 'partner'
+  },
+  {
+    value: 2,
+    label: 'both'
   }
 ]
 
 export const COUNTRY = [
   {
     value: 1,
-    label: 'Vietnam'
+    label: 'vietnam'
   },
   {
     value: 2,
-    label: 'Japan'
+    label: 'japan'
   }
 ]
 
 export const CURRENCY = [
   {
     value: 1,
-    label: 'VND'
+    label: 'vnd'
   },
   {
     value: 2,
-    label: 'JPY'
+    label: 'jpy'
   }
 ]
 export const typeDepositEnums = Object.freeze([

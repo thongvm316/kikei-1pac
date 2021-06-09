@@ -9,73 +9,36 @@
   >
     <template #footer>
       <div class="form-deposit">
-        <Form class="form-left" @submit="handleSearch">
-          <!-- keySearch -->
-          <div class="form-group">
-            <Field
-              v-slot="{ field, handleChange }"
-              v-model="filters.keySearch"
-              :name="$t('deposit.company_name.key_search')"
-            >
-              <div class="form-content">
-                <label class="form-label">{{ $t('deposit.company_name.key_search') }}</label>
-                <div class="form-input">
-                  <a-input
-                    :value="field.value"
-                    :placeholder="$t('deposit.company_name.place_input')"
-                    @change="handleChange"
-                  />
-                </div>
-              </div>
-            </Field>
-          </div>
+        <a-form ref="searchCompanyRef" class="form-left" :model="filters" layout="vertical" @submit="handleSearch">
+          <a-form-item name="purpose" :label="$t('deposit.company_name.key_search')">
+            <a-input v-model:value="filters.keySearch" :placeholder="$t('deposit.company_name.place_input')" />
+          </a-form-item>
 
-          <!-- division -->
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filters.division"
-            :name="$t('deposit.company_name.division')"
-          >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('deposit.company_name.division') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="DIVISION" @change="handleChange" />
-            </div>
-          </Field>
+          <a-form-item name="division" :label="$t('deposit.company_name.division')">
+            <a-checkbox-group v-model:value="filters.division" :options="divisionOptions" />
+          </a-form-item>
 
-          <!-- Country -->
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filters.countryId"
-            :name="$t('deposit.company_name.country')"
-          >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('deposit.company_name.country') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="COUNTRY" @change="handleChange" />
-            </div>
-          </Field>
+          <a-form-item name="country" :label="$t('deposit.company_name.country')">
+            <a-checkbox-group v-model:value="filters.country" :options="countryOptions" />
+          </a-form-item>
 
-          <!-- Currency -->
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filters.currencyId"
-            :name="$t('deposit.company_name.currency')"
-          >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('deposit.company_name.currency') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="CURRENCY" @change="handleChange" />
-            </div>
-          </Field>
+          <a-form-item name="currency" :label="$t('deposit.company_name.currency')">
+            <a-checkbox-group v-model:value="filters.currency" :options="currencyOptions" />
+          </a-form-item>
+
+          <a-button type="default" html-type="reset" @click="handleClearFilter">
+            {{ $t('deposit.company_name.handle_clear') }}
+          </a-button>
 
           <a-button key="submit" type="primary" html-type="submit" :loading="isFilterloading">
+            <template #icon>
+              <span class="btn-icon">
+                <search-icon />
+              </span>
+            </template>
             {{ $t('deposit.company_name.handle_ok') }}
           </a-button>
-        </Form>
+        </a-form>
       </div>
 
       <div class="table-deposit">
@@ -95,7 +58,7 @@
               class="table-deposit__select-btn"
               @click="handleSelectCompany(record)"
             >
-              確定
+              {{ $t('deposit.company_name.handle_select') }}
             </a-button>
           </template>
         </a-table>
@@ -114,20 +77,20 @@
 
 <script>
 import { defineComponent, reactive, ref, onBeforeMount, watch, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/deposit.enum'
 import { getCompanyList } from '../composables/useSearchCompany'
+import { addUniqueRowKey } from '@/helpers/table'
 
-const columns = [
-  { title: '選択', dataIndex: 'select', key: 'select', slots: { customRender: 'action' } },
-  { title: '企業名', dataIndex: 'name', key: 'name' },
-  { title: '企業コード', dataIndex: 'code', key: 'code' },
-  { title: '国', dataIndex: 'countryName', key: 'countryName' },
-  { title: '通貨', dataIndex: 'currencyCode', key: 'currencyCode' },
-  { title: '区分', dataIndex: 'divisionName', key: 'divisionName' }
-]
+import SearchIcon from '@/assets/icons/ico_search.svg'
 
 export default defineComponent({
   name: 'KSearchCompanyName',
+
+  components: {
+    SearchIcon
+  },
 
   props: {
     visible: {
@@ -138,18 +101,39 @@ export default defineComponent({
       type: String,
       required: true
     },
-    subcategoryId: {
-      type: Number,
-      required: true
-    }
+    // eslint-disable-next-line vue/require-default-prop
+    subcategoryId: Number
   },
 
+  emits: { 'update:subcategoryId': null, 'update:companyName': null, 'update:visible': null },
+
   setup(_, context) {
+    const { t } = useI18n()
+
+    const searchCompanyRef = ref()
     const isTableLoading = ref(false)
     const isFilterloading = ref(false)
     const companyListData = ref([])
     const pagination = reactive({ pageNumber: 1, pageSize: 10, orderBy: 'name', totalPages: 0, totalRecords: 0 })
-    const filters = reactive({ keySearch: '', division: [], countryId: [], currencyId: [] })
+    const filters = ref({ keySearch: '', division: [], countryId: [], currencyId: [] })
+
+    const divisionOptions = DIVISION.map((item) => ({ ...item, label: t(`deposit.division.${item.label}`) }))
+    const countryOptions = COUNTRY.map((item) => ({ ...item, label: t(`deposit.country.${item.label}`) }))
+    const currencyOptions = CURRENCY.map((item) => ({ ...item, label: t(`deposit.currency.${item.label}`) }))
+
+    const columns = [
+      {
+        title: t('deposit.company_name.table_header_select'),
+        dataIndex: 'select',
+        key: 'select',
+        slots: { customRender: 'action' }
+      },
+      { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name' },
+      { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code' },
+      { title: t('deposit.company_name.table_header_country'), dataIndex: 'countryName', key: 'countryName' },
+      { title: t('deposit.company_name.table_header_currency'), dataIndex: 'currencyCode', key: 'currencyCode' },
+      { title: t('deposit.company_name.table_header_division'), dataIndex: 'divisionName', key: 'divisionName' }
+    ]
 
     const fetchCompanyList = async () => {
       isTableLoading.value = true
@@ -161,14 +145,12 @@ export default defineComponent({
             pageSize: pagination.pageSize,
             orderBy: pagination.orderBy
           },
-          filters
+          filters.value
         )
 
-        companyListData.value = (result?.data || []).map((item, index) => ({ key: index, ...item }))
+        companyListData.value = addUniqueRowKey(result.data)
         pagination.totalPages = result.meta?.totalPages || 0
         pagination.totalRecords = result.meta?.totalRecords || 0
-      } catch (e) {
-        console.log('featch company list error', e)
       } finally {
         isTableLoading.value = false
       }
@@ -178,7 +160,7 @@ export default defineComponent({
     const handleSelectCompany = (record) => {
       context.emit('update:companyName', record.name)
       context.emit('update:subcategoryId', record.id)
-      context.emit('update:visible', false)
+      handleModalCancel()
     }
 
     // cancel modal
@@ -188,6 +170,10 @@ export default defineComponent({
 
     const handleSearch = () => {
       fetchCompanyList()
+    }
+
+    const handleClearFilter = () => {
+      searchCompanyRef.value.resetFields()
     }
 
     // fetch table list
@@ -203,17 +189,20 @@ export default defineComponent({
     )
 
     return {
+      searchCompanyRef,
       isTableLoading,
       isFilterloading,
-      DIVISION,
-      COUNTRY,
-      CURRENCY,
+      divisionOptions,
+      countryOptions,
+      currencyOptions,
       filters,
       companyListData,
       columns,
+
       handleSelectCompany,
       handleModalCancel,
       handleSearch,
+      handleClearFilter,
       ...toRefs(pagination)
     }
   }
@@ -239,7 +228,6 @@ export default defineComponent({
 
     .form-left {
       position: relative;
-      height: 100%;
       width: 100%;
       overflow: auto;
     }
@@ -262,6 +250,10 @@ export default defineComponent({
     }
   }
 
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
   .ant-checkbox-group {
     @include flexbox(null, null);
     flex-direction: column;
@@ -273,10 +265,6 @@ export default defineComponent({
 
   form .form-group .form-content .form-input {
     width: 100%;
-  }
-
-  .ant-checkbox-group-item {
-    margin-top: 8px;
   }
 
   .ant-table-thead > tr > th {
@@ -299,6 +287,10 @@ export default defineComponent({
 
   .ant-table-body {
     overflow-x: auto !important;
+  }
+
+  .ant-table-placeholder {
+    height: 338px;
   }
 }
 </style>

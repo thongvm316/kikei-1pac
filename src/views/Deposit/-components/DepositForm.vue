@@ -2,18 +2,18 @@
 <template>
   <a-form
     ref="depositNewRef"
-    :model="params.data"
+    :model="params"
     :rules="depositNewFormRules"
     layout="vertical"
     class="deposit-form"
     @submit="onSubmitForm"
   >
     <a-form-item name="date" :label="$t('deposit.new.date')">
-      <a-date-picker v-model:value="params.data.date" placeholder="YYYY/MM/DD" />
+      <a-date-picker v-model:value="params.date" placeholder="YYYY/MM/DD" />
     </a-form-item>
 
     <a-form-item name="type" :label="$t('deposit.new.type')">
-      <a-radio-group v-model:value="params.data.type">
+      <a-radio-group v-model:value="params.type">
         <a-radio :value="10">{{ $t('deposit.new.type_deposit') }}</a-radio>
         <a-radio :value="20">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
         <a-radio :value="30">{{ $t('deposit.new.type_transfer') }}</a-radio>
@@ -23,7 +23,7 @@
 
     <a-form-item name="categoryId" :label="$t('deposit.new.category')">
       <a-select
-        v-model:value="params.data.categoryId"
+        v-model:value="params.categoryId"
         :placeholder="$t('deposit.new.category_place_holder')"
         :disabled="isCategoryDisabled"
         class="has-max-width"
@@ -37,7 +37,7 @@
     <a-form-item name="subcategoryId" :label="$t('deposit.new.sub_category')">
       <a-select
         v-if="!isCompanySelection"
-        v-model:value="params.data.subcategoryId"
+        v-model:value="params.subcategoryId"
         :placeholder="$t('deposit.new.sub_category_place_holder')"
         :disabled="isCategoryDisabled"
         class="has-max-width"
@@ -58,29 +58,24 @@
         >
           {{ $t('deposit.new.company_selection') }}
         </a-button>
-        <search-company-name
-          v-model:visible="isOpenModalCompany"
-          v-model:companyName="companyNameSelected"
-          v-model:subcategoryId="params.data.subcategoryId"
-        />
       </div>
     </a-form-item>
 
     <a-form-item name="purpose" :label="$t('deposit.new.purpose')">
       <a-input
-        v-model:value="params.data.purpose"
+        v-model:value="params.purpose"
         :placeholder="$t('deposit.new.purpose_place_holder')"
         class="has-max-width"
       />
     </a-form-item>
 
     <a-form-item name="statisticsMonth" :label="$t('deposit.new.statistics_month')">
-      <a-month-picker v-model:value="params.data.statisticsMonth" placeholder="YYYY/MM" />
+      <a-month-picker v-model:value="params.statisticsMonth" placeholder="YYYY/MM" />
     </a-form-item>
 
     <a-form-item name="groupId" :label="$t('deposit.new.group')">
       <a-select
-        v-model:value="params.data.groupId"
+        v-model:value="params.groupId"
         :placeholder="$t('deposit.new.group_place_holder')"
         class="has-max-width"
       >
@@ -92,7 +87,7 @@
 
     <a-form-item name="withdrawalBankAccountId" :label="$t('deposit.new.withdrawal_bank_account')">
       <a-select
-        v-model:value="params.data.withdrawalBankAccountId"
+        v-model:value="params.withdrawalBankAccountId"
         :placeholder="$t('deposit.new.withdrawal_bank_account_place_holder')"
         class="has-max-width"
       >
@@ -106,7 +101,7 @@
 
     <a-form-item name="withdrawalMoney" :label="$t('deposit.new.withdrawal_money')">
       <a-input-number
-        v-model:value="params.data.withdrawalMoney"
+        v-model:value="params.withdrawalMoney"
         :placeholder="$t('deposit.new.withdrawal_money_place_holder')"
         class="has-max-width"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -124,7 +119,7 @@
     <div v-if="isAdvandceCurrency" class="deposit-form__field-advance">
       <a-form-item name="depositBankAccountId" :label="$t('deposit.new.deposit_bank_account')">
         <a-select
-          v-model:value="params.data.depositBankAccountId"
+          v-model:value="params.depositBankAccountId"
           :placeholder="$t('deposit.new.deposit_bank_account_place_holder')"
           class="has-max-width"
         >
@@ -138,7 +133,7 @@
 
       <a-form-item name="depositMoney" :label="$t('deposit.new.deposit_money')">
         <a-input-number
-          v-model:value="params.data.depositMoney"
+          v-model:value="params.depositMoney"
           :placeholder="$t('deposit.new.deposit_money_place_holder')"
           class="has-max-width"
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
@@ -159,21 +154,17 @@
           @keyup.enter="handleInputTagConfirm"
         />
         <div v-if="isShowTagList" class="deposit-form__tags--list">
-          <a-tag v-for="tag in params.data.tags" :key="tag" closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
+          <a-tag v-for="tag in params.tags" :key="tag" closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
         </div>
       </div>
     </a-form-item>
 
     <a-form-item name="memo" :label="$t('deposit.new.memo')">
-      <a-input
-        v-model:value="params.data.memo"
-        :placeholder="$t('deposit.new.memo_place_holder')"
-        class="has-max-width"
-      />
+      <a-input v-model:value="params.memo" :placeholder="$t('deposit.new.memo_place_holder')" class="has-max-width" />
     </a-form-item>
 
     <a-form-item name="repeated" :label="$t('deposit.new.repeat')">
-      <a-radio-group v-model:value="params.data.repeated">
+      <a-radio-group v-model:value="params.repeated">
         <a-radio :value="1">{{ $t('deposit.new.daily') }}</a-radio>
         <a-radio :value="2">{{ $t('deposit.new.weekly') }}</a-radio>
         <a-radio :value="3">{{ $t('deposit.new.monthly') }}</a-radio>
@@ -182,20 +173,20 @@
       </a-radio-group>
     </a-form-item>
 
-    <a-form-item v-if="params.data.repeated === 3" name="repeated_end_month">
+    <a-form-item v-if="params.repeated === 3" name="repeated_end_month">
       <a-checkbox v-model:checked="isRepeatedEndMonth">{{ $t('deposit.new.repeated_end_month') }}</a-checkbox>
     </a-form-item>
 
     <a-form-item
-      v-if="params.data.repeated !== 0 && params.data.repeated !== null"
+      v-if="params.repeated !== 0 && params.repeated !== null"
       name="repeatedExpiredDate"
       :label="$t('deposit.new.repeated_expired_date')"
     >
-      <a-date-picker v-model:value="params.data.repeatedExpiredDate" placeholder="YYYY/MM/DD" />
+      <a-date-picker v-model:value="params.repeatedExpiredDate" placeholder="YYYY/MM/DD" />
     </a-form-item>
 
     <a-form-item name="confirmed" :label="$t('deposit.new.confirmed')">
-      <a-checkbox v-model:checked="params.data.confirmed">{{ $t('deposit.new.confirmed') }}</a-checkbox>
+      <a-checkbox v-model:checked="params.confirmed">{{ $t('deposit.new.confirmed') }}</a-checkbox>
     </a-form-item>
 
     <a-form-item>
@@ -207,12 +198,18 @@
       </a-button>
     </a-form-item>
   </a-form>
+
+  <search-company-name
+    v-model:visible="isOpenModalCompany"
+    v-model:companyName="companyNameSelected"
+    v-model:subcategoryId="params.subcategoryId"
+  />
 </template>
 
 <script>
-import { defineComponent, defineAsyncComponent, reactive, ref, watch, computed, onBeforeMount } from 'vue'
-import { useStore } from 'vuex'
+import { defineComponent, defineAsyncComponent, ref, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import moment from 'moment'
 
 import {
@@ -221,7 +218,8 @@ import {
   getCategory,
   getSubCategory,
   createDeposit,
-  getDepositDetail
+  getDepositDetail,
+  updateDeposit
 } from '../composables/useDepositService'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
@@ -237,12 +235,14 @@ export default defineComponent({
   },
 
   setup(props) {
-    const store = useStore()
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
 
+    // form
     const depositNewRef = ref()
     const isLoading = ref(false)
+    const localErrors = ref({})
 
     // list data
     const categoryList = ref([])
@@ -262,7 +262,7 @@ export default defineComponent({
 
     // tags
     const inputTagVal = ref('')
-    const isShowTagList = computed(() => params.data.tags?.length !== 0)
+    const isShowTagList = computed(() => params.value.tags?.length !== 0)
 
     // check currency unit
     const withdrawalMoneyCurrency = ref('')
@@ -271,30 +271,28 @@ export default defineComponent({
     const isRepeatedEndMonth = ref(false)
 
     // params deposit form
-    const params = reactive({
-      data: {
-        date: null,
-        type: '',
-        categoryId: undefined,
-        subcategoryId: undefined,
-        purpose: '',
-        statisticsMonth: null,
-        groupId: undefined,
-        withdrawalBankAccountId: undefined,
-        withdrawalMoney: 0,
-        depositBankAccountId: undefined,
-        depositMoney: 0,
-        tags: [],
-        memo: '',
-        numberOfDividedMonth: 0,
-        repeated: '',
-        repeatedExpiredDate: null,
-        repeatedOption: '',
-        repeatedInterval: 1,
-        confirmed: false
-        // createdBy: 1,
-        // updatedBy: 1
-      }
+    const params = ref({
+      date: null,
+      type: '',
+      categoryId: undefined,
+      subcategoryId: undefined,
+      purpose: '',
+      statisticsMonth: null,
+      groupId: undefined,
+      withdrawalBankAccountId: undefined,
+      withdrawalMoney: 0,
+      depositBankAccountId: undefined,
+      depositMoney: 0,
+      tags: [],
+      memo: '',
+      numberOfDividedMonth: 0,
+      repeated: '',
+      repeatedExpiredDate: null,
+      repeatedOption: '',
+      repeatedInterval: 1,
+      confirmed: false
+      // createdBy: 1,
+      // updatedBy: 1
     })
 
     // form validator rules
@@ -333,12 +331,12 @@ export default defineComponent({
 
     const handleInputTagConfirm = () => {
       if (!inputTagVal.value) return
-      params.data.tags = [...params.data.tags, inputTagVal.value]
+      params.value.tags = [...params.value.tags, inputTagVal.value]
       inputTagVal.value = ''
     }
 
     const handleCloseTag = (removedTag) => {
-      params.data.tags = params.data.tags.filter((tag) => tag !== removedTag)
+      params.value.tags = params.value.tags.filter((tag) => tag !== removedTag)
     }
 
     const handleOpenModalCompany = () => {
@@ -380,14 +378,14 @@ export default defineComponent({
       }
 
       return {
+        ...restData,
         type,
         categoryId: type === 40 ? undefined : adCategory?.id,
         subcategoryId: subcategoryId,
         date: date ? moment(date).format('YYYY-MM-DD') : null,
         statisticsMonth: statisticsMonth ? moment(statisticsMonth).format('YYYY-MM-DD') : null,
         repeatedExpiredDate: repeatedExpiredDate ? moment(repeatedExpiredDate).format('YYYY-MM-DD') : null,
-        tags: tags.filter(Boolean),
-        ...restData
+        tags: tags.filter(Boolean)
       }
     }
 
@@ -455,14 +453,37 @@ export default defineComponent({
         const validateRes = await depositNewRef.value.validate()
 
         if (validateRes) {
-          const depositDataRequest = convertDepositDataRequest(params.data)
+          const depositDataRequest = convertDepositDataRequest(params.value)
 
-          await createDeposit(depositDataRequest)
-          depositNewRef.value.resetFields()
-          router.push({ name: 'deposit' })
+          props.edit ? callEditDeposit(depositDataRequest) : callAddDeposit(depositDataRequest)
         }
       } finally {
         isLoading.value = false
+      }
+    }
+
+    const callAddDeposit = async (depositDataRequest) => {
+      const response = await createDeposit(depositDataRequest)
+      if (response.status === 200) {
+        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Add Deposit Success' })
+        router.push({ name: 'deposit' })
+        return
+      }
+      if (response.data?.errors) {
+        localErrors.value = response.data.errors
+      }
+    }
+
+    const callEditDeposit = async (depositDataRequest) => {
+      const depositId = route.params.id
+      const response = await updateDeposit(depositId, depositDataRequest)
+      if (response.status === 200) {
+        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Edit Deposit Success' })
+        router.push({ name: 'deposit' })
+        return
+      }
+      if (response.data?.errors) {
+        localErrors.value = response.data.errors
       }
     }
 
@@ -491,16 +512,15 @@ export default defineComponent({
       if (props.edit) {
         depositId = route.params.id
       } else {
-        const recordDeposit = store.state?.deposit?.recordDeposit || {}
-        depositId = recordDeposit?.id || undefined
-        store.commit('deposit/CLEAR_RECORD_DEPOSIT')
+        depositId = route.query?.selectedId
+        router.replace({ query: {} })
       }
 
       if (!depositId) return
       const { result = {} } = await getDepositDetail(depositId)
 
-      params.data = {
-        ...params.data,
+      params.value = {
+        // ...params.value,
         ...convertDataToForm(result.data)
       }
     }
@@ -515,7 +535,7 @@ export default defineComponent({
 
     /* --------------------- watch params ------------------- */
     watch(
-      () => params.data.type,
+      () => params.value.type,
       (type) => {
         isCategoryDisabled.value = type === 30 || type === 40
         isAdvandceCurrency.value = type === 30
@@ -527,28 +547,29 @@ export default defineComponent({
     )
 
     watch(
-      () => params.data.categoryId,
+      () => params.value.categoryId,
       (id) => {
         fetchSubCategory(id)
 
-        if (categoryList.value.length) {
-          isCompanySelection.value =
-            categoryList.value.findIndex(
-              (item) => item.id === id && (item.subcategoryKind === 20 || item.subcategoryKind === 30)
-            ) !== -1
+        // use for modal search company name
+        const indexCurrentCategory = categoryList.value ? categoryList.value?.findIndex((item) => item.id === id) : -1
+
+        if (indexCurrentCategory !== -1) {
+          const currentCategory = categoryList.value[indexCurrentCategory]
+          isCompanySelection.value = [20, 30].indexOf(currentCategory.subcategoryKind) !== -1
         }
       }
     )
 
     watch(
-      () => params.data.groupId,
+      () => params.value.groupId,
       (groupId) => {
         fetchBankAccounts(groupId)
       }
     )
 
     watch(isRepeatedEndMonth, (val) => {
-      params.data.repeatedOption = val ? '31' : ''
+      params.value.repeatedOption = val ? '31' : ''
     })
 
     watch(isCategoryDisabled, (val) => {
@@ -704,6 +725,10 @@ $field-max-width: 500px;
   .ant-tag {
     background: $color-grey-85;
     padding: 2px 7px;
+  }
+
+  .ant-btn[disabled] {
+    background-color: transparent;
   }
 }
 </style>
