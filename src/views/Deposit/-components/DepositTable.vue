@@ -33,7 +33,7 @@
     </template>
 
     <template #deposit="{ record }">
-      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ $filters.number_with_commas(record.deposit) || '-' }}</span>
+      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span>
     </template>
 
     <template #balance="{ record }">

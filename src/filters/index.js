@@ -17,7 +17,7 @@ export default {
 
   /* ---------------------- number & price format ----------------------- */
   number_with_commas(value) {
-    if (value === '-') return '-'
+    console.log(value)
     if (!value) return 0
     const floatNumberFormatted = value
       ? parseFloat(value)
@@ -30,7 +30,7 @@ export default {
 
   /* ---------------------- text & status ----------------------- */
   format_bolean_confirmed_text(value) {
-    if(!value) return 'No'
+    if (!value) return 'No'
 
     return 'Yes'
   },
