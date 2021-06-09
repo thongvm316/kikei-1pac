@@ -67,6 +67,10 @@
         </p>
       </template>
 
+      <template #renderTypeName="{ record }"><span class="text-grey-55">{{ record.typeName }}</span></template>
+
+      <template #renderStatusName="{ record }"><span class="text-grey-55">{{ record.statusName }}</span></template>
+
       <template #renderProjectUpdatedAt="{ record }">{{ $filters.moment_l(record.updatedAt) }}</template>
 
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
@@ -138,6 +142,7 @@ export default defineComponent({
       {
         dataIndex: 'projectCombineName',
         key: 'projectCombineName',
+        align: 'left',
         colSpan: 3,
         slots: {
           title: 'projectNameTitle',
@@ -149,17 +154,24 @@ export default defineComponent({
         dataIndex: 'typeName',
         key: 'typeName',
         title: '',
-        colSpan: 0
+        colSpan: 0,
+        slots: {
+          customRender: 'renderTypeName'
+        },
       },
       {
         dataIndex: 'statusName',
         key: 'statusName',
         title: '',
-        colSpan: 0
+        colSpan: 0,
+        slots: {
+          customRender: 'renderStatusName'
+        }
       },
       {
         dataIndex: 'accuracyName',
         key: 'accuracyName',
+        align: 'center',
         title: t('project.accuracy_name'),
         slots: {
           customRender: 'renderProjectAccuracy'
@@ -178,6 +190,7 @@ export default defineComponent({
       {
         dataIndex: 'money',
         key: 'money',
+        align: 'right',
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
@@ -188,6 +201,7 @@ export default defineComponent({
         dataIndex: 'statisticsFromMonth',
         key: 'statisticsFromMonth',
         title: t('project.statistics_from_month'),
+        align: 'center',
         slots: {
           customRender: 'renderProjectStatisticsDate'
         },

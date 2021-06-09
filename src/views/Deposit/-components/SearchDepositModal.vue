@@ -81,7 +81,17 @@
             </div>
           </div>
 
-          <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
+          <div class="form-group">
+            <div class="form-content">
+              <label class="form-label">項目名</label>
+
+              <div class="form-checkbox">
+                <a-input v-model:value="valuePurpose" placeholder="入力してください" />
+              </div>
+            </div>
+          </div>
+
+          <a-button key="back" @click="handleClearDepositFormSearch">クリア</a-button>
           <a-button key="submit" type="primary" html-type="submit">
             <template #icon>
               <span class="btn-icon">
@@ -140,10 +150,11 @@ export default defineComponent({
     const state = reactive({
       dateDepositValue: [],
       statisticsDateDepositValue: [],
-      checkedTypeDepositList: [typeDepositList[0].value],
+      checkedTypeDepositList: [],
       checkedCategotyList: [],
       checkedSubCategotyList: [],
-      checkedSubConfirmedList: [confirmedList.value[0].value]
+      checkedSubConfirmedList: [],
+      valuePurpose: ''
     })
 
     const visible = computed({
@@ -153,8 +164,14 @@ export default defineComponent({
       }
     })
 
-    const handleCancel = () => {
-      visible.value = false
+    const handleClearDepositFormSearch = () => {
+      state.dateDepositValue = [],
+      state.statisticsDateDepositValue = [],
+      state.checkedTypeDepositList = [],
+      state.checkedCategotyList = [],
+      state.checkedSubCategotyList = [],
+      state.checkedSubConfirmedList = [],
+      state.valuePurpose = ''
     }
 
     const onSubmit = () => {
@@ -171,7 +188,8 @@ export default defineComponent({
         type: state.checkedTypeDepositList,
         confirmed: state.checkedSubConfirmedList,
         categoryId: state.checkedCategotyList,
-        subcategoryId: state.checkedSubCategotyList
+        subcategoryId: state.checkedSubCategotyList,
+        purpose: state.valuePurpose
       }
 
       emit('on-search', searchDataDeposit)
@@ -197,11 +215,9 @@ export default defineComponent({
     onBeforeMount(async () => {
       const dataCategory = await getCategory()
       categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
-      state.checkedCategotyList = [categoryList.value[0].value]
 
       const dataSubCategory = await getSubCategory()
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
-      state.checkedSubCategotyList = [subCategoryList.value[0].value]
     })
 
     return {
@@ -214,7 +230,7 @@ export default defineComponent({
       confirmedList,
       ...toRefs(state),
 
-      handleCancel,
+      handleClearDepositFormSearch,
       onSubmit
     }
   }
