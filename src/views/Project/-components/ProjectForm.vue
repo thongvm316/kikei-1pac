@@ -1,11 +1,13 @@
 <template>
   <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
     <!-- companyID -->
-    <a-form-item name="companyId" label="クライアント名">
+    <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
+
+      <p v-if="localErrors['companyId']" class="ant-form-explain">{{ localErrors['companyId'] }}</p>
     </a-form-item>
     <!-- companyID -->
 
@@ -16,8 +18,9 @@
     <!-- code -->
 
     <!-- name -->
-    <a-form-item name="name" label="プロジェクト名">
+    <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
+      <p v-if="localErrors['name']" class="ant-form-explain">{{ localErrors['name'] }}</p>
     </a-form-item>
     <!-- name -->
 
@@ -34,22 +37,25 @@
     <!-- type -->
 
     <!-- status -->
-    <a-form-item name="statusId" label="ステータス">
+    <a-form-item name="statusId" label="ステータス" :class="{ 'has-error': localErrors['statusId'] }">
       <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
           {{ status.name }}
         </a-select-option>
       </a-select>
+      <p v-if="localErrors['statusId']" class="ant-form-explain">{{ localErrors['statusId'] }}</p>
     </a-form-item>
     <!-- status -->
 
     <!-- accuracy -->
-    <a-form-item name="accuracyId" label="受注確度">
+    <a-form-item name="accuracyId" label="受注確度" :class="{ 'has-error': localErrors['statusId'] }">
       <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
           {{ accuracy.code }} ({{ accuracy.name }})
         </a-select-option>
       </a-select>
+
+      <p v-if="localErrors['accuracyId']" class="ant-form-explain">{{ localErrors['accuracyId'] }}</p>
     </a-form-item>
     <!-- accuracy -->
 
@@ -87,12 +93,13 @@
     <!-- statistics month -->
 
     <!-- groupID -->
-    <a-form-item name="groupId" label="請求グループ">
+    <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
           {{ group.name }}
         </a-select-option>
       </a-select>
+      <p v-if="localErrors['groupId']" class="ant-form-explain">{{ localErrors['groupId'] }}</p>
     </a-form-item>
     <!-- groupID -->
 
@@ -103,47 +110,84 @@
     <!-- director -->
 
     <!-- accountID -->
-    <a-form-item name="accountId" label="営業担当">
+    <a-form-item name="accountId" label="営業担当" :class="{ 'has-error': localErrors['accountId'] }">
       <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
           {{ account.fullname }}
         </a-select-option>
       </a-select>
+      <p v-if="localErrors['accountId']" class="ant-form-explain">{{ localErrors['accountId'] }}</p>
     </a-form-item>
     <!-- accountID -->
 
     <!-- money -->
-    <a-form-item name="money" label="金額">
+    <a-form-item name="money" label="金額" :class="{ 'has-error': localErrors['money'] }">
       <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
+      <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
     </a-form-item>
     <!-- money -->
 
     <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
       <div class="outsource">
-        <template v-for="(order, index) in companyOutsources" :key="order.key">
+        <template v-for="(order, index) in localProjectOrders" :key="order.key">
           <div class="outsource__item">
-            <div>
+            <div
+              :class="{
+                'has-error':
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['companyId']
+              }"
+            >
               <p>会社名</p>
               <div v-if="order.companyId" class="outsource__company-info">
                 <p class="text-grey-500">{{ order.companyName }}</p>
                 <p @click="removeCompanyOnSearchForm(order)">削除</p>
               </div>
-
               <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
+
+              <p
+                v-if="
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['companyId']
+                "
+                class="u-text-additional-red-6"
+              >
+                company {{ localErrors['adProjectOrders'][index]['companyId'] }}
+              </p>
             </div>
-            <div>
+
+            <div
+              :class="{
+                'has-error':
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['money']
+              }"
+            >
               <p>金額</p>
               <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
+              <p
+                v-if="
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['money']
+                "
+                class="u-text-additional-red-6"
+              >
+                money {{ localErrors['adProjectOrders'][index]['money'] }}
+              </p>
             </div>
-            <div>
+            <div v-if="!order.id">
               <p>Action</p>
-              <a-button type="danger" @click="removeOutsourceData(order)">削除</a-button>
+              <a-button type="danger" ghost @click="removeProjectOrder(order)">削除</a-button>
             </div>
           </div>
         </template>
 
-        <a-button class="outsource__btn" @click="addDummyOutsourceData">
+        <a-button class="outsource__btn" @click="addDummyProjectOrder">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
@@ -180,11 +224,13 @@
 import { defineComponent, ref, reactive, onBeforeMount, computed, watch } from 'vue'
 import moment from 'moment'
 import { uniqueId } from 'lodash-es'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../composables/useAccountList'
 import { useGroupList } from '../composables/useGroupList'
-import { getProjectAccuracies, getProjectStatuses, addProject } from '../composables/useProject'
+import { getProjectAccuracies, getProjectStatuses, addProject, editProject } from '../composables/useProject'
 import ProjectCompanyForm from './ProjectCompanyForm'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import { deepCopy } from '@/helpers/json-parser'
@@ -199,12 +245,16 @@ export default defineComponent({
   },
 
   props: {
-    project: Object
+    project: Object,
+    edit: Boolean
   },
 
   setup(props) {
     const projectProp = props.project
+    const edit = props.edit
     const prjectFormRef = ref()
+    const store = useStore()
+    const router = useRouter()
 
     const projectParams = ref({
       companyId: null,
@@ -225,13 +275,14 @@ export default defineComponent({
       memo: '',
       adProjectOrders: []
     })
+    const localErrors = ref({})
     const loading = ref(false)
 
     const isCompanySearchFormOpen = ref(false)
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    let companyOutsources = reactive([])
+    const localProjectOrders = ref([])
 
     const dataTypes = reactive(PROJECT_TYPES)
     const dataAccounts = ref([])
@@ -257,21 +308,21 @@ export default defineComponent({
     })
 
     /* --------------------- handle search company ------------------- */
-    const addDummyOutsourceData = () => {
+    const addDummyProjectOrder = () => {
       const emptyOutsourceData = {
         companyId: '',
         companyName: '',
         key: uniqueId('__outsource__'),
         money: ''
       }
-      companyOutsources.push(deepCopy(emptyOutsourceData))
+      localProjectOrders.value.push(deepCopy(emptyOutsourceData))
     }
 
-    const removeOutsourceData = (order) => {
-      const index = companyOutsources.findIndex((data) => data.key === order.key)
+    const removeProjectOrder = (order) => {
+      const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
       if (index < 0) return
 
-      companyOutsources.splice(index, 1)
+      localProjectOrders.value.splice(index, 1)
     }
 
     const openCompanySearchForm = (target, key = null) => {
@@ -288,7 +339,7 @@ export default defineComponent({
         projectParams.value.companyId = parseInt(payload.id)
         companyOwnerData.value = payload
       } else {
-        const order = companyOutsources[outsouringCompanyTarget.value]
+        const order = localProjectOrders.value[outsouringCompanyTarget.value]
         if (!order) return
 
         order.companyId = payload.id
@@ -314,8 +365,8 @@ export default defineComponent({
     }
 
     const totalMoneyOutsourcing = computed(() => {
-      if (companyOutsources.length <= 0) return 0
-      return companyOutsources.reduce((acc, curr) => acc + curr.money, 0)
+      if (localProjectOrders.value.length <= 0) return 0
+      return localProjectOrders.value.reduce((acc, curr) => acc + curr.money, 0)
     })
 
     const highestAccuracyRequired = computed(() => {
@@ -331,11 +382,18 @@ export default defineComponent({
     const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
 
     const initProjectPropData = () => {
-      if (!projectProp.value) return
+      if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
-      projectParams.value = {
-        ...projectParams.value,
-        ...deepCopy(projectPropValue)
+      Object.keys(projectParams.value).forEach((key) => {
+        if (projectPropValue[key]) projectParams.value[key] = deepCopy(projectPropValue[key])
+      })
+
+      // init company
+      projectParams.value.companyId = projectPropValue.adCompany.id
+      // init dummy company
+      companyOwnerData.value = {
+        id: projectPropValue.adCompany.id,
+        name: projectPropValue.adCompany.name
       }
 
       // init date month value
@@ -343,13 +401,21 @@ export default defineComponent({
       projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
       projectParams.value.statisticsMonths = [
         toDateFormat(projectPropValue.statisticsFromMonth),
-        toDateFormat(projectPropValue.statisticsEndMonth)
+        toDateFormat(projectPropValue.statisticsToMonth)
       ]
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
         for (let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
-          companyOutsources.push(deepCopy(projectParams.value.adProjectOrders[i]))
+          const { id, money, note, adCompany } = projectParams.value.adProjectOrders[i]
+          localProjectOrders.value.push({
+            key: uniqueId('__outsource__'),
+            id,
+            money,
+            note,
+            companyId: adCompany.id,
+            companyName: adCompany.name
+          })
         }
       }
     }
@@ -357,12 +423,12 @@ export default defineComponent({
 
     /* ------------------- api intergration --------------------------- */
     const projectOutsouringOrders = () => {
-      if (companyOutsources.length <= 0) return null
-      return companyOutsources.map((item) => {
+      if (localProjectOrders.value.length <= 0) return null
+      return localProjectOrders.value.map((item) => {
         const shadownItem = {
           id: item.id ? item.id : null,
-          companyId: item.companyId,
-          money: item.money,
+          companyId: item.companyId || null,
+          money: item.money || null,
           note: '112233'
         }
         if (!shadownItem.id) delete shadownItem.id
@@ -399,10 +465,34 @@ export default defineComponent({
       try {
         const validateRes = await prjectFormRef.value.validate()
         if (validateRes) {
-          addProject(projectDataRequest.value)
+          edit ? callEditProject() : callAddProject()
         }
       } catch (e) {
         console.log(e)
+      }
+    }
+
+    const callAddProject = async () => {
+      const response = await addProject(projectDataRequest.value)
+      if (response.status === 200) {
+        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Add Project Success' })
+        router.push({ name: 'project' })
+        return
+      }
+      if (response.data?.errors) {
+        localErrors.value = response.data.errors
+      }
+    }
+
+    const callEditProject = async () => {
+      const response = await editProject(projectProp.value.id, projectDataRequest.value)
+      if (response.status === 200) {
+        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Edit Project Success' })
+        router.push({ name: 'project' })
+        return
+      }
+      if (response.data?.errors) {
+        localErrors.value = response.data.errors
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -429,6 +519,7 @@ export default defineComponent({
     return {
       prjectFormRef,
       projectParams,
+      localErrors,
       projectFormRules,
       dataGroups,
       dataTypes,
@@ -438,11 +529,11 @@ export default defineComponent({
       loading,
       isCompanySearchFormOpen,
       companyOwnerData,
-      companyOutsources,
+      localProjectOrders,
       totalMoneyOutsourcing,
       openCompanySearchForm,
-      addDummyOutsourceData,
-      removeOutsourceData,
+      addDummyProjectOrder,
+      removeProjectOrder,
       removeCompanyOnSearchForm,
       selectCompanyOnSearchForm,
       onSubmit

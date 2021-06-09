@@ -7,7 +7,7 @@
           <div class="form-content">
             <label class="form-label">{{ $t('company.keyword') }}</label>
             <div class="form-input">
-              <a-input v-model:value="filter.key_search" class="w-339" :placeholder="$t('common.please_enter')" />
+              <a-input v-model:value="filter.key_search" :placeholder="$t('common.please_enter')" />
               <span class="note" v-text="`※` + $t('company.note')" />
             </div>
           </div>

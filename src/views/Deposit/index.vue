@@ -1,7 +1,7 @@
 <template>
   <div class="u-mx-32">
     <div class="u-flex u-justify-end u-mt-24 u-mb-16">
-      <a-button @click="exportDepositAsCsvFile">
+      <a-button :loading="loadingExportCsvButton" @click="exportDepositAsCsvFile">
         <template #icon
           ><span class="btn-icon"><line-down-icon /></span
         ></template>
@@ -123,6 +123,7 @@ export default defineComponent({
     const store = useStore()
 
     const disableButton = ref()
+    const loadingExportCsvButton = ref()
 
     const currentSelectedRecord = ref()
 
@@ -256,7 +257,7 @@ export default defineComponent({
       bankAccountId.length
         ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
         : (expandedRowKeys.value = [])
-    }, 800)
+    }, 1000)
 
     const onHandleChangeTabGroup = async (groupId) => {
       currentActiveIdGroup.value = groupId
@@ -302,15 +303,56 @@ export default defineComponent({
       items: []
     })
 
+    const generateKeyCsv = (data) => {
+      const SPACE_REGREX = /\s/g
+      let objectData = {}
+
+      data.forEach((item) => {
+        ;(objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_deposit`] = item.deposit),
+        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_withdrawal`] = item.withdrawal),
+        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_balance`] = item.balance)
+      })
+
+      return objectData
+    }
+
     const exportDepositAsCsvFile = async () => {
+      loadingExportCsvButton.value = true
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
-        pageSize: 99999,
-        pageNumber: 1,
         bankAccountId: currentBankAccountList.value
       }
-      const { data } = await getDeposit(dataRequest)
-      exportObj.items = data.result.data
+
+      const params = {
+        pageNumber: currentPageNumber.value
+      }
+      const { data } = await getDeposit(dataRequest, params)
+      loadingExportCsvButton.value = false
+
+      if (data.result.data[0].bankAccounts) {
+        exportObj.items = data.result.data.map((record) => {
+          const bankObj = generateKeyCsv(record.bankAccounts)
+
+          return Object.assign(record, bankObj)
+        })
+
+        // TODO: LOCALE header csv
+        // const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts)).map(item => ({ value: item, label: t(`deposit.csv.header.${item}`) }))
+
+        // headerList.forEach(item => {
+        //   exportObj.header.push(item.label)
+        //   exportObj.labels.push(item.value)
+        // })
+
+        const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts))
+
+        headerList.forEach((item) => {
+          exportObj.header.push(item)
+          exportObj.labels.push(item)
+        })
+      } else {
+        exportObj.items = data.result.data
+      }
       exportCSVFile(exportObj)
     }
 
@@ -364,6 +406,7 @@ export default defineComponent({
       isVisibleDepositModal,
       currentPageNumber,
       disableButton,
+      loadingExportCsvButton,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

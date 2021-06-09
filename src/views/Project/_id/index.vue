@@ -1,14 +1,14 @@
 <template>
   <section class="project-new">
-    <project-form :project="project" />
+    <project-form :project="project" edit />
   </section>
 </template>
 
 <script>
 import { defineComponent, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
-import ProjectForm from '../-components/ProjectForm'
 import { getProject } from '../composables/useProject'
+import ProjectForm from '../-components/ProjectForm'
 
 export default defineComponent({
   name: 'ProjectEditPage',
@@ -26,7 +26,6 @@ export default defineComponent({
       if (!projectId) return
 
       project.value = await getProject(projectId)
-      console.log(project.value)
     }
 
     onBeforeMount(() => {

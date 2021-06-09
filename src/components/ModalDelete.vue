@@ -5,7 +5,7 @@
         <p>{{ $t('modal.message_en') }} {{ nameCompany }}?</p>
       </template>
       <template v-if="locale === 'ja'">
-        <p>{{ nameCompany }} {{ $t('modal.message_ja') }}</p>
+        <p>{{ nameCompany + $t('modal.message_ja') }}</p>
       </template>
       <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
       <a-button type="danger" @click="handleDelete">

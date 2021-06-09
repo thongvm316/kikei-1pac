@@ -10,7 +10,7 @@ export default {
   payment_site: 'Payment Site',
   street_address: 'Street Address',
   contact_phone: 'Contact Phone',
-  note: 'note',
+  note: 'Search by company name and company code',
   description: 'Description',
   company_name: 'Company Name',
   company_code: 'Company Code',

@@ -7,10 +7,6 @@
       align-items: baseline;
       justify-content: center;
 
-      .form-label {
-        margin-right: 49px;
-      }
-
       .form-input {
         display: flex;
         flex-direction: column;
@@ -36,12 +32,12 @@
 
       .form-label,
       .label-input {
-        width: 40%;
+        width: 30%;
       }
 
       .form-input,
       .ant-checkbox-group {
-        width: 60%;
+        width: 70%;
       }
     }
   }

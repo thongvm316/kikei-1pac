@@ -29,34 +29,19 @@ export const getProjectList = async (pagination, loading, data) => {
 
 export const exportProject = (items) => {
   const exportObj = {
-    header: [
-      t('project.updated_date'),
-      'Project Code',
-      t('project.project_name'),
-      'Company Name',
-      t('project.type'),
-      t('project.status'),
-      t('project.accuracy_name'),
-      t('project.release_date'),
-      t('project.money'),
-      t('project.statistics_from_month'),
-      t('project.group_name'),
-      t('project.account_name')
-    ],
     fileTitle: 'project',
     labels: [
-      { field: 'updatedAt', formatBy: 'moment_l' },
-      'code',
-      'name',
-      'companyName',
-      'typeName',
-      'statusName',
-      'accuracyName',
-      { field: 'releaseDate', formatBy: 'moment_l' },
-      'money',
-      { field: 'statisticsFromMonth', formatBy: 'moment_l' },
-      'groupName',
-      'accountName'
+      { header: t('project.updated_date'), field: 'updatedAt', formatBy: 'moment_l' },
+      { header: 'Project Code', field: 'code' },
+      { header: t('project.project_name'), field: 'name' },
+      { header: 'Company Name', field: 'companyName' },
+      { header: t('project.type'), field: 'typeName' },
+      { header: t('project.accuracy_name'), field: 'accuracyName' },
+      { header: t('project.release_date'), field: 'releaseDate', formatBy: 'moment_l' },
+      { header: t('project.money'), field: 'money' },
+      { header: t('project.statistics_from_month'), field: 'statisticsFromMonth', formatBy: 'moment_l' },
+      { header: t('project.group_name'), field: 'groupName' },
+      { header: t('project.account_name'), field: 'accountName' }
     ],
     items
   }
@@ -78,7 +63,16 @@ export const addProject = async (data) => {
     const response = await ProjectService.addProject(data)
     return response
   } catch (e) {
-    throw e
+    return e.response
+  }
+}
+
+export const editProject = async (projectId, data) => {
+  try {
+    const response = await ProjectService.editProject(projectId, data)
+    return response
+  } catch (e) {
+    return e.response
   }
 }
 
