@@ -38,8 +38,8 @@ export default defineComponent({
 
     onMounted(() => {
       locales.value = {
-        en: { ...locales.value.en, Empty: { description: 'No Data' } },
-        ja: { ...locales.value.ja, Empty: { description: '該当する入出金が見つかりませんでした。' } }
+        en: { ...locales.value.en, Empty: { description: 'The corresponding item was not found.' } },
+        ja: { ...locales.value.ja, Empty: { description: '該当する企業が見つかりませんでした。' } }
       }
     })
 

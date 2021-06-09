@@ -3,8 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{x: 1000, y: 610 }"
-    @expand="onClickExpandRowButton"
+    :scroll="{ x: 1000, y: 610 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -15,49 +14,80 @@
       selectedRowKeys: currentSelectedRowKeys,
       getCheckboxProps: (record) => ({ disabled: record.confirmed })
     }"
-
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false"
+    @expand="onClickExpandRowButton"
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.statisticsMonth) }}</template>
 
     <template #typeName="{ record }">
-      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span>
+      <span
+        :class="`type-${record.type} bank-${record.class} ${
+          record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
+        }`"
+        >{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span
+      >
     </template>
 
     <template #deposit="{ record }">
-      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ record.deposit }}</span>
+      <span
+        :class="`type-${record.type} bank-${record.class} ${
+          record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
+        }`"
+        >{{ record.deposit }}</span
+      >
     </template>
 
     <template #action="{ record }">
       <a-button v-if="record.children" :disabled="record.confirmed" type="primary">確定</a-button>
     </template>
 
-    <template #customTitleDeposit>
-      入出金額<br>(JPY)
-    </template>
+    <template #customTitleDeposit> 入出金額<br />(JPY) </template>
 
-    <template #customTitleBalance>
-      残高<br>(JPY)
-    </template>
+    <template #customTitleBalance> 残高<br />(JPY) </template>
   </a-table>
 </template>
 <script>
 import { defineComponent, onBeforeMount, ref } from 'vue'
 
 const columnsDeposit = [
-  { title: '入出金日', dataIndex: 'date', key: 'date', align: 'left', slots: { customRender: 'renderDepositUpdatedAt' }, sorter: true },
-  { title: '計上月', dataIndex: 'statisticsMonth', key: 'statisticsMonth', slots: { customRender: 'renderDepositStatictis' }, sorter: true },
+  {
+    title: '入出金日',
+    dataIndex: 'date',
+    key: 'date',
+    align: 'left',
+    slots: { customRender: 'renderDepositUpdatedAt' },
+    sorter: true
+  },
+  {
+    title: '計上月',
+    dataIndex: 'statisticsMonth',
+    key: 'statisticsMonth',
+    slots: { customRender: 'renderDepositStatictis' },
+    sorter: true
+  },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
   { title: '項目名', dataIndex: 'purpose', key: 'purpose', slots: { customRender: 'purpose' } },
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
-  { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
+  {
+    dataIndex: 'deposit',
+    key: 'deposit',
+    align: 'right',
+    slots: { title: 'customTitleDeposit', customRender: 'deposit' }
+  },
   { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance' } },
-  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' }
+  {
+    title: '確定',
+    dataIndex: 'action',
+    key: 'action',
+    slots: { customRender: 'action' },
+    width: '127px',
+    align: 'center'
+  }
 ]
 
 export default defineComponent({
@@ -78,13 +108,22 @@ export default defineComponent({
     const currentRowClick = ref()
 
     const onSelectChangeRow = (selectedRowKeys) => {
-      emit('update:indeterminateCheckAllRows', selectedRowKeys.length < props.dataDeposit.filter(item => !item.confirmed).length)
-      emit('update:checkAllRowTable', selectedRowKeys.length === props.dataDeposit.filter(item => !item.confirmed).length)
+      emit(
+        'update:indeterminateCheckAllRows',
+        selectedRowKeys.length < props.dataDeposit.filter((item) => !item.confirmed).length
+      )
+      emit(
+        'update:checkAllRowTable',
+        selectedRowKeys.length === props.dataDeposit.filter((item) => !item.confirmed).length
+      )
       emit('update:currentSelectedRowKeys', selectedRowKeys)
     }
 
     const onSelectAllChangeRows = (_, selectedRows) => {
-      emit('update:currentSelectedRowKeys', selectedRows.map(item => item.key))
+      emit(
+        'update:currentSelectedRowKeys',
+        selectedRows.map((item) => item.key)
+      )
     }
 
     const onCustomRow = (record) => {
@@ -100,7 +139,10 @@ export default defineComponent({
       if (expanded) {
         props.expandedRowKeys.push(record.key)
       } else {
-        emit('update:expandedRowKeys', props.expandedRowKeys.filter(item => item !== record.key))
+        emit(
+          'update:expandedRowKeys',
+          props.expandedRowKeys.filter((item) => item !== record.key)
+        )
       }
     }
 
@@ -162,6 +204,7 @@ export default defineComponent({
       display: flex;
       flex-direction: row-reverse;
       align-items: center;
+      justify-content: center;
 
       .ant-table-row-expand-icon {
         margin-right: 0;

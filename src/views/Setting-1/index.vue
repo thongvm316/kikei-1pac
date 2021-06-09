@@ -26,8 +26,10 @@
                 <label class="label-input">
                   {{ $t('company.division') }}
                 </label>
-                <a-checkbox-group v-model:value="filter.divisions">
-                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                <a-checkbox-group v-model:value="filter.division">
+                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                    $t(`company.${item.value}`)
+                  }}</a-checkbox>
                 </a-checkbox-group>
               </div>
             </div>
@@ -56,14 +58,18 @@
               </div>
             </div>
 
-            <a-button key="submit" type="primary" html-type="submit">
-              <template #icon>
-                <span class="btn-icon">
-                  <search-icon />
-                </span>
-              </template>
-              {{ $t('company.search') }}
-            </a-button>
+            <!-- Box-Action-->
+            <div class="box-action">
+              <a-button key="clear" @click="handleClear">{{ $t('company.clear') }} </a-button>
+              <a-button key="submit" type="primary" html-type="submit">
+                <template #icon>
+                  <span class="btn-icon">
+                    <search-icon />
+                  </span>
+                </template>
+                {{ $t('company.search') }}
+              </a-button>
+            </div>
           </form>
         </div>
 
@@ -131,7 +137,14 @@ export default defineComponent({
     const height = ref(0)
     const isLoading = ref(false)
 
-    const filter = reactive({ key_search: '', divisions: [], country_id: [], currency_id: [] })
+    const initialState = {
+      key_search: '',
+      division: [],
+      country_id: [],
+      currency_id: []
+    }
+
+    const filter = reactive({ ...initialState })
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
@@ -186,6 +199,11 @@ export default defineComponent({
 
     const getInnerHeight = () => {
       height.value = window.innerHeight
+    }
+
+    const handleClear = async () => {
+      Object.assign(filter, initialState)
+      await fetchList({ pageNumber: 1, pageSize: 30 })
     }
 
     const handleChange = async (pagination) => {
@@ -245,6 +263,7 @@ export default defineComponent({
       selected,
       tmpCompany,
       height,
+      handleClear,
       handleChange,
       onSearch,
       fetchList,

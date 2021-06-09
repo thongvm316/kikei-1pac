@@ -15,7 +15,8 @@ $text-weight-utils: (
 
 $text-color-utils: (
   'grey-55': $color-grey-55,
-  'additional-blue-6': $color-additional-blue-6
+  'additional-blue-6': $color-additional-blue-6,
+  'additional-red-6': $color-additional-red-6
 );
 @each $key, $val in $text-color-utils {
   .u-text-#{$key} {

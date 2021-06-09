@@ -1,7 +1,12 @@
 <template>
   <a-modal v-model:visible="open" :title="$t('modal.title')" class="modal-delete" @cancel="handleCancel">
     <template #footer>
-      <p>{{ $t('modal.message') }}</p>
+      <template v-if="locale === 'en'">
+        <p>{{ $t('modal.message_en') }} {{ nameCompany }}?</p>
+      </template>
+      <template v-if="locale === 'ja'">
+        <p>{{ nameCompany + $t('modal.message_ja') }}</p>
+      </template>
       <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
       <a-button type="danger" @click="handleDelete">
         {{ $t('modal.delete') }}
@@ -12,6 +17,7 @@
 
 <script>
 import { defineComponent, ref, toRefs, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'ModalDelete',
@@ -20,6 +26,10 @@ export default defineComponent({
     visible: {
       type: Boolean,
       default: false
+    },
+    name: {
+      type: String,
+      required: true
     }
   },
 
@@ -27,7 +37,10 @@ export default defineComponent({
 
   setup(props, context) {
     const { visible } = toRefs(props)
+    const { name } = toRefs(props)
     const open = ref(props.visible)
+    const nameCompany = ref(props.name)
+    const { locale } = useI18n()
 
     const handleCancel = () => {
       open.value = false
@@ -38,12 +51,18 @@ export default defineComponent({
       open.value = val
     })
 
+    watch(name, (val) => {
+      nameCompany.value = val
+    })
+
     const handleDelete = (evt) => {
       context.emit('delete', evt)
     }
 
     return {
       open,
+      nameCompany,
+      locale,
       handleCancel,
       handleDelete
     }
