@@ -9,10 +9,11 @@
 
               <div class="form-select">
                 <a-range-picker
+                  v-model:value="dateDepositValue"
                   style="width: 256px"
                   format="YYYY-MM-DD"
-                  v-model:value="dateDepositValue"
-                  :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']">
+                  :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                >
                   <template #suffixIcon>
                     <calendar-outlined />
                   </template>
@@ -27,10 +28,11 @@
 
               <div class="form-select">
                 <a-range-picker
+                  v-model:value="statisticsDateDepositValue"
                   style="width: 256px"
                   format="YYYY-MM"
-                  v-model:value="statisticsDateDepositValue"
-                  :placeholder="['YYYY/MM', 'YYYY/MM']">
+                  :placeholder="['YYYY/MM', 'YYYY/MM']"
+                >
                   <template #suffixIcon>
                     <calendar-outlined />
                   </template>
@@ -54,7 +56,7 @@
               <label class="form-label">大分類</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedCategotyList" :options="categoryList"  />
+                <a-checkbox-group v-model:value="checkedCategotyList" :options="categoryList" />
               </div>
             </div>
           </div>
@@ -64,7 +66,7 @@
               <label class="form-label">中分類</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedSubCategotyList" :options="subCategoryList"  />
+                <a-checkbox-group v-model:value="checkedSubCategotyList" :options="subCategoryList" />
               </div>
             </div>
           </div>
@@ -74,7 +76,7 @@
               <label class="form-label">確定</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedSubConfirmedList" :options="confirmedList"  />
+                <a-checkbox-group v-model:value="checkedSubConfirmedList" :options="confirmedList" />
               </div>
             </div>
           </div>
@@ -125,7 +127,10 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = typeDepositEnums.map(item => ({ value: item.type, label: t(`deposit.deposit_list.${item.name}`) }))
+    const typeDepositList = typeDepositEnums.map((item) => ({
+      value: item.type,
+      label: t(`deposit.deposit_list.${item.name}`)
+    }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
     const categoryList = ref([])
@@ -160,8 +165,12 @@ export default defineComponent({
         group_id: props.currentActiveIdGroup,
         fromDate: state.dateDepositValue[0] ? moment(state.dateDepositValue[0]).format('YYYY-MM-DD') : null,
         toDate: state.dateDepositValue[1] ? moment(state.dateDepositValue[1]).format('YYYY-MM-DD') : null,
-        statisticsFrom: state.statisticsDateDepositValue[0] ? moment(state.statisticsDateDepositValue[0]).format('YYYY-MM') : null,
-        statisticsTo: state.statisticsDateDepositValue[1] ? moment(state.statisticsDateDepositValue[1]).format('YYYY-MM') : null,
+        statisticsFrom: state.statisticsDateDepositValue[0]
+          ? moment(state.statisticsDateDepositValue[0]).format('YYYY-MM')
+          : null,
+        statisticsTo: state.statisticsDateDepositValue[1]
+          ? moment(state.statisticsDateDepositValue[1]).format('YYYY-MM')
+          : null,
         type: state.checkedTypeDepositList,
         confirmed: state.checkedSubConfirmedList,
         categoryId: state.checkedCategotyList,
@@ -175,7 +184,7 @@ export default defineComponent({
     const toCategoryOptions = (options) => {
       if (!options) return
 
-      return options.map(item => {
+      return options.map((item) => {
         return { value: item.id, label: item.name }
       })
     }
@@ -183,7 +192,7 @@ export default defineComponent({
     const toSubCategoryOptions = (options) => {
       if (!options) return
 
-      return options.map(item => {
+      return options.map((item) => {
         return { value: item.id, label: item.name, categoryId: item.categoryId }
       })
     }

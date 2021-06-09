@@ -28,7 +28,9 @@ export default defineComponent({
       project.value = await getProject(projectId)
     }
 
-    onBeforeMount(() => { fetchProject() })
+    onBeforeMount(() => {
+      fetchProject()
+    })
 
     return {
       project

@@ -17,7 +17,9 @@ export default defineComponent({
     const store = useStore()
     const { t } = useI18n()
     const flashMessage = computed(() => store.state.flash.message)
-    const onClose = () => { store.commit('flash/CLEAR_FLASH_MESSAGE') }
+    const onClose = () => {
+      store.commit('flash/CLEAR_FLASH_MESSAGE')
+    }
 
     const showMessage = () => {
       const { variant, message, placement, duration } = flashMessage.value

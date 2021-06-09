@@ -1,7 +1,7 @@
 <template>
   <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
     <!-- companyID -->
-    <a-form-item name="companyId" label="クライアント名" :class="{'has-error': localErrors['companyId']}">
+    <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
@@ -18,7 +18,7 @@
     <!-- code -->
 
     <!-- name -->
-    <a-form-item name="name" label="プロジェクト名" :class="{'has-error': localErrors['name']}">
+    <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
       <p v-if="localErrors['name']" class="ant-form-explain">{{ localErrors['name'] }}</p>
     </a-form-item>
@@ -37,7 +37,7 @@
     <!-- type -->
 
     <!-- status -->
-    <a-form-item name="statusId" label="ステータス" :class="{'has-error': localErrors['statusId']}">
+    <a-form-item name="statusId" label="ステータス" :class="{ 'has-error': localErrors['statusId'] }">
       <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
           {{ status.name }}
@@ -48,7 +48,7 @@
     <!-- status -->
 
     <!-- accuracy -->
-    <a-form-item name="accuracyId" label="受注確度" :class="{'has-error': localErrors['statusId']}">
+    <a-form-item name="accuracyId" label="受注確度" :class="{ 'has-error': localErrors['statusId'] }">
       <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
           {{ accuracy.code }} ({{ accuracy.name }})
@@ -93,7 +93,7 @@
     <!-- statistics month -->
 
     <!-- groupID -->
-    <a-form-item name="groupId" label="請求グループ" :class="{'has-error': localErrors['groupId']}">
+    <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
           {{ group.name }}
@@ -110,7 +110,7 @@
     <!-- director -->
 
     <!-- accountID -->
-    <a-form-item name="accountId" label="営業担当" :class="{'has-error': localErrors['accountId']}">
+    <a-form-item name="accountId" label="営業担当" :class="{ 'has-error': localErrors['accountId'] }">
       <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
           {{ account.fullname }}
@@ -121,7 +121,7 @@
     <!-- accountID -->
 
     <!-- money -->
-    <a-form-item name="money" label="金額" :class="{'has-error': localErrors['money']}">
+    <a-form-item name="money" label="金額" :class="{ 'has-error': localErrors['money'] }">
       <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
       <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
     </a-form-item>
@@ -132,7 +132,14 @@
       <div class="outsource">
         <template v-for="(order, index) in localProjectOrders" :key="order.key">
           <div class="outsource__item">
-            <div :class="{'has-error': localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['companyId']}">
+            <div
+              :class="{
+                'has-error':
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['companyId']
+              }"
+            >
               <p>会社名</p>
               <div v-if="order.companyId" class="outsource__company-info">
                 <p class="text-grey-500">{{ order.companyName }}</p>
@@ -141,16 +148,37 @@
               <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
 
               <p
-                v-if="localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['companyId']"
-                class="u-text-additional-red-6" >company {{ localErrors['adProjectOrders'][index]['companyId'] }}</p>
+                v-if="
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['companyId']
+                "
+                class="u-text-additional-red-6"
+              >
+                company {{ localErrors['adProjectOrders'][index]['companyId'] }}
+              </p>
             </div>
 
-            <div :class="{'has-error': localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['money']}">
+            <div
+              :class="{
+                'has-error':
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['money']
+              }"
+            >
               <p>金額</p>
               <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
               <p
-                v-if="localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['money']"
-                class="u-text-additional-red-6" >money {{ localErrors['adProjectOrders'][index]['money'] }}</p>
+                v-if="
+                  localErrors['adProjectOrders'] &&
+                  localErrors['adProjectOrders'][index] &&
+                  localErrors['adProjectOrders'][index]['money']
+                "
+                class="u-text-additional-red-6"
+              >
+                money {{ localErrors['adProjectOrders'][index]['money'] }}
+              </p>
             </div>
             <div v-if="!order.id">
               <p>Action</p>
@@ -356,7 +384,7 @@ export default defineComponent({
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
-      Object.keys(projectParams.value).forEach(key => {
+      Object.keys(projectParams.value).forEach((key) => {
         if (projectPropValue[key]) projectParams.value[key] = deepCopy(projectPropValue[key])
       })
 
@@ -371,11 +399,14 @@ export default defineComponent({
       // init date month value
       projectParams.value.releaseDate = toDateFormat(projectPropValue.releaseDate, 'YYYY/MM/DD')
       projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
-      projectParams.value.statisticsMonths = [toDateFormat(projectPropValue.statisticsFromMonth), toDateFormat(projectPropValue.statisticsToMonth)]
+      projectParams.value.statisticsMonths = [
+        toDateFormat(projectPropValue.statisticsFromMonth),
+        toDateFormat(projectPropValue.statisticsToMonth)
+      ]
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
-        for(let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
+        for (let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
           const { id, money, note, adCompany } = projectParams.value.adProjectOrders[i]
           localProjectOrders.value.push({
             key: uniqueId('__outsource__'),
@@ -410,7 +441,9 @@ export default defineComponent({
       const { value: projectParamsValue } = projectParams
       let dataRequest = {
         ...projectParamsValue,
-        releaseDate: projectParamsValue.releaseDate ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD') : null,
+        releaseDate: projectParamsValue.releaseDate
+          ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD')
+          : null,
         statisticsFromMonth:
           projectParamsValue.type === 0
             ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')

@@ -53,6 +53,10 @@
 
   .ant-table-tbody > tr {
     cursor: pointer;
+    
+    .ant-table-selection-column > span {
+      display: none;
+    }
   }
 }
 

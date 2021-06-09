@@ -180,7 +180,7 @@ const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   { title: 'Age', dataIndex: 'age', key: 'age' },
   { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', width: '10px'	, slots: { customRender: 'action',  } },
+  { title: 'Action', dataIndex: '', key: 'x', width: '10px', slots: { customRender: 'action' } },
   { title: '', dataIndex: 'xxx', key: 'xxx' }
 ]
 
@@ -232,7 +232,7 @@ const rowSelection = {
   },
 
   columnWidth: '10px'
-};
+}
 
 const expandIconColumnIndex = 5
 

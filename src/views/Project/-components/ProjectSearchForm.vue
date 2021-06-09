@@ -14,7 +14,7 @@
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
-                  dropdownClassName="multiple-select-custom"
+                  dropdown-class-name="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.group_name')"
                   style="width: 152px"
@@ -42,7 +42,7 @@
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
-                  dropdownClassName="multiple-select-custom"
+                  dropdown-class-name="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.account_name')"
                   style="width: 152px"
