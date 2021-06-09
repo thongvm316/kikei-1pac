@@ -1,4 +1,4 @@
-export const DISPLAY = [
+export const SHOW_BY = [
   {
     id: 0,
     value: 'display_monthly'

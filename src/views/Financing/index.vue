@@ -1,15 +1,11 @@
 <template>
   <section class="financing">
-    <Search @filter-changed="onFilterChange($event)" />
+    <Search @filter-changed="onFilterChange" />
 
-    <a-button class="btn-download" @click="downloadCSV">
+    <a-button class="btn-download" @click="exportFinancingAsCsvFile">
       <DownloadIcon class="btn-download-icon" />
-      CSVファイルダウンロード
+      {{ $t('financing.download_csv') }}
     </a-button>
-
-    <!--    <div class="box-utilities">-->
-    <!--      <Pagination />-->
-    <!--    </div>-->
 
     <div class="list-table">
       <a-table
@@ -18,23 +14,9 @@
         :pagination="{ ...pagination, showTotal: showTotal }"
         :loading="isLoading"
         size="middle"
+        :scroll="{ y: height - 330 }"
         @change="handleChange"
       >
-        <!--        <template #acb_jp="{ text: acb_jp }">-->
-        <!--          <span :class="parseInt(acb_jp) < 0 ? 'text&#45;&#45;red' : ''" @click="showNumberCell(acb_jp)">-->
-        <!--            {{ acb_jp }}-->
-        <!--          </span>-->
-        <!--        </template>-->
-        <!--        <template #acb_vn_1="{ text: acb_vn_1 }">-->
-        <!--          <span :class="parseInt(acb_vn_1) < 0 ? 'text&#45;&#45;red' : ''">-->
-        <!--            {{ acb_vn_1 }}-->
-        <!--          </span>-->
-        <!--        </template>-->
-        <!--        <template #acb_vn_2="{ text: acb_vn_2 }">-->
-        <!--          <span :class="parseInt(acb_vn_2) < 0 ? 'text&#45;&#45;red' : ''">-->
-        <!--            {{ acb_vn_2 }}-->
-        <!--          </span>-->
-        <!--        </template>-->
         <template #bank_account_name="{ text: bank_account_name }">
           <span :class="parseInt(bank_account_name.balance) < 0 ? 'text--red' : ''">
             {{ bank_account_name.balance }}
@@ -46,60 +28,19 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import moment from 'moment'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 import { convertPagination } from '@/helpers/convert-pagination'
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import { exportCSVFile } from '@/helpers/export-csv-file'
 
 import Table from '@/mixins/table.mixin'
 import Search from '@/views/Financing/Search'
 import DownloadIcon from '@/assets/icons/ico_line-down.svg'
-
-// const columns = [
-//   { title: '日付', dataIndex: 'date', key: 'date', sorter: true },
-//   { title: 'ACB-JP', dataIndex: 'acb_jp', key: 'acb_jp', slots: { customRender: 'acb_jp' } },
-//   { title: 'ACB-VN', dataIndex: 'acb_vn_1', key: 'acb_vn_1', slots: { customRender: 'acb_vn_1' } },
-//   { title: 'ACB-VN', dataIndex: 'acb_vn_2', key: 'acb_vn_2', slots: { customRender: 'acb_vn_1' } },
-//   { title: 'ACB-VN', dataIndex: 'acb_vn_3', key: 'acb_vn_3', slots: { customRender: 'acb_vn_1' } },
-//   { title: '合計', dataIndex: 'total', key: 'total' }
-// ]
-//
-// const data = []
-// for (let i = 0; i < 30; i++) {
-//   data.push({
-//     key: i,
-//     date: '20/12/2021',
-//     acb_jp: `${new Intl.NumberFormat('vi-VN', {
-//       minimumFractionDigits: 2,
-//       style: 'currency',
-//       currency: 'VND',
-//       currencyDisplay: 'symbol'
-//     }).format(Math.random() * 99996999 * (Math.round(Math.random()) ? 1 : -1))}`,
-//     acb_vn_1: `${new Intl.NumberFormat('vi-VN', {
-//       style: 'currency',
-//       currency: 'VND',
-//       minimumFractionDigits: 2
-//     }).format(Math.random() * 999933999 * (Math.round(Math.random()) ? 1 : -1))}`,
-//     acb_vn_2: `${new Intl.NumberFormat('vi-VN', {
-//       style: 'currency',
-//       currency: 'VND',
-//       minimumFractionDigits: 2
-//     }).format(Math.random() * 99699999 * (Math.round(Math.random()) ? 1 : -1))}`,
-//     acb_vn_3: `${new Intl.NumberFormat('vi-VN', {
-//       style: 'currency',
-//       currency: 'VND',
-//       minimumFractionDigits: 2
-//     }).format(Math.random() * 999955599 * (Math.round(Math.random()) ? 1 : -1))}`,
-//     total: `${new Intl.NumberFormat('vi-VN', {
-//       style: 'currency',
-//       currency: 'VND',
-//       minimumFractionDigits: 2
-//     }).format(Math.random() * 999999999 * (Math.round(Math.random()) ? 1 : 1))}`
-//   })
-// }
+import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
+import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 export default defineComponent({
   name: 'Index',
@@ -109,58 +50,54 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetFinancingListService(
-      { pageNumber: 1, pageSize: 30 },
-      { group_id: 1, period_id: null, from_date: '2021-04-02', to_date: '2021-06-01', show_by: 1 }
-    )
-    const { result } = await getLists()
+    const { getGroups } = useGetGroupListService()
+    const { result } = await getGroups()
     to.meta['lists'] = result.data
-    to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()
   },
 
   setup() {
-    const route = useRoute()
     const { t } = useI18n()
 
     const dataSource = ref([])
+    const columns = ref([])
     const pagination = ref({})
     const filter = ref({})
     const isLoading = ref(false)
+    const height = ref(0)
 
-    const columns = ref([
-      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: true },
-      { title: 'Bank 1', dataIndex: 'balance_1', key: 'balance_1' },
-      { title: 'Bank 2', dataIndex: 'balance_2', key: 'balance_2' },
-      { title: 'Bank 3', dataIndex: 'balance_3', key: 'balance_3' },
-      { title: 'Total', dataIndex: 'balance', key: 'balance' }
+    let dataTableRow = ref({})
+    let initialListColumns = ref({})
+
+    const initialDataTableColumn = ref([
+      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: (a, b) => a.date - b.date },
+      { title: t('financing.balance'), dataIndex: 'balance', key: 'balance' }
     ])
 
-    // const dataSource = [
-    //   {
-    //     date: '2021-05-18T00:00:00Z',
-    //     total: 10000,
-    //     balance_1: 100000,
-    //     balance_2: 110000,
-    //     balance_3: 23243265
-    //   },
-    //
-    //   {
-    //     date: '2021-05-18T00:00:00Z',
-    //     total: 10000,
-    //     balance_1: 100000,
-    //     balance_2: 110000,
-    //     balance_3: 23243265
-    //   }
-    // ]
+    const initialStateFilter = {
+      group_id: null,
+      period_id: null,
+      from_date: '',
+      to_date: '',
+      show_by: 0
+    }
+    const paramsFilter = reactive({ ...initialStateFilter })
 
-    onMounted(async (evt) => {
-      filter.value = { ...deleteEmptyValue(evt) }
-      filter.value = [...route.meta['lists']]
-      console.log(filter)
+    const initialExportCSV = {
+      header: [],
+      fileTitle: 'financing',
+      labels: [],
+      items: []
+    }
 
-      dataSource.value = [...route.meta['list']]
-      pagination.value = { ...route.meta['pagination'] }
+    const exportData = reactive({ ...initialExportCSV })
+
+    onMounted(async () => {
+      // dataSource.value = [...route.meta['list']]
+      // pagination.value = { ...route.meta['pagination'] }
+
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
     })
 
     const handleChange = async (pagination) => {
@@ -172,17 +109,89 @@ export default defineComponent({
     }
 
     const onFilterChange = async (evt) => {
+      filter.value = { ...evt }
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+
+      paramsFilter.group_id = filter.value.group_id
+
+      console.log('filter.value.date_from_to:', filter.value.date_from_to)
+
+      if (typeof filter.value.period_id !== 'undefined' && filter.value.period_id) {
+        paramsFilter.period_id = filter.value.period_id
+      } else {
+        paramsFilter.period_id = null
+      }
+
+      if (typeof filter.value.date_from_to !== 'undefined' && filter.value.date_from_to.length > 0) {
+        filter.value.date_from_to.forEach((item, index) => {
+          if (index === 0) {
+            paramsFilter.from_date = item.split('/').join('-')
+          }
+          if (index === 1) {
+            paramsFilter.to_date = item.split('/').join('-')
+          }
+        })
+      } else {
+        paramsFilter.from_date = ''
+        paramsFilter.to_date = ''
+      }
+      paramsFilter.show_by = filter.value.show_by
+
+      console.log('filter after get data:', filter.value)
+      console.log('paramsFilter:', paramsFilter)
+
+      await fetchList({ pageNumber: 1, pageSize: 30 }, { ...paramsFilter })
+    }
+
+    const convertDataTableColumns = async (data) => {
+      if (Array.isArray(data.bankaccounts) && data.bankaccounts.length > 0) {
+        for (let i = 0; i < data.bankaccounts.length; i++) {
+          initialListColumns.value = {
+            title: data.bankaccounts[i].name,
+            dataIndex: `bank_balance_${data.bankaccounts[i].id}`,
+            key: `bank_balance_${data.bankaccounts[i].id}`
+          }
+
+          columns.value.push(initialListColumns.value)
+        }
+        columns.value.unshift(initialDataTableColumn.value[0])
+        columns.value.push(initialDataTableColumn.value[1])
+      }
+    }
+
+    const convertDataTableRows = async (data) => {
+      if (Array.isArray(data.balances) && data.balances.length > 0) {
+        for (let i = 0; i < data.balances.length; i++) {
+          dataTableRow.value['date'] = moment(data.balances[i].date).format('YYYY/MM/DD')
+          dataTableRow.value['balance'] = data.balances[i].balance
+
+          if (Array.isArray(data.balances[i].bankaccounts) && data.balances[i].bankaccounts.length > 0) {
+            for (let j = 0; j < data.balances[i].bankaccounts.length; j++) {
+              let bank_account = 'bank_balance_' + `${data.balances[i].bankaccounts[j].bankAccountId}`
+
+              dataTableRow.value[bank_account] = data.balances[i].bankaccounts[j].balance
+            }
+          }
+          dataSource.value.push(Object.assign({}, dataTableRow.value))
+        }
+        console.log(' dataSource.value  push:', dataSource.value)
+      }
     }
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
-
       try {
         const { getLists } = useGetFinancingListService({ ...params }, data)
         const { result } = await getLists()
-        dataSource.value = [...result.data]
+
+        dataSource.value.splice(0, dataSource.value.length)
+        columns.value.splice(0, columns.value.length)
+        console.log('columns after delete:', columns.value)
+        console.log('dataSource after delete:', dataSource.value)
+        debugger
+        await convertDataTableColumns(result.data)
+        await convertDataTableRows(result.data)
+
         pagination.value = convertPagination(result.meta)
         isLoading.value = false
       } catch (e) {
@@ -190,19 +199,33 @@ export default defineComponent({
       }
     }
 
-    const downloadCSV = async () => {
-      console.log('download')
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
     }
+
+    const exportFinancingAsCsvFile = async () => {
+      // const { financingList } = await getFinancingtList({ pageSize: 1, pageNumber: 30 })
+      // exportData.items = financingList
+      exportCSVFile(exportData)
+    }
+
     return {
       dataSource,
       columns,
       pagination,
       isLoading,
       t,
+      height,
+      paramsFilter,
+      exportData,
+      initialStateFilter,
+      getInnerHeight,
+      convertDataTableColumns,
+      convertDataTableRows,
+      exportFinancingAsCsvFile,
       handleChange,
       onFilterChange,
-      fetchList,
-      downloadCSV
+      fetchList
     }
   }
 })

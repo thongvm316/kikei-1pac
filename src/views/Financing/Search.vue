@@ -9,13 +9,13 @@
 
             <div class="form-select">
               <a-select
-                v-model:value="filter.groups_value"
-                :placeholder="$t('financing.group_placeholder')"
+                v-model:value="filter.group_id"
+                :placeholder="$t('financing.please_select')"
                 style="width: 152px"
-                @change="handleChange"
+                @change="handleChangeGroups($event)"
               >
-                <a-select-option v-for="item in filter.groups_value" :key="item" :value="item">
-                  {{ item }}
+                <a-select-option v-for="item in groupList" :key="item.id" :value="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
             </div>
@@ -28,9 +28,15 @@
             <label class="form-label">{{ $t('financing.stages') }}</label>
 
             <div class="form-select">
-              <a-select v-model:value="filter.stages_value" placeholder="" style="width: 80px" @change="handleChange">
-                <a-select-option v-for="item in filter.stages_value" :key="item" :value="item">
-                  {{ item }}
+              <a-select
+                v-model:value="filter.period_id"
+                allow-clear
+                :placeholder="$t('financing.please_select')"
+                :disabled="isDisabledStages"
+                @change="handleChangePeriod($event)"
+              >
+                <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
               <span style="margin-left: 4px">{{ $t('financing.term') }}</span>
@@ -44,7 +50,14 @@
             <label class="form-label"></label>
 
             <div class="form-select">
-              <a-range-picker style="width: 300px" format="YYYY-MM" :placeholder="['YYYY/MM', 'YYYY/MM']">
+              <a-range-picker
+                v-model:value="filter.date_from_to"
+                style="width: 300px"
+                format="YYYY/MM/DD"
+                :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                :disabled="isDisabledDate"
+                @change="onChangeDate"
+              >
                 <template #suffixIcon>
                   <CalendarOutlined />
                 </template>
@@ -59,8 +72,8 @@
             <label class="form-label">{{ $t('financing.display') }}</label>
 
             <div class="form-checkbox">
-              <a-radio-group v-model:value="filter.display" @change="handleChange">
-                <a-radio v-for="item in DISPLAY" :key="item.id" :value="item.id">
+              <a-radio-group v-model:value="filter.show_by">
+                <a-radio v-for="item in SHOW_BY" :key="item.id" :value="item.id">
                   {{ $t(`financing.${item.value}`) }}
                 </a-radio>
               </a-radio-group>
@@ -84,14 +97,15 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed } from 'vue'
+import { defineComponent, ref, reactive, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-import { DISPLAY } from '@/enums/financing.enum'
+import { SHOW_BY } from '@/enums/financing.enum'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
+import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
 
 export default defineComponent({
   name: 'Search',
@@ -104,10 +118,22 @@ export default defineComponent({
     const { t } = useI18n()
 
     const loading = ref(false)
+    const groupList = ref([])
+    const isDisabledStages = ref(true)
+    const isDisabledDate = ref(true)
+    let periodList = ref([])
 
-    const filter = reactive({ groups_value: [], stages_value: [], date: [], display: [] })
-    // const dataGroups = reactive(['tomato', 'orange', 'carrot'])
-    // const dataStages = reactive(['One', 'Two', 'Three'])
+    const initialStateFilter = {
+      group_id: null,
+      period_id: null,
+      date_from_to: [],
+      show_by: 0
+    }
+    const filter = reactive({ ...initialStateFilter })
+
+    onMounted(async () => {
+      groupList.value = [...route.meta['lists']]
+    })
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
@@ -120,6 +146,28 @@ export default defineComponent({
       visible.value = false
     }
 
+    const handleChangeGroups = async (event) => {
+      if (event) {
+        const { getPeriods } = useGetPeriodListService(event)
+        const { result } = await getPeriods()
+
+        periodList.value = result.data
+        isDisabledStages.value = false
+        isDisabledDate.value = false
+      }
+    }
+
+    const handleChangePeriod = async (event) => {
+      if (event) {
+        filter.date_from_to.length = 0
+      }
+      isDisabledDate.value = !(typeof event === 'undefined' || event === 'null')
+    }
+
+    const onChangeDate = async (value, dateString) => {
+      filter.date_from_to = dateString
+    }
+
     const onSearch = () => {
       context.emit('filter-changed', filter)
       handleCancel()
@@ -130,9 +178,16 @@ export default defineComponent({
       visible,
       t,
       handleCancel,
+      handleChangeGroups,
+      handleChangePeriod,
+      onChangeDate,
       onSearch,
+      groupList,
+      periodList,
       filter,
-      DISPLAY
+      SHOW_BY,
+      isDisabledStages,
+      isDisabledDate
     }
   }
 })

@@ -1,7 +1,7 @@
 import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
-  log: '/company'
+  log: '/log'
 })
 export default {
   getLists(params = {}, data) {
