@@ -21,3 +21,27 @@
 .ant-modal-footer {
   text-align: center;
 }
+
+.modal-delete {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .ant-modal-content {
+    width: 380px;
+    .ant-modal-footer {
+      padding-top: 16px;
+
+      p {
+        margin-bottom: 21px;
+      }
+
+      .ant-btn-danger:hover {
+        color: $color-additional-red-1;
+        border-color: $color-additional-red-4;
+      }
+    }
+  }
+}

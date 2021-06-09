@@ -7,7 +7,7 @@
           <div class="form-content">
             <label class="form-label">{{ $t('company.keyword') }}</label>
             <div class="form-input">
-              <a-input v-model:value="filter.key_search" class="w-339" :placeholder="$t('company.place_input')" />
+              <a-input v-model:value="filter.key_search" :placeholder="$t('common.please_enter')" />
               <span class="note" v-text="`※` + $t('company.note')" />
             </div>
           </div>
@@ -19,8 +19,8 @@
             <label class="label-input">
               {{ $t('company.classification') }}
             </label>
-            <a-checkbox-group v-model:value="filter.divition">
-              <a-checkbox v-for="item in DIVITION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            <a-checkbox-group v-model:value="filter.division">
+              <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
@@ -44,7 +44,7 @@
               {{ $t('company.currency') }}
             </label>
             <a-checkbox-group v-model:value="filter.currency_id">
-              <a-checkbox v-for="item in CURRENTCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+              <a-checkbox v-for="item in CURRENCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
@@ -68,17 +68,19 @@ import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { DIVITION, COUNTRY, CURRENTCY } from '@/enums/company.enum'
+import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
 
 export default defineComponent({
-  name: 'Search',
+  name: 'CompanySearchForm',
 
   components: { SearchIcon },
+
+  emits: ['filter-changed'],
 
   setup(props, context) {
     const store = useStore()
     const route = useRoute()
-    const filter = reactive({ key_search: '', divition: [], country_id: [], currency_id: [] })
+    const filter = reactive({ key_search: '', division: [], country_id: [], currency_id: [] })
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
       set: (val) => {
@@ -97,12 +99,12 @@ export default defineComponent({
 
     return {
       visible,
-      DIVITION,
-      COUNTRY,
-      CURRENTCY,
       filter,
       handleCancel,
-      onSearch
+      onSearch,
+      DIVISION,
+      COUNTRY,
+      CURRENCY
     }
   }
 })

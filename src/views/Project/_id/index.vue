@@ -1,29 +1,40 @@
 <template>
   <section class="project-new">
-    <project-form :project="project" />
+    <project-form :project="project" edit />
   </section>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
+import { getProject } from '../composables/useProject'
 import ProjectForm from '../-components/ProjectForm'
-// TODO: waiting for api
-// import { getProject } from '../composables/useProject'
 
 export default defineComponent({
   name: 'ProjectEditPage',
 
-  setup() {
-    const route = useRoute()
-    const fetchProject = () => {
-      const projectId = route.params.id
-      if (projectId) return
-    }
-  },
-
   components: {
     ProjectForm
+  },
+
+  setup() {
+    const route = useRoute()
+    const project = {}
+
+    const fetchProject = async () => {
+      const projectId = route.params.id
+      if (!projectId) return
+
+      project.value = await getProject(projectId)
+    }
+
+    onBeforeMount(() => {
+      fetchProject()
+    })
+
+    return {
+      project
+    }
   }
 })
 </script>

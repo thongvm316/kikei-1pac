@@ -22,11 +22,7 @@
           </div>
 
           <!-- Classification -->
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filter.classification"
-            :name="$t('deposit.classification')"
-          >
+          <Field v-slot="{ field, handleChange }" v-model="filter.classification" :name="$t('deposit.classification')">
             <div class="checkbox__input">
               <label class="label-input">
                 {{ $t('deposit.classification') }}
@@ -77,7 +73,7 @@
           table-layout="fixed"
         >
           <template #action="{ record }">
-            <a-button :disabled="record.disabled" @click="selectCompany(record)" type="primary">確定</a-button>
+            <a-button :disabled="record.disabled" type="primary" @click="selectCompany(record)">確定</a-button>
           </template>
         </a-table>
 
@@ -111,6 +107,10 @@ const columns = [
 export default defineComponent({
   name: 'Search',
 
+  components: {
+    SearchIcon
+  },
+
   props: {
     visibility: {
       type: Boolean
@@ -124,7 +124,7 @@ export default defineComponent({
     const pagination = ref({
       pageSize: 10,
       pageNumber: 1
-    });
+    })
     const datas = ref([])
     const loading = ref(false)
     const plainOptions = reactive(['顧客', 'パートナー'])
@@ -145,13 +145,17 @@ export default defineComponent({
     const handleCancel = () => {
       emit('update:visible', false)
     }
-    const onSubmit = () => { fetchCompanies() }
+    const onSubmit = () => {
+      fetchCompanies()
+    }
     const selectCompany = (company) => {
       emit('select-company', company)
       handleCancel()
     }
 
-    onBeforeMount(() => { fetchCompanies() })
+    onBeforeMount(() => {
+      fetchCompanies()
+    })
     watch(currentPage, fetchCompanies)
 
     return {
@@ -169,10 +173,6 @@ export default defineComponent({
       handleCancel,
       onSubmit
     }
-  },
-
-  components: {
-    SearchIcon
   }
 })
 </script>

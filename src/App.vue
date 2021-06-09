@@ -6,9 +6,9 @@
 import { defineComponent, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { message } from 'ant-design-vue'
+import { notification } from 'ant-design-vue'
 
-const MESSAGE_VARIANTS = ['open', 'success', 'error', 'info', 'warning', 'warn', 'loading']
+const MESSAGE_VARIANTS = ['open', 'success', 'error', 'info', 'warning', 'warn']
 
 export default defineComponent({
   name: 'App',
@@ -22,10 +22,10 @@ export default defineComponent({
     }
 
     const showMessage = () => {
-      const { variant, content, top, duration } = flashMessage.value
+      const { variant, message, placement, duration } = flashMessage.value
       // check variant
       if (!MESSAGE_VARIANTS.includes(variant)) throw new Error('Should be input correct variant')
-      if (content) message[variant]({ content: t(`errors.${content}`), top, duration, onClose })
+      if (message) notification.open({ message: t(message), placement, duration, class: variant, onClose })
     }
 
     showMessage()

@@ -8,11 +8,11 @@ export default function useLoginService(params, loading) {
     loading.value = true
     try {
       const response = await AuthService.login(params)
-      const { token } = response.data.result
+      const { token } = response.data.result.data || null
       if (!token) return
 
       // store auth profile
-      StorageService.set(storageKeys.authProfile, response.data.result)
+      StorageService.set(storageKeys.authProfile, response.data.result.data)
     } finally {
       loading.value = false
     }

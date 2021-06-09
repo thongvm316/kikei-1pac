@@ -170,8 +170,6 @@
 import { defineComponent, ref } from 'vue'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
-import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
 
 import { useI18n } from 'vue-i18n'
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
@@ -182,7 +180,7 @@ const columns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   { title: 'Age', dataIndex: 'age', key: 'age' },
   { title: 'Address', dataIndex: 'address', key: 'address' },
-  { title: 'Action', dataIndex: '', key: 'x', slots: { customRender: 'action' } },
+  { title: 'Action', dataIndex: '', key: 'x', width: '10px', slots: { customRender: 'action' } },
   { title: '', dataIndex: 'xxx', key: 'xxx' }
 ]
 
@@ -193,7 +191,16 @@ const data = [
     age: 32,
     address: 'New York No. 1 Lake Park',
     description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.',
-    disabled: true
+    disabled: true,
+
+    children: [
+      {
+        key: 1,
+        name: 'Nghia',
+        age: 25,
+        address: '1Pac'
+      }
+    ]
   },
   {
     key: 2,
@@ -222,7 +229,9 @@ const rowSelection = {
   },
   onSelectAll: (selected, selectedRows, changeRows) => {
     console.log(selected, selectedRows, changeRows)
-  }
+  },
+
+  columnWidth: '10px'
 }
 
 const expandIconColumnIndex = 5
@@ -234,9 +243,7 @@ export default defineComponent({
 
   components: {
     ProjectIcon,
-    SearchIcon,
-    ArrowDownIcon,
-    ArrowUpIcon
+    SearchIcon
   },
 
   setup() {

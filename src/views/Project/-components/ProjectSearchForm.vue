@@ -1,9 +1,5 @@
 <template>
-  <a-modal
-    v-model:visible="visible"
-    :title="$t('project.title_search')"
-    class="search-deposit"
-    width="1000px">
+  <a-modal v-model:visible="visible" :title="$t('project.title_search')" class="search-deposit" width="1000px">
     <template #footer>
       <a-config-provider :locale="locales[locale]">
         <form @submit.prevent="onSubmit">
@@ -15,10 +11,17 @@
               <div class="form-select">
                 <a-select
                   v-model:value="groupValue"
+                  show-arrow
+                  :max-tag-count="0"
+                  option-label-prop="label"
+                  dropdown-class-name="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.group_name')"
                   style="width: 152px"
                 >
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
                   <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
                     {{ group.name }}
                   </a-select-option>
@@ -36,10 +39,17 @@
               <div class="form-select">
                 <a-select
                   v-model:value="accountValue"
+                  show-arrow
+                  :max-tag-count="0"
+                  option-label-prop="label"
+                  dropdown-class-name="multiple-select-custom"
                   mode="multiple"
                   :placeholder="$t('project.account_name')"
                   style="width: 152px"
                 >
+                  <template #menuItemSelectedIcon>
+                    <a-checkbox :checked="true" />
+                  </template>
                   <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
                     {{ account.fullname }}
                   </a-select-option>
@@ -151,123 +161,128 @@
 </template>
 
 <script>
-  import { defineComponent, ref, reactive, computed, onBeforeMount, toRefs } from 'vue'
-  import { useStore } from 'vuex'
-  import { useRoute } from 'vue-router'
-  import { useI18n } from 'vue-i18n'
-  import moment from 'moment'
+import { defineComponent, ref, reactive, computed, onBeforeMount, toRefs } from 'vue'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import moment from 'moment'
 
-  import { PROJECT_TYPES } from '@/enums/project.enum'
+import { PROJECT_TYPES } from '@/enums/project.enum'
 
-  import localeJa from 'ant-design-vue/es/locale/ja_JP'
-  import localeEn from 'ant-design-vue/es/locale/en_US'
+import localeJa from 'ant-design-vue/es/locale/ja_JP'
+import localeEn from 'ant-design-vue/es/locale/en_US'
 
-  import { useAccountList } from '../composables/useAccountList'
-  import { useGroupList } from '../composables/useGroupList'
-  import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
+import { useAccountList } from '../composables/useAccountList'
+import { useGroupList } from '../composables/useGroupList'
+import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 
-  import SearchIcon from '@/assets/icons/ico_search.svg'
-  import { CalendarOutlined } from '@ant-design/icons-vue'
+import SearchIcon from '@/assets/icons/ico_search.svg'
+import { CalendarOutlined } from '@ant-design/icons-vue'
 
-  export default defineComponent({
-    name: 'ProjectSearchForm',
+export default defineComponent({
+  name: 'ProjectSearchForm',
 
-    components: { SearchIcon, CalendarOutlined },
+  components: { SearchIcon, CalendarOutlined },
 
-    setup(_, { emit }) {
-      const store = useStore()
-      const route = useRoute()
-      const { t, locale } = useI18n()
+  setup(_, { emit }) {
+    const store = useStore()
+    const route = useRoute()
+    const { t, locale } = useI18n()
 
-      const locales = ref({ en: localeEn, ja: localeJa })
-      const loading = ref(false)
-      const state = reactive({
-        groupValue: [],
-        accountValue: [],
-        updatedDateValue: [],
-        typeValue: [],
-        statusValue: [],
-        statisticsDateValue: [],
-        accuracyValue: [],
-        nameValue: ''
-      })
+    const locales = ref({ en: localeEn, ja: localeJa })
+    const loading = ref(false)
+    const state = reactive({
+      groupValue: [],
+      accountValue: [],
+      updatedDateValue: [],
+      typeValue: [],
+      statusValue: [],
+      statisticsDateValue: [],
+      accuracyValue: [],
+      nameValue: ''
+    })
 
-      const dataAccounts = ref([])
-      const dataGroups = ref([])
-      const dataTypes = reactive(PROJECT_TYPES)
-      const dataStatuses = ref([])
-      const dataAccuracies = ref([])
+    const dataAccounts = ref([])
+    const dataGroups = ref([])
+    const dataTypes = reactive(PROJECT_TYPES)
+    const dataStatuses = ref([])
+    const dataAccuracies = ref([])
 
-      const toStatusOptions = (data) => {
-        if (data.length <= 0) return []
-        return data.map(item => ({ label: item.name, value: item.id }))
-      }
-
-      const toAccuracyOptions = (data) => {
-        if (data.length <= 0) return []
-        return data.map(item => ({ label: `${item.code} (${item.name})`, value: item.id }))
-      }
-
-      onBeforeMount(async () => {
-        // accounts
-        dataAccounts.value = await useAccountList()
-        // groups
-        dataGroups.value = await useGroupList()
-        // statuses
-        const statuses = await getProjectStatuses()
-        dataStatuses.value = toStatusOptions(statuses)
-        // accuracies
-        const accuracies = await getProjectAccuracies()
-        dataAccuracies.value = toAccuracyOptions(accuracies)
-      })
-
-      const visible = computed({
-        get: () => store.getters.currentRoute === route.name,
-        set: (val) => {
-          store.commit('setCurrentRoute', val)
-        }
-      })
-
-      const closeModal = () => { visible.value = false }
-      const handleCancel = () => { closeModal() }
-
-      const onSubmit = () => {
-        // parse to search data
-        const searchData = {
-          groupId: state.groupValue,
-          accountId: state.accountValue,
-          type: state.typeValue,
-          statusId: state.statusValue,
-          accuracyId: state.accuracyValue,
-          updatedFrom: state.updatedDateValue[0] ? moment(state.updatedDateValue[0]).format('YYYY-MM-DD') : null,
-          updatedTo: state.updatedDateValue[1] ? moment(state.updatedDateValue[1]).format('YYYY-MM-DD') : null,
-          statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM-DD') : null,
-          statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM-DD') : null,
-          name: state.nameValue
-        }
-        emit('on-search', searchData)
-
-        // close modal
-        closeModal()
-      }
-
-      return {
-        t,
-        locales,
-        locale,
-        loading,
-        visible,
-        dataGroups,
-        dataTypes,
-        dataStatuses,
-        dataAccounts,
-        dataAccuracies,
-        handleCancel,
-        onSubmit,
-        ...toRefs(state)
-      }
+    const toStatusOptions = (data) => {
+      if (data.length <= 0) return []
+      return data.map((item) => ({ label: item.name, value: item.id }))
     }
-  })
+
+    const toAccuracyOptions = (data) => {
+      if (data.length <= 0) return []
+      return data.map((item) => ({ label: `${item.code} (${item.name})`, value: item.id }))
+    }
+
+    onBeforeMount(async () => {
+      // accounts
+      dataAccounts.value = await useAccountList()
+      // groups
+      const { data: groups } = await getProjectStatuses()
+      dataGroups.value = groups
+      // statuses
+      const { data: statuses } = await getProjectStatuses()
+      dataStatuses.value = toStatusOptions(statuses)
+      // accuracies
+      const { data: accuracies } = await getProjectAccuracies()
+      dataAccuracies.value = toAccuracyOptions(accuracies)
+    })
+
+    const visible = computed({
+      get: () => store.getters.currentRoute === route.name,
+      set: (val) => {
+        store.commit('setCurrentRoute', val)
+      }
+    })
+
+    const closeModal = () => {
+      visible.value = false
+    }
+    const handleCancel = () => {
+      closeModal()
+    }
+
+    const onSubmit = () => {
+      // parse to search data
+      const searchData = {
+        groupId: state.groupValue,
+        accountId: state.accountValue,
+        type: state.typeValue,
+        statusId: state.statusValue,
+        accuracyId: state.accuracyValue,
+        updatedFrom: state.updatedDateValue[0] ? moment(state.updatedDateValue[0]).format('YYYY-MM-DD') : null,
+        updatedTo: state.updatedDateValue[1] ? moment(state.updatedDateValue[1]).format('YYYY-MM-DD') : null,
+        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM-DD') : null,
+        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM-DD') : null,
+        name: state.nameValue
+      }
+      emit('on-search', searchData)
+
+      // close modal
+      closeModal()
+    }
+
+    return {
+      t,
+      locales,
+      locale,
+      loading,
+      visible,
+      dataGroups,
+      dataTypes,
+      dataStatuses,
+      dataAccounts,
+      dataAccuracies,
+      handleCancel,
+      onSubmit,
+      ...toRefs(state)
+    }
+  }
+})
 </script>
 
 <style lang="scss">

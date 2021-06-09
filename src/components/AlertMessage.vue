@@ -1,13 +1,11 @@
 <template>
-  <section>Create</section>
+  <div>alert Message</div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'ModalSearch'
+  name: 'AlertMessage'
 })
 </script>
-
-<style scoped lang="scss"></style>

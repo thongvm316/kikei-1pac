@@ -1,0 +1,24 @@
+// Custom multiple select
+.multiple-select-custom {
+  .ant-select-item.ant-select-item-option {
+    position: relative;
+    padding-left: 36px;
+
+    .ant-select-item-option-state {
+      position: absolute;
+      left: 12px;
+    }
+
+    &:before {
+      position: absolute;
+      content: '';
+      width: 16px;
+      height: 16px;
+      background-color: $color-grey-100;
+      left: 12px;
+      top: 7px;
+      border-radius: 2px;
+      border: 1px solid $color-grey-85;
+    }
+  }
+}

@@ -5,7 +5,7 @@ export const useGroupList = async () => {
   try {
     const { data } = await GroupService.getGroups()
     return data.result || []
-  } catch(e) {
+  } catch (e) {
     throw e
   }
 }

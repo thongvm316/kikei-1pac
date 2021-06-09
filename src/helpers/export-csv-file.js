@@ -1,16 +1,15 @@
-import { isString } from 'lodash-es'
 import globalFilters from '@/filters'
 
-const convertToCSV = (header, labels, objArray) => {
+const convertToCSV = (labels, objArray) => {
   if (!labels.length) throw new Error('Please set labels')
   let array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray
   let str = ''
 
   // build header first
   let headLine = ''
-  for (let k = 0; k < header.length; k++) {
-    if (k !== 0) headLine += ","
-    headLine += header[k]
+  for (let k = 0; k < labels.length; k++) {
+    if (k !== 0) headLine += ','
+    headLine += labels[k].header || ''
   }
   str += headLine + '\r\n'
 
@@ -23,13 +22,12 @@ const convertToCSV = (header, labels, objArray) => {
       if (!!line) line += ','
 
       // check label item to formatted value
-      if (isString(labels[j])) {
-        line += array[i][labels[j]]
+      const { formatBy, field } = labels[j]
+      if (!field) throw new Error('Please set field name')
+      if (formatBy) {
+        line += globalFilters[labels[j].formatBy](array[i][field])
       } else {
-        const formatBy = labels[j].formatBy
-        if (!formatBy) throw new Error('Please set formatter')
-
-        line += globalFilters[labels[j].formatBy](array[i][labels[j].field])
+        line += array[i][field]
       }
     }
 
@@ -39,10 +37,10 @@ const convertToCSV = (header, labels, objArray) => {
   return str
 }
 
-const exportCSVFile = ({ header, labels, items, fileTitle }) => {
+const exportCSVFile = ({ labels, items, fileTitle }) => {
   // Convert Object to JSON
   let jsonObject = JSON.stringify(items)
-  let csv = convertToCSV(header, labels, jsonObject)
+  let csv = convertToCSV(labels, jsonObject)
   let exportedFilenmae = fileTitle ? `${fileTitle}.csv` : 'export.csv'
   let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   if (navigator.msSaveBlob) {

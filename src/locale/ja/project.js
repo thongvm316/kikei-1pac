@@ -10,5 +10,5 @@ export default {
   account_name: '営業担当',
   type: '区分',
   status: 'ステータス',
-  title_search: '検索',
+  title_search: '検索'
 }
