@@ -3,11 +3,12 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1000, y: 610 }"
+    :scroll="{ x: true, y: 610 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
+    table-layout="fixed"
     :row-selection="{
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,
@@ -66,7 +67,7 @@ const columnsDeposit = [
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
     slots: { customRender: 'renderDepositStatictis' },
-    sorter: (a, b) => (new Date(a.date)).getMonth() - (new Date(b.date)).getMonth()
+    sorter: (a, b) => (new Date(a.statisticsMonth)).getMonth() - (new Date(b.statisticsMonth)).getMonth()
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
@@ -74,7 +75,7 @@ const columnsDeposit = [
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
   { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
   { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance', customRender: 'balance' } },
-  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, width: '127px', align: 'center' }
+  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, align: 'center' }
 ]
 
 export default defineComponent({
