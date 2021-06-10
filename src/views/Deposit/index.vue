@@ -87,9 +87,8 @@
     v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="$router.push({ path: `/deposit/1/edit` })"
-  />
-  <delete-deposit-modal v-model:visible="isVisibleDepositModal" @on-delete-deposit-record="onDeleteDepositRecord" />
+    @on-edit-record-deposit="onEditRecordDeposit" />
+  <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
 </template>
 
 <script>
@@ -313,6 +312,7 @@ export default defineComponent({
       dataDeposit.value = dataDeposit.value.filter((item) => item.id !== currentSelectedRecord.value.id)
       isVisibleDepositModal.value = false
       isLoadingDataTable.value = false
+      isVisibleDepositButtonsFloat.value = false
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
@@ -323,8 +323,14 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      store.commit('deposit/STORE_RECORD_DEPOSIT', currentSelectedRecord.value)
-      router.push({ name: 'deposit-new' })
+      router.push({ name: 'deposit-new', query: { selectedId: currentSelectedRecord.value.id } })
+    }
+
+    const onEditRecordDeposit = () => {
+      const depositId = currentSelectedRecord.value?.id
+      if (!depositId) return
+
+      router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
 
     return {
@@ -355,6 +361,7 @@ export default defineComponent({
       getDataDeposit,
       onOpenDepositButtonsFloat,
       onOpenDeleteDepositModal,
+      onEditRecordDeposit,
       onDeleteDepositRecord,
       onCopyRecordDeposit,
       exportDepositAsCsvFile

@@ -69,7 +69,8 @@ export const deleteDeposit = async (id) => {
 
 export const createDeposit = async (data) => {
   try {
-    await DepositService.createDeposit(data)
+    const response = await DepositService.createDeposit(data)
+    return response
   } catch (error) {
     throw error
   }
@@ -138,4 +139,13 @@ export const createDataTableFormat = (data) => {
         typeName: TYPE_NAME_DEPOSIT[item.type]
       })
   })
+}
+
+export const updateDeposit = async (depositId, data) => {
+  try {
+    const response = await DepositService.updateDeposit(depositId, data)
+    return response
+  } catch (error) {
+    throw error
+  }
 }
