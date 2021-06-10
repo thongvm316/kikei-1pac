@@ -1,6 +1,6 @@
 <template>
   <div class="deposit-edit container">
-    <deposit-form :edit="true" />
+    <deposit-form :is-edit-deposit="true" />
   </div>
 </template>
 
