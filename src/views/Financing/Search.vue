@@ -101,6 +101,7 @@ import { defineComponent, ref, reactive, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { remove } from 'lodash-es'
 
 import { SHOW_BY } from '@/enums/financing.enum'
 import SearchIcon from '@/assets/icons/ico_search.svg'
@@ -159,7 +160,7 @@ export default defineComponent({
 
     const handleChangePeriod = async (event) => {
       if (event) {
-        filter.date_from_to.length = 0
+        remove(filter.date_from_to)
       }
       isDisabledDate.value = !(typeof event === 'undefined' || event === 'null')
     }

@@ -22,6 +22,13 @@
 
   .ant-table-content {
     .ant-table-row {
+      .ant-dropdown-link{
+        color: #000;
+        &:hover{
+          color: #31AAF1;
+          text-decoration: underline;
+        }
+      }
       .text--red {
         color: #F5222D;
       }

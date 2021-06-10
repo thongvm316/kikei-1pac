@@ -2,7 +2,7 @@
   <section class="financing">
     <Search @filter-changed="onFilterChange" />
 
-    <a-button class="btn-download" @click="exportFinancingAsCsvFile">
+    <a-button class="btn-download" :loading="loadingExportCsvButton" @click="exportFinancingAsCsvFile">
       <DownloadIcon class="btn-download-icon" />
       {{ $t('financing.download_csv') }}
     </a-button>
@@ -15,11 +15,29 @@
         :loading="isLoading"
         size="middle"
         :scroll="{ y: height - 330 }"
+        row-key="Id"
         @change="handleChange"
       >
-        <template #bank_account_name="{ text: bank_account_name }">
-          <span :class="parseInt(bank_account_name.balance) < 0 ? 'text--red' : ''">
-            {{ bank_account_name.balance }}
+        <template v-for="(col, index) in columnsHeaderList" #[col]="{ text, record }" :key="index">
+          <span>
+            <a
+              class="ant-dropdown-link"
+              :class="parseInt(text) < 0 ? 'text--red' : ''"
+              @click="handleNumber(text, record)"
+            >
+              {{ text }}
+            </a>
+          </span>
+        </template>
+        <template #balance="{ text, record }">
+          <span>
+            <a
+              class="ant-dropdown-link"
+              :class="parseInt(text) < 0 ? 'text--red' : ''"
+              @click="handleNumber(text, record)"
+            >
+              {{ text }}
+            </a>
           </span>
         </template>
       </a-table>
@@ -30,7 +48,9 @@
 <script>
 import { defineComponent, reactive, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
+import { remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 import { convertPagination } from '@/helpers/convert-pagination'
@@ -58,9 +78,13 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n()
+    const route = useRoute()
+    const router = useRouter()
 
+    const loadingExportCsvButton = ref()
     const dataSource = ref([])
     const columns = ref([])
+    const columnsHeaderList = ref([])
     const pagination = ref({})
     const filter = ref({})
     const isLoading = ref(false)
@@ -71,7 +95,7 @@ export default defineComponent({
 
     const initialDataTableColumn = ref([
       { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: (a, b) => a.date - b.date },
-      { title: t('financing.balance'), dataIndex: 'balance', key: 'balance' }
+      { title: t('financing.balance'), dataIndex: 'balance', key: 'balance', slots: { customRender: 'balance' } }
     ])
 
     const initialStateFilter = {
@@ -81,21 +105,17 @@ export default defineComponent({
       to_date: '',
       show_by: 0
     }
-    const paramsFilter = reactive({ ...initialStateFilter })
+    const convertFilter = reactive({ ...initialStateFilter })
 
     const initialExportCSV = {
-      header: [],
       fileTitle: 'financing',
-      labels: [],
+      labels: [{ header: 'date' }, { header: 'balance' }],
       items: []
     }
 
     const exportData = reactive({ ...initialExportCSV })
 
     onMounted(async () => {
-      // dataSource.value = [...route.meta['list']]
-      // pagination.value = { ...route.meta['pagination'] }
-
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
     })
@@ -105,57 +125,55 @@ export default defineComponent({
         pageNumber: pagination.current,
         pageSize: pagination.pageSize
       }
-      await fetchList(params)
+
+      await fetchList(params, route.meta['filter'])
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...evt }
       filter.value = { ...deleteEmptyValue(evt) }
-
-      paramsFilter.group_id = filter.value.group_id
-
-      console.log('filter.value.date_from_to:', filter.value.date_from_to)
+      console.log('  filter.value:', filter.value)
+      convertFilter.group_id = filter.value.group_id
 
       if (typeof filter.value.period_id !== 'undefined' && filter.value.period_id) {
-        paramsFilter.period_id = filter.value.period_id
+        convertFilter.period_id = filter.value.period_id
       } else {
-        paramsFilter.period_id = null
+        convertFilter.period_id = null
       }
 
       if (typeof filter.value.date_from_to !== 'undefined' && filter.value.date_from_to.length > 0) {
         filter.value.date_from_to.forEach((item, index) => {
           if (index === 0) {
-            paramsFilter.from_date = item.split('/').join('-')
+            convertFilter.from_date = item.split('/').join('-')
           }
           if (index === 1) {
-            paramsFilter.to_date = item.split('/').join('-')
+            convertFilter.to_date = item.split('/').join('-')
           }
         })
       } else {
-        paramsFilter.from_date = ''
-        paramsFilter.to_date = ''
+        convertFilter.from_date = ''
+        convertFilter.to_date = ''
       }
-      paramsFilter.show_by = filter.value.show_by
+      convertFilter.show_by = filter.value.show_by
+      route.meta['filter'] = convertFilter
 
-      console.log('filter after get data:', filter.value)
-      console.log('paramsFilter:', paramsFilter)
-
-      await fetchList({ pageNumber: 1, pageSize: 30 }, { ...paramsFilter })
+      await fetchList({ pageNumber: 1, pageSize: 8 }, { ...convertFilter })
     }
 
-    const convertDataTableColumns = async (data) => {
+    const convertDataTableHeader = async (data) => {
       if (Array.isArray(data.bankaccounts) && data.bankaccounts.length > 0) {
         for (let i = 0; i < data.bankaccounts.length; i++) {
           initialListColumns.value = {
             title: data.bankaccounts[i].name,
             dataIndex: `bank_balance_${data.bankaccounts[i].id}`,
-            key: `bank_balance_${data.bankaccounts[i].id}`
+            key: `bank_balance_${data.bankaccounts[i].id}`,
+            slots: { customRender: data.bankaccounts[i].name }
           }
-
           columns.value.push(initialListColumns.value)
         }
         columns.value.unshift(initialDataTableColumn.value[0])
         columns.value.push(initialDataTableColumn.value[1])
+        console.log(columns)
       }
     }
 
@@ -174,22 +192,21 @@ export default defineComponent({
           }
           dataSource.value.push(Object.assign({}, dataTableRow.value))
         }
-        console.log(' dataSource.value  push:', dataSource.value)
       }
     }
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
+
       try {
         const { getLists } = useGetFinancingListService({ ...params }, data)
         const { result } = await getLists()
 
-        dataSource.value.splice(0, dataSource.value.length)
-        columns.value.splice(0, columns.value.length)
-        console.log('columns after delete:', columns.value)
-        console.log('dataSource after delete:', dataSource.value)
-        debugger
-        await convertDataTableColumns(result.data)
+        remove(dataSource.value)
+        remove(columns.value)
+
+        columnsHeaderList.value = [...result.data.bankaccounts].map((item) => item.name)
+        await convertDataTableHeader(result.data)
         await convertDataTableRows(result.data)
 
         pagination.value = convertPagination(result.meta)
@@ -203,27 +220,37 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    const handleNumber = (balance, data) => {
+      console.log(balance + ':' + data)
+      router.push({ name: 'deposit' })
+    }
+
     const exportFinancingAsCsvFile = async () => {
-      // const { financingList } = await getFinancingtList({ pageSize: 1, pageNumber: 30 })
-      // exportData.items = financingList
+      console.log('route.meta[filter]:', route.meta['filter'])
+
+      exportData.item = dataSource.value
       exportCSVFile(exportData)
     }
 
     return {
+      useRoute,
       dataSource,
       columns,
       pagination,
       isLoading,
       t,
       height,
-      paramsFilter,
+      convertFilter,
       exportData,
       initialStateFilter,
+      columnsHeaderList,
+      loadingExportCsvButton,
       getInnerHeight,
-      convertDataTableColumns,
+      convertDataTableHeader,
       convertDataTableRows,
       exportFinancingAsCsvFile,
       handleChange,
+      handleNumber,
       onFilterChange,
       fetchList
     }
