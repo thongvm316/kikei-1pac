@@ -31,7 +31,8 @@ module.exports = {
       'error',
       2,
       {
-        ignoredNodes: ['TemplateLiteral']
+        ignoredNodes: ['TemplateLiteral'],
+        SwitchCase: 1
       }
     ],
     // 'template-curly-spacing': 'off',

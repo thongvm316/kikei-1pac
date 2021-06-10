@@ -7,14 +7,22 @@ export default {
     type_none: '-'
   },
   company_name: {
-    title_search: '検索',
-    key_search: 'キーワード',
+    title_search: '会社一覧',
+    key_search: '項目名',
     place_input: '入力してください',
     division: '区分',
     country: '国',
     currency: '通貨',
     handle_cancel: 'クリア',
-    handle_ok: '検索'
+    handle_ok: '検索',
+    handle_clear: 'クリア',
+    handle_select: '選択',
+    table_header_select: '選択',
+    table_header_name: '企業名',
+    table_header_code: '企業コード',
+    table_header_country: '国',
+    table_header_currency: '通貨',
+    table_header_division: '区分'
   },
   new: {
     date: '入出金日',
@@ -58,14 +66,6 @@ export default {
     cancel: 'キャンセル',
     registration: '登録'
   },
-  handle_cancel: 'クリア',
-  handle_ok: '検索',
-  title_search: '検索',
-  keyword: 'キーワード',
-  classification: '区分',
-  country: '国',
-  currency: '通貨',
-  place_input: '入力してください',
 
   csv: {
     header: {
@@ -80,5 +80,21 @@ export default {
       sub_category: 'Sub category',
       purpose: 'Purpose'
     }
+  },
+
+  division: {
+    customer: 'Customer',
+    partner: 'Partner',
+    both: 'Both'
+  },
+
+  country: {
+    vietnam: 'Vietnam',
+    japan: 'Japan'
+  },
+
+  currency: {
+    vnd: 'VND',
+    jpy: 'JPY'
   }
 }

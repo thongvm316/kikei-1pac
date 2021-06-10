@@ -9,6 +9,10 @@ export default {
     return apiCaller({ method: 'POST', url: RESOURCES.deposit, data })
   },
 
+  updateDeposit(depositId, data) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/${depositId}`, data })
+  },
+
   getDeposit(data, params) {
     return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   },
