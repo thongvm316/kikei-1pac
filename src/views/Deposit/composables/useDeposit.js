@@ -39,9 +39,9 @@ export const getBankAccounts = async (params) => {
   }
 }
 
-export const getCategory = async (params) => {
+export const getCategory = async () => {
   try {
-    const { data } = await CategoryService.getCategory(params)
+    const { data } = await CategoryService.getCategory()
 
     return data
   } catch (error) {
@@ -49,9 +49,9 @@ export const getCategory = async (params) => {
   }
 }
 
-export const getSubCategory = async (params) => {
+export const getSubCategory = async () => {
   try {
-    const { data } = await SubCategoryService.getSubCategory(params)
+    const { data } = await SubCategoryService.getSubCategory()
 
     return data
   } catch (error) {
