@@ -412,7 +412,7 @@ export default defineComponent({
           break
         case 40:
           _withdrawalBankAccountId = withdrawalBankAccountId ? withdrawalBankAccountId : depositBankAccountId
-          _withdrawalMoney = withdrawalBankAccountId ? withdrawalMoney : depositMoney
+          _withdrawalMoney = withdrawalBankAccountId ? withdrawalMoney : -depositMoney
           _depositBankAccountId = undefined
           _depositMoney = 0
           break
@@ -470,7 +470,7 @@ export default defineComponent({
           withdrawalBankAccountId = data.withdrawalMoney >= 0 ? data.withdrawalBankAccountId : undefined
           withdrawalMoney = data.withdrawalMoney >= 0 ? data.withdrawalMoney : 0
           depositBankAccountId = data.withdrawalMoney < 0 ? data.withdrawalBankAccountId : undefined
-          depositMoney = data.withdrawalMoney < 0 ? data.withdrawalMoney : 0
+          depositMoney = data.withdrawalMoney < 0 ? Math.abs(data.withdrawalMoney) : 0
           break
       }
 
@@ -569,7 +569,7 @@ export default defineComponent({
       const { result = {} } = await getDepositDetail(depositId)
 
       params.value = {
-        // ...params.value,
+        ...params.value,
         ...convertDataToForm(result.data)
       }
     }
