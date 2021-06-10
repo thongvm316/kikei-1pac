@@ -1,7 +1,7 @@
 <template>
   <a-modal
     v-model:visible="visibility"
-    :title="$t('deposit.title_search')"
+    :title="$t('project.company_form.title_search')"
     class="modal-company"
     width="85%"
     max-height="85%"
@@ -11,41 +11,49 @@
         <Form class="form-left" @submit="onSubmit">
           <!-- Keyword -->
           <div class="form-group">
-            <Field v-slot="{ field, handleChange }" v-model="filter.keyword" :name="$t('deposit.keyword')">
+            <Field v-slot="{ field, handleChange }" v-model="filter.keyword" :name="$t('project.company_form.keyword')">
               <div class="form-content">
-                <label class="form-label">{{ $t('deposit.keyword') }}</label>
+                <label class="form-label">{{ $t('project.company_form.keyword') }}</label>
                 <div class="form-input">
-                  <a-input :value="field.value" :placeholder="$t('deposit.place_input')" @change="handleChange" />
+                  <a-input
+                    :value="field.value"
+                    :placeholder="$t('project.company_form.place_input')"
+                    @change="handleChange"
+                  />
                 </div>
               </div>
             </Field>
           </div>
 
           <!-- Classification -->
-          <Field v-slot="{ field, handleChange }" v-model="filter.classification" :name="$t('deposit.classification')">
+          <Field
+            v-slot="{ field, handleChange }"
+            v-model="filter.classification"
+            :name="$t('project.company_form.classification')"
+          >
             <div class="checkbox__input">
               <label class="label-input">
-                {{ $t('deposit.classification') }}
+                {{ $t('project.company_form.classification') }}
               </label>
               <a-checkbox-group v-model="field.value" :options="plainOptions" @change="handleChange" />
             </div>
           </Field>
 
           <!-- Country -->
-          <Field v-slot="{ field, handleChange }" v-model="filter.country" :name="$t('deposit.country')">
+          <Field v-slot="{ field, handleChange }" v-model="filter.country" :name="$t('project.company_form.country')">
             <div class="checkbox__input">
               <label class="label-input">
-                {{ $t('deposit.country') }}
+                {{ $t('project.company_form.country') }}
               </label>
               <a-checkbox-group v-model="field.value" :options="countries" @change="handleChange" />
             </div>
           </Field>
 
           <!-- Currency -->
-          <Field v-slot="{ field, handleChange }" v-model="filter.currency" :name="$t('deposit.currency')">
+          <Field v-slot="{ field, handleChange }" v-model="filter.currency" :name="$t('project.company_form.currency')">
             <div class="checkbox__input">
               <label class="label-input">
-                {{ $t('deposit.currency') }}
+                {{ $t('project.company_form.currency') }}
               </label>
               <a-checkbox-group v-model="field.value" :options="currencies" @change="handleChange" />
             </div>
@@ -57,7 +65,7 @@
                 <search-icon />
               </span>
             </template>
-            {{ $t('deposit.handle_ok') }}
+            {{ $t('project.company_form.handle_ok') }}
           </a-button>
         </Form>
       </div>
