@@ -39,7 +39,7 @@
         v-if="!isCompanySelection"
         v-model:value="params.subcategoryId"
         :placeholder="$t('deposit.new.sub_category_place_holder')"
-        :disabled="isDisabledSubmit ? false : isSubCategoryDisabled"
+        :disabled="isDisableEditField ? true : isSubCategoryDisabled"
         class="has-max-width"
       >
         <template v-for="subCategory in subCategoryList" :key="subCategory.id">
@@ -78,7 +78,7 @@
         v-model:value="params.groupId"
         :placeholder="$t('deposit.new.group_place_holder')"
         class="has-max-width"
-        :disabled="!isDisabledSubmit"
+        :disabled="isDisableEditField"
       >
         <template v-for="group in groupList" :key="group.id">
           <a-select-option :value="group.id">{{ group.name }}</a-select-option>
@@ -167,7 +167,7 @@
     </a-form-item>
 
     <a-form-item name="repeated" :label="$t('deposit.new.repeat')">
-      <a-radio-group v-model:value="params.repeated" :disabled="!isDisabledSubmit">
+      <a-radio-group v-model:value="params.repeated" :disabled="isDisableEditField">
         <a-radio :value="1">{{ $t('deposit.new.daily') }}</a-radio>
         <a-radio :value="2">{{ $t('deposit.new.weekly') }}</a-radio>
         <a-radio :value="3">{{ $t('deposit.new.monthly') }}</a-radio>
@@ -178,7 +178,7 @@
 
     <div class="u-pl-20">
       <a-form-item v-if="params.repeated === 3" name="repeated_end_month">
-        <a-checkbox v-model:checked="isRepeatedEndMonth" :disabled="!isDisabledSubmit">
+        <a-checkbox v-model:checked="isRepeatedEndMonth" :disabled="isDisableEditField">
           {{ $t('deposit.new.repeated_end_month') }}</a-checkbox
         >
       </a-form-item>
@@ -190,7 +190,7 @@
       >
         <a-date-picker
           v-model:value="params.repeatedExpiredDate"
-          :disabled="!isDisabledSubmit"
+          :disabled="isDisableEditField"
           placeholder="YYYY/MM/DD"
         />
       </a-form-item>
@@ -266,6 +266,7 @@ export default defineComponent({
     const isLoading = ref(false)
     const localErrors = ref({})
     const isAllowNegativeMoney = ref(false)
+    const isCloneDeposit = ref(false)
 
     // list data
     const categoryList = ref([])
@@ -284,6 +285,8 @@ export default defineComponent({
     const isAdvandceCurrency = ref(false)
     const isShowCaptionCurrency = ref(false)
     const isDisabledSubmit = ref(false)
+    const isDisableEditField = ref(false)
+    // const isDisableEditField = computed(() => (isCloneDeposit.value ? false : !isDisabledSubmit.value))
 
     // tags
     const inputTagVal = ref('')
@@ -474,6 +477,7 @@ export default defineComponent({
       }
 
       isDisabledSubmit.value = props.isEditDeposit && confirmed
+      isDisableEditField.value = isCloneDeposit.value ? false : !isDisabledSubmit.value
       isRepeatedEndMonth.value = repeatedOption === '31'
 
       return {
@@ -635,6 +639,7 @@ export default defineComponent({
       } else {
         depositId = route.query?.selectedId
         router.replace({ query: {} })
+        depositId && (isCloneDeposit.value = true)
       }
 
       if (!depositId) return
@@ -765,6 +770,7 @@ export default defineComponent({
       isRepeatedEndMonth,
       isDisabledSubmit,
       isAllowNegativeMoney,
+      isDisableEditField,
 
       onSelectWithdrawalMoney,
       onSelectDepositMoney,
