@@ -1,5 +1,5 @@
 <template>
-  <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
+  <a-form class="project-add-form" ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
     <!-- companyID -->
     <a-form-item name="companyId" label="クライアント名" :class="{'has-error': localErrors['companyId']}">
       <div>
@@ -130,34 +130,49 @@
     <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
       <div class="outsource">
-        <template v-for="(order, index) in localProjectOrders" :key="order.key">
-          <div class="outsource__item">
-            <div :class="{'has-error': localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['companyId']}">
-              <p>会社名</p>
-              <div v-if="order.companyId" class="outsource__company-info">
-                <p class="text-grey-500">{{ order.companyName }}</p>
-                <p @click="removeCompanyOnSearchForm(order)">削除</p>
-              </div>
-              <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
+        <table>
+          <tbody>
+            <template v-for="(order, index) in localProjectOrders" :key="order.key">
+              <tr class="outsource__item">
+                <td :class="[ 'u-flex u-flex-col', {'has-error': order.errors && order.errors['companyId']}]">
+                  <p>会社名</p>
+                  <div v-if="order.companyId" class="outsource__company-info">
+                    <p class="text-grey-500">{{ order.companyName }}</p>
+                    <p @click="removeCompanyOnSearchForm(order)">削除</p>
+                  </div>
+                  <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
+                </td>
 
-              <p
-                v-if="localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['companyId']"
-                class="u-text-additional-red-6" >company {{ localErrors['adProjectOrders'][index]['companyId'] }}</p>
-            </div>
+                <td :class="[ 'u-pl-40', {'has-error': (order.errors && order.errors['money'])}]">
+                  <p>金額</p>
+                  <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
+                </td>
 
-            <div :class="{'has-error': localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['money']}">
-              <p>金額</p>
-              <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
-              <p
-                v-if="localErrors['adProjectOrders'] && localErrors['adProjectOrders'][index] && localErrors['adProjectOrders'][index]['money']"
-                class="u-text-additional-red-6" >money {{ localErrors['adProjectOrders'][index]['money'] }}</p>
-            </div>
-            <div v-if="!order.id">
-              <p>Action</p>
-              <a-button type="danger" ghost @click="removeProjectOrder(order)">削除</a-button>
-            </div>
-          </div>
-        </template>
+                <td class="u-pl-8">
+                  <p class="u-mt-24 u-text-grey-75">(VND)</p>
+                </td>
+
+                <td class="u-pl-8" v-if="!order.id">
+                  <a-button size="small" class="u-mt-24" type="danger" ghost @click="removeProjectOrder(order)">削除</a-button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="u-pb-12">
+                  <p
+                    v-if="order.errors && order.errors['companyId']"
+                    class="u-text-additional-red-6">company {{ order.errors && order.errors['companyId'] }}</p>
+                </td>
+                <td class="u-pl-40 u-pb-12">
+                  <p
+                    v-if="order.errors && order.errors['money']"
+                    class="u-text-additional-red-6">money {{ order.errors && order.errors['money'] }}</p>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
 
         <a-button class="outsource__btn" @click="addDummyProjectOrder">
           <template #icon>
@@ -166,15 +181,27 @@
           外注を追加
         </a-button>
 
-        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (VND)</p>
+        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)</p>
       </div>
     </a-form-item>
     <!-- projectOrders -->
 
     <!-- tag  -->
-    <a-form-item name="tag" label="タグ">
-      <a-input v-model:value="projectParams.tag" placeholder="タグを入力してください" style="width: 300px" />
+    <a-form-item name="tags" label="タグ">
+      <a-input v-model:value="valueTag" @pressEnter="createTag" placeholder="タグを入力してください" style="width: 300px" />
     </a-form-item>
+
+    <div
+      v-if="projectParams.tags.length > 0"
+      class="tags-container u-mb-12">
+      <a-tag
+        v-for="(tag, index) in projectParams.tags"
+        :key="index"
+        closable
+        @close="removeTag($event, index)">
+        {{ tag }}
+      </a-tag>
+    </div>
     <!-- tag  -->
 
     <!-- memo -->
@@ -245,12 +272,29 @@ export default defineComponent({
       accountId: null,
       director: '',
       money: '',
-      tag: '',
+      tags: [],
       memo: '',
       adProjectOrders: []
     })
     const localErrors = ref({})
     const loading = ref(false)
+
+    // tags
+    const valueTag = ref()
+    const createTag = () => {
+      if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
+      const valueTagLowerCase = valueTag.value.trim().toLowerCase()
+      if (projectParams.value.tags.includes(valueTagLowerCase)) return
+
+      projectParams.value.tags.push(valueTagLowerCase)
+      valueTag.value = ''
+    }
+
+    const removeTag = (e, index) => {
+      e.preventDefault()
+      projectParams.value.tags.splice(index, 1)
+      return false
+    }
 
     const isCompanySearchFormOpen = ref(false)
     const companyTargetSearch = ref('owner') // owner || outsource
@@ -283,10 +327,10 @@ export default defineComponent({
 
     const dynamicBaseOnAccuracy = () => {
       if (highestAccuracyRequired.value) {
-        projectFormRules.value.tag = [{ required: true, message: 'Please input tag', trigger: 'change' }]
+        projectFormRules.value.tags = [{ type: 'array', required: true, message: 'Please input tag', trigger: ['blur', 'change'] }]
         projectFormRules.value.memo = [{ required: true, message: 'Please input memo', trigger: 'change' }]
       } else {
-        projectFormRules.value.tag = []
+        projectFormRules.value.tags = []
         projectFormRules.value.memo = []
       }
     }
@@ -328,7 +372,9 @@ export default defineComponent({
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const addDummyProjectOrder = () => { addProjectOrder(localProjectOrders) }
+    const addDummyProjectOrder = () => {
+      addProjectOrder(localProjectOrders)
+    }
 
     const totalMoneyOutsourcing = computed(() => {
       if (localProjectOrders.value.length <= 0) return 0
@@ -364,6 +410,9 @@ export default defineComponent({
       projectParams.value.releaseDate = projectPropValue.releaseDate ? moment(new Date(projectPropValue.releaseDate)) : null
       projectParams.value.statisticsMonth = moment(new Date(projectPropValue.statisticsFromMonth))
       projectParams.value.statisticsMonths = [moment(new Date(projectPropValue.statisticsFromMonth)), moment(new Date(projectPropValue.statisticsToMonth))]
+
+      // Force tags ['']
+      if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
@@ -406,6 +455,12 @@ export default defineComponent({
       }
     }
 
+    const addProjectOrdersErrors = () => {
+      localProjectOrders.value.forEach((item, index) => {
+        item.errors = localErrors.value.adProjectOrders[index] || {}
+      })
+    }
+
     const callAddProject = async () => {
       const response = await addProject(projectDataRequest.value)
       if (response.status === 200) {
@@ -415,6 +470,9 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
+        if (localErrors.value.adProjectOrders) {
+          addProjectOrdersErrors()
+        }
       }
     }
 
@@ -427,6 +485,9 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
+        if (localErrors.value.adProjectOrders) {
+          addProjectOrdersErrors()
+        }
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -461,6 +522,7 @@ export default defineComponent({
       dataAccounts,
       dataAccuracies,
       loading,
+      valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
       localProjectOrders,
@@ -470,7 +532,9 @@ export default defineComponent({
       removeProjectOrder,
       removeCompanyOnSearchForm,
       selectCompanyOnSearchForm,
-      onSubmit
+      onSubmit,
+      createTag,
+      removeTag
     }
   }
 })
@@ -492,35 +556,16 @@ export default defineComponent({
 }
 
 .outsource {
-  padding: 0 24px;
-  max-width: 100%;
-
   p {
     margin-bottom: 0;
   }
 
-  &__item {
-    @include flexbox(flex-start, flex-start);
-    margin-top: 8px;
-
-    div + div {
-      margin-left: 40px;
-    }
-
-    p {
-      margin-bottom: 4px;
-    }
-  }
-
-  &__item + &__item {
-    margin-top: 8px;
-  }
-
-  &__item + &__btn {
-    margin-top: 12px;
+  &__item td {
+    padding-bottom: 8px;
   }
 
   &__total {
+    width: 340px;
     margin-top: 12px;
     padding-top: 12px;
     margin-bottom: 0;
@@ -536,6 +581,48 @@ export default defineComponent({
       margin-left: 12px;
       cursor: pointer;
       color: $color-additional-red-6;
+    }
+  }
+}
+
+.project-add-form {
+  :deep(.ant-form-item-label > label.ant-form-item-required) {
+    &:after {
+      display: inline-block;
+      margin-left: 4px;
+      color: $color-additional-red-6;
+      font-size: 14px;
+      line-height: 1;
+      content: '*';
+    }
+  }
+
+  :deep(.ant-form-item-required) {
+    &:before {
+      display: none;
+    }
+  }
+
+  .tags-container {
+    width: 300px;
+    padding: 12px 12px 0 12px;
+    background-color: $color-grey-100;
+    border: 1px solid $color-grey-85;
+    border-radius: 2px;
+
+    :deep(.ant-tag) {
+      background-color: $color-grey-85;
+      color: $color-grey-15;
+      margin-bottom: 12px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: normal;
+      padding-top: 3px;
+      padding-bottom: 3px;
+
+      svg {
+        color: $color-grey-15;
+      }
     }
   }
 }
