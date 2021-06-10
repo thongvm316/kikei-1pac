@@ -105,7 +105,12 @@ export default defineComponent({
     subcategoryId: Number
   },
 
-  emits: { 'update:subcategoryId': null, 'update:companyName': null, 'update:visible': null },
+  emits: {
+    'update:subcategoryId': null,
+    'update:companyName': null,
+    'update:visible': null,
+    handleValidateSubCategory: null
+  },
 
   setup(_, context) {
     const { t } = useI18n()
@@ -176,6 +181,7 @@ export default defineComponent({
     const handleSelectCompany = (record) => {
       context.emit('update:companyName', record.name)
       context.emit('update:subcategoryId', record.id)
+      context.emit('handleValidateSubCategory')
       handleModalCancel()
     }
 
