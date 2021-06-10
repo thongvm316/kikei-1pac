@@ -171,23 +171,35 @@ export default defineComponent({
     onBeforeMount(async () => {
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
-      currentActiveIdGroup.value = (groupList.result?.data || [])[0]?.id || 1
 
-      const bankAccounts = await getBankAccounts({ group_id: currentActiveIdGroup.value })
-      bankAccountList.value = bankAccounts.result?.data || []
+      const groupId = getTabIndex(tabListGroup.value)
+      activeKeyGroupTab.value = parseInt(groupId)
+      currentActiveIdGroup.value = parseInt(groupId)
 
-      const { tab } = route.query || 1
-      const idGroupList = tabListGroup.value.map(item => item.id)
+      await fetchBankAccounts()
 
-      const indexTab = idGroupList.findIndex(item => item.toString() === tab)
-
-      if (indexTab < 0) {
-        await getDataDeposit({ groupId: tabListGroup.value[0].id })
-      } else {
-        activeKeyGroupTab.value = parseInt(tab)
-        await getDataDeposit({ groupId: parseInt(tab) })
-      }
+      // call search data deposit
+      await fetchDataDeposit(groupId)
     })
+
+    const fetchBankAccounts = async () => {
+      const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
+      bankAccountList.value = bankAccounts.result?.data || []
+    }
+
+    const fetchDataDeposit = async (groupId) => {
+      const { purpose } = route.query || null
+      await getDataDeposit({ groupId, purpose })
+      router.replace({ query: { groupId, purpose: '' } })
+    }
+
+    const getTabIndex = (tabList) => {
+      const { tab } = route.query || 1
+      const indexTab = tabList.findIndex(item => item.id === parseInt(tab))
+      const groupId = indexTab < 0 ? tabList[0].id : parseInt(tab)
+
+      return groupId
+    }
 
     const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
       dataDeposit.value = []
@@ -209,7 +221,8 @@ export default defineComponent({
       currentActiveIdGroup.value = groupId
       router.push({ query: { ...route.query, tab: groupId } })
 
-      await getDataDeposit({ groupId, bankAccountId: currentBankAccountList.value })
+      await fetchBankAccounts()
+      await getDataDeposit({ groupId })
     }
 
     const handleChangePage = async (pageNumber) => {
@@ -221,42 +234,29 @@ export default defineComponent({
     }
 
     const exportObj = reactive({
-      header: [
-        t('deposit.csv.header.confirmed'),
-        t('deposit.csv.header.date'),
-        t('deposit.csv.header.statictis_month'),
-        t('deposit.csv.header.deposit_money'),
-        t('deposit.csv.header.withdraw_money'),
-        t('deposit.csv.header.balance'),
-        t('deposit.csv.header.type_name'),
-        t('deposit.csv.header.category'),
-        t('deposit.csv.header.sub_category'),
-        t('deposit.csv.header.purpose')
-      ],
       fileTitle: 'Deposit',
       labels: [
-        { field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
-        { field: 'date', formatBy: 'moment_l' },
-        { field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
-        'depositMoney',
-        'withdrawalMoney',
-        'balance',
-        { field: 'type', formatBy: 'format_deposit_type_name_text' },
-        'categoryName',
-        'subcategoryName',
-        'purpose'
+        { header: t('deposit.csv.header.confirmed'), field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
+        { header: t('deposit.csv.header.date'), field: 'date', formatBy: 'moment_l' },
+        { header: t('deposit.csv.header.statictis_month'), field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
+        { header: t('deposit.csv.header.deposit_money'), field: 'depositMoney' },
+        { header: t('deposit.csv.header.withdraw_money'), field: 'withdrawalMoney' },
+        { header: t('deposit.csv.header.balance'), field: 'balance' },
+        { header: t('deposit.csv.header.type_name'), field: 'type', formatBy: 'format_deposit_type_name_text' },
+        { header: t('deposit.csv.header.category'), field: 'categoryName' },
+        { header: t('deposit.csv.header.sub_category'), field: 'subcategoryName' },
+        { header: t('deposit.csv.header.purpose'), field: 'purpose' }
       ],
       items: []
     })
 
     const generateKeyCsv = (data) => {
-      const SPACE_REGREX = /\s/g
       let objectData = {}
 
       data.forEach((item) => {
-        ;(objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_deposit`] = item.deposit),
-        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_withdrawal`] = item.withdrawal),
-        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_balance`] = item.balance)
+        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit),
+        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_withdrawal`] = item.withdrawal),
+        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_balance`] = item.balance)
       })
 
       return objectData
@@ -264,33 +264,32 @@ export default defineComponent({
 
     const exportDepositAsCsvFile = async () => {
       loadingExportCsvButton.value = true
+      const params = {
+        pageNumber: 1,
+        pageSize: 9
+      }
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
         bankAccountId: currentBankAccountList.value
       }
 
-      const params = {
-        pageNumber: currentPageNumber.value
-      }
       const { data } = await getDeposit(dataRequest, params)
       loadingExportCsvButton.value = false
+      const depositItems = data.result.data
 
-      if (data.result.data[0].bankAccounts) {
-        exportObj.items = data.result.data.map((record) => {
+      if (depositItems[0].bankAccounts) {
+        exportObj.items = depositItems.map((record) => {
           const bankObj = generateKeyCsv(record.bankAccounts)
-
-          return Object.assign(record, bankObj)
+          return { ...record, ...bankObj }
         })
 
         // TODO: LOCALE header csv
-        const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts))
-
-        headerList.forEach((item) => {
-          exportObj.header.push(item)
-          exportObj.labels.push(item)
+        Object.keys(generateKeyCsv(depositItems[0].bankAccounts)).forEach(key => {
+          const headerSplit = key.split('_')
+          exportObj.labels.push({ header: `${headerSplit[0]}_${t(`deposit.csv.header.${headerSplit[1]}`)}`, field: key })
         })
       } else {
-        exportObj.items = data.result.data
+        exportObj.items = depositItems
       }
       exportCSVFile(exportObj)
     }

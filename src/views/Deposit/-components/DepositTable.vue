@@ -3,11 +3,12 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1000, y: 610 }"
+    :scroll="{ x: true, y: 610 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
+    table-layout="fixed"
     :row-selection="{
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,

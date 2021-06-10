@@ -104,7 +104,7 @@
           <!-- Type -->
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">Type</label>
+              <label class="form-label">{{ $t('project.type') }}</label>
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="typeValue" name="projectType" :options="dataTypes" />
               </div>
@@ -115,7 +115,7 @@
           <!-- Status -->
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">Status</label>
+              <label class="form-label">{{ $t('project.status') }}</label>
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="statusValue" name="projectStatuses" :options="dataStatuses" />
               </div>
@@ -139,13 +139,13 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
-                <a-input v-model:value="nameValue" name="projectName" />
+                <a-input v-model:value="nameValue" style="width: 340px" name="projectName" />
               </div>
             </div>
           </div>
           <!-- ./Project Name -->
 
-          <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
+          <a-button key="back" @click="clearSearchForm">{{ $t('financing.handle_cancel') }}</a-button>
           <a-button key="submit" type="primary" html-type="submit" :loading="loading">
             <template #icon>
               <span class="btn-icon">
@@ -218,20 +218,6 @@ export default defineComponent({
       return data.map((item) => ({ label: `${item.code} (${item.name})`, value: item.id }))
     }
 
-    onBeforeMount(async () => {
-      // accounts
-      dataAccounts.value = await useAccountList()
-      // groups
-      const { data: groups } = await getProjectStatuses()
-      dataGroups.value = groups
-      // statuses
-      const { data: statuses } = await getProjectStatuses()
-      dataStatuses.value = toStatusOptions(statuses)
-      // accuracies
-      const { data: accuracies } = await getProjectAccuracies()
-      dataAccuracies.value = toAccuracyOptions(accuracies)
-    })
-
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
       set: (val) => {
@@ -239,11 +225,15 @@ export default defineComponent({
       }
     })
 
-    const closeModal = () => {
-      visible.value = false
-    }
-    const handleCancel = () => {
-      closeModal()
+    const clearSearchForm = () => {
+      state.groupValue = [],
+      state.accountValue = [],
+      state.updatedDateValue = [],
+      state.typeValue = [],
+      state.statusValue = [],
+      state.statisticsDateValue = [],
+      state.accuracyValue = [],
+      state.nameValue = ''
     }
 
     const onSubmit = () => {
@@ -263,8 +253,22 @@ export default defineComponent({
       emit('on-search', searchData)
 
       // close modal
-      closeModal()
+      visible.value = false
     }
+
+    onBeforeMount(async () => {
+      // accounts
+      dataAccounts.value = await useAccountList()
+      // groups
+      const { data: groups } = await getProjectStatuses()
+      dataGroups.value = groups
+      // statuses
+      const { data: statuses } = await getProjectStatuses()
+      dataStatuses.value = toStatusOptions(statuses)
+      // accuracies
+      const { data: accuracies } = await getProjectAccuracies()
+      dataAccuracies.value = toAccuracyOptions(accuracies)
+    })
 
     return {
       t,
@@ -277,8 +281,8 @@ export default defineComponent({
       dataStatuses,
       dataAccounts,
       dataAccuracies,
-      handleCancel,
       onSubmit,
+      clearSearchForm,
       ...toRefs(state)
     }
   }

@@ -27,6 +27,8 @@ export default defineComponent({
       if (!projectId) return
 
       project.value = await getProject(projectId)
+      project.value.code = ''
+      project.value.name = ''
       router.replace({ query: {} })
     }
 
