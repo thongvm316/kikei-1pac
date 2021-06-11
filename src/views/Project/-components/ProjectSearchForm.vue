@@ -225,14 +225,14 @@ export default defineComponent({
     })
 
     const clearSearchForm = () => {
-      state.groupValue = [],
-      state.accountValue = [],
-      state.updatedDateValue = [],
-      state.typeValue = [],
-      state.statusValue = [],
-      state.statisticsDateValue = [],
-      state.accuracyValue = [],
-      state.nameValue = ''
+      ;(state.groupValue = []),
+      (state.accountValue = []),
+      (state.updatedDateValue = []),
+      (state.typeValue = []),
+      (state.statusValue = []),
+      (state.statisticsDateValue = []),
+      (state.accuracyValue = []),
+      (state.nameValue = '')
     }
 
     const onSubmit = () => {

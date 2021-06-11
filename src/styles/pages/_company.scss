@@ -23,8 +23,7 @@
 
   .ant-modal-footer {
     form {
-      width: 50%;
-      margin: 0 auto;
+      margin: 0 171px;
 
       .form-content {
         text-align: left;
@@ -32,12 +31,12 @@
 
       .form-label,
       .label-input {
-        width: 30%;
+        width: 26%;
       }
 
       .form-input,
       .ant-checkbox-group {
-        width: 70%;
+        width: 100%;
       }
     }
   }
