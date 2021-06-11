@@ -173,7 +173,6 @@ import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
 
 import { useAccountList } from '../composables/useAccountList'
-import { useGroupList } from '../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
@@ -246,8 +245,8 @@ export default defineComponent({
         accuracyId: state.accuracyValue,
         updatedFrom: state.updatedDateValue[0] ? moment(state.updatedDateValue[0]).format('YYYY-MM-DD') : null,
         updatedTo: state.updatedDateValue[1] ? moment(state.updatedDateValue[1]).format('YYYY-MM-DD') : null,
-        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM-DD') : null,
-        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM-DD') : null,
+        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM') : null,
+        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM') : null,
         name: state.nameValue
       }
       emit('on-search', searchData)

@@ -11,6 +11,8 @@ export default {
   group_name: 'Group Name',
   account_name: 'Account Name',
   type: 'Type',
+  type_0: 'Contract',
+  type_1: 'Labo',
   status: 'Status',
   title_search: 'Search',
 

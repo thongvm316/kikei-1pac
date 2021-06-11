@@ -23,7 +23,7 @@
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
-    <template #renderDepositStatictis="{ record }">{{ $filters.moment_mm_dd(record.statisticsMonth) }}</template>
+    <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
 
     <template #typeName="{ record }">
       <span
