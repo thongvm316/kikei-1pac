@@ -168,13 +168,13 @@ export default defineComponent({
     })
 
     const handleClearDepositFormSearch = () => {
-      state.dateDepositValue = [],
-      state.statisticsDateDepositValue = [],
-      state.checkedTypeDepositList = [],
-      state.checkedCategotyList = [],
-      state.checkedSubCategotyList = [],
-      state.checkedSubConfirmedList = [],
-      state.valuePurpose = ''
+      ;(state.dateDepositValue = []),
+      (state.statisticsDateDepositValue = []),
+      (state.checkedTypeDepositList = []),
+      (state.checkedCategotyList = []),
+      (state.checkedSubCategotyList = []),
+      (state.checkedSubConfirmedList = []),
+      (state.valuePurpose = '')
     }
 
     const onSubmit = () => {

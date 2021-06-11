@@ -66,11 +66,12 @@
     </div>
 
     <a-tabs
-      class="-mx-32"
       v-model:active-key="activeKeyGroupTab"
+      class="-mx-32"
       default-active-key="1"
       :animated="false"
-      @change="onHandleChangeTabGroup">
+      @change="onHandleChangeTabGroup"
+    >
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
         <deposit-table
           v-model:expanded-row-keys="expandedRowKeys"
@@ -225,7 +226,7 @@ export default defineComponent({
 
     const getTabIndex = (tabList) => {
       const { tab } = route.query || 1
-      const indexTab = tabList.findIndex(item => item.id === parseInt(tab))
+      const indexTab = tabList.findIndex((item) => item.id === parseInt(tab))
       const groupId = indexTab < 0 ? tabList[0].id : parseInt(tab)
 
       return groupId
@@ -240,7 +241,9 @@ export default defineComponent({
       )
 
       const COLLUMNS_COUNT = 9
-      dataDeposit.value[0].bankAccounts?.length ? expandIconColumnIndex.value = COLLUMNS_COUNT : expandIconColumnIndex.value = 10
+      dataDeposit.value[0].bankAccounts?.length
+        ? (expandIconColumnIndex.value = COLLUMNS_COUNT)
+        : (expandIconColumnIndex.value = 10)
 
       bankAccountId.length
         ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
@@ -286,7 +289,7 @@ export default defineComponent({
       let objectData = {}
 
       data.forEach((item) => {
-        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit),
+        ;(objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit),
         (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_withdrawal`] = item.withdrawal),
         (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_balance`] = item.balance)
       })
@@ -316,9 +319,12 @@ export default defineComponent({
         })
 
         // TODO: LOCALE header csv
-        Object.keys(generateKeyCsv(depositItems[0].bankAccounts)).forEach(key => {
+        Object.keys(generateKeyCsv(depositItems[0].bankAccounts)).forEach((key) => {
           const headerSplit = key.split('_')
-          exportObj.labels.push({ header: `${headerSplit[0]}_${t(`deposit.csv.header.${headerSplit[1]}`)}`, field: key })
+          exportObj.labels.push({
+            header: `${headerSplit[0]}_${t(`deposit.csv.header.${headerSplit[1]}`)}`,
+            field: key
+          })
         })
       } else {
         exportObj.items = depositItems

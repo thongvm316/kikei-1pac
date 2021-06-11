@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-export const fromStringToDateTimeFormat = (dateTimeValueStr, formatter = 'YYYY/MM') =>  {
+export const fromStringToDateTimeFormat = (dateTimeValueStr, formatter = 'YYYY/MM') => {
   if (!dateTimeValueStr) return ''
 
   return moment(new Date(dateTimeValueStr)).format(formatter)

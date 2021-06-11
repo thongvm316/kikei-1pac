@@ -35,7 +35,12 @@
     </template>
 
     <template #deposit="{ record }">
-      <span :class="`type-${record.type} bank-${record.class} ${(record.type === 40 && record.depositMoney > record.withdrawalMoney) ? 'deposit' : 'withdraw'}`">{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span>
+      <span
+        :class="`type-${record.type} bank-${record.class} ${
+          record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
+        }`"
+        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
+      >
     </template>
 
     <template #balance="{ record }">
@@ -68,22 +73,39 @@ const columnsDeposit = [
     key: 'date',
     align: 'left',
     slots: { customRender: 'renderDepositUpdatedAt' },
-    sorter: (a, b) => (new Date(a.date)).getTime() - (new Date(b.date)).getTime()
+    sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   },
   {
     title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
     slots: { customRender: 'renderDepositStatictis' },
-    sorter: (a, b) => (new Date(a.statisticsMonth)).getMonth() - (new Date(b.statisticsMonth)).getMonth()
+    sorter: (a, b) => new Date(a.statisticsMonth).getMonth() - new Date(b.statisticsMonth).getMonth()
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
   { title: '項目名', dataIndex: 'purpose', key: 'purpose', ellipsis: true, slots: { customRender: 'purpose' } },
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
-  { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
-  { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance', customRender: 'balance' } },
-  { title: '確定', dataIndex: 'action', key: 'action', slots: { customRender: 'action' }, align: 'center' }
+  {
+    dataIndex: 'deposit',
+    key: 'deposit',
+    align: 'right',
+    slots: { title: 'customTitleDeposit', customRender: 'deposit' }
+  },
+  {
+    dataIndex: 'balance',
+    key: 'balance',
+    align: 'right',
+    slots: { title: 'customTitleBalance', customRender: 'balance' }
+  },
+  {
+    title: '確定',
+    dataIndex: 'action',
+    key: 'action',
+    slots: { customRender: 'action' },
+    width: '127px',
+    align: 'center'
+  }
 ]
 
 export default defineComponent({
