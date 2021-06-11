@@ -105,7 +105,12 @@ export default defineComponent({
     subcategoryId: Number
   },
 
-  emits: { 'update:subcategoryId': null, 'update:companyName': null, 'update:visible': null },
+  emits: {
+    'update:subcategoryId': null,
+    'update:companyName': null,
+    'update:visible': null,
+    handleValidateSubCategory: null
+  },
 
   setup(_, context) {
     const { t } = useI18n()
@@ -127,7 +132,7 @@ export default defineComponent({
         dataIndex: 'select',
         key: 'select',
         slots: { customRender: 'action' },
-        width: 86
+        ellipsis: true
       },
       { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name', ellipsis: true },
       { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code', ellipsis: true },
@@ -135,22 +140,19 @@ export default defineComponent({
         title: t('deposit.company_name.table_header_country'),
         dataIndex: 'countryName',
         key: 'countryName',
-        ellipsis: true,
-        width: 100
+        ellipsis: true
       },
       {
         title: t('deposit.company_name.table_header_currency'),
         dataIndex: 'currencyCode',
         key: 'currencyCode',
-        ellipsis: true,
-        width: 60
+        ellipsis: true
       },
       {
         title: t('deposit.company_name.table_header_division'),
         dataIndex: 'divisionName',
         key: 'divisionName',
-        ellipsis: true,
-        width: 200
+        ellipsis: true
       }
     ]
 
@@ -179,6 +181,7 @@ export default defineComponent({
     const handleSelectCompany = (record) => {
       context.emit('update:companyName', record.name)
       context.emit('update:subcategoryId', record.id)
+      context.emit('handleValidateSubCategory')
       handleModalCancel()
     }
 
