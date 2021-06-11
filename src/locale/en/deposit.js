@@ -64,7 +64,9 @@ export default {
     repeated_expired_date: '終了日',
     confirmed: '確定',
     cancel: 'キャンセル',
-    registration: '登録'
+    registration: '登録',
+    create_success: 'Add deposit success',
+    update_success: 'Update deposit success'
   },
 
   csv: {
@@ -96,5 +98,19 @@ export default {
   currency: {
     vnd: 'VND',
     jpy: 'JPY'
+  },
+
+  error_message: {
+    date: 'Please select date',
+    type: 'Please select type',
+    category: 'Please select category',
+    sub_category: 'Please select sub category',
+    purpose: 'Please input item name',
+    statistics_month: 'Please select month',
+    group: 'Please select month',
+    bank_account: 'Please select bank account',
+    money: 'Please input money',
+    tags: 'Please input tag',
+    repeated: 'Please select repeat type'
   }
 }

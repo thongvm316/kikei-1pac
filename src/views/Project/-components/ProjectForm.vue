@@ -1,7 +1,7 @@
 <template>
-  <a-form ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
+  <a-form class="project-add-form" ref="prjectFormRef" :rules="projectFormRules" :model="projectParams" layout="vertical" @submit="onSubmit">
     <!-- companyID -->
-    <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
+    <a-form-item name="companyId" label="クライアント名" :class="{'has-error': localErrors['companyId']}">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
@@ -18,7 +18,7 @@
     <!-- code -->
 
     <!-- name -->
-    <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
+    <a-form-item name="name" label="プロジェクト名" :class="{'has-error': localErrors['name']}">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
       <p v-if="localErrors['name']" class="ant-form-explain">{{ localErrors['name'] }}</p>
     </a-form-item>
@@ -37,7 +37,7 @@
     <!-- type -->
 
     <!-- status -->
-    <a-form-item name="statusId" label="ステータス" :class="{ 'has-error': localErrors['statusId'] }">
+    <a-form-item name="statusId" label="ステータス" :class="{'has-error': localErrors['statusId']}">
       <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
           {{ status.name }}
@@ -48,7 +48,7 @@
     <!-- status -->
 
     <!-- accuracy -->
-    <a-form-item name="accuracyId" label="受注確度" :class="{ 'has-error': localErrors['statusId'] }">
+    <a-form-item name="accuracyId" label="受注確度" :class="{'has-error': localErrors['statusId']}">
       <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
           {{ accuracy.code }} ({{ accuracy.name }})
@@ -93,7 +93,7 @@
     <!-- statistics month -->
 
     <!-- groupID -->
-    <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
+    <a-form-item name="groupId" label="請求グループ" :class="{'has-error': localErrors['groupId']}">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
         <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
           {{ group.name }}
@@ -110,7 +110,7 @@
     <!-- director -->
 
     <!-- accountID -->
-    <a-form-item name="accountId" label="営業担当" :class="{ 'has-error': localErrors['accountId'] }">
+    <a-form-item name="accountId" label="営業担当" :class="{'has-error': localErrors['accountId']}">
       <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
           {{ account.fullname }}
@@ -121,7 +121,7 @@
     <!-- accountID -->
 
     <!-- money -->
-    <a-form-item name="money" label="金額" :class="{ 'has-error': localErrors['money'] }">
+    <a-form-item name="money" label="金額" :class="{'has-error': localErrors['money']}">
       <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
       <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
     </a-form-item>
@@ -130,62 +130,49 @@
     <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
       <div class="outsource">
-        <template v-for="(order, index) in localProjectOrders" :key="order.key">
-          <div class="outsource__item">
-            <div
-              :class="{
-                'has-error':
-                  localErrors['adProjectOrders'] &&
-                  localErrors['adProjectOrders'][index] &&
-                  localErrors['adProjectOrders'][index]['companyId']
-              }"
-            >
-              <p>会社名</p>
-              <div v-if="order.companyId" class="outsource__company-info">
-                <p class="text-grey-500">{{ order.companyName }}</p>
-                <p @click="removeCompanyOnSearchForm(order)">削除</p>
-              </div>
-              <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
+        <table>
+          <tbody>
+            <template v-for="(order, index) in localProjectOrders" :key="order.key">
+              <tr class="outsource__item">
+                <td :class="[ 'u-flex u-flex-col', {'has-error': order.errors && order.errors['companyId']}]">
+                  <p>会社名</p>
+                  <div v-if="order.companyId" class="outsource__company-info">
+                    <p class="text-grey-500">{{ order.companyName }}</p>
+                    <p @click="removeCompanyOnSearchForm(order)">削除</p>
+                  </div>
+                  <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
+                </td>
 
-              <p
-                v-if="
-                  localErrors['adProjectOrders'] &&
-                  localErrors['adProjectOrders'][index] &&
-                  localErrors['adProjectOrders'][index]['companyId']
-                "
-                class="u-text-additional-red-6"
-              >
-                company {{ localErrors['adProjectOrders'][index]['companyId'] }}
-              </p>
-            </div>
+                <td :class="[ 'u-pl-40', {'has-error': (order.errors && order.errors['money'])}]">
+                  <p>金額</p>
+                  <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
+                </td>
 
-            <div
-              :class="{
-                'has-error':
-                  localErrors['adProjectOrders'] &&
-                  localErrors['adProjectOrders'][index] &&
-                  localErrors['adProjectOrders'][index]['money']
-              }"
-            >
-              <p>金額</p>
-              <a-input-number v-model:value="order.money" placeholder="タグを入力してください" style="width: 164px" />
-              <p
-                v-if="
-                  localErrors['adProjectOrders'] &&
-                  localErrors['adProjectOrders'][index] &&
-                  localErrors['adProjectOrders'][index]['money']
-                "
-                class="u-text-additional-red-6"
-              >
-                money {{ localErrors['adProjectOrders'][index]['money'] }}
-              </p>
-            </div>
-            <div v-if="!order.id">
-              <p>Action</p>
-              <a-button type="danger" ghost @click="removeProjectOrder(order)">削除</a-button>
-            </div>
-          </div>
-        </template>
+                <td class="u-pl-8">
+                  <p class="u-mt-24 u-text-grey-75">(VND)</p>
+                </td>
+
+                <td class="u-pl-8" v-if="!order.id">
+                  <a-button size="small" class="u-mt-24" type="danger" ghost @click="removeProjectOrder(order)">削除</a-button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="u-pb-12">
+                  <p
+                    v-if="order.errors && order.errors['companyId']"
+                    class="u-text-additional-red-6">company {{ order.errors && order.errors['companyId'] }}</p>
+                </td>
+                <td class="u-pl-40 u-pb-12">
+                  <p
+                    v-if="order.errors && order.errors['money']"
+                    class="u-text-additional-red-6">money {{ order.errors && order.errors['money'] }}</p>
+                </td>
+                <td></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
 
         <a-button class="outsource__btn" @click="addDummyProjectOrder">
           <template #icon>
@@ -194,15 +181,27 @@
           外注を追加
         </a-button>
 
-        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (VND)</p>
+        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)</p>
       </div>
     </a-form-item>
     <!-- projectOrders -->
 
     <!-- tag  -->
-    <a-form-item name="tag" label="タグ">
-      <a-input v-model:value="projectParams.tag" placeholder="タグを入力してください" style="width: 300px" />
+    <a-form-item name="tags" label="タグ">
+      <a-input v-model:value="valueTag" @pressEnter="createTag" placeholder="タグを入力してください" style="width: 300px" />
     </a-form-item>
+
+    <div
+      v-if="projectParams.tags.length > 0"
+      class="tags-container u-mb-12">
+      <a-tag
+        v-for="(tag, index) in projectParams.tags"
+        :key="index"
+        closable
+        @close="removeTag($event, index)">
+        {{ tag }}
+      </a-tag>
+    </div>
     <!-- tag  -->
 
     <!-- memo -->
@@ -222,18 +221,20 @@
 
 <script>
 import { defineComponent, ref, reactive, onBeforeMount, computed, watch } from 'vue'
-import moment from 'moment'
-import { uniqueId } from 'lodash-es'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { CalendarOutlined } from '@ant-design/icons-vue'
+import moment from 'moment'
+
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../composables/useAccountList'
 import { useGroupList } from '../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses, addProject, editProject } from '../composables/useProject'
+import { initProjectOutsouringOrders, toProjectOutsouringOrdersRequestData, addProjectOrder } from '../composables/useProjectOrders'
+import { deepCopy } from '@/helpers/json-parser'
+import { fromDateObjectToDateTimeFormat } from '@/helpers/date-time-format'
+import { CalendarOutlined } from '@ant-design/icons-vue'
 import ProjectCompanyForm from './ProjectCompanyForm'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'ProjectForm',
@@ -271,12 +272,29 @@ export default defineComponent({
       accountId: null,
       director: '',
       money: '',
-      tag: '',
+      tags: [],
       memo: '',
       adProjectOrders: []
     })
     const localErrors = ref({})
     const loading = ref(false)
+
+    // tags
+    const valueTag = ref()
+    const createTag = () => {
+      if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
+      const valueTagLowerCase = valueTag.value.trim().toLowerCase()
+      if (projectParams.value.tags.includes(valueTagLowerCase)) return
+
+      projectParams.value.tags.push(valueTagLowerCase)
+      valueTag.value = ''
+    }
+
+    const removeTag = (e, index) => {
+      e.preventDefault()
+      projectParams.value.tags.splice(index, 1)
+      return false
+    }
 
     const isCompanySearchFormOpen = ref(false)
     const companyTargetSearch = ref('owner') // owner || outsource
@@ -307,17 +325,17 @@ export default defineComponent({
       money: [{ type: 'number', required: true, message: 'Please input valid money', trigger: 'change' }]
     })
 
-    /* --------------------- handle search company ------------------- */
-    const addDummyProjectOrder = () => {
-      const emptyOutsourceData = {
-        companyId: '',
-        companyName: '',
-        key: uniqueId('__outsource__'),
-        money: ''
+    const dynamicBaseOnAccuracy = () => {
+      if (highestAccuracyRequired.value) {
+        projectFormRules.value.tags = [{ type: 'array', required: true, message: 'Please input tag', trigger: ['blur', 'change'] }]
+        projectFormRules.value.memo = [{ required: true, message: 'Please input memo', trigger: 'change' }]
+      } else {
+        projectFormRules.value.tags = []
+        projectFormRules.value.memo = []
       }
-      localProjectOrders.value.push(deepCopy(emptyOutsourceData))
     }
 
+    /* --------------------- handle search company ------------------- */
     const removeProjectOrder = (order) => {
       const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
       if (index < 0) return
@@ -354,14 +372,8 @@ export default defineComponent({
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const dynamicBaseOnAccuracy = () => {
-      if (highestAccuracyRequired.value) {
-        projectFormRules.value.tag = [{ required: true, message: 'Please input tag', trigger: 'change' }]
-        projectFormRules.value.memo = [{ required: true, message: 'Please input tag', trigger: 'change' }]
-      } else {
-        projectFormRules.value.tag = []
-        projectFormRules.value.memo = []
-      }
+    const addDummyProjectOrder = () => {
+      addProjectOrder(localProjectOrders)
     }
 
     const totalMoneyOutsourcing = computed(() => {
@@ -379,12 +391,10 @@ export default defineComponent({
     /* --------------------- ./handle project orders --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
-
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
-      Object.keys(projectParams.value).forEach((key) => {
+      Object.keys(projectParams.value).forEach(key => {
         if (projectPropValue[key]) projectParams.value[key] = deepCopy(projectPropValue[key])
       })
 
@@ -397,62 +407,35 @@ export default defineComponent({
       }
 
       // init date month value
-      projectParams.value.releaseDate = toDateFormat(projectPropValue.releaseDate, 'YYYY/MM/DD')
-      projectParams.value.statisticsMonth = toDateFormat(projectPropValue.statisticsFromMonth)
-      projectParams.value.statisticsMonths = [
-        toDateFormat(projectPropValue.statisticsFromMonth),
-        toDateFormat(projectPropValue.statisticsToMonth)
-      ]
+      projectParams.value.releaseDate = projectPropValue.releaseDate ? moment(new Date(projectPropValue.releaseDate)) : null
+      projectParams.value.statisticsMonth = moment(new Date(projectPropValue.statisticsFromMonth))
+      projectParams.value.statisticsMonths = [moment(new Date(projectPropValue.statisticsFromMonth)), moment(new Date(projectPropValue.statisticsToMonth))]
+
+      // Force tags ['']
+      if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
-        for (let i = 0; i < projectParams.value.adProjectOrders.length; i++) {
-          const { id, money, note, adCompany } = projectParams.value.adProjectOrders[i]
-          localProjectOrders.value.push({
-            key: uniqueId('__outsource__'),
-            id,
-            money,
-            note,
-            companyId: adCompany.id,
-            companyName: adCompany.name
-          })
-        }
+        initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
       }
     }
     /* -------------------- ./init data when project props ------------------------- */
 
     /* ------------------- api intergration --------------------------- */
-    const projectOutsouringOrders = () => {
-      if (localProjectOrders.value.length <= 0) return null
-      return localProjectOrders.value.map((item) => {
-        const shadownItem = {
-          id: item.id ? item.id : null,
-          companyId: item.companyId || null,
-          money: item.money || null,
-          note: '112233'
-        }
-        if (!shadownItem.id) delete shadownItem.id
-
-        return shadownItem
-      })
-    }
-
     const projectDataRequest = computed(() => {
       const { value: projectParamsValue } = projectParams
       let dataRequest = {
         ...projectParamsValue,
-        releaseDate: projectParamsValue.releaseDate
-          ? moment(projectParamsValue.releaseDate).format('YYYY-MM-DD')
-          : null,
+        releaseDate: projectParamsValue.releaseDate ? fromDateObjectToDateTimeFormat(projectParamsValue.releaseDate) : null,
         statisticsFromMonth:
           projectParamsValue.type === 0
-            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParamsValue.statisticsMonths[0]).format('YYYY-MM-DD'),
+            ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[0]),
         statisticsToMonth:
           projectParamsValue.type === 0
-            ? moment(projectParamsValue.statisticsMonth).format('YYYY-MM-DD')
-            : moment(projectParamsValue.statisticsMonths[1]).format('YYYY-MM-DD'),
-        adProjectOrders: projectOutsouringOrders()
+            ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
+        adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
       }
 
       delete dataRequest.statisticsMonth
@@ -472,6 +455,12 @@ export default defineComponent({
       }
     }
 
+    const addProjectOrdersErrors = () => {
+      localProjectOrders.value.forEach((item, index) => {
+        item.errors = localErrors.value.adProjectOrders[index] || {}
+      })
+    }
+
     const callAddProject = async () => {
       const response = await addProject(projectDataRequest.value)
       if (response.status === 200) {
@@ -481,6 +470,9 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
+        if (localErrors.value.adProjectOrders) {
+          addProjectOrdersErrors()
+        }
       }
     }
 
@@ -493,6 +485,9 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
+        if (localErrors.value.adProjectOrders) {
+          addProjectOrdersErrors()
+        }
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -527,6 +522,7 @@ export default defineComponent({
       dataAccounts,
       dataAccuracies,
       loading,
+      valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
       localProjectOrders,
@@ -536,7 +532,9 @@ export default defineComponent({
       removeProjectOrder,
       removeCompanyOnSearchForm,
       selectCompanyOnSearchForm,
-      onSubmit
+      onSubmit,
+      createTag,
+      removeTag
     }
   }
 })
@@ -550,6 +548,11 @@ export default defineComponent({
   margin-bottom: 16px;
 }
 
+.ant-modal-footer {
+  @include flexbox(null, null);
+  padding: 0;
+}
+
 .modal-link {
   color: $color-additional-blue-6;
   margin-bottom: 0;
@@ -558,35 +561,16 @@ export default defineComponent({
 }
 
 .outsource {
-  padding: 0 24px;
-  max-width: 100%;
-
   p {
     margin-bottom: 0;
   }
 
-  &__item {
-    @include flexbox(flex-start, flex-start);
-    margin-top: 8px;
-
-    div + div {
-      margin-left: 40px;
-    }
-
-    p {
-      margin-bottom: 4px;
-    }
-  }
-
-  &__item + &__item {
-    margin-top: 8px;
-  }
-
-  &__item + &__btn {
-    margin-top: 12px;
+  &__item td {
+    padding-bottom: 8px;
   }
 
   &__total {
+    width: 340px;
     margin-top: 12px;
     padding-top: 12px;
     margin-bottom: 0;
@@ -602,6 +586,48 @@ export default defineComponent({
       margin-left: 12px;
       cursor: pointer;
       color: $color-additional-red-6;
+    }
+  }
+}
+
+.project-add-form {
+  :deep(.ant-form-item-label > label.ant-form-item-required) {
+    &:after {
+      display: inline-block;
+      margin-left: 4px;
+      color: $color-additional-red-6;
+      font-size: 14px;
+      line-height: 1;
+      content: '*';
+    }
+  }
+
+  :deep(.ant-form-item-required) {
+    &:before {
+      display: none;
+    }
+  }
+
+  .tags-container {
+    width: 300px;
+    padding: 12px 12px 0 12px;
+    background-color: $color-grey-100;
+    border: 1px solid $color-grey-85;
+    border-radius: 2px;
+
+    :deep(.ant-tag) {
+      background-color: $color-grey-85;
+      color: $color-grey-15;
+      margin-bottom: 12px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: normal;
+      padding-top: 3px;
+      padding-bottom: 3px;
+
+      svg {
+        color: $color-grey-15;
+      }
     }
   }
 }
