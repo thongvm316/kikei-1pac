@@ -391,6 +391,8 @@ export default defineComponent({
 
       checkAllRowTable.value = (currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length) && currentSelectedRowKeys.value.length > 2
 
+      disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
+
       // Force rerender table
       tableKey.value++
 
