@@ -35,7 +35,7 @@ export const exportProject = (items) => {
       { header: 'Project Code', field: 'code' },
       { header: t('project.project_name'), field: 'name' },
       { header: 'Company Name', field: 'companyName' },
-      { header: t('project.type'), field: 'typeName' },
+      { header: t('project.type'), field: 'type', localeBy: 'project.type_' },
       { header: t('project.accuracy_name'), field: 'accuracyName' },
       { header: t('project.release_date'), field: 'releaseDate', formatBy: 'moment_l' },
       { header: t('project.money'), field: 'money' },

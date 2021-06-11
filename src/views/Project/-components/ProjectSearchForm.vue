@@ -203,7 +203,7 @@ export default defineComponent({
 
     const dataAccounts = ref([])
     const dataGroups = ref([])
-    const dataTypes = reactive(PROJECT_TYPES)
+    const dataTypes = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
 
@@ -267,6 +267,10 @@ export default defineComponent({
       // accuracies
       const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = toAccuracyOptions(accuracies)
+      dataTypes.value = PROJECT_TYPES.map(type => ({
+        ...type,
+        label: t(`project.${type.label}`)
+      }))
     })
 
     return {
