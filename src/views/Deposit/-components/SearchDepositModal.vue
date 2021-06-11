@@ -138,7 +138,7 @@ export default defineComponent({
     const { t, locale } = useI18n()
 
     const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map(item => ({
-      value: item,
+      value: parseInt(item),
       label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
     }))
 

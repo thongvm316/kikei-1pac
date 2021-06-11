@@ -19,6 +19,14 @@ export const getDeposit = async (data, params) => {
   }
 }
 
+export const confirmDeposit = async (data) => {
+  try {
+    await DepositService.confirmDeposit(data)
+  } catch (e) {
+    throw e
+  }
+}
+
 export const getGroups = async () => {
   try {
     const { data } = await GroupService.getGroups()

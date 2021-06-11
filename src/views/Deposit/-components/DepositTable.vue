@@ -3,17 +3,18 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: true, y: 610 }"
+    :scroll="{ x: 1000, y: 610 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
-    table-layout="fixed"
     :row-selection="{
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,
       selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => ({ disabled: record.confirmed })
+      getCheckboxProps: (record) => {
+        return { disabled: record.confirmed }
+      }
     }"
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
@@ -42,7 +43,14 @@
     </template>
 
     <template #action="{ record }">
-      <a-button v-if="record.children" :disabled="record.confirmed" type="primary">確定</a-button>
+      <a-button
+        v-if="record.children"
+        :disabled="record.confirmed"
+        type="primary"
+        @click="$emit('on-open-confirm-deposit-record-modal', [record.id])"
+      >
+        確定
+      </a-button>
     </template>
 
     <template #customTitleDeposit> 入出金額<br />(JPY) </template>
@@ -71,7 +79,7 @@ const columnsDeposit = [
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
-  { title: '項目名', dataIndex: 'purpose', key: 'purpose', slots: { customRender: 'purpose' } },
+  { title: '項目名', dataIndex: 'purpose', key: 'purpose', ellipsis: true, slots: { customRender: 'purpose' } },
   { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
   { dataIndex: 'deposit', key: 'deposit', align: 'right', slots: { title: 'customTitleDeposit', customRender: 'deposit' } },
   { dataIndex: 'balance', key: 'balance', align: 'right', slots: { title: 'customTitleBalance', customRender: 'balance' } },
@@ -117,6 +125,7 @@ export default defineComponent({
     const onCustomRow = (record) => {
       return {
         onClick: (event) => {
+          if (event.target.type === 'button') return
           currentRowClick.value = record.key
           emit('on-open-deposit-buttons-float', record)
         }
