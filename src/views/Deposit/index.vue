@@ -396,6 +396,13 @@ export default defineComponent({
       // Force rerender table
       tableKey.value++
 
+      // show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: 'プロジェクト名 を削除しました'
+      })
+
       isVisibleConfirmDepositModal.value = false
     }
 
