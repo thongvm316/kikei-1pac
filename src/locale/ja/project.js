@@ -8,9 +8,11 @@ export default {
   release_date: 'リリース日',
   money: '受注金額',
   statistics_from_month: '計上月',
-  group_name: '計上月',
+  group_name: 'グループ',
   account_name: '営業担当',
   type: '区分',
+  type_0: '受託',
+  type_1: 'ラボ',
   status: 'ステータス',
   title_search: '検索',
   company_form: {

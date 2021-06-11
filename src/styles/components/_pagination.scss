@@ -54,8 +54,10 @@
       }
     }
 
-    &.ant-pagination-disabled {
-      display: none;
+    &.ant-pagination-disabled .ant-pagination-item-link {
+      background-color: transparent !important;
+      color: $color-grey-55;
+      cursor: not-allowed;
     }
   }
 }
@@ -85,4 +87,3 @@
 .ant-table-pagination.ant-pagination {
   margin-right: 40px;
 }
-

@@ -34,18 +34,19 @@
       :loading="loading"
       :pagination="false"
       :scroll="{ x: true }"
+      :row-class-name="(record, index) => { return targetProjectSelected.id === record.id ? 'is-clicked-row' : '' }"
       :custom-row="onCustomRow"
     >
       <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
-        <p class="mb-0 text-grey-55">{{ record.name }}</p>
-        <p class="mb-0 font-bold">{{ record.companyName }}</p>
+        <p class="mb-0 text-grey-55">{{ record.companyName }}</p>
+        <p class="mb-0 font-bold">{{ record.name }}</p>
       </template>
 
       <template #renderProjectCombineTypeAStatus="{ record }">
         <div class="d-flex">
-          <p class="mb-0 text-grey-55">{{ record.typeName }}</p>
+          <p class="mb-0 text-grey-55">{{ $t(`project.type_${record.type}`) }}</p>
           <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
         </div>
       </template>
@@ -77,7 +78,7 @@
 
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
 
-      <template #renderProjectStatisticsDate="{ record }">{{ $filters.moment_l(record.statisticsFromMonth) }}</template>
+      <template #renderProjectStatisticsDate="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsFromMonth) }}</template>
     </a-table>
   </div>
 
@@ -259,6 +260,11 @@ export default defineComponent({
       const index = projectDatas.value.findIndex((project) => project.id === targetProjectSelected.value.id)
       projectDatas.value.splice(index, 1)
 
+      // deduct total records
+      if (pagination.value.totalRecords && pagination.value.totalRecords > 0) {
+        pagination.value.totalRecords -= 1
+      }
+
       // close all modal
       isDeleteConfirmModalOpen.value = false
       isOpenFloatButtons.value = false
@@ -277,6 +283,9 @@ export default defineComponent({
       fetchProjectDatas()
     })
     watch(currentPage, fetchProjectDatas)
+    watch(isOpenFloatButtons, (val, oldVal) => {
+      if (!val && oldVal) targetProjectSelected.value = {}
+    })
 
     return {
       t,
@@ -299,8 +308,9 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/styles/shared/mixins';
+@import '@/styles/shared/variables';
 
 .project {
   &__filters {
@@ -322,9 +332,15 @@ export default defineComponent({
   &__list {
     white-space: nowrap;
   }
-}
 
-:deep(.ant-table-tbody > tr > td) {
-  cursor: pointer;
+  table tbody > tr {
+    &.is-clicked-row > td {
+      background-color: $color-primary-1 !important;
+    }
+
+    td {
+      cursor: pointer;
+    }
+  }
 }
 </style>

@@ -237,7 +237,7 @@ export default defineComponent({
       labels: [
         { header: t('deposit.csv.header.confirmed'), field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
         { header: t('deposit.csv.header.date'), field: 'date', formatBy: 'moment_l' },
-        { header: t('deposit.csv.header.statictis_month'), field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
+        { header: t('deposit.csv.header.statictis_month'), field: 'statisticsMonth', formatBy: 'moment_yyyy_mm' },
         { header: t('deposit.csv.header.deposit_money'), field: 'depositMoney' },
         { header: t('deposit.csv.header.withdraw_money'), field: 'withdrawalMoney' },
         { header: t('deposit.csv.header.balance'), field: 'balance' },
