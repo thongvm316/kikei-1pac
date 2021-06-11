@@ -51,14 +51,14 @@
           </div>
         </div>
 
-        <a-button key="back" @click="handleCancel">{{ $t('company.handle_cancel') }}</a-button>
+        <a-button key="back" @click="handleClear">{{ $t('company.clear') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit">
           <template #icon>
             <span class="btn-icon">
               <search-icon />
             </span>
           </template>
-          {{ $t('company.handle_ok') }}
+          {{ $t('company.search') }}
         </a-button>
       </form>
     </template>
@@ -82,7 +82,16 @@ export default defineComponent({
   setup(props, context) {
     const store = useStore()
     const route = useRoute()
-    const filter = reactive({ key_search: '', division: [], country_id: [], currency_id: [] })
+
+    const initialState = {
+      key_search: '',
+      division: [],
+      country_id: [],
+      currency_id: []
+    }
+
+    const filter = reactive({ ...initialState })
+
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
       set: (val) => {
@@ -90,19 +99,19 @@ export default defineComponent({
       }
     })
 
-    const handleCancel = () => {
-      visible.value = false
+    const handleClear = () => {
+      Object.assign(filter, initialState)
     }
 
     const onSearch = () => {
       context.emit('filter-changed', filter)
-      handleCancel()
+      visible.value = false
     }
 
     return {
       visible,
       filter,
-      handleCancel,
+      handleClear,
       onSearch,
       DIVISION,
       COUNTRY,

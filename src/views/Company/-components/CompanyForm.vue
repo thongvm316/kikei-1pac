@@ -4,9 +4,9 @@
     <form @submit="onSubmit">
       <!-- Company name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="company_name" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.name" name="companyName" rules="required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_name') }}</label>
+            <label class="form-label required">{{ $t('company.companyName') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
@@ -15,8 +15,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="company_name" class="errors">
-                {{ replaceField(message, 'company_name') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="companyName" class="errors">
+                {{ replaceField(message, 'companyName') }}
               </ErrorMessage>
             </div>
           </div>
@@ -40,14 +40,9 @@
 
       <!-- Company code -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.code"
-          name="company_code_2"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.code" name="companyCode" rules="required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_code_2') }}</label>
+            <label class="form-label required">{{ $t('company.companyCode') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
@@ -56,8 +51,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="company_code_2" class="errors">
-                {{ replaceField(message, 'company_code_2') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="companyCode" class="errors">
+                {{ replaceField(message, 'companyCode') }}
               </ErrorMessage>
             </div>
           </div>
@@ -66,14 +61,9 @@
 
       <!-- Slack code -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.slack_code"
-          name="company_code_3"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.slack_code" name="companySlackCode" rules="required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_code_3') }}</label>
+            <label class="form-label required">{{ $t('company.companySlackCode') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
@@ -82,8 +72,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="company_code_3" class="errors">
-                {{ replaceField(message, 'company_code_3') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="companySlackCode" class="errors">
+                {{ replaceField(message, 'companySlackCode') }}
               </ErrorMessage>
             </div>
           </div>
@@ -92,12 +82,7 @@
 
       <!-- Country -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.country_id"
-          name="country"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.country_id" name="country" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.country') }}</label>
             <div class="form-input">
@@ -122,12 +107,7 @@
 
       <!-- Currency -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.currency_id"
-          name="trading_currency"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="trading_currency" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.trading_currency') }}</label>
             <div class="form-input">
@@ -152,12 +132,7 @@
 
       <!-- Payment Site -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.payment_term"
-          name="payment_site"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.payment_term" name="payment_site" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.payment_site') }}</label>
             <div class="form-input">
@@ -275,8 +250,8 @@ export default defineComponent({
     })
     const router = useRouter()
     const route = useRoute()
-    const { setErrors, handleSubmit } = useForm()
-    const { t } = useI18n()
+    const { handleSubmit, setFieldError } = useForm()
+    const { t, locale } = useI18n()
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'company-edit') {
@@ -319,7 +294,17 @@ export default defineComponent({
         await createCompany()
         await router.push({ name: 'company' })
       } catch (err) {
+        checkErrorsApi(err)
         throw err
+      }
+    }
+
+    const checkErrorsApi = (err) => {
+      for (let item in err.response.data.errors) {
+        locale.value === 'en'
+          ? (err.response.data.errors[item] = 'The content existed')
+          : (err.response.data.errors[item] = '内容は存在しました。')
+        setFieldError(item, err.response.data.errors[item])
       }
     }
 

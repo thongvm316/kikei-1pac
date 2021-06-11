@@ -50,6 +50,13 @@ import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
 export default defineComponent({
   name: 'ProjectFloatButtons',
 
+  components: {
+    DeleteIcon,
+    EditIcon,
+    CopyIcon,
+    ToDepositIcon
+  },
+
   props: {
     enableGoToDeposit: Boolean
   },
@@ -57,13 +64,6 @@ export default defineComponent({
   setup() {
     const visible = ref()
     return { visible }
-  },
-
-  components: {
-    DeleteIcon,
-    EditIcon,
-    CopyIcon,
-    ToDepositIcon
   }
 })
 </script>

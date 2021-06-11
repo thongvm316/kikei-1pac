@@ -121,23 +121,26 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
 export const createDataTableFormat = (data) => {
   if (!data.length) return
 
-  return data.map(item => {
-    return Object.assign(item,
-      {
-        key: item.id,
-        children: item.bankAccounts ? item.bankAccounts.map(
-          bank => Object.assign(bank,
+  return data.map((item) => {
+    return Object.assign(item, {
+      key: item.id,
+      children: item.bankAccounts
+        ? item.bankAccounts.map(
+          Object.assign(
+            bank,
             { date: null },
             { statisticsMonth: null },
             { class: typeNameBank(bank.deposit, bank.withdrawal) },
             { key: uniqueId('expand-row') },
             { purpose: `${bank.name} (${bank.currency})` },
             { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
-            { deposit: depositBank(bank.deposit, bank.withdrawal) }))
-          : [],
-        deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
-        typeName: TYPE_NAME_DEPOSIT[item.type]
-      })
+            { deposit: depositBank(bank.deposit, bank.withdrawal) }
+          )
+        )
+        : [],
+      deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
+      typeName: TYPE_NAME_DEPOSIT[item.type]
+    })
   })
 }
 

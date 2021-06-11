@@ -141,7 +141,7 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt'
         },
-        sorter: (a, b) => (new Date(a.updatedAt)).getTime() - (new Date(b.updatedAt)).getTime()
+        sorter: (a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
       },
       {
         dataIndex: 'projectCombineName',
@@ -180,7 +180,7 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectReleaseDate'
         },
-        sorter: (a, b) => (new Date(a.releaseDate)).getTime() - (new Date(b.releaseDate)).getTime()
+        sorter: (a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()
       },
       {
         dataIndex: 'money',
@@ -200,7 +200,7 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectStatisticsDate'
         },
-        sorter: (a, b) => (new Date(a.statisticsFromMonth)).getTime() - (new Date(b.statisticsFromMonth)).getTime()
+        sorter: (a, b) => new Date(a.statisticsFromMonth).getTime() - new Date(b.statisticsFromMonth).getTime()
       },
       {
         dataIndex: 'groupName',

@@ -27,7 +27,7 @@
     >
       <!-- Name -->
       <template #customTitle>
-        <span class="m-0">{{ t('company.company_name') }}</span>
+        <span class="m-0">{{ t('company.companyName') }}</span>
       </template>
       <template #name="{ text }">
         <p class="m-0">{{ text }}</p>
@@ -44,6 +44,7 @@
 import { defineComponent, computed, ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
@@ -74,7 +75,8 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
+    const store = useStore()
 
     const openDelete = ref(false)
     const dataSource = ref([])
@@ -105,7 +107,7 @@ export default defineComponent({
             title: 'customTitle',
             customRender: 'name'
           },
-          sorter: (a, b) => a.name.length - b.name.length
+          sorter: () => sortName()
         },
         {
           title: t('company.company_code'),
@@ -143,6 +145,10 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    const sortName = () => {
+      console.log('sdds')
+    }
+
     const handleChange = async (pagination) => {
       params.value = {
         pageNumber: pagination.current,
@@ -166,9 +172,14 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      // alert message delete success
-      // await this.onSuccess(this.$t('message_success'), this.$t('delete_message_successfully'))
       await fetchList(params.value)
+      // show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message:
+          locale.value === 'en' ? 'Deleted ' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
+      })
     }
 
     const handleEditRecord = () => {
@@ -197,6 +208,7 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
+      console.log(recordVisible.value)
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
