@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref, onMounted } from 'vue'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
@@ -109,7 +109,7 @@ export default defineComponent({
 
     const initialExportCSV = {
       fileTitle: 'financing',
-      labels: [{ header: 'date' }, { header: 'balance' }],
+      labels: [],
       items: []
     }
 
@@ -141,7 +141,7 @@ export default defineComponent({
         convertFilter.period_id = null
       }
 
-      if (typeof filter.value.date_from_to !== 'undefined' && filter.value.date_from_to.length > 0) {
+      if (typeof filter.value.date_from_to !== 'undefined' && filter.value.date_from_to) {
         filter.value.date_from_to.forEach((item, index) => {
           if (index === 0) {
             convertFilter.from_date = item.split('/').join('-')
@@ -173,26 +173,34 @@ export default defineComponent({
         }
         columns.value.unshift(initialDataTableColumn.value[0])
         columns.value.push(initialDataTableColumn.value[1])
-        console.log(columns)
       }
+      console.log('columns:', columns.value)
     }
 
     const convertDataTableRows = async (data) => {
       if (Array.isArray(data.balances) && data.balances.length > 0) {
         for (let i = 0; i < data.balances.length; i++) {
           dataTableRow.value['date'] = moment(data.balances[i].date).format('YYYY/MM/DD')
+          Object.assign(
+            dataTableRow.value,
+            convertArrayToObject(data.balances[i].bankaccounts, 'bankAccountId', 'bank_balance_', 'balance')
+          )
           dataTableRow.value['balance'] = data.balances[i].balance
-
-          if (Array.isArray(data.balances[i].bankaccounts) && data.balances[i].bankaccounts.length > 0) {
-            for (let j = 0; j < data.balances[i].bankaccounts.length; j++) {
-              let bank_account = 'bank_balance_' + `${data.balances[i].bankaccounts[j].bankAccountId}`
-
-              dataTableRow.value[bank_account] = data.balances[i].bankaccounts[j].balance
-            }
-          }
           dataSource.value.push(Object.assign({}, dataTableRow.value))
         }
+        console.log('dataSource:', dataSource.value)
       }
+    }
+
+    const convertArrayToObject = (array, key, key_prefix, value) => {
+      let keyField = ''
+      let valueField = ''
+      return array.reduce((obj, item) => {
+        key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+        value === '' ? (valueField = item) : (valueField = item[value])
+
+        return { ...obj, [keyField]: valueField }
+      }, {})
     }
 
     const fetchList = async (params = {}, data) => {
@@ -226,10 +234,13 @@ export default defineComponent({
     }
 
     const exportFinancingAsCsvFile = async () => {
-      console.log('route.meta[filter]:', route.meta['filter'])
+      initialExportCSV.labels = JSON.parse(JSON.stringify(columns.value)).map((item) => ({
+        header: item.title,
+        field: item.dataIndex
+      }))
 
-      exportData.item = dataSource.value
-      exportCSVFile(exportData)
+      initialExportCSV.items = JSON.parse(JSON.stringify(dataSource.value))
+      exportCSVFile(initialExportCSV)
     }
 
     return {
@@ -248,6 +259,7 @@ export default defineComponent({
       getInnerHeight,
       convertDataTableHeader,
       convertDataTableRows,
+      convertArrayToObject,
       exportFinancingAsCsvFile,
       handleChange,
       handleNumber,
