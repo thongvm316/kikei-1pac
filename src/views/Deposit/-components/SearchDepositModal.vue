@@ -137,7 +137,7 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map(item => ({
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
       value: item,
       label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
     }))
@@ -168,13 +168,13 @@ export default defineComponent({
     })
 
     const handleClearDepositFormSearch = () => {
-      state.dateDepositValue = [],
-      state.statisticsDateDepositValue = [],
-      state.checkedTypeDepositList = [],
-      state.checkedCategotyList = [],
-      state.checkedSubCategotyList = [],
-      state.checkedSubConfirmedList = [],
-      state.valuePurpose = ''
+      ;(state.dateDepositValue = []),
+      (state.statisticsDateDepositValue = []),
+      (state.checkedTypeDepositList = []),
+      (state.checkedCategotyList = []),
+      (state.checkedSubCategotyList = []),
+      (state.checkedSubConfirmedList = []),
+      (state.valuePurpose = '')
     }
 
     const onSubmit = () => {

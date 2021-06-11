@@ -2,7 +2,7 @@ import { uniqueId } from 'lodash-es'
 import { deepCopy } from '@/helpers/json-parser'
 
 export const initProjectOutsouringOrders = (projectOrders, localProjectOrders) => {
-  for(let i = 0; i < projectOrders.length; i++) {
+  for (let i = 0; i < projectOrders.length; i++) {
     const { id, money, note, adCompany } = projectOrders[i]
     localProjectOrders.value.push({
       key: uniqueId('__outsource__'),
