@@ -20,13 +20,18 @@
       <div>
         <a-checkbox
           v-model:checked="checkAllRowTable"
+          :disabled="disabledCheckAllRowTable"
           :indeterminate="indeterminateCheckAllRows"
           @change="onSelectAllRowsByCustomCheckbox"
         >
           チェックした項目全てを確定する
         </a-checkbox>
 
-        <a-button v-if="currentSelectedRowKeys.length > 1" size="small" type="primary">確定</a-button>
+        <a-button
+          v-if="currentSelectedRowKeys.length > 1"
+          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
+          size="small"
+          type="primary">確定</a-button>
       </div>
 
       <a-select
@@ -71,26 +76,32 @@
         <deposit-table
           v-model:expanded-row-keys="expandedRowKeys"
           v-model:is-loading-data-table="isLoadingDataTable"
-          v-model:dataDeposit="dataDeposit"
+          v-model:data-deposit="dataDeposit"
           v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
+          :key="tableKey"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
+          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
         />
       </a-tab-pane>
     </a-tabs>
   </div>
 
   <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
+
   <deposit-buttons-float
     v-model:disable-button="disableButton"
     v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="onEditRecordDeposit"
-  />
-  <delete-deposit-modal v-model:visible="isVisibleDepositModal" @on-delete-deposit-record="onDeleteDepositRecord" />
+    @on-edit-record-deposit="onEditRecordDeposit" />
+  <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
+
+  <confirm-deposit-modal
+    v-model:visible="isVisibleConfirmDepositModal"
+    @on-confirm-deposit-record="onConfirmDepositRecord" />
 </template>
 
 <script>
@@ -102,12 +113,19 @@ import { useStore } from 'vuex'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
-import { getDeposit, getGroups, getBankAccounts, deleteDeposit, createDataTableFormat } from './composables/useDeposit'
+import {
+  getDeposit,
+  getGroups,
+  getBankAccounts,
+  deleteDeposit,
+  createDataTableFormat,
+  confirmDeposit } from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
+import ConfirmDepositModal from './-components/ConfirmDepositModal'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -118,7 +136,8 @@ export default defineComponent({
     DepositTable,
     SearchDepositModal,
     DepositButtonsFloat,
-    DeleteDepositModal
+    DeleteDepositModal,
+    ConfirmDepositModal
   },
 
   setup() {
@@ -148,13 +167,24 @@ export default defineComponent({
     const totalRecords = ref()
     const expandIconColumnIndex = ref()
     const currentPageNumber = ref()
+    const isVisibleConfirmDepositModal = ref(false)
+    const confirmedSelectedDepositRecord = ref()
+    const disabledCheckAllRowTable = ref()
+    const tableKey = ref(0)
 
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
       const keyRowList = dataDeposit.value.filter((item) => !item.confirmed)
+
       e.target.checked
         ? (currentSelectedRowKeys.value = keyRowList.map((item) => item.key))
         : (currentSelectedRowKeys.value = [])
+    }
+
+    const resetConfirmAllRecordButton = () => {
+      checkAllRowTable.value = false
+      indeterminateCheckAllRows.value = false
+      currentSelectedRowKeys.value = []
     }
 
     const getDataDeposit = async (data, params) => {
@@ -162,6 +192,7 @@ export default defineComponent({
         isLoadingDataTable.value = true
         const res = await getDeposit(data, params)
         dataDeposit.value = createDataTableFormat(res.data.result?.data || [])
+        disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = res.data.result?.meta.totalRecords || 0
       } finally {
         isLoadingDataTable.value = false
@@ -179,7 +210,7 @@ export default defineComponent({
       await fetchBankAccounts()
 
       // call search data deposit
-      await fetchDataDeposit(groupId)
+      const res = await fetchDataDeposit(groupId)
     })
 
     const fetchBankAccounts = async () => {
@@ -225,6 +256,7 @@ export default defineComponent({
 
       await fetchBankAccounts()
       await getDataDeposit({ groupId })
+      resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
@@ -233,6 +265,7 @@ export default defineComponent({
         { pageNumber }
       )
       currentPageNumber.value = pageNumber
+      resetConfirmAllRecordButton()
     }
 
     const exportObj = reactive({
@@ -268,7 +301,7 @@ export default defineComponent({
       loadingExportCsvButton.value = true
       const params = {
         pageNumber: 1,
-        pageSize: 9
+        pageSize: totalRecords.value + 100
       }
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
@@ -338,6 +371,41 @@ export default defineComponent({
       router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
 
+    const onOpenConfirmDepositRecordModal = (depositIdList) => {
+      isVisibleConfirmDepositModal.value = true
+      confirmedSelectedDepositRecord.value = depositIdList
+    }
+
+    const onConfirmDepositRecord = async () => {
+      await confirmDeposit({ id: confirmedSelectedDepositRecord.value })
+
+      confirmedSelectedDepositRecord.value.forEach(confirmedId => {
+        const indexConfirmedRecord = dataDeposit.value.findIndex(record => record.id === confirmedId)
+        if (indexConfirmedRecord < 0) return
+
+        dataDeposit.value[indexConfirmedRecord].confirmed = true
+        currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter(key => key !== confirmedId)
+      })
+
+      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0
+
+      checkAllRowTable.value = (currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length) && currentSelectedRowKeys.value.length > 2
+
+      disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
+
+      // Force rerender table
+      tableKey.value++
+
+      // show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: 'プロジェクト名 を削除しました'
+      })
+
+      isVisibleConfirmDepositModal.value = false
+    }
+
     return {
       checkAllRowTable,
       searchKeyMultipleSelect,
@@ -358,6 +426,9 @@ export default defineComponent({
       disableButton,
       loadingExportCsvButton,
       activeKeyGroupTab,
+      isVisibleConfirmDepositModal,
+      tableKey,
+      disabledCheckAllRowTable,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,
@@ -369,7 +440,10 @@ export default defineComponent({
       onEditRecordDeposit,
       onDeleteDepositRecord,
       onCopyRecordDeposit,
-      exportDepositAsCsvFile
+      exportDepositAsCsvFile,
+      onOpenConfirmDepositRecordModal,
+      onConfirmDepositRecord,
+      resetConfirmAllRecordButton
     }
   }
 })

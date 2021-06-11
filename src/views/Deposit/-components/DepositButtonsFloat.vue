@@ -66,7 +66,12 @@ export default defineComponent({
   }
 
   &.ant-modal {
-    top: 800px;
+    top: calc(100vh - 92px);
+    width: fit-content !important;
+  }
+
+  button + button {
+    margin-left: 16px;
   }
 }
 </style>
