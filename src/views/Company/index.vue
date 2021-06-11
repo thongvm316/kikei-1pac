@@ -85,7 +85,10 @@ export default defineComponent({
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
+    const isSort = ref(true)
+    const sorter = ref({})
     const height = ref(0)
+    const count = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -107,18 +110,19 @@ export default defineComponent({
             title: 'customTitle',
             customRender: 'name'
           },
-          sorter: () => sortName()
+          sorter: true
         },
         {
           title: t('company.company_code'),
           dataIndex: 'code',
           key: 'code',
-          sorter: (a, b) => a.code - b.code
+          sorter: true
         },
         {
           title: t('company.country'),
           dataIndex: 'countryName',
-          key: 'countryName'
+          key: 'countryName',
+          sorter: sortColumn()
         },
         {
           title: t('company.currency'),
@@ -145,17 +149,28 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    const sortName = () => {
-      console.log('sdds')
-    }
+    const sortColumn = () => {}
 
     const handleChange = async (pagination) => {
+      count.value++
+      const parmasSort = ref({})
+      if (count.value === 3) {
+        count.value = 0
+      }
+      parmasSort.value = {
+        order_by: count.value === 1 ? 'code desc' : count.value === 2 ? 'code asc' : ''
+      }
+      console.log(count.value)
       params.value = {
         pageNumber: pagination.current,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        order_by: '',
+        ...parmasSort.value
       }
 
       await fetchList(params.value, filter.value)
+
+      isSort.value = !isSort.value
     }
 
     const onFilterChange = async (evt) => {
@@ -193,7 +208,7 @@ export default defineComponent({
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
-
+      console.log(params)
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
         const { result } = await getLists()
@@ -240,6 +255,7 @@ export default defineComponent({
       recordVisible,
       height,
       params,
+      sorter,
       handleDeleteRecord,
       handleEditRecord,
       customRow,
