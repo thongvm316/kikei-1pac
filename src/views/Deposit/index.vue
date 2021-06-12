@@ -362,11 +362,17 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      router.push({ name: 'deposit-new', query: { selectedId: currentSelectedRecord.value.id } })
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      if (!depositId) return
+
+      router.push({
+        name: 'deposit-new',
+        query: { selectedId: depositId }
+      })
     }
 
     const onEditRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
       if (!depositId) return
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
