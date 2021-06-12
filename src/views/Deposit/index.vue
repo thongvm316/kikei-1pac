@@ -101,6 +101,7 @@
 
   <confirm-deposit-modal
     v-model:visible="isVisibleConfirmDepositModal"
+    :current-selected-record="currentSelectedRecord"
     @on-confirm-deposit-record="onConfirmDepositRecord" />
 </template>
 
@@ -429,6 +430,7 @@ export default defineComponent({
       isVisibleConfirmDepositModal,
       tableKey,
       disabledCheckAllRowTable,
+      currentSelectedRecord,
 
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,

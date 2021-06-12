@@ -19,11 +19,11 @@
           </a-form-item>
 
           <a-form-item name="country" :label="$t('deposit.company_name.country')">
-            <a-checkbox-group v-model:value="filters.country" :options="countryOptions" />
+            <a-checkbox-group v-model:value="filters.countryId" :options="countryOptions" />
           </a-form-item>
 
           <a-form-item name="currency" :label="$t('deposit.company_name.currency')">
-            <a-checkbox-group v-model:value="filters.currency" :options="currencyOptions" />
+            <a-checkbox-group v-model:value="filters.currencyId" :options="currencyOptions" />
           </a-form-item>
 
           <a-button type="default" html-type="reset" @click="handleClearFilter">
@@ -120,7 +120,8 @@ export default defineComponent({
     const isFilterloading = ref(false)
     const companyListData = ref([])
     const pagination = reactive({ pageNumber: 1, pageSize: 10, orderBy: 'name', totalPages: 0, totalRecords: 0 })
-    const filters = ref({ keySearch: '', division: [], countryId: [], currencyId: [] })
+    const initParams = { keySearch: '', division: [], countryId: [], currencyId: [] }
+    const filters = ref({ ...initParams })
 
     const divisionOptions = DIVISION.map((item) => ({ ...item, label: t(`deposit.division.${item.label}`) }))
     const countryOptions = COUNTRY.map((item) => ({ ...item, label: t(`deposit.country.${item.label}`) }))
@@ -195,7 +196,9 @@ export default defineComponent({
     }
 
     const handleClearFilter = () => {
-      searchCompanyRef.value.resetFields()
+      // searchCompanyRef.value.resetFields()
+      filters.value = { ...initParams }
+      fetchCompanyList()
     }
 
     // fetch table list
