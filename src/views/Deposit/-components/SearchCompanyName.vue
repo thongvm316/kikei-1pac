@@ -82,7 +82,6 @@ import { useI18n } from 'vue-i18n'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/deposit.enum'
 import { getCompanyList } from '../composables/useSearchCompany'
 import { addUniqueRowKey } from '@/helpers/table'
-import { deepCopy } from '@/helpers/json-parser'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 
@@ -121,8 +120,7 @@ export default defineComponent({
     const isFilterloading = ref(false)
     const companyListData = ref([])
     const pagination = reactive({ pageNumber: 1, pageSize: 10, orderBy: 'name', totalPages: 0, totalRecords: 0 })
-    const initParams = { keySearch: '', division: [], countryId: [], currencyId: [] }
-    const filters = ref(deepCopy(initParams))
+    const filters = ref({ keySearch: '', division: [], countryId: [], currencyId: [] })
 
     const divisionOptions = DIVISION.map((item) => ({ ...item, label: t(`deposit.division.${item.label}`) }))
     const countryOptions = COUNTRY.map((item) => ({ ...item, label: t(`deposit.country.${item.label}`) }))

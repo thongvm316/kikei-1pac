@@ -301,7 +301,7 @@ export default defineComponent({
     const depositMoneyCurrency = ref('')
 
     // params deposit form
-    const initParams = {
+    const params = ref({
       date: null,
       type: '',
       categoryId: undefined,
@@ -321,8 +321,7 @@ export default defineComponent({
       repeatedOption: '',
       repeatedInterval: 1,
       confirmed: false
-    }
-    const params = ref(deepCopy(initParams))
+    })
 
     // form validator rules
     const rules = {
