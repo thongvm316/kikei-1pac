@@ -206,7 +206,7 @@
     </a-form-item>
 
     <a-form-item>
-      <a-button type="default" class="deposit-form__submit-btn" :disabled="isDisabledSubmit" @click="onClearForm">
+      <a-button type="default" class="deposit-form__submit-btn" :disabled="isDisabledSubmit" @click="onCancelForm">
         {{ $t('deposit.new.cancel') }}
       </a-button>
       <a-button
@@ -246,7 +246,6 @@ import {
   updateDeposit
 } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
-import { omit } from 'lodash-es'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
@@ -584,23 +583,8 @@ export default defineComponent({
     /* --------------------- submit form ------------------- */
 
     // handle cancel form
-    const onClearForm = () => {
-      isCompanySelection.value = false
-      companyNameSelected.value = ''
-
-      if (!props.isEditDeposit) {
-        depositNewRef.value.resetFields()
-      } else {
-        const omitParams = omit(initParams, [
-          'groupId',
-          'repeated',
-          'repeatedExpiredDate',
-          'repeatedOption',
-          'repeatedInterval'
-        ])
-
-        params.value = { ...params.value, ...omitParams }
-      }
+    const onCancelForm = () => {
+      router.push({ name: 'deposit' })
     }
 
     // handle validator when submit form
@@ -816,7 +800,7 @@ export default defineComponent({
       handleOpenModalCompany,
       handleValidateSubCategory,
       onSubmitForm,
-      onClearForm
+      onCancelForm
     }
   }
 })
