@@ -10,7 +10,7 @@
     <template #footer>
       <div class="form-deposit">
         <a-form ref="searchCompanyRef" class="form-left" :model="filters" layout="vertical" @submit="handleSearch">
-          <a-form-item name="purpose" :label="$t('deposit.company_name.key_search')">
+          <a-form-item name="keySearch" :label="$t('deposit.company_name.key_search')">
             <a-input v-model:value="filters.keySearch" :placeholder="$t('deposit.company_name.place_input')" />
           </a-form-item>
 
@@ -18,11 +18,11 @@
             <a-checkbox-group v-model:value="filters.division" :options="divisionOptions" />
           </a-form-item>
 
-          <a-form-item name="country" :label="$t('deposit.company_name.country')">
+          <a-form-item name="countryId" :label="$t('deposit.company_name.country')">
             <a-checkbox-group v-model:value="filters.countryId" :options="countryOptions" />
           </a-form-item>
 
-          <a-form-item name="currency" :label="$t('deposit.company_name.currency')">
+          <a-form-item name="currencyId" :label="$t('deposit.company_name.currency')">
             <a-checkbox-group v-model:value="filters.currencyId" :options="currencyOptions" />
           </a-form-item>
 
@@ -82,6 +82,7 @@ import { useI18n } from 'vue-i18n'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/deposit.enum'
 import { getCompanyList } from '../composables/useSearchCompany'
 import { addUniqueRowKey } from '@/helpers/table'
+import { deepCopy } from '@/helpers/json-parser'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 
@@ -121,7 +122,7 @@ export default defineComponent({
     const companyListData = ref([])
     const pagination = reactive({ pageNumber: 1, pageSize: 10, orderBy: 'name', totalPages: 0, totalRecords: 0 })
     const initParams = { keySearch: '', division: [], countryId: [], currencyId: [] }
-    const filters = ref({ ...initParams })
+    const filters = ref(deepCopy(initParams))
 
     const divisionOptions = DIVISION.map((item) => ({ ...item, label: t(`deposit.division.${item.label}`) }))
     const countryOptions = COUNTRY.map((item) => ({ ...item, label: t(`deposit.country.${item.label}`) }))
@@ -196,8 +197,7 @@ export default defineComponent({
     }
 
     const handleClearFilter = () => {
-      // searchCompanyRef.value.resetFields()
-      filters.value = { ...initParams }
+      searchCompanyRef.value.resetFields()
       fetchCompanyList()
     }
 

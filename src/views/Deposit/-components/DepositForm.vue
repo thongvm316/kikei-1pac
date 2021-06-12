@@ -206,7 +206,7 @@
     </a-form-item>
 
     <a-form-item>
-      <a-button type="default" class="deposit-form__submit-btn" :disabled="isDisabledSubmit" @click="onCancelForm">
+      <a-button type="default" class="deposit-form__submit-btn" :disabled="isDisabledSubmit" @click="onClearForm">
         {{ $t('deposit.new.cancel') }}
       </a-button>
       <a-button
@@ -245,6 +245,8 @@ import {
   getDepositDetail,
   updateDeposit
 } from '../composables/useDeposit'
+import { deepCopy } from '@/helpers/json-parser'
+import { omit } from 'lodash-es'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
@@ -300,7 +302,7 @@ export default defineComponent({
     const depositMoneyCurrency = ref('')
 
     // params deposit form
-    const params = ref({
+    const initParams = {
       date: null,
       type: '',
       categoryId: undefined,
@@ -320,7 +322,8 @@ export default defineComponent({
       repeatedOption: '',
       repeatedInterval: 1,
       confirmed: false
-    })
+    }
+    const params = ref(deepCopy(initParams))
 
     // form validator rules
     const rules = {
@@ -376,7 +379,7 @@ export default defineComponent({
       ],
       repeated: [{ required: true, message: t('deposit.error_message.repeated'), trigger: 'change', type: 'number' }]
     }
-    const depositFormRules = ref({ ...rules })
+    const depositFormRules = ref(deepCopy(rules))
 
     /* --------------------- methods ------------------- */
     const onSelectWithdrawalMoney = (currency) => {
@@ -581,10 +584,23 @@ export default defineComponent({
     /* --------------------- submit form ------------------- */
 
     // handle cancel form
-    const onCancelForm = () => {
+    const onClearForm = () => {
       isCompanySelection.value = false
       companyNameSelected.value = ''
-      depositNewRef.value.resetFields()
+
+      if (!props.isEditDeposit) {
+        depositNewRef.value.resetFields()
+      } else {
+        const omitParams = omit(initParams, [
+          'groupId',
+          'repeated',
+          'repeatedExpiredDate',
+          'repeatedOption',
+          'repeatedInterval'
+        ])
+
+        params.value = { ...params.value, ...omitParams }
+      }
     }
 
     // handle validator when submit form
@@ -800,7 +816,7 @@ export default defineComponent({
       handleOpenModalCompany,
       handleValidateSubCategory,
       onSubmitForm,
-      onCancelForm
+      onClearForm
     }
   }
 })
