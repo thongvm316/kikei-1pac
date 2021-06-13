@@ -20,7 +20,7 @@
     "@babel/runtime": "^7.14.0",
     "@vee-validate/i18n": "^4.1.20",
     "@vee-validate/rules": "^4.1.20",
-    "ant-design-vue": "^2.1.2",
+    "ant-design-vue": "2.1.6",
     "axios": "^0.21.1",
     "humps": "^2.0.1",
     "lodash-es": "^4.17.21",

@@ -46,10 +46,6 @@
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
-        <template #menuItemSelectedIcon>
-          <a-checkbox :checked="true" />
-        </template>
-
         <a-select-option v-for="option in bankAccountList" :key="option.name" :label="option.name" :id="option.id">
           {{ option.name }}
         </a-select-option>
@@ -111,8 +107,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import LineDownIcon from '@/assets/icons/ico_line-down.svg'
-import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
 import {
   getDeposit,
@@ -127,6 +121,9 @@ import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
+
+import LineDownIcon from '@/assets/icons/ico_line-down.svg'
+import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
 export default defineComponent({
   name: 'DepositPage',
