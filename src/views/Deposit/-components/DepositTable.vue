@@ -64,7 +64,7 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, onBeforeMount, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 const columnsDeposit = [
   {
@@ -172,10 +172,6 @@ export default defineComponent({
 
       return classes
     }
-
-    onBeforeMount(() => {
-      emit('update:expandIconColumnIndex', columnsDeposit.length + 1)
-    })
 
     return {
       columnsDeposit,

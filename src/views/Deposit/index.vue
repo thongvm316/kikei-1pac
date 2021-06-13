@@ -50,7 +50,7 @@
           <a-checkbox :checked="true" />
         </template>
 
-        <a-select-option v-for="option in bankAccountList" :key="option.id" :label="option.name">
+        <a-select-option v-for="option in bankAccountList" :key="option.name" :label="option.name" :id="option.id">
           {{ option.name }}
         </a-select-option>
       </a-select>
@@ -166,7 +166,7 @@ export default defineComponent({
     const currentActiveIdGroup = ref()
     const currentBankAccountList = ref([])
     const totalRecords = ref()
-    const expandIconColumnIndex = ref()
+    const expandIconColumnIndex = ref(10)
     const currentPageNumber = ref()
     const isVisibleConfirmDepositModal = ref(false)
     const confirmedSelectedDepositRecord = ref()
@@ -211,10 +211,11 @@ export default defineComponent({
       await fetchBankAccounts()
 
       // call search data deposit
-      const res = await fetchDataDeposit(groupId)
+      await fetchDataDeposit(groupId)
     })
 
     const fetchBankAccounts = async () => {
+      bankAccountList.value = []
       const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
       bankAccountList.value = bankAccounts.result?.data || []
     }
@@ -222,7 +223,7 @@ export default defineComponent({
     const fetchDataDeposit = async (groupId) => {
       const { purpose } = route.query || null
       await getDataDeposit({ groupId, purpose })
-      router.replace({ query: { groupId, purpose: '' } })
+      router.replace({ query: { tab: groupId, purpose: null } })
     }
 
     const getTabIndex = (tabList) => {
@@ -233,7 +234,9 @@ export default defineComponent({
       return groupId
     }
 
-    const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
+    const onHandleChangeBankAcountSelect = debounce(async (_, options) => {
+      const bankAccountId = options.map(option => option.id)
+
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
       await getDataDeposit(
@@ -252,19 +255,32 @@ export default defineComponent({
     }, 1000)
 
     const onHandleChangeTabGroup = async (groupId) => {
+      dataDeposit.value = []
       currentActiveIdGroup.value = groupId
       router.push({ query: { ...route.query, tab: groupId } })
 
+      // TODO: Cần reset lại bank đã chọn thành không
+      searchKeyMultipleSelect.value = []
+
       await fetchBankAccounts()
+
+      expandIconColumnIndex.value = 10
+
+
       await getDataDeposit({ groupId })
       resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
-      const res = await getDataDeposit(
+      dataDeposit.value = []
+      await getDataDeposit(
         { groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value },
         { pageNumber }
       )
+
+      currentBankAccountList.value.length
+        ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
+        : (expandedRowKeys.value = [])
       currentPageNumber.value = pageNumber
       resetConfirmAllRecordButton()
     }
