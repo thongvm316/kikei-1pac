@@ -34,7 +34,11 @@
       :loading="loading"
       :pagination="false"
       :scroll="{ x: true }"
-      :row-class-name="(record, index) => { return targetProjectSelected.id === record.id ? 'is-clicked-row' : '' }"
+      :row-class-name="
+        (record, index) => {
+          return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
+        }
+      "
       :custom-row="onCustomRow"
     >
       <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
@@ -78,7 +82,9 @@
 
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
 
-      <template #renderProjectStatisticsDate="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsFromMonth) }}</template>
+      <template #renderProjectStatisticsDate="{ record }">{{
+        $filters.moment_yyyy_mm(record.statisticsFromMonth)
+      }}</template>
     </a-table>
   </div>
 
@@ -95,7 +101,9 @@
 
   <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
     <template #footer>
-      <p>{{ $t('project.delete_modal.message') }}</p>
+      <p>
+        {{ t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
+      </p>
       <a-button @click="isDeleteConfirmModalOpen = false">{{ $t('project.delete_modal.cancel_btn') }}</a-button>
       <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
     </template>

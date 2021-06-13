@@ -174,6 +174,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 
 import { useAccountList } from '../composables/useAccountList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
+import { useGroupList } from '../composables/useGroupList'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
@@ -259,7 +260,7 @@ export default defineComponent({
       // accounts
       dataAccounts.value = await useAccountList()
       // groups
-      const { data: groups } = await getProjectStatuses()
+      const { data: groups } = await useGroupList()
       dataGroups.value = groups
       // statuses
       const { data: statuses } = await getProjectStatuses()

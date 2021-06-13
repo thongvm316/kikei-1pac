@@ -1,7 +1,7 @@
 <template>
   <a-modal
     v-model:visible="visibility"
-    :title="$t('deposit.title_search')"
+    :title="$t('project.title_search')"
     class="project-search-company"
     width="85%"
     max-height="85%"

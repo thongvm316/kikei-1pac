@@ -52,6 +52,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
+    tag_caption: '※タグを入力して「Enter」を押してください',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -65,8 +66,8 @@ export default {
     confirmed: '確定',
     cancel: 'キャンセル',
     registration: '登録',
-    create_success: '入金が追加されました',
-    update_success: '入金が更新されました'
+    create_success: '{purpose} が追加されました',
+    update_success: '{purpose} が更新されました'
   },
 
   csv: {
@@ -112,5 +113,11 @@ export default {
     money: '金額を入力して下さい',
     tags: 'タグを入力して下さい',
     repeated: 'リピートタイプを選択して下さい'
+  },
+
+  confirm_modal: {
+    message: '{purpose} を確定してもよろしですか？',
+    cancel_btn: 'キャンセル',
+    confirm_btn: '削除'
   }
 }

@@ -21,4 +21,20 @@
       border: 1px solid $color-grey-85;
     }
   }
+
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: $color-grey-100;
+
+    .ant-select-item-option-state {
+      color: $color-grey-100;
+
+      svg {
+        background-color: $color-additional-blue-6;
+        height: 16px;
+        width: 16px;
+        border-radius: 2px;
+        margin-bottom: -1px;
+      }
+    }
+  }
 }

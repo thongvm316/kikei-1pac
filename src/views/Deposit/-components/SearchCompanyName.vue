@@ -10,7 +10,7 @@
     <template #footer>
       <div class="form-deposit">
         <a-form ref="searchCompanyRef" class="form-left" :model="filters" layout="vertical" @submit="handleSearch">
-          <a-form-item name="purpose" :label="$t('deposit.company_name.key_search')">
+          <a-form-item name="keySearch" :label="$t('deposit.company_name.key_search')">
             <a-input v-model:value="filters.keySearch" :placeholder="$t('deposit.company_name.place_input')" />
           </a-form-item>
 
@@ -18,12 +18,12 @@
             <a-checkbox-group v-model:value="filters.division" :options="divisionOptions" />
           </a-form-item>
 
-          <a-form-item name="country" :label="$t('deposit.company_name.country')">
-            <a-checkbox-group v-model:value="filters.country" :options="countryOptions" />
+          <a-form-item name="countryId" :label="$t('deposit.company_name.country')">
+            <a-checkbox-group v-model:value="filters.countryId" :options="countryOptions" />
           </a-form-item>
 
-          <a-form-item name="currency" :label="$t('deposit.company_name.currency')">
-            <a-checkbox-group v-model:value="filters.currency" :options="currencyOptions" />
+          <a-form-item name="currencyId" :label="$t('deposit.company_name.currency')">
+            <a-checkbox-group v-model:value="filters.currencyId" :options="currencyOptions" />
           </a-form-item>
 
           <a-button type="default" html-type="reset" @click="handleClearFilter">
@@ -196,6 +196,7 @@ export default defineComponent({
 
     const handleClearFilter = () => {
       searchCompanyRef.value.resetFields()
+      fetchCompanyList()
     }
 
     // fetch table list

@@ -39,7 +39,7 @@
         v-if="!isCompanySelection"
         v-model:value="params.subcategoryId"
         :placeholder="$t('deposit.new.sub_category_place_holder')"
-        :disabled="isDisableEditField ? true : isSubCategoryDisabled"
+        :disabled="isSubCategoryDisabled"
         class="has-max-width"
       >
         <template v-for="subCategory in subCategoryList" :key="subCategory.id">
@@ -160,6 +160,9 @@
           <a-tag v-for="tag in params.tags" :key="tag" closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
         </div>
       </div>
+      <p class="deposit-form__field-cation">
+        {{ $t('deposit.new.tag_caption') }}
+      </p>
     </a-form-item>
 
     <a-form-item name="memo" :label="$t('deposit.new.memo')">
@@ -242,6 +245,7 @@ import {
   getDepositDetail,
   updateDeposit
 } from '../composables/useDeposit'
+import { deepCopy } from '@/helpers/json-parser'
 const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
 
 export default defineComponent({
@@ -267,6 +271,7 @@ export default defineComponent({
     const localErrors = ref({})
     const isAllowNegativeMoney = ref(false)
     const isCloneDeposit = ref(false)
+    const isRepeatedEndMonth = ref(false)
 
     // list data
     const categoryList = ref([])
@@ -286,7 +291,6 @@ export default defineComponent({
     const isShowCaptionCurrency = ref(false)
     const isDisabledSubmit = ref(false)
     const isDisableEditField = ref(false)
-    // const isDisableEditField = computed(() => (isCloneDeposit.value ? false : !isDisabledSubmit.value))
 
     // tags
     const inputTagVal = ref('')
@@ -295,7 +299,6 @@ export default defineComponent({
     // check currency unit
     const withdrawalMoneyCurrency = ref('')
     const depositMoneyCurrency = ref('')
-    const isRepeatedEndMonth = ref(false)
 
     // params deposit form
     const params = ref({
@@ -329,7 +332,7 @@ export default defineComponent({
         {
           required: true,
           message: t('deposit.error_message.sub_category'),
-          trigger: ['change', 'blur'],
+          trigger: 'change',
           type: 'number'
         }
       ],
@@ -374,8 +377,7 @@ export default defineComponent({
       ],
       repeated: [{ required: true, message: t('deposit.error_message.repeated'), trigger: 'change', type: 'number' }]
     }
-
-    const depositFormRules = ref(rules)
+    const depositFormRules = ref(deepCopy(rules))
 
     /* --------------------- methods ------------------- */
     const onSelectWithdrawalMoney = (currency) => {
@@ -404,6 +406,16 @@ export default defineComponent({
       depositNewRef.value.validateField('subcategoryId')
     }
 
+    const checkSubCategory = () => {
+      const indexCurrentCategory = categoryList.value?.findIndex((item) => item.id === params.value.categoryId)
+
+      if (indexCurrentCategory !== -1) {
+        const currentCategory = categoryList.value[indexCurrentCategory]
+        isSubCategoryDisabled.value = [0].indexOf(currentCategory.subcategoryKind) !== -1 // select options
+        isCompanySelection.value = [20, 30].indexOf(currentCategory.subcategoryKind) !== -1 // open modal company
+      }
+    }
+
     const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
 
     const convertDataToForm = (data = {}) => {
@@ -425,17 +437,22 @@ export default defineComponent({
       } = data
       const subcategoryId = subcategory?.id
 
-      // check disable and show subcategory
+      // check disable or show modal company
       const subcategoryKind = category?.subcategoryKind
-      if (type !== 40) {
+      if (type === 10 || type === 20) {
         switch (subcategoryKind) {
+          // disable select subcategory
           case 0:
             isSubCategoryDisabled.value = true
             break
-          case 20:
-            isCompanySelection.value = true
-            companyNameSelected.value = subcategory?.name || ''
+
+          // enable select sub category
+          case 10:
+            isSubCategoryDisabled.value = false
             break
+
+          // open modal company
+          case 20:
           case 30:
             isCompanySelection.value = true
             companyNameSelected.value = subcategory?.name || ''
@@ -484,7 +501,7 @@ export default defineComponent({
         ...restData,
         type,
         categoryId: type === 40 ? undefined : category?.id,
-        subcategoryId: subcategoryId,
+        subcategoryId,
         date: date ? toDateFormat(date, 'YYYY/MM/DD') : null,
         statisticsMonth: statisticsMonth ? toDateFormat(statisticsMonth, 'YYYY/MM/DD') : null,
         repeatedExpiredDate: repeatedExpiredDate ? toDateFormat(repeatedExpiredDate, 'YYYY/MM/DD') : null,
@@ -566,9 +583,7 @@ export default defineComponent({
 
     // handle cancel form
     const onCancelForm = () => {
-      isCompanySelection.value = false
-      companyNameSelected.value = ''
-      depositNewRef.value.resetFields()
+      router.push({ name: 'deposit' })
     }
 
     // handle validator when submit form
@@ -590,7 +605,12 @@ export default defineComponent({
     const callAddDeposit = async (depositDataRequest) => {
       const response = await createDeposit(depositDataRequest)
       if (response.status === 200) {
-        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: t('deposit.new.create_success') })
+        const purpose = depositDataRequest.purpose
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('deposit.new.create_success', { purpose })
+        })
         router.push({ name: 'deposit' })
         return
       }
@@ -603,7 +623,12 @@ export default defineComponent({
       const depositId = route.params.id
       const response = await updateDeposit(depositId, depositDataRequest)
       if (response.status === 200) {
-        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: t('deposit.new.update_success') })
+        const purpose = depositDataRequest.purpose
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('deposit.new.update_success', { purpose })
+        })
         router.push({ name: 'deposit' })
         return
       }
@@ -616,6 +641,9 @@ export default defineComponent({
     const fetchCategoryList = async (type) => {
       const { result: categoryResult = [] } = await getCategory({ divisionType: type })
       categoryList.value = categoryResult?.data || []
+
+      // need check when request get detail
+      checkSubCategory()
     }
 
     const fetchBankAccounts = async (id) => {
@@ -670,7 +698,7 @@ export default defineComponent({
         isAllowNegativeMoney.value = type === 40
 
         const divistionType = type === 10 ? 0 : 1
-        fetchCategoryList(divistionType)
+        !isCategoryDisabled.value && fetchCategoryList(divistionType)
 
         // clear select
         if (oldType && type !== oldType) {
@@ -686,17 +714,7 @@ export default defineComponent({
       () => params.value.categoryId,
       (id) => {
         fetchSubCategory(id)
-
-        // use for modal search company name
-        const indexCurrentCategory = categoryList.value ? categoryList.value?.findIndex((item) => item.id === id) : -1
-
-        if (indexCurrentCategory !== -1) {
-          const currentCategory = categoryList.value[indexCurrentCategory]
-          isSubCategoryDisabled.value = [0].indexOf(currentCategory.subcategoryKind) !== -1
-          isCompanySelection.value = [20, 30].indexOf(currentCategory.subcategoryKind) !== -1
-        } else {
-          isSubCategoryDisabled.value = true
-        }
+        checkSubCategory()
       }
     )
 
@@ -728,8 +746,10 @@ export default defineComponent({
     watch(
       () => isSubCategoryDisabled.value,
       (val) => {
-        if (val && isCategoryDisabled.value) {
+        if (val) {
           depositFormRules.value.subcategoryId = []
+          params.value.subcategoryId = undefined
+          companyNameSelected.value = ''
         } else {
           depositFormRules.value.subcategoryId = rules.subcategoryId
         }

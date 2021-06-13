@@ -52,6 +52,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
+    tag_caption: 'Please input Tag and press Enter',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -65,8 +66,8 @@ export default {
     confirmed: '確定',
     cancel: 'キャンセル',
     registration: '登録',
-    create_success: 'Add deposit success',
-    update_success: 'Update deposit success'
+    create_success: '{purpose} successfully added',
+    update_success: '{purpose} successfully updated'
   },
 
   csv: {
@@ -106,11 +107,17 @@ export default {
     category: 'Please select category',
     sub_category: 'Please select sub category',
     purpose: 'Please input item name',
-    statistics_month: 'Please select month',
+    statistics_month: 'Please select accounting month',
     group: 'Please select month',
     bank_account: 'Please select bank account',
-    money: 'Please input money',
+    money: 'Please input amount',
     tags: 'Please input tag',
     repeated: 'Please select repeat type'
+  },
+
+  confirm_modal: {
+    message: '{purpose} を確定してもよろしですか？',
+    cancel_btn: 'キャンセル',
+    confirm_btn: '削除'
   }
 }
