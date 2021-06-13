@@ -256,8 +256,9 @@ export default defineComponent({
       currentActiveIdGroup.value = groupId
       router.push({ query: { ...route.query, tab: groupId } })
 
-      // TODO: Cần reset lại bank đã chọn thành không
       searchKeyMultipleSelect.value = []
+
+      expandedRowKeys.value = []
 
       await fetchBankAccounts()
 
