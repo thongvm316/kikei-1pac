@@ -18,7 +18,7 @@
         row-key="Id"
         @change="handleChange"
       >
-        <template v-for="(col, index) in columnsHeaderList" #[col]="{ text, record }" :key="index">
+        <template v-for="col in columnsHeaderList" #[col]="{ text, record }" :key="col">
           <span>
             <a
               class="ant-dropdown-link"
@@ -48,7 +48,7 @@
 <script>
 import { defineComponent, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import moment from 'moment'
 import { remove } from 'lodash-es'
 
@@ -79,7 +79,6 @@ export default defineComponent({
   setup() {
     const { t } = useI18n()
     const route = useRoute()
-    const router = useRouter()
 
     const loadingExportCsvButton = ref()
     const dataSource = ref([])
@@ -94,7 +93,7 @@ export default defineComponent({
     let initialListColumns = ref({})
 
     const initialDataTableColumn = ref([
-      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: (a, b) => a.date - b.date },
+      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: true },
       { title: t('financing.balance'), dataIndex: 'balance', key: 'balance', slots: { customRender: 'balance' } }
     ])
 
@@ -120,12 +119,20 @@ export default defineComponent({
       window.addEventListener('resize', getInnerHeight)
     })
 
-    const handleChange = async (pagination) => {
+    const handleChange = async (pagination, filters, sorter) => {
+      if (sorter.order === 'ascend') {
+        sorter.order = 'asc'
+      } else if (sorter.order === 'descend') {
+        sorter.order = 'desc'
+      } else {
+        sorter.order = ''
+      }
       const params = {
         pageNumber: pagination.current,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
       }
-
+      console.log('params', params)
       await fetchList(params, route.meta['filter'])
     }
 
@@ -157,7 +164,7 @@ export default defineComponent({
       convertFilter.show_by = filter.value.show_by
       route.meta['filter'] = convertFilter
 
-      await fetchList({ pageNumber: 1, pageSize: 8 }, { ...convertFilter })
+      await fetchList({ pageNumber: 1, pageSize: 30 }, { ...convertFilter })
     }
 
     const convertDataTableHeader = async (data) => {
@@ -193,8 +200,8 @@ export default defineComponent({
     }
 
     const convertArrayToObject = (array, key, key_prefix, value) => {
-      let keyField = ''
-      let valueField = ''
+      let keyField = '',
+        valueField = ''
       return array.reduce((obj, item) => {
         key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
         value === '' ? (valueField = item) : (valueField = item[value])
@@ -205,7 +212,6 @@ export default defineComponent({
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
-
       try {
         const { getLists } = useGetFinancingListService({ ...params }, data)
         const { result } = await getLists()
@@ -229,8 +235,9 @@ export default defineComponent({
     }
 
     const handleNumber = (balance, data) => {
-      console.log(balance + ':' + data)
-      router.push({ name: 'deposit' })
+      console.log(balance)
+      console.log(data)
+      // router.push({ name: 'deposit' })
     }
 
     const exportFinancingAsCsvFile = async () => {
