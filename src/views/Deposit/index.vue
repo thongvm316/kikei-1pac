@@ -41,7 +41,7 @@
         option-label-prop="label"
         dropdown-class-name="multiple-select-custom"
         mode="multiple"
-        placeholder="Select a bank"
+        :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
         style="width: 200px"
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"

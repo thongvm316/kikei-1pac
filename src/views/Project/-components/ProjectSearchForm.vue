@@ -16,7 +16,7 @@
                   option-label-prop="label"
                   dropdown-class-name="multiple-select-custom"
                   mode="multiple"
-                  :placeholder="$t('project.group_name')"
+                  :placeholder="$t('project.group_placeholder')"
                   style="width: 152px"
                 >
                   <template #menuItemSelectedIcon>
@@ -44,7 +44,7 @@
                   option-label-prop="label"
                   dropdown-class-name="multiple-select-custom"
                   mode="multiple"
-                  :placeholder="$t('project.account_name')"
+                  :placeholder="$t('project.accounts_placeholder')"
                   style="width: 152px"
                 >
                   <template #menuItemSelectedIcon>
