@@ -4,7 +4,8 @@ export default {
     type_deposit_payment: 'Payments',
     type_deposit_cash_transfer: 'Cash Transfer',
     type_unclear_money: 'Unclear Money',
-    type_none: '-'
+    type_none: '-',
+    select_bank_placeholder: '口座選択'
   },
   company_name: {
     title_search: '会社一覧',
