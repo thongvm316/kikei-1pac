@@ -8,9 +8,11 @@ export default {
   release_date: 'リリース日',
   money: '受注金額',
   statistics_from_month: '計上月',
-  group_name: '計上月',
+  group_name: 'グループ',
   account_name: '営業担当',
   type: '区分',
+  type_0: '受託',
+  type_1: 'ラボ',
   status: 'ステータス',
   title_search: '検索',
   company_form: {
@@ -25,12 +27,14 @@ export default {
   },
 
   flash_message: {
-    delete_success: 'プロジェクト名 を削除しました'
+    create_success: '{name} が追加されました',
+    update_success: '{name} が更新されました',
+    delete_success: 'プロジェクト名 を削除してもよろしですか？'
   },
 
   delete_modal: {
     title: '削除',
-    message: 'プロジェクト名 を削除してもよろしですか？',
+    message: '{name} を削除してもよろしですか？',
     confirm_btn: '削除',
     cancel_btn: 'キャンセル'
   },
@@ -40,5 +44,19 @@ export default {
     copy: '複製',
     search_deposit: '入出金明細',
     delete: '削除'
+  },
+
+  error_message: {
+    company: '「クライアント名」を選択してください',
+    name: '「プロジェクト名」を入力してください',
+    status: '「ステータス」を選択してください',
+    accuracy: '「受注確度」を選択してください',
+    statistics_month: '「計上月」を選択してください',
+    statistics_months: '「計上月」を選択してください',
+    group: '「グループ」を選択してください',
+    account: '「営業担当」を選択してください',
+    money: '「金額」を入力してください',
+    tags: '※タグを入力して「Enter」を押してください',
+    memo: '「メモ」を入力してください'
   }
 }

@@ -38,7 +38,10 @@
     <!-- clientInCharge -->
 
     <!-- type -->
-    <a-form-item name="type" label="区分">
+    <a-form-item v-if="edit" name="type" label="区分">
+      <p class="mb-0">{{ $t(`project.type_${projectParams.type}`) }}</p>
+    </a-form-item>
+    <a-form-item v-else name="type" label="区分">
       <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
     </a-form-item>
     <!-- type -->
@@ -129,7 +132,13 @@
 
     <!-- money -->
     <a-form-item name="money" label="金額" :class="{ 'has-error': localErrors['money'] }">
-      <a-input-number v-model:value="projectParams.money" placeholder="入力してください" style="width: 300px" />
+      <a-input-number
+        v-model:value="projectParams.money"
+        placeholder="入力してください"
+        :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+        :precision="0"
+        style="width: 300px"
+      />
       <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
     </a-form-item>
     <!-- money -->
@@ -155,6 +164,8 @@
                   <a-input-number
                     v-model:value="order.money"
                     placeholder="タグを入力してください"
+                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :precision="0"
                     style="width: 164px"
                   />
                 </td>
@@ -232,9 +243,10 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, onBeforeMount, computed, watch } from 'vue'
+import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import moment from 'moment'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
@@ -272,6 +284,7 @@ export default defineComponent({
     const prjectFormRef = ref()
     const store = useStore()
     const router = useRouter()
+    const { t } = useI18n()
 
     const projectParams = ref({
       companyId: null,
@@ -318,7 +331,7 @@ export default defineComponent({
     const companyOwnerData = ref({})
     const localProjectOrders = ref([])
 
-    const dataTypes = reactive(PROJECT_TYPES)
+    const dataTypes = ref([])
     const dataAccounts = ref([])
     const dataGroups = ref([])
     const dataStatuses = ref([])
@@ -326,27 +339,37 @@ export default defineComponent({
 
     // input validator rules
     const projectFormRules = ref({
-      companyId: [{ type: 'number', required: true, message: 'Please select company', trigger: 'change' }],
-      name: [{ required: true, message: 'Please input project name', trigger: 'change' }],
-      statusId: [{ type: 'number', required: true, message: 'Please select status', trigger: 'change' }],
-      accuracyId: [{ type: 'number', required: true, message: 'Please select accuracy', trigger: 'change' }],
+      companyId: [{ type: 'number', required: true, message: t('project.error_message.company'), trigger: 'change' }],
+      name: [{ required: true, message: t('project.error_message.name'), trigger: 'change' }],
+      statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
+      accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
       statisticsMonth: [
-        { type: 'object', required: true, message: 'Please select statistics month', trigger: ['blur', 'change'] }
+        {
+          type: 'object',
+          required: true,
+          message: t('project.error_message.statistics_month'),
+          trigger: ['blur', 'change']
+        }
       ],
       statisticsMonths: [
-        { type: 'array', required: true, message: 'Please select statistics months', trigger: ['blur', 'change'] }
+        {
+          type: 'array',
+          required: true,
+          message: t('project.error_message.statistics_months'),
+          trigger: ['blur', 'change']
+        }
       ],
-      groupId: [{ type: 'number', required: true, message: 'Please select group', trigger: 'change' }],
-      accountId: [{ type: 'number', required: true, message: 'Please select account', trigger: 'change' }],
-      money: [{ type: 'number', required: true, message: 'Please input valid money', trigger: 'change' }]
+      groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
+      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
+      money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
     })
 
     const dynamicBaseOnAccuracy = () => {
       if (highestAccuracyRequired.value) {
         projectFormRules.value.tags = [
-          { type: 'array', required: true, message: 'Please input tag', trigger: ['blur', 'change'] }
+          { type: 'array', required: true, message: t('project.error_message.tags'), trigger: ['blur', 'change'] }
         ]
-        projectFormRules.value.memo = [{ required: true, message: 'Please input memo', trigger: 'change' }]
+        projectFormRules.value.memo = [{ required: true, message: t('project.error_message.memo'), trigger: 'change' }]
       } else {
         projectFormRules.value.tags = []
         projectFormRules.value.memo = []
@@ -489,7 +512,12 @@ export default defineComponent({
     const callAddProject = async () => {
       const response = await addProject(projectDataRequest.value)
       if (response.status === 200) {
-        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Add Project Success' })
+        const name = projectDataRequest.value?.name || ''
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('project.flash_message.create_success', { name })
+        })
         router.push({ name: 'project' })
         return
       }
@@ -504,7 +532,12 @@ export default defineComponent({
     const callEditProject = async () => {
       const response = await editProject(projectProp.value.id, projectDataRequest.value)
       if (response.status === 200) {
-        store.commit('flash/STORE_FLASH_MESSAGE', { variant: 'success', message: 'Edit Project Success' })
+        const name = projectDataRequest.value.name
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('project.flash_message.update_success', { name })
+        })
         router.push({ name: 'project' })
         return
       }
@@ -530,6 +563,11 @@ export default defineComponent({
       // accuracies
       const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = accuracies
+      // types
+      dataTypes.value = PROJECT_TYPES.map((type) => ({
+        ...type,
+        label: t(`project.${type.label}`)
+      }))
       /* ------------------- ./get all datas --------------------------- */
 
       // init project params
@@ -548,6 +586,7 @@ export default defineComponent({
       dataAccuracies,
       loading,
       valueTag,
+      edit,
       isCompanySearchFormOpen,
       companyOwnerData,
       localProjectOrders,

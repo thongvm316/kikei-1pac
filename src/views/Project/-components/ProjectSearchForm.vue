@@ -173,8 +173,8 @@ import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
 
 import { useAccountList } from '../composables/useAccountList'
-import { useGroupList } from '../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
+import { useGroupList } from '../composables/useGroupList'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
@@ -204,7 +204,7 @@ export default defineComponent({
 
     const dataAccounts = ref([])
     const dataGroups = ref([])
-    const dataTypes = reactive(PROJECT_TYPES)
+    const dataTypes = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
 
@@ -246,8 +246,8 @@ export default defineComponent({
         accuracyId: state.accuracyValue,
         updatedFrom: state.updatedDateValue[0] ? moment(state.updatedDateValue[0]).format('YYYY-MM-DD') : null,
         updatedTo: state.updatedDateValue[1] ? moment(state.updatedDateValue[1]).format('YYYY-MM-DD') : null,
-        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM-DD') : null,
-        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM-DD') : null,
+        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM') : null,
+        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM') : null,
         name: state.nameValue
       }
       emit('on-search', searchData)
@@ -260,7 +260,7 @@ export default defineComponent({
       // accounts
       dataAccounts.value = await useAccountList()
       // groups
-      const { data: groups } = await getProjectStatuses()
+      const { data: groups } = await useGroupList()
       dataGroups.value = groups
       // statuses
       const { data: statuses } = await getProjectStatuses()
@@ -268,6 +268,10 @@ export default defineComponent({
       // accuracies
       const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = toAccuracyOptions(accuracies)
+      dataTypes.value = PROJECT_TYPES.map(type => ({
+        ...type,
+        label: t(`project.${type.label}`)
+      }))
     })
 
     return {

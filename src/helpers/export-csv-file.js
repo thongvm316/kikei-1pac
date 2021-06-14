@@ -1,4 +1,6 @@
 import globalFilters from '@/filters'
+import i18n from '@/locale'
+const { t } = i18n.global
 
 const convertToCSV = (labels, objArray) => {
   if (!labels.length) throw new Error('Please set labels')
@@ -22,13 +24,19 @@ const convertToCSV = (labels, objArray) => {
       if (!!line) line += ','
 
       // check label item to formatted value
-      const { formatBy, field } = labels[j]
+      let val = ''
+      const { formatBy, field, localeBy } = labels[j]
       if (!field) throw new Error('Please set field name')
       if (formatBy) {
-        line += globalFilters[labels[j].formatBy](array[i][field])
+        val = globalFilters[labels[j].formatBy](array[i][field])
       } else {
-        line += array[i][field]
+        val = array[i][field]
       }
+      if (localeBy) {
+        val = t(`${localeBy}${val}`)
+      }
+
+      line += val
     }
 
     str += line + '\r\n'

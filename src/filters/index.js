@@ -7,12 +7,12 @@ export default {
   /* ---------------------- date time format ---------------------------- */
   moment_l(value) {
     if (!value) return ''
-    return `${moment(new Date(value)).format('DD/MM/YYYY')}`
+    return `${moment(new Date(value)).format('YYYY/MM/DD')}`
   },
 
-  moment_mm_dd(value) {
+  moment_yyyy_mm(value) {
     if (!value) return ''
-    return `${moment(new Date(value)).format('MM/YYYY')}`
+    return `${moment(new Date(value)).format('YYYY/MM')}`
   },
 
   /* ---------------------- number & price format ----------------------- */

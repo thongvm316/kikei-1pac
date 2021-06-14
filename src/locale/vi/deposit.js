@@ -52,6 +52,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
+    tag_caption: 'Vui lòng nhập Tag và nhấn Enter',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -65,8 +66,8 @@ export default {
     confirmed: '確定',
     cancel: 'キャンセル',
     registration: '登録',
-    create_success: 'Tạo deposit thành công',
-    update_success: 'Cập nhật deposit thành công'
+    create_success: 'Đã tạo deposit {purpose}',
+    update_success: 'Đã cập nhật deposit {purpose}'
   },
 
   csv: {
@@ -106,11 +107,17 @@ export default {
     category: 'Vui lòng chọn thể loại',
     sub_category: 'Vui lòng chọn danh mục con',
     purpose: 'Vui lòng nhập tên mục ',
-    statistics_month: 'Vui lòng chọn tháng',
+    statistics_month: 'Vui lòng chọn tháng thống kê',
     group: 'Vui lòng chọn nhóm',
     bank_account: 'Vui lòng chọn tài khoản ngân hàng',
     money: 'Vui lòng nhập số tiền',
     tags: 'Vui lòng nhập tag',
     repeated: 'Vui lòng chọn loại lặp deposit'
+  },
+
+  confirm_modal: {
+    message: 'Bạn có muốn xác nhận {purpose} ?',
+    cancel_btn: 'キャンセル',
+    confirm_btn: '削除'
   }
 }
