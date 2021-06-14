@@ -25,13 +25,6 @@
       size="middle"
       @change="handleChange"
     >
-      <!-- Name -->
-      <template #customTitle>
-        <span class="m-0">{{ t('company.companyName') }}</span>
-      </template>
-      <template #name="{ text }">
-        <p class="m-0">{{ text }}</p>
-      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
@@ -85,10 +78,8 @@ export default defineComponent({
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
-    const isSort = ref(true)
-    const sorter = ref({})
+
     const height = ref(0)
-    const count = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -104,12 +95,9 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
+          title: t('company.companyName'),
           dataIndex: 'name',
           key: 'name',
-          slots: {
-            title: 'customTitle',
-            customRender: 'name'
-          },
           sorter: true
         },
         {
@@ -121,8 +109,7 @@ export default defineComponent({
         {
           title: t('company.country'),
           dataIndex: 'countryName',
-          key: 'countryName',
-          sorter: sortColumn()
+          key: 'countryName'
         },
         {
           title: t('company.currency'),
@@ -149,28 +136,21 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    const sortColumn = () => {}
+    const handleChange = async (pagination, filters, sorter) => {
+      if (sorter.order === 'ascend') {
+        sorter.order = 'asc'
+      } else if (sorter.order === 'descend') {
+        sorter.order = 'desc'
+      } else {
+        sorter.order = ''
+      }
 
-    const handleChange = async (pagination) => {
-      count.value++
-      const parmasSort = ref({})
-      if (count.value === 3) {
-        count.value = 0
-      }
-      parmasSort.value = {
-        order_by: count.value === 1 ? 'code desc' : count.value === 2 ? 'code asc' : ''
-      }
-      console.log(count.value)
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: '',
-        ...parmasSort.value
+        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
       }
-
       await fetchList(params.value, filter.value)
-
-      isSort.value = !isSort.value
     }
 
     const onFilterChange = async (evt) => {
@@ -208,7 +188,6 @@ export default defineComponent({
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
-      console.log(params)
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
         const { result } = await getLists()
@@ -223,7 +202,6 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-      console.log(recordVisible.value)
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
@@ -255,7 +233,6 @@ export default defineComponent({
       recordVisible,
       height,
       params,
-      sorter,
       handleDeleteRecord,
       handleEditRecord,
       customRow,

@@ -1,11 +1,7 @@
 <template>
   <div class="k-sort-icon">
-    <caret-up-icon
-      :class="{ 'active': byAsc && !byNone }"
-      @click="sort(sortBy.asc)" />
-    <caret-down-icon
-      :class="{ 'active': byDesc && !byNone }"
-      @click="sort(sortBy.desc)" />
+    <caret-up-icon :class="{ active: byAsc && !byNone }" @click="sort(sortBy.asc)" />
+    <caret-down-icon :class="{ active: byDesc && !byNone }" @click="sort(sortBy.desc)" />
   </div>
 </template>
 
@@ -17,6 +13,11 @@ import CaretDownIcon from '@/assets/icons/ico_caret-down.svg'
 
 export default defineComponent({
   name: 'KSortCaret',
+
+  components: {
+    CaretUpIcon,
+    CaretDownIcon
+  },
 
   data() {
     return {
@@ -37,11 +38,6 @@ export default defineComponent({
     byNone() {
       return this.localSort === SORT_BY.none
     }
-  },
-
-  components: {
-    CaretUpIcon,
-    CaretDownIcon
   },
 
   methods: {

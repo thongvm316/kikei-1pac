@@ -137,7 +137,7 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map(item => ({
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
       value: parseInt(item),
       label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
     }))
