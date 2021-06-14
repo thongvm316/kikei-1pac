@@ -58,7 +58,7 @@
       <template #accuracyCodeTitle>
         <div class="u-flex u-items-center">
           <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.name')" />
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.code')" />
         </div>
       </template>
 

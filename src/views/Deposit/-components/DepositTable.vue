@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1000, y: 610 }"
+    :scroll="{ x: 1000 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -45,7 +45,9 @@
     </template>
 
     <template #balance="{ record }">
-      {{ $filters.number_with_commas(record.balance, 2) }}
+      <span :class="record.balance < 0 ? 'type-20' : ''">
+        {{ record.balance < 0 ? '-' : '' }}{{ $filters.number_with_commas(record.balance, 2) }}
+      </span>
     </template>
 
     <template #action="{ record }">

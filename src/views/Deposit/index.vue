@@ -268,13 +268,17 @@ export default defineComponent({
 
       searchKeyMultipleSelect.value = []
 
+      currentBankAccountList.value = []
+
+      currentPage.value = 1
+
       expandedRowKeys.value = []
 
       await fetchBankAccounts()
 
       expandIconColumnIndex.value = 10
 
-      await getDataDeposit({ groupId })
+      await getDataDeposit({ groupId }, { pageNumber: currentPage.value })
       resetConfirmAllRecordButton()
     }
 
