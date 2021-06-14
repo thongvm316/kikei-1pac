@@ -369,9 +369,12 @@ export default defineComponent({
     }
 
     const onDeleteDepositRecord = async () => {
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      if (!depositId) return
+
       isLoadingDataTable.value = true
-      await deleteDeposit(currentSelectedRecord.value.id)
-      dataDeposit.value = dataDeposit.value.filter((item) => item.id !== currentSelectedRecord.value.id)
+      await deleteDeposit(depositId)
+      dataDeposit.value = dataDeposit.value.filter((item) => item.id !== depositId)
       isVisibleDepositModal.value = false
       isLoadingDataTable.value = false
       isVisibleDepositButtonsFloat.value = false
