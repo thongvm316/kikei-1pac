@@ -98,7 +98,7 @@
                 <search-icon />
               </span>
             </template>
-            Ok
+            検索
           </a-button>
         </form>
       </a-config-provider>

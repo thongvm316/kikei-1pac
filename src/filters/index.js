@@ -16,11 +16,10 @@ export default {
   },
 
   /* ---------------------- number & price format ----------------------- */
-  number_with_commas(value) {
+  number_with_commas(value, precision = 0) {
     if (!value) return 0
     const floatNumberFormatted = value
-      ? parseFloat(value)
-          .toFixed(0)
+      ? parseFloat(parseFloat(value).toFixed(precision))
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       : 0

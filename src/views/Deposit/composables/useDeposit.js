@@ -143,7 +143,7 @@ const createExpandDataTable = (data, parentId) => {
 }
 
 export const createDataTableFormat = (data) => {
-  if (!data.length) return
+  if (!data.length) return []
 
   return data.map((item) => {
     return Object.assign(item, {

@@ -39,12 +39,12 @@
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
+        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit, 2) }}</span
       >
     </template>
 
     <template #balance="{ record }">
-      {{ $filters.number_with_commas(record.balance) }}
+      {{ $filters.number_with_commas(record.balance, 2) }}
     </template>
 
     <template #action="{ record }">

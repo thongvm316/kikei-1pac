@@ -107,7 +107,7 @@
         class="has-max-width"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-        :precision="3"
+        :precision="2"
         :min="isAllowNegativeMoney ? undefined : 0"
       />
       <span v-if="withdrawalMoneyCurrency" class="deposit-form__currency-unit">
@@ -140,7 +140,7 @@
           class="has-max-width"
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-          :precision="3"
+          :precision="2"
           :min="isAllowNegativeMoney ? undefined : 0"
         />
         <span v-if="depositMoneyCurrency" class="deposit-form__currency-unit">{{ `(${depositMoneyCurrency})` }}</span>
