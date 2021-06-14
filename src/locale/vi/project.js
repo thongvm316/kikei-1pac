@@ -15,6 +15,8 @@ export default {
   type_1: 'ラボ',
   status: 'ステータス',
   title_search: '検索',
+  group_placeholder: '選択して下さい',
+  accounts_placeholder: '選択して下さい',
   company_form: {
     handle_cancel: 'クリア',
     handle_ok: '検索',
