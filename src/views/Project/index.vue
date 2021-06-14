@@ -41,7 +41,55 @@
       "
       :custom-row="onCustomRow"
     >
-      <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
+      <template #updatedDateTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.updated_date') }}</span>
+          <k-sort-caret @sort="sort($event, 'updated_at')" />
+        </div>
+      </template>
+
+      <template #projectNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'name')" />
+        </div>
+      </template>
+
+      <template #accuracyCodeTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.name')" />
+        </div>
+      </template>
+
+      <template #releaseDateTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.release_date') }}</span>
+          <k-sort-caret @sort="sort($event, 'release_date')" />
+        </div>
+      </template>
+
+      <template #statisticsFromMonthTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.statistics_from_month') }}</span>
+          <k-sort-caret @sort="sort($event, 'statistics_from_month')" />
+        </div>
+      </template>
+
+      <template #groupNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.group_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'ADGroup.name')" />
+        </div>
+      </template>
+
+      <template #accountNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.account_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'SEAccount.fullname')" />
+        </div>
+      </template>
+
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
         <p class="mb-0 text-grey-55">{{ record.companyName }}</p>
@@ -56,11 +104,15 @@
       </template>
 
       <template #projectMoneyTitle>
-        <span class="d-inline-block text-right"
-          >{{ $t('project.money') }} <br />
-          (JPY)
-        </span>
+        <div class="d-flex u-items-center">
+          <span class="d-inline-block text-right u-mr-8">
+            {{ $t('project.money') }} <br />
+            (JPY)
+          </span>
+          <k-sort-caret @sort="sort($event, 'money')" />
+        </div>
       </template>
+
       <template #renderProjectMoney="{ record }">
         {{ $filters.number_with_commas(record.money, 2) }}
       </template>
@@ -111,7 +163,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, ref, watch } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
@@ -120,6 +172,8 @@ import ProjectSearchForm from './-components/ProjectSearchForm'
 import ProjectFloatButtons from './-components/ProjectFloatButtons'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import KSortCaret from '@/components/KSortCaret'
+import { SORT_BY } from '@/components/KSortCaret/constants'
 
 export default defineComponent({
   name: 'ProjectPage',
@@ -128,7 +182,8 @@ export default defineComponent({
     ProjectSearchForm,
     ProjectFloatButtons,
     LineDownIcon,
-    LineAddIcon
+    LineAddIcon,
+    KSortCaret
   },
 
   setup() {
@@ -146,11 +201,10 @@ export default defineComponent({
       {
         dataIndex: 'updatedAt',
         key: 'updatedAt',
-        title: t('project.updated_date'),
         slots: {
-          customRender: 'renderProjectUpdatedAt'
-        },
-        sorter: (a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+          customRender: 'renderProjectUpdatedAt',
+          title: 'updatedDateTitle'
+        }
       },
       {
         dataIndex: 'projectCombineName',
@@ -160,8 +214,7 @@ export default defineComponent({
         slots: {
           title: 'projectNameTitle',
           customRender: 'renderProjectName'
-        },
-        sorter: (a, b) => a.companyName.localeCompare(b.companyName)
+        }
       },
       {
         dataIndex: 'projectCombineTypeAStatus',
@@ -176,20 +229,18 @@ export default defineComponent({
         dataIndex: 'accuracyCode',
         key: 'accuracyCode',
         align: 'center',
-        title: t('project.accuracy_name'),
         slots: {
+          title: 'accuracyCodeTitle',
           customRender: 'renderProjectAccuracy'
-        },
-        sorter: (a, b) => a.accuracyCode.localeCompare(b.accuracyCode)
+        }
       },
       {
         dataIndex: 'releaseDate',
         key: 'releaseDate',
-        title: t('project.release_date'),
         slots: {
+          title: 'releaseDateTitle',
           customRender: 'renderProjectReleaseDate'
-        },
-        sorter: (a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()
+        }
       },
       {
         dataIndex: 'money',
@@ -198,35 +249,36 @@ export default defineComponent({
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
-        },
-        sorter: (a, b) => a.money - b.money
+        }
       },
       {
         dataIndex: 'statisticsFromMonth',
         key: 'statisticsFromMonth',
-        title: t('project.statistics_from_month'),
         align: 'center',
         slots: {
+          title: 'statisticsFromMonthTitle',
           customRender: 'renderProjectStatisticsDate'
-        },
-        sorter: (a, b) => new Date(a.statisticsFromMonth).getTime() - new Date(b.statisticsFromMonth).getTime()
+        }
       },
       {
         dataIndex: 'groupName',
         key: 'groupName',
-        title: t('project.group_name'),
-        sorter: (a, b) => a.groupName.localeCompare(b.groupName)
+        slots: {
+          title: 'groupNameTitle'
+        }
       },
       {
         dataIndex: 'accountName',
         key: 'accountName',
-        title: t('project.account_name'),
-        sorter: (a, b) => a.accountName.localeCompare(b.accountName)
+        slots: {
+          title: 'accountNameTitle'
+        }
       }
     ]
     const isOpenFloatButtons = ref(false)
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
+    const currentSort = ref({})
 
     const onCustomRow = (record) => {
       return {
@@ -248,11 +300,31 @@ export default defineComponent({
       router.push({ name: 'deposit', query: { purpose: `${name} ${code}`, tab: groupId } })
     }
 
+    const currentSortStr = computed(() => {
+      if (!currentSort.value) return null
+
+      let currentSortStr = ''
+      Object.keys(currentSort.value).forEach(key => {
+        currentSortStr += `,${key} ${currentSort.value[key]}`
+      })
+
+      return currentSortStr.replace(',', '')
+    })
+
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
-      const { projectList, pageData } = await getProjectList(pagination.value, loading, data)
+      const { projectList, pageData } = await getProjectList(pagination.value, currentSortStr.value, loading, data)
       projectDatas.value = projectList
       pagination.value = pageData
+    }
+
+    const sort = (sortBy, field) => {
+      currentSort.value = {
+        ...currentSort.value,
+        [field]: sortBy
+      }
+
+      if (sortBy === SORT_BY.none) delete currentSort.value[field]
     }
 
     const exportProjectAsCsvFile = async () => {
@@ -291,6 +363,9 @@ export default defineComponent({
       fetchProjectDatas()
     })
     watch(currentPage, fetchProjectDatas)
+
+    watch(currentSortStr, fetchProjectDatas)
+
     watch(isOpenFloatButtons, (val, oldVal) => {
       if (!val && oldVal) targetProjectSelected.value = {}
     })
@@ -310,7 +385,8 @@ export default defineComponent({
       projectDatas,
       fetchProjectDatas,
       exportProjectAsCsvFile,
-      deleteProjectCaller
+      deleteProjectCaller,
+      sort
     }
   }
 })

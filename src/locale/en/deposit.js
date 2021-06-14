@@ -6,7 +6,8 @@ export default {
     type_unclear_money: 'Unclear Money',
     type_none: '-',
     delete_deposit: '{purpose}を削除してもよろしですか？',
-    delete_success: '{purpose}を削除されました'
+    delete_success: '{purpose}を削除されました',
+    select_bank_placeholder: '口座選択'
   },
   company_name: {
     title_search: '会社一覧',

@@ -43,7 +43,7 @@
         option-label-prop="label"
         dropdown-class-name="multiple-select-custom"
         mode="multiple"
-        placeholder="口座選択"
+        :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
         style="width: 200px"
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
