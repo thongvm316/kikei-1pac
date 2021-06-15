@@ -92,7 +92,7 @@
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
   <deposit-buttons-float
-    v-model:disable-button="disableButton"
+    v-model:is-disable-delete="isDisableDelete"
     v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
@@ -157,7 +157,7 @@ export default defineComponent({
     const store = useStore()
 
     const activeKeyGroupTab = ref(1)
-    const disableButton = ref()
+    const isDisableDelete = ref()
     const loadingExportCsvButton = ref()
     const currentSelectedRecord = ref()
     const isVisibleDepositButtonsFloat = ref()
@@ -385,7 +385,7 @@ export default defineComponent({
     /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
       currentSelectedRecord.value = record
-      disableButton.value = record.confirmed
+      isDisableDelete.value = record.confirmed
       isVisibleDepositButtonsFloat.value = true
     }
 
@@ -509,7 +509,7 @@ export default defineComponent({
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
       currentPageNumber,
-      disableButton,
+      isDisableDelete,
       loadingExportCsvButton,
       activeKeyGroupTab,
       isVisibleConfirmDepositModal,
