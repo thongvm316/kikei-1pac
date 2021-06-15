@@ -313,7 +313,7 @@ export default defineComponent({
       if (!currentSort.value) return null
 
       let currentSortStr = ''
-      Object.keys(currentSort.value).forEach(key => {
+      Object.keys(currentSort.value).forEach((key) => {
         currentSortStr += `,${key} ${currentSort.value[key]}`
       })
 

@@ -25,13 +25,6 @@
       size="middle"
       @change="handleChange"
     >
-      <!-- Name -->
-      <template #customTitle>
-        <span class="m-0">{{ t('company.companyName') }}</span>
-      </template>
-      <template #name="{ text }">
-        <p class="m-0">{{ text }}</p>
-      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
@@ -85,6 +78,7 @@ export default defineComponent({
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
+
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -101,19 +95,16 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
+          title: t('company.companyName'),
           dataIndex: 'name',
           key: 'name',
-          slots: {
-            title: 'customTitle',
-            customRender: 'name'
-          },
-          sorter: () => sortName()
+          sorter: true
         },
         {
           title: t('company.company_code'),
           dataIndex: 'code',
           key: 'code',
-          sorter: (a, b) => a.code - b.code
+          sorter: true
         },
         {
           title: t('company.country'),
@@ -145,16 +136,20 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    const sortName = () => {
-      console.log('sdds')
-    }
-
-    const handleChange = async (pagination) => {
-      params.value = {
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize
+    const handleChange = async (pagination, filters, sorter) => {
+      if (sorter.order === 'ascend') {
+        sorter.order = 'asc'
+      } else if (sorter.order === 'descend') {
+        sorter.order = 'desc'
+      } else {
+        sorter.order = ''
       }
 
+      params.value = {
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize,
+        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+      }
       await fetchList(params.value, filter.value)
     }
 
@@ -193,7 +188,6 @@ export default defineComponent({
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
-
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
         const { result } = await getLists()
@@ -208,7 +202,6 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-      console.log(recordVisible.value)
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
