@@ -108,7 +108,7 @@ const depositBank = (depositMoney, withdrawMoney) => {
   if (depositMoney > withdrawMoney) {
     return depositMoney
   } else if (depositMoney < withdrawMoney) {
-    return withdrawMoney
+    return `-${withdrawMoney}`
   } else {
     return '-'
   }
@@ -118,7 +118,7 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
   if (type === 10) {
     return depositMoney
   } else if (type === 20) {
-    return withdrawMoney
+    return `-${withdrawMoney}`
   } else if (type === 30) {
     return depositMoney > 0 ? depositMoney : withdrawMoney
   } else {
@@ -143,7 +143,7 @@ const createExpandDataTable = (data, parentId) => {
 }
 
 export const createDataTableFormat = (data) => {
-  if (!data.length) return
+  if (!data.length) return []
 
   return data.map((item) => {
     return Object.assign(item, {

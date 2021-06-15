@@ -136,7 +136,7 @@
         v-model:value="projectParams.money"
         placeholder="入力してください"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :precision="0"
+        :precision="2"
         style="width: 300px"
       />
       <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
@@ -163,15 +163,15 @@
                   <p>金額</p>
                   <a-input-number
                     v-model:value="order.money"
-                    placeholder="タグを入力してください"
+                    placeholder="入力してください"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :precision="0"
+                    :precision="2"
                     style="width: 164px"
                   />
                 </td>
 
                 <td class="u-pl-8">
-                  <p class="u-mt-24 u-text-grey-75">(VND)</p>
+                  <p class="u-mt-24 u-text-grey-75">(JPY)</p>
                 </td>
 
                 <td v-if="!order.id" class="u-pl-8">

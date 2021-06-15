@@ -5,6 +5,8 @@ export default {
     type_deposit_cash_transfer: '移動',
     type_unclear_money: '不明',
     type_none: '-',
+    delete_deposit: '{purpose}を削除してもよろしですか？',
+    delete_success: '{purpose}を削除されました',
     select_bank_placeholder: '口座選択'
   },
   company_name: {
@@ -117,8 +119,9 @@ export default {
   },
 
   confirm_modal: {
-    message: '{purpose} を確定してもよろしですか？',
+    message: '{purpose}を確定してもよろしですか？',
     cancel_btn: 'キャンセル',
-    confirm_btn: '削除'
+    confirm_btn: '確定',
+    confirm_success: '{purpose}を確定されました'
   }
 }

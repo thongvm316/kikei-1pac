@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1000, y: 610 }"
+    :scroll="{ x: 1200 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -19,6 +19,7 @@
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false"
+    :locale="localeTable"
     @expand="onClickExpandRowButton"
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
@@ -39,12 +40,14 @@
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
+        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit, 2) }}</span
       >
     </template>
 
     <template #balance="{ record }">
-      {{ $filters.number_with_commas(record.balance) }}
+      <span :class="record.balance < 0 ? 'type-20' : ''">
+        {{ record.balance < 0 ? '-' : '' }}{{ $filters.number_with_commas(record.balance, 2) }}
+      </span>
     </template>
 
     <template #action="{ record }">
@@ -73,38 +76,56 @@ const columnsDeposit = [
     key: 'date',
     align: 'left',
     slots: { customRender: 'renderDepositUpdatedAt' },
-    sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    ellipsis: true
   },
   {
     title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
     slots: { customRender: 'renderDepositStatictis' },
-    sorter: (a, b) => new Date(a.statisticsMonth).getMonth() - new Date(b.statisticsMonth).getMonth()
+    sorter: (a, b) => new Date(a.statisticsMonth).getMonth() - new Date(b.statisticsMonth).getMonth(),
+    ellipsis: true
   },
-  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
-  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
-  { title: '項目名', dataIndex: 'purpose', key: 'purpose', ellipsis: true, slots: { customRender: 'purpose' } },
-  { title: '区分', dataIndex: 'typeName', key: 'typeName', align: 'center', slots: { customRender: 'typeName' } },
+  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
+  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true },
+  {
+    title: '項目名',
+    dataIndex: 'purpose',
+    key: 'purpose',
+    ellipsis: true,
+    slots: { customRender: 'purpose' }
+  },
+  {
+    title: '区分',
+    dataIndex: 'typeName',
+    key: 'typeName',
+    align: 'center',
+    slots: { customRender: 'typeName' },
+    ellipsis: true
+  },
   {
     dataIndex: 'deposit',
     key: 'deposit',
     align: 'right',
-    slots: { title: 'customTitleDeposit', customRender: 'deposit' }
+    slots: { title: 'customTitleDeposit', customRender: 'deposit' },
+    ellipsis: true
   },
   {
     dataIndex: 'balance',
     key: 'balance',
     align: 'right',
-    slots: { title: 'customTitleBalance', customRender: 'balance' }
+    slots: { title: 'customTitleBalance', customRender: 'balance' },
+    ellipsis: true
   },
   {
     title: '確定',
     dataIndex: 'action',
     key: 'action',
     slots: { customRender: 'action' },
-    width: '127px',
-    align: 'center'
+    width: '136px',
+    align: 'center',
+    ellipsis: true
   }
 ]
 
@@ -124,6 +145,10 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const currentRowClick = ref()
+
+    const localeTable = {
+      emptyText: '該当する入出金が見つかりませんでした。'
+    }
 
     const onSelectChangeRow = (selectedRowKeys) => {
       emit(
@@ -175,6 +200,7 @@ export default defineComponent({
 
     return {
       columnsDeposit,
+      localeTable,
 
       onSelectChangeRow,
       onSelectAllChangeRows,
@@ -188,6 +214,7 @@ export default defineComponent({
 
 <style lang="scss">
 @import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
 
 .ant-table-wrapper.deposit-table {
   table thead .ant-checkbox-wrapper {
@@ -225,6 +252,14 @@ export default defineComponent({
       .ant-table-row-expand-icon {
         margin-right: 0;
         margin-left: 16px;
+      }
+
+      .ant-table-row-collapsed,
+      .ant-table-row-expanded {
+        @include flexbox(center, center);
+        height: 24px;
+        width: 24px;
+        font-size: 14px;
       }
     }
   }
@@ -288,6 +323,10 @@ export default defineComponent({
 
   .bank-type_deposit_payment {
     color: $color-additional-red-6;
+  }
+
+  .ant-table-placeholder {
+    padding-top: 48px;
   }
 }
 </style>

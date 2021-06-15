@@ -58,7 +58,7 @@
       <template #accuracyCodeTitle>
         <div class="u-flex u-items-center">
           <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.name')" />
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.code')" />
         </div>
       </template>
 
@@ -114,7 +114,7 @@
       </template>
 
       <template #renderProjectMoney="{ record }">
-        {{ $filters.number_with_commas(record.money) }}
+        {{ $filters.number_with_commas(record.money, 2) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">
@@ -204,7 +204,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt',
           title: 'updatedDateTitle'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'projectCombineName',
@@ -214,7 +215,8 @@ export default defineComponent({
         slots: {
           title: 'projectNameTitle',
           customRender: 'renderProjectName'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'projectCombineTypeAStatus',
@@ -223,7 +225,8 @@ export default defineComponent({
         colSpan: 0,
         slots: {
           customRender: 'renderProjectCombineTypeAStatus'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'accuracyCode',
@@ -232,7 +235,8 @@ export default defineComponent({
         slots: {
           title: 'accuracyCodeTitle',
           customRender: 'renderProjectAccuracy'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'releaseDate',
@@ -240,7 +244,8 @@ export default defineComponent({
         slots: {
           title: 'releaseDateTitle',
           customRender: 'renderProjectReleaseDate'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'money',
@@ -249,7 +254,8 @@ export default defineComponent({
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'statisticsFromMonth',
@@ -258,21 +264,24 @@ export default defineComponent({
         slots: {
           title: 'statisticsFromMonthTitle',
           customRender: 'renderProjectStatisticsDate'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'groupName',
         key: 'groupName',
         slots: {
           title: 'groupNameTitle'
-        }
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'accountName',
         key: 'accountName',
         slots: {
           title: 'accountNameTitle'
-        }
+        },
+        ellipsis: true
       }
     ]
     const isOpenFloatButtons = ref(false)

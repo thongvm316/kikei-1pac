@@ -7,7 +7,7 @@
             <edit-icon />
           </span>
         </template>
-        クリア
+        編集
       </a-button>
       <a-button @click="$emit('on-copy-record-deposit')">
         <template #icon>
@@ -15,7 +15,7 @@
             <copy-icon />
           </span>
         </template>
-        クリア
+        複製
       </a-button>
       <a-button :disabled="disableButton" @click="$emit('on-open-delete-deposit-modal')">
         <template #icon>
