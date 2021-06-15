@@ -92,8 +92,8 @@
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
   <deposit-buttons-float
+    v-if="isVisibleDepositButtonsFloat"
     v-model:is-disable-delete="isDisableDelete"
-    v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
     @on-edit-record-deposit="onEditRecordDeposit"
@@ -361,9 +361,18 @@ export default defineComponent({
 
     /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
-      currentSelectedRecord.value = record
-      isDisableDelete.value = record.confirmed
-      isVisibleDepositButtonsFloat.value = true
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const recordId = record?.id || record?.parentId || ''
+
+      if (depositId === recordId) {
+        currentSelectedRecord.value = {}
+        isDisableDelete.value = false
+        isVisibleDepositButtonsFloat.value = false
+      } else {
+        currentSelectedRecord.value = record
+        isDisableDelete.value = record.confirmed
+        isVisibleDepositButtonsFloat.value = true
+      }
     }
 
     const onOpenDeleteDepositModal = () => {
@@ -410,15 +419,15 @@ export default defineComponent({
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
     /* --------------------- handle confirm deposit ------------------- */
-    const onOpenConfirmDepositRecordModal = (record, typeConfirm) => {
+    const onOpenConfirmDepositRecordModal = (data, typeConfirm) => {
       isVisibleConfirmDepositModal.value = true
       if (typeConfirm === 'confirmAll') {
-        confirmedSelectedDepositRecord.value = record
+        confirmedSelectedDepositRecord.value = data
+        confirmedSelectedPurpose.value = ''
       } else {
-        confirmedSelectedDepositRecord.value = [record.id]
+        confirmedSelectedDepositRecord.value = [data.id]
+        confirmedSelectedPurpose.value = data.purpose
       }
-
-      confirmedSelectedPurpose.value = record.purpose
     }
 
     const onConfirmDepositRecord = async () => {

@@ -143,7 +143,7 @@
   <project-search-form @on-search="fetchProjectDatas($event)" />
 
   <project-float-buttons
-    v-model:visible="isOpenFloatButtons"
+    v-if="isOpenFloatButtons"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
     @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
@@ -292,8 +292,16 @@ export default defineComponent({
     const onCustomRow = (record) => {
       return {
         onClick: () => {
-          targetProjectSelected.value = record
-          isOpenFloatButtons.value = true
+          const targetId = targetProjectSelected.value?.id || ''
+          const recordId = record?.id || ''
+
+          if (targetId === recordId) {
+            targetProjectSelected.value = {}
+            isOpenFloatButtons.value = false
+          } else {
+            targetProjectSelected.value = record
+            isOpenFloatButtons.value = true
+          }
         }
       }
     }
@@ -323,7 +331,8 @@ export default defineComponent({
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
       const params = {
-        ...pagination.value,
+        pageSize: pagination.value.pageSize,
+        pageNumber: pagination.value.pageNumber,
         orderBy: currentSortStr.value
       }
       const { projectList, pageData } = await getProjectList(params, loading, data)
@@ -371,6 +380,10 @@ export default defineComponent({
         message: 'project.flash_message.delete_success'
       })
     }
+
+    onBeforeMount(() => {
+      fetchProjectDatas()
+    })
 
     watch(currentPage, fetchProjectDatas)
 
