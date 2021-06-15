@@ -1,36 +1,43 @@
 <template>
   <section class="financing">
-    <Search />
+    <Search @filter-changed="onFilterChange" />
 
-    <a-button class="btn-download" @click="downloadCSV">
+    <a-button class="btn-download" :loading="loadingExportCsvButton" @click="exportFinancingAsCsvFile">
       <DownloadIcon class="btn-download-icon" />
-      CSVファイルダウンロード
+      {{ $t('financing.download_csv') }}
     </a-button>
 
-    <div class="box-utilities">
-      <Pagination />
-    </div>
-
-    <div>
-      <a-table :columns="columns" :data-source="data" :pagination="false" :scroll="{ y: '100vh' }">
-        <template #acb_jp="{ text: acb_jp }">
-          <span :class="parseInt(acb_jp) < 0 ? 'text--red' : ''" @click="showNumberCell(acb_jp)">
-            {{ acb_jp }}
+    <div class="list-table">
+      <a-table
+        :columns="columns"
+        :data-source="dataSource"
+        :pagination="{ ...pagination, showTotal: showTotal }"
+        :loading="isLoading"
+        size="middle"
+        :scroll="{ y: height - 211 }"
+        row-key="Id"
+        @change="handleChange"
+      >
+        <template v-for="col in columnsHeaderList" #[col]="{ text, record }" :key="col">
+          <span>
+            <a
+              class="ant-dropdown-link"
+              :class="parseInt(text) < 0 ? 'text--red' : ''"
+              @click="handleNumber(text, record)"
+            >
+              {{ text }}
+            </a>
           </span>
         </template>
-        <template #acb_vn_1="{ text: acb_vn_1 }">
-          <span :class="parseInt(acb_vn_1) < 0 ? 'text--red' : ''">
-            {{ acb_vn_1 }}
-          </span>
-        </template>
-        <template #acb_vn_2="{ text: acb_vn_2 }">
-          <span :class="parseInt(acb_vn_2) < 0 ? 'text--red' : ''">
-            {{ acb_vn_2 }}
-          </span>
-        </template>
-        <template #acb_vn_3="{ text: acb_vn_3 }">
-          <span :class="parseInt(acb_vn_3) < 0 ? 'text--red' : ''">
-            {{ acb_vn_3 }}
+        <template #balance="{ text, record }">
+          <span>
+            <a
+              class="ant-dropdown-link"
+              :class="parseInt(text) < 0 ? 'text--red' : ''"
+              @click="handleNumber(text, record)"
+            >
+              {{ text }}
+            </a>
           </span>
         </template>
       </a-table>
@@ -39,72 +46,233 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import Pagination from '@/layouts/-components/Pagination'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+import moment from 'moment'
+import { remove } from 'lodash-es'
+
+import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
+import { convertPagination } from '@/helpers/convert-pagination'
+import { exportCSVFile } from '@/helpers/export-csv-file'
+
+import Table from '@/mixins/table.mixin'
 import Search from '@/views/Financing/Search'
-
 import DownloadIcon from '@/assets/icons/ico_line-down.svg'
-
-const columns = [
-  { title: '日付', dataIndex: 'date', key: 'date', sorter: true },
-  { title: 'ACB-JP', dataIndex: 'acb_jp', key: 'acb_jp', slots: { customRender: 'acb_jp' } },
-  { title: 'ACB-VN', dataIndex: 'acb_vn_1', key: 'acb_vn_1', slots: { customRender: 'acb_vn_1' } },
-  { title: 'ACB-VN', dataIndex: 'acb_vn_2', key: 'acb_vn_2', slots: { customRender: 'acb_vn_1' } },
-  { title: 'ACB-VN', dataIndex: 'acb_vn_3', key: 'acb_vn_3', slots: { customRender: 'acb_vn_1' } },
-  { title: '合計', dataIndex: 'total', key: 'total' }
-]
-
-const data = []
-for (let i = 0; i < 30; i++) {
-  data.push({
-    key: i,
-    date: '20/12/2021',
-    acb_jp: `${new Intl.NumberFormat('vi-VN', {
-      minimumFractionDigits: 2,
-      style: 'currency',
-      currency: 'VND',
-      currencyDisplay: 'symbol'
-    }).format(Math.random() * 99996999 * (Math.round(Math.random()) ? 1 : -1))}`,
-    acb_vn_1: `${new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 2
-    }).format(Math.random() * 999933999 * (Math.round(Math.random()) ? 1 : -1))}`,
-    acb_vn_2: `${new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 2
-    }).format(Math.random() * 99699999 * (Math.round(Math.random()) ? 1 : -1))}`,
-    acb_vn_3: `${new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 2
-    }).format(Math.random() * 999955599 * (Math.round(Math.random()) ? 1 : -1))}`,
-    total: `${new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 2
-    }).format(Math.random() * 999999999 * (Math.round(Math.random()) ? 1 : 1))}`
-  })
-}
+import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
+import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 export default defineComponent({
-  name: 'FinancingPage',
-  components: { Pagination, Search, DownloadIcon },
+  name: 'Index',
+
+  components: { Search, DownloadIcon },
+
+  mixins: [Table],
+
+  async beforeRouteEnter(to, from, next) {
+    const { getGroups } = useGetGroupListService()
+    const { result } = await getGroups()
+    to.meta['lists'] = result.data
+    next()
+  },
 
   setup() {
-    return {
-      data,
-      columns
-    }
-  },
-  methods: {
-    downloadCSV() {
-      console.log('Download successful!')
-    },
+    const { t } = useI18n()
+    const route = useRoute()
+    const router = useRouter()
 
-    showNumberCell(number) {
-      console.log(number)
+    const loadingExportCsvButton = ref()
+    const dataSource = ref([])
+    const columns = ref([])
+    const columnsHeaderList = ref([])
+    const pagination = ref({})
+    const filter = ref({})
+    const isLoading = ref(false)
+    const height = ref(0)
+
+    let dataTableRow = ref({})
+    let initialListColumns = ref({})
+
+    const initialDataTableColumn = ref([
+      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: true },
+      { title: t('financing.balance'), dataIndex: 'balance', key: 'balance', slots: { customRender: 'balance' } }
+    ])
+
+    const initialStateFilter = {
+      group_id: null,
+      period_id: null,
+      from_date: '',
+      to_date: '',
+      show_by: 0
+    }
+    const convertFilter = reactive({ ...initialStateFilter })
+
+    const initialExportCSV = {
+      fileTitle: 'financing',
+      labels: [],
+      items: []
+    }
+
+    const exportData = reactive({ ...initialExportCSV })
+
+    onMounted(async () => {
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
+    const handleChange = async (pagination, filters, sorter) => {
+      if (sorter.order === 'ascend') {
+        sorter.order = 'asc'
+      } else if (sorter.order === 'descend') {
+        sorter.order = 'desc'
+      } else {
+        sorter.order = ''
+      }
+
+      if (route.meta['filter'].show_by === 0) sorter.field = 'month'
+
+      const params = {
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize,
+        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+      }
+      await fetchList(params, route.meta['filter'])
+    }
+
+    const onFilterChange = async (evt) => {
+      filter.value = { ...evt }
+      filter.value = { ...deleteEmptyValue(evt) }
+
+      convertFilter.group_id = filter.value.group_id
+
+      if (typeof filter.value.period_id !== 'undefined' && filter.value.period_id) {
+        convertFilter.period_id = filter.value.period_id
+      } else {
+        convertFilter.period_id = null
+      }
+
+      if (typeof filter.value.date_from_to !== 'undefined' && filter.value.date_from_to) {
+        filter.value.date_from_to.forEach((item, index) => {
+          if (index === 0) {
+            convertFilter.from_date = item.split('/').join('-')
+          }
+          if (index === 1) {
+            convertFilter.to_date = item.split('/').join('-')
+          }
+        })
+      } else {
+        convertFilter.from_date = ''
+        convertFilter.to_date = ''
+      }
+      convertFilter.show_by = filter.value.show_by
+      route.meta['filter'] = convertFilter
+
+      await fetchList({ pageNumber: 1, pageSize: 30 }, { ...convertFilter })
+    }
+
+    const convertDataTableHeader = async (data) => {
+      if (data.bankaccounts) {
+        for (let i = 0; i < data.bankaccounts.length; i++) {
+          initialListColumns.value = {
+            title: data.bankaccounts[i].name,
+            dataIndex: `bank_balance_${data.bankaccounts[i].id}`,
+            key: `bank_balance_${data.bankaccounts[i].id}`,
+            slots: { customRender: data.bankaccounts[i].name }
+          }
+          columns.value.push(initialListColumns.value)
+        }
+        columns.value.unshift(initialDataTableColumn.value[0])
+        columns.value.push(initialDataTableColumn.value[1])
+      }
+    }
+
+    const convertDataTableRows = async (data) => {
+      if (data.balances) {
+        for (let i = 0; i < data.balances.length; i++) {
+          dataTableRow.value['date'] = moment(data.balances[i].date).format('YYYY/MM/DD')
+          Object.assign(
+            dataTableRow.value,
+            convertArrayToObject(data.balances[i].bankaccounts, 'bankAccountId', 'bank_balance_', 'balance')
+          )
+          dataTableRow.value['balance'] = data.balances[i].balance
+          dataSource.value.push(Object.assign({}, dataTableRow.value))
+        }
+      }
+    }
+
+    const convertArrayToObject = (array, key, key_prefix, value) => {
+      let keyField = '',
+        valueField = ''
+      return array.reduce((obj, item) => {
+        key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+        value === '' ? (valueField = item) : (valueField = item[value])
+
+        return { ...obj, [keyField]: valueField }
+      }, {})
+    }
+
+    const fetchList = async (params = {}, data) => {
+      isLoading.value = true
+      try {
+        const { getLists } = useGetFinancingListService({ ...params }, data)
+        const { result } = await getLists()
+
+        remove(dataSource.value)
+        remove(columns.value)
+
+        columnsHeaderList.value = [...result.data.bankaccounts].map((item) => item.name)
+        await convertDataTableHeader(result.data)
+        await convertDataTableRows(result.data)
+
+        pagination.value = convertPagination(result.meta)
+        isLoading.value = false
+      } catch (e) {
+        isLoading.value = false
+      }
+    }
+
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
+    const handleNumber = (balance, data) => {
+      console.log(balance)
+      console.log(data)
+      router.push({ name: 'deposit' })
+    }
+
+    const exportFinancingAsCsvFile = async () => {
+      initialExportCSV.labels = JSON.parse(JSON.stringify(columns.value)).map((item) => ({
+        header: item.title,
+        field: item.dataIndex
+      }))
+
+      initialExportCSV.items = JSON.parse(JSON.stringify(dataSource.value))
+      exportCSVFile(initialExportCSV)
+    }
+
+    return {
+      useRoute,
+      dataSource,
+      columns,
+      pagination,
+      isLoading,
+      t,
+      height,
+      convertFilter,
+      exportData,
+      initialStateFilter,
+      columnsHeaderList,
+      loadingExportCsvButton,
+      getInnerHeight,
+      convertDataTableHeader,
+      convertDataTableRows,
+      convertArrayToObject,
+      exportFinancingAsCsvFile,
+      handleChange,
+      handleNumber,
+      onFilterChange,
+      fetchList
     }
   }
 })

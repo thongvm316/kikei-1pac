@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted, watch } from 'vue'
 import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
@@ -37,6 +37,21 @@ export default defineComponent({
     const openModalSearch = () => {
       store.commit('setCurrentRoute', route.name)
     }
+
+    onMounted(() => {
+      if (['financing'].includes(route.name)) {
+        openModalSearch()
+      }
+    })
+
+    watch(
+      () => route.name,
+      (routeName) => {
+        if (['financing'].includes(routeName)) {
+          openModalSearch()
+        }
+      }
+    )
 
     return { route, openModalSearch }
   }

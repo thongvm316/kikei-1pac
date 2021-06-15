@@ -3,7 +3,6 @@ export default {
   handle_ok: 'OK',
   title_search: 'Search',
   group: 'Group',
-  group_placeholder: 'Please select',
   stages: 'Stages',
   date: 'Date',
   date_start: 'Date start',
@@ -11,5 +10,8 @@ export default {
   term: 'term',
   display: 'Display',
   display_monthly: 'Monthly',
-  display_all: 'All'
+  display_all: 'All',
+  balance: 'Balance',
+  please_select: 'Please select',
+  download_csv: 'Download CSV'
 }

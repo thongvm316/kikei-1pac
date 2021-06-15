@@ -3,7 +3,7 @@
   .btn-download {
     display: flex;
     align-items: center;
-    margin: 25px 32px 0 auto;
+    margin: 25px 32px 16px auto;
     padding: 0 10px;
 
     &-icon {
@@ -22,9 +22,21 @@
 
   .ant-table-content {
     .ant-table-row {
+      .ant-dropdown-link{
+        color: #000;
+        &:hover{
+          color: #31AAF1;
+          text-decoration: underline;
+        }
+      }
       .text--red {
         color: #F5222D;
       }
+    }
+
+    span.ant-table-column-title {
+      top: 3px;
+      position: relative;
     }
   }
 }
@@ -51,6 +63,9 @@
 
     .form-select {
       text-align: left;
+      .ant-select{
+        width: 152px;
+      }
     }
   }
 }

@@ -11,7 +11,6 @@ const deleteEmptyValue = (object) => {
       delete object[key]
     }
   })
-
   return object
 }
 
