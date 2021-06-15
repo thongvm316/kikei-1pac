@@ -1,5 +1,10 @@
 <template>
-  <a-modal v-model:visible="visible" :closable="false" width="350px" class="deposit-buttons-float">
+  <a-modal
+    v-model:visible="visible"
+    :closable="false"
+    width="350px"
+    class="deposit-buttons-float"
+    :maskStyle="{ backgroundColor: 'rgba(0, 0, 0, 0)'}">
     <template #footer>
       <a-button @click="$emit('on-edit-record-deposit')">
         <template #icon>
