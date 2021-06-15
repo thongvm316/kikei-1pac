@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, watch } from 'vue'
+import { defineComponent, computed, watch, onMounted } from 'vue'
 import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
@@ -46,6 +46,21 @@ export default defineComponent({
       () => route.name,
       () => {
         store.commit('setIsShowSearchBadge', false)
+      }
+    )
+
+    onMounted(() => {
+      if (['financing'].includes(route.name)) {
+        openModalSearch()
+      }
+    })
+
+    watch(
+      () => route.name,
+      (routeName) => {
+        if (['financing'].includes(routeName)) {
+          openModalSearch()
+        }
       }
     )
 
