@@ -48,7 +48,7 @@
 <script>
 import { defineComponent, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import { remove } from 'lodash-es'
 
@@ -79,6 +79,7 @@ export default defineComponent({
   setup() {
     const { t } = useI18n()
     const route = useRoute()
+    const router = useRouter()
 
     const loadingExportCsvButton = ref()
     const dataSource = ref([])
@@ -127,19 +128,21 @@ export default defineComponent({
       } else {
         sorter.order = ''
       }
+
+      if (route.meta['filter'].show_by === 0) sorter.field = 'month'
+
       const params = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
         order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
       }
-      console.log('params', params)
       await fetchList(params, route.meta['filter'])
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...evt }
       filter.value = { ...deleteEmptyValue(evt) }
-      console.log('  filter.value:', filter.value)
+
       convertFilter.group_id = filter.value.group_id
 
       if (typeof filter.value.period_id !== 'undefined' && filter.value.period_id) {
@@ -181,7 +184,6 @@ export default defineComponent({
         columns.value.unshift(initialDataTableColumn.value[0])
         columns.value.push(initialDataTableColumn.value[1])
       }
-      console.log('columns:', columns.value)
     }
 
     const convertDataTableRows = async (data) => {
@@ -195,7 +197,6 @@ export default defineComponent({
           dataTableRow.value['balance'] = data.balances[i].balance
           dataSource.value.push(Object.assign({}, dataTableRow.value))
         }
-        console.log('dataSource:', dataSource.value)
       }
     }
 
@@ -237,7 +238,7 @@ export default defineComponent({
     const handleNumber = (balance, data) => {
       console.log(balance)
       console.log(data)
-      // router.push({ name: 'deposit' })
+      router.push({ name: 'deposit' })
     }
 
     const exportFinancingAsCsvFile = async () => {
