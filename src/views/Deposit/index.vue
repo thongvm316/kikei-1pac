@@ -302,7 +302,7 @@ export default defineComponent({
       await fetchBankAccounts()
 
       const { purpose } = route.query || null
-      updateParamRequestDeposit({ groupId }, { purpose })
+      updateParamRequestDeposit({ groupId, purpose }, {})
 
       router.replace({ query: { tab: groupId, purpose: null } })
     })
