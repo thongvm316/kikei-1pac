@@ -69,7 +69,7 @@
         v-if="record.children"
         :disabled="record.confirmed"
         type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', [record.id])"
+        @click="$emit('on-open-confirm-deposit-record-modal', record)"
       >
         確定
       </a-button>

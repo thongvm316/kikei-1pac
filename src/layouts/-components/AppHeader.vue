@@ -5,7 +5,7 @@
         <k-breadcrumb />
       </div>
       <div class="header__content--right">
-        <a-button :class="['header__search', isSearchBadge && 'is-badge']" @click="openModalSearch">
+        <a-button :class="['header__search', isShowSearchBadge && 'is-badge']" @click="openModalSearch">
           <search-icon />
         </a-button>
         <k-profile />
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, watch } from 'vue'
 import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
@@ -40,9 +40,16 @@ export default defineComponent({
       store.commit('setCurrentRoute', route.name)
     }
 
-    const isSearchBadge = computed(() => store.getters?.isSearchBadge || false)
+    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
 
-    return { route, isSearchBadge, openModalSearch }
+    watch(
+      () => route.name,
+      () => {
+        store.commit('setIsShowSearchBadge', false)
+      }
+    )
+
+    return { route, isShowSearchBadge, openModalSearch }
   }
 })
 </script>
@@ -92,7 +99,7 @@ export default defineComponent({
     &:after {
       position: absolute;
       top: 0;
-      right: -25%;
+      right: -30%;
       height: 16px;
       width: 16px;
       background-color: $color-additional-red-6;

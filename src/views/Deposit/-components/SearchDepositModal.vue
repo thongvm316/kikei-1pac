@@ -200,9 +200,9 @@ export default defineComponent({
         purpose: state.value.valuePurpose
       }
 
-      emit('updateParamRequestDeposit', searchDataDeposit)
+      emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
       visible.value = false
-      store.commit('setIsSearchBadge', !isEqual(state.value, initState))
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
     const toCategoryOptions = (options) => {

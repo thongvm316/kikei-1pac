@@ -31,7 +31,7 @@
           v-if="currentSelectedRowKeys.length > 1"
           size="small"
           type="primary"
-          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
+          @click="onOpenConfirmDepositRecordModal({ id: currentSelectedRowKeys })"
         >
           {{ $t('deposit.deposit_list.confirm_all') }}
         </a-button>
@@ -107,7 +107,7 @@
 
   <confirm-deposit-modal
     v-model:visible="isVisibleConfirmDepositModal"
-    :current-selected-record="currentSelectedRecord"
+    :confirmed-selected-purpose="confirmedSelectedPurpose"
     @on-confirm-deposit-record="onConfirmDepositRecord"
   />
 </template>
@@ -179,6 +179,7 @@ export default defineComponent({
     const currentPageNumber = ref()
     const isVisibleConfirmDepositModal = ref(false)
     const confirmedSelectedDepositRecord = ref()
+    const confirmedSelectedPurpose = ref()
     const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
     const currentSort = ref({})
@@ -186,7 +187,7 @@ export default defineComponent({
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: {} })
 
-    const updateParamRequestDeposit = (data = {}, params = {}) => {
+    const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
         data: { ...paramRequestDataDeposit.value.data, ...data },
         params: { ...paramRequestDataDeposit.value.params, ...params }
@@ -252,10 +253,10 @@ export default defineComponent({
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
 
-      updateParamRequestDeposit(
-        { groupId: currentActiveIdGroup.value, bankAccountId },
-        { pageNumber: currentPageNumber.value }
-      )
+      updateParamRequestDeposit({
+        data: { groupId: currentActiveIdGroup.value, bankAccountId },
+        params: { pageNumber: currentPageNumber.value }
+      })
     }, 1000)
 
     const onHandleChangeTabGroup = async (groupId) => {
@@ -272,18 +273,18 @@ export default defineComponent({
 
       expandIconColumnIndex.value = 10
 
-      updateParamRequestDeposit({ groupId }, { pageNumber: currentPage.value })
+      updateParamRequestDeposit({ data: { groupId }, params: { pageNumber: currentPage.value } })
       resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
-      updateParamRequestDeposit(
-        {
+      updateParamRequestDeposit({
+        data: {
           groupId: currentActiveIdGroup.value,
           bankAccountId: currentBankAccountList.value
         },
-        { pageNumber }
-      )
+        params: { pageNumber }
+      })
 
       currentBankAccountList.value.length
         ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
@@ -409,9 +410,10 @@ export default defineComponent({
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
     /* --------------------- handle confirm deposit ------------------- */
-    const onOpenConfirmDepositRecordModal = (depositIdList) => {
+    const onOpenConfirmDepositRecordModal = (record) => {
       isVisibleConfirmDepositModal.value = true
-      confirmedSelectedDepositRecord.value = depositIdList
+      confirmedSelectedDepositRecord.value = [record.id]
+      confirmedSelectedPurpose.value = record.purpose
     }
 
     const onConfirmDepositRecord = async () => {
@@ -444,6 +446,7 @@ export default defineComponent({
       })
 
       isVisibleConfirmDepositModal.value = false
+      confirmedSelectedPurpose.value = ''
     }
     /* --------------------- ./handle confirm deposit ------------------- */
 
@@ -465,7 +468,7 @@ export default defineComponent({
         })
       }
 
-      updateParamRequestDeposit({}, { orderBy: currentSortStr.replace(',', '') })
+      updateParamRequestDeposit({ params: { orderBy: currentSortStr.replace(',', '') } })
     }
 
     onBeforeMount(async () => {
@@ -479,7 +482,7 @@ export default defineComponent({
       await fetchBankAccounts()
 
       const { purpose } = route.query || null
-      updateParamRequestDeposit({ groupId, purpose }, {})
+      updateParamRequestDeposit({ data: { groupId, purpose } })
 
       router.replace({ query: { tab: groupId, purpose: null } })
     })
@@ -516,6 +519,9 @@ export default defineComponent({
       tableKey,
       disabledCheckAllRowTable,
       currentSelectedRecord,
+
+      confirmedSelectedDepositRecord,
+      confirmedSelectedPurpose,
 
       updateParamRequestDeposit,
       onSelectAllRowsByCustomCheckbox,

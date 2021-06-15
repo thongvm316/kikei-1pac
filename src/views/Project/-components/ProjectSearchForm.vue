@@ -259,7 +259,7 @@ export default defineComponent({
 
       // close modal
       visible.value = false
-      store.commit('setIsSearchBadge', !isEqual(state.value, initState))
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
     onBeforeMount(async () => {

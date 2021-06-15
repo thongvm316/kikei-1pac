@@ -125,6 +125,7 @@ export default {
   confirm_modal: {
     title: '確定',
     message: '{purpose}を確定してもよろしですか？',
+    message_multiple: '確定してもよろしいですか?',
     cancel_btn: 'キャンセル',
     confirm_btn: '確定',
     confirm_success: '{purpose}を確定されました'

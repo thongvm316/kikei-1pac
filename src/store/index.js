@@ -4,20 +4,20 @@ import auth from './auth'
 
 const state = {
   currentRoute: null,
-  isSearchBadge: false
+  isShowSearchBadge: false
 }
 
 const getters = {
   currentRoute: (state) => state.currentRoute,
-  isSearchBadge: (state) => state.isSearchBadge
+  isShowSearchBadge: (state) => state.isShowSearchBadge
 }
 
 const mutations = {
   setCurrentRoute(state, routeName) {
     state.currentRoute = routeName
   },
-  setIsSearchBadge(state, isSearching) {
-    state.isSearchBadge = isSearching
+  setIsShowSearchBadge(state, isSearching) {
+    state.isShowSearchBadge = isSearching
   }
 }
 
