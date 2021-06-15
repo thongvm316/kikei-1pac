@@ -31,7 +31,7 @@
           v-if="currentSelectedRowKeys.length > 1"
           size="small"
           type="primary"
-          @click="onOpenConfirmDepositRecordModal({ id: currentSelectedRowKeys })"
+          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
         >
           {{ $t('deposit.deposit_list.confirm_all') }}
         </a-button>
@@ -82,7 +82,7 @@
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
-          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
+          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
           @on-sort="sort"
         />
       </a-tab-pane>
@@ -410,9 +410,14 @@ export default defineComponent({
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
     /* --------------------- handle confirm deposit ------------------- */
-    const onOpenConfirmDepositRecordModal = (record) => {
+    const onOpenConfirmDepositRecordModal = (record, typeConfirm) => {
       isVisibleConfirmDepositModal.value = true
-      confirmedSelectedDepositRecord.value = [record.id]
+      if (typeConfirm === 'confirmAll') {
+        confirmedSelectedDepositRecord.value = record
+      } else {
+        confirmedSelectedDepositRecord.value = [record.id]
+      }
+
       confirmedSelectedPurpose.value = record.purpose
     }
 

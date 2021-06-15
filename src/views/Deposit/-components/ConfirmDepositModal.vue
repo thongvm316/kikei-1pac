@@ -22,7 +22,7 @@ export default defineComponent({
   name: 'ConfirmDepositModal',
 
   props: {
-    confirmedSelectedPurpose: Object
+    confirmedSelectedPurpose: String
   },
 
   setup(_, { emit }) {
