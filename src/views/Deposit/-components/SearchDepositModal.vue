@@ -122,6 +122,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
+import { isEqual } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -179,7 +180,7 @@ export default defineComponent({
     })
 
     const handleClearDepositFormSearch = () => {
-      state.value = initState
+      state.value = deepCopy(initState)
     }
 
     const onSubmit = () => {
@@ -201,6 +202,7 @@ export default defineComponent({
 
       emit('updateParamRequestDeposit', searchDataDeposit)
       visible.value = false
+      store.commit('setIsSearchBadge', !isEqual(state.value, initState))
     }
 
     const toCategoryOptions = (options) => {

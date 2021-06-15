@@ -10,7 +10,7 @@
 
               <div class="form-select">
                 <a-select
-                  v-model:value="groupValue"
+                  v-model:value="state.groupValue"
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
@@ -38,7 +38,7 @@
 
               <div class="form-select">
                 <a-select
-                  v-model:value="accountValue"
+                  v-model:value="state.accountValue"
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
@@ -66,7 +66,7 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="updatedDateValue"
+                  v-model:value="state.updatedDateValue"
                   style="width: 300px"
                   format="YYYY-MM-DD"
                   :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
@@ -87,7 +87,7 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="statisticsDateValue"
+                  v-model:value="state.statisticsDateValue"
                   style="width: 300px"
                   format="YYYY-MM-DD"
                   :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
@@ -106,7 +106,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.type') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="typeValue" name="projectType" :options="dataTypes" />
+                <a-checkbox-group v-model:value="state.typeValue" name="projectType" :options="dataTypes" />
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.status') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="statusValue" name="projectStatuses" :options="dataStatuses" />
+                <a-checkbox-group v-model:value="state.statusValue" name="projectStatuses" :options="dataStatuses" />
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.accuracy_name') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="accuracyValue" name="projectAccuracies" :options="dataAccuracies" />
+                <a-checkbox-group v-model:value="state.accuracyValue" name="projectAccuracies" :options="dataAccuracies" />
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
-                <a-input v-model:value="nameValue" style="width: 340px" name="projectName" />
+                <a-input v-model:value="state.nameValue" style="width: 340px" name="projectName" />
               </div>
             </div>
           </div>
@@ -161,11 +161,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed, onBeforeMount, toRefs } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
+import { isEqual } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 
@@ -178,6 +179,7 @@ import { useGroupList } from '../composables/useGroupList'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
+import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'ProjectSearchForm',
@@ -191,7 +193,8 @@ export default defineComponent({
 
     const locales = ref({ en: localeEn, ja: localeJa })
     const loading = ref(false)
-    const state = reactive({
+
+    const initState = {
       groupValue: [],
       accountValue: [],
       updatedDateValue: [],
@@ -200,7 +203,8 @@ export default defineComponent({
       statisticsDateValue: [],
       accuracyValue: [],
       nameValue: ''
-    })
+    }
+    const state = ref(deepCopy(initState))
 
     const dataAccounts = ref([])
     const dataGroups = ref([])
@@ -226,34 +230,36 @@ export default defineComponent({
     })
 
     const clearSearchForm = () => {
-      ;(state.groupValue = []),
-      (state.accountValue = []),
-      (state.updatedDateValue = []),
-      (state.typeValue = []),
-      (state.statusValue = []),
-      (state.statisticsDateValue = []),
-      (state.accuracyValue = []),
-      (state.nameValue = '')
+      state.value = deepCopy(initState)
     }
 
     const onSubmit = () => {
       // parse to search data
       const searchData = {
-        groupId: state.groupValue,
-        accountId: state.accountValue,
-        type: state.typeValue,
-        statusId: state.statusValue,
-        accuracyId: state.accuracyValue,
-        updatedFrom: state.updatedDateValue[0] ? moment(state.updatedDateValue[0]).format('YYYY-MM-DD') : null,
-        updatedTo: state.updatedDateValue[1] ? moment(state.updatedDateValue[1]).format('YYYY-MM-DD') : null,
-        statisticsFrom: state.statisticsDateValue[0] ? moment(state.statisticsDateValue[0]).format('YYYY-MM') : null,
-        statisticsTo: state.statisticsDateValue[1] ? moment(state.statisticsDateValue[1]).format('YYYY-MM') : null,
-        name: state.nameValue
+        groupId: state.value.groupValue,
+        accountId: state.value.accountValue,
+        type: state.value.typeValue,
+        statusId: state.value.statusValue,
+        accuracyId: state.value.accuracyValue,
+        updatedFrom: state.value.updatedDateValue[0]
+          ? moment(state.value.updatedDateValue[0]).format('YYYY-MM-DD')
+          : null,
+        updatedTo: state.value.updatedDateValue[1]
+          ? moment(state.value.updatedDateValue[1]).format('YYYY-MM-DD')
+          : null,
+        statisticsFrom: state.value.statisticsDateValue[0]
+          ? moment(state.value.statisticsDateValue[0]).format('YYYY-MM')
+          : null,
+        statisticsTo: state.value.statisticsDateValue[1]
+          ? moment(state.value.statisticsDateValue[1]).format('YYYY-MM')
+          : null,
+        name: state.value.nameValue
       }
       emit('on-search', searchData)
 
       // close modal
       visible.value = false
+      store.commit('setIsSearchBadge', !isEqual(state.value, initState))
     }
 
     onBeforeMount(async () => {
@@ -287,7 +293,7 @@ export default defineComponent({
       dataAccuracies,
       onSubmit,
       clearSearchForm,
-      ...toRefs(state)
+      state
     }
   }
 })

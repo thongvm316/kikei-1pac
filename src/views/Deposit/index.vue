@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch, computed } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
