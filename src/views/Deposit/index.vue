@@ -82,6 +82,7 @@
           v-model:expand-icon-column-index="expandIconColumnIndex"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
           @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
+          @on-sort="sort"
         />
       </a-tab-pane>
     </a-tabs>
@@ -111,7 +112,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -131,7 +132,7 @@ import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
-
+import { SORT_BY } from '@/components/KSortCaret/constants'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -179,6 +180,7 @@ export default defineComponent({
     const confirmedSelectedDepositRecord = ref()
     const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
+    const currentSort = ref({})
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: {} })
@@ -468,6 +470,27 @@ export default defineComponent({
     }
     /* --------------------- ./handle confirm deposit ------------------- */
 
+    const sort = ({ sortBy, field }) => {
+      currentSort.value = {
+        ...currentSort.value,
+        [field]: sortBy
+      }
+
+      if (sortBy === SORT_BY.none) delete currentSort.value[field]
+
+      let currentSortStr = ''
+
+      if (!currentSort.value) {
+        currentSortStr = null
+      } else {
+        Object.keys(currentSort.value).forEach((key) => {
+          currentSortStr += `,${key} ${currentSort.value[key]}`
+        })
+      }
+
+      updateParamRequestDeposit({}, { orderBy: currentSortStr.replace(',', '') })
+    }
+
     return {
       checkAllRowTable,
       searchKeyMultipleSelect,
@@ -507,7 +530,8 @@ export default defineComponent({
       exportDepositAsCsvFile,
       onOpenConfirmDepositRecordModal,
       onConfirmDepositRecord,
-      resetConfirmAllRecordButton
+      resetConfirmAllRecordButton,
+      sort
     }
   }
 })

@@ -22,6 +22,20 @@
     :locale="localeTable"
     @expand="onClickExpandRowButton"
   >
+    <template #dateTitle>
+      <div class="u-flex u-items-center">
+        <span class="u-mr-8">入出金日</span>
+        <k-sort-caret @sort="sort($event, 'date')" />
+      </div>
+    </template>
+
+    <template #statisticsMonthTitle>
+      <div class="u-flex u-items-center">
+        <span class="u-mr-8">計上月</span>
+        <k-sort-caret @sort="sort($event, 'statistics_month')" />
+      </div>
+    </template>
+
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
@@ -68,23 +82,26 @@
 </template>
 <script>
 import { defineComponent, ref } from 'vue'
+import KSortCaret from '@/components/KSortCaret'
 
 const columnsDeposit = [
   {
-    title: '入出金日',
     dataIndex: 'date',
     key: 'date',
     align: 'left',
-    slots: { customRender: 'renderDepositUpdatedAt' },
-    sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    slots: {
+      customRender: 'renderDepositUpdatedAt',
+      title: 'dateTitle'
+    },
     ellipsis: true
   },
   {
-    title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
-    slots: { customRender: 'renderDepositStatictis' },
-    sorter: (a, b) => new Date(a.statisticsMonth).getMonth() - new Date(b.statisticsMonth).getMonth(),
+    slots: {
+      customRender: 'renderDepositStatictis',
+      title: 'statisticsMonthTitle'
+    },
     ellipsis: true
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
@@ -131,6 +148,10 @@ const columnsDeposit = [
 
 export default defineComponent({
   name: 'DepositTable',
+
+  components: {
+    KSortCaret
+  },
 
   props: {
     indeterminateCheckAllRows: Boolean,
@@ -198,6 +219,10 @@ export default defineComponent({
       return classes
     }
 
+    const sort = (sortBy, field) => {
+      emit('on-sort', { sortBy, field })
+    }
+
     return {
       columnsDeposit,
       localeTable,
@@ -206,7 +231,8 @@ export default defineComponent({
       onSelectAllChangeRows,
       onCustomRow,
       onClickExpandRowButton,
-      onAddRowClass
+      onAddRowClass,
+      sort
     }
   }
 })
