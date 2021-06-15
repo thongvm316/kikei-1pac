@@ -4,6 +4,7 @@
     :title="$t('deposit.search_deposit.title_search')"
     class="search-deposit"
     width="800px"
+    @cancel="handleModalCancel"
   >
     <template #footer>
       <a-config-provider :locale="locales[locale]">
@@ -140,7 +141,7 @@ export default defineComponent({
 
   components: { SearchIcon, CalendarOutlined },
 
-  emits: ['updateParamRequestDeposit'],
+  emits: ['updateParamRequestDeposit', 'update:currentPage'],
 
   setup(_, { emit }) {
     const store = useStore()
@@ -159,6 +160,8 @@ export default defineComponent({
       { value: false, label: t('deposit.search_deposit.confirm_no') },
       { value: true, label: t('deposit.search_deposit.confirm_yes') }
     ])
+
+    const isNeedSubmit = ref(false)
 
     const initState = {
       dateDepositValue: [],
@@ -180,6 +183,7 @@ export default defineComponent({
     })
 
     const handleClearDepositFormSearch = () => {
+      isNeedSubmit.value = !isEqual(state.value, initState)
       state.value = deepCopy(initState)
     }
 
@@ -201,7 +205,9 @@ export default defineComponent({
       }
 
       emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
+
       visible.value = false
+      isNeedSubmit.value = false
       store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
@@ -221,12 +227,18 @@ export default defineComponent({
       })
     }
 
+    const handleModalCancel = () => {
+      isNeedSubmit.value && onSubmit()
+    }
+
     onBeforeMount(async () => {
       const dataCategory = await getCategory()
       categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
 
       const dataSubCategory = await getSubCategory()
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+
+      store.commit('setIsShowSearchBadge', false)
     })
 
     return {
@@ -240,6 +252,7 @@ export default defineComponent({
       state,
 
       handleClearDepositFormSearch,
+      handleModalCancel,
       onSubmit
     }
   }

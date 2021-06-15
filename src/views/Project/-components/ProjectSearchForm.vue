@@ -1,5 +1,11 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('project.title_search')" class="search-deposit" width="1000px">
+  <a-modal
+    v-model:visible="visible"
+    :title="$t('project.title_search')"
+    class="search-deposit"
+    width="1000px"
+    @cancel="handleModalCancel"
+  >
     <template #footer>
       <a-config-provider :locale="locales[locale]">
         <form @submit.prevent="onSubmit">
@@ -128,7 +134,11 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.accuracy_name') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.accuracyValue" name="projectAccuracies" :options="dataAccuracies" />
+                <a-checkbox-group
+                  v-model:value="state.accuracyValue"
+                  name="projectAccuracies"
+                  :options="dataAccuracies"
+                />
               </div>
             </div>
           </div>
@@ -212,6 +222,8 @@ export default defineComponent({
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
 
+    const isNeedSubmit = ref(false)
+
     const toStatusOptions = (data) => {
       if (data.length <= 0) return []
       return data.map((item) => ({ label: item.name, value: item.id }))
@@ -230,6 +242,7 @@ export default defineComponent({
     })
 
     const clearSearchForm = () => {
+      isNeedSubmit.value = !isEqual(state.value, initState)
       state.value = deepCopy(initState)
     }
 
@@ -255,11 +268,16 @@ export default defineComponent({
           : null,
         name: state.value.nameValue
       }
-      emit('on-search', searchData)
+      emit('on-search', { data: searchData, params: { pageNumber: 1 } })
 
       // close modal
       visible.value = false
+      isNeedSubmit.value = false
       store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
+    }
+
+    const handleModalCancel = () => {
+      isNeedSubmit.value && onSubmit()
     }
 
     onBeforeMount(async () => {
@@ -278,6 +296,8 @@ export default defineComponent({
         ...type,
         label: t(`project.${type.label}`)
       }))
+
+      store.commit('setIsShowSearchBadge', false)
     })
 
     return {
@@ -293,7 +313,8 @@ export default defineComponent({
       dataAccuracies,
       onSubmit,
       clearSearchForm,
-      state
+      state,
+      handleModalCancel
     }
   }
 })

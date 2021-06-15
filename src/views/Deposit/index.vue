@@ -218,6 +218,7 @@ export default defineComponent({
         dataDeposit.value = createDataTableFormat(data.result?.data || [])
         disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
+        currentPage.value = paramsRequest.pageNumber
 
         // select bank
         const COLLUMNS_COUNT = 9

@@ -140,7 +140,7 @@
     </a-table>
   </div>
 
-  <project-search-form @on-search="fetchProjectDatas($event)" />
+  <project-search-form @on-search="updateRequestData" />
 
   <project-float-buttons
     v-if="isOpenFloatButtons"
@@ -289,6 +289,16 @@ export default defineComponent({
     const targetProjectSelected = ref({})
     const currentSort = ref({})
 
+    // data and params request
+    const requestData = ref({ params: pagination.value })
+
+    const updateRequestData = ({ data = {}, params = {} }) => {
+      requestData.value = {
+        data: { ...requestData.value.data, ...data },
+        params: { ...requestData.value.params, ...params }
+      }
+    }
+
     const onCustomRow = (record) => {
       return {
         onClick: () => {
@@ -306,6 +316,7 @@ export default defineComponent({
       }
     }
 
+    // handle actions
     const cloneProject = () => {
       router.push({ name: 'project-new', query: { selectedId: targetProjectSelected.value.id } })
     }
@@ -328,16 +339,13 @@ export default defineComponent({
       return currentSortStr.replace(',', '')
     })
 
-    const fetchProjectDatas = async (data = null) => {
-      pagination.value.pageNumber = currentPage
-      const params = {
-        pageSize: pagination.value.pageSize,
-        pageNumber: pagination.value.pageNumber,
-        orderBy: currentSortStr.value
-      }
-      const { projectList, pageData } = await getProjectList(params, loading, data)
+    const fetchProjectDatas = async () => {
+      const { projectList, pageData } = await getProjectList(requestData.value.params, loading, requestData.value.data)
+
       projectDatas.value = projectList
       pagination.value = pageData
+      pagination.value.pageNumber = requestData.value.params.pageNumber
+      currentPage.value = requestData.value.params.pageNumber
     }
 
     const sort = (sortBy, field) => {
@@ -385,9 +393,20 @@ export default defineComponent({
       fetchProjectDatas()
     })
 
-    watch(currentPage, fetchProjectDatas)
+    watch(
+      () => requestData.value,
+      () => {
+        fetchProjectDatas()
+      }
+    )
 
-    watch(currentSortStr, fetchProjectDatas)
+    watch(currentPage, (val) => {
+      updateRequestData({ params: { pageNumber: val } })
+    })
+
+    watch(currentSortStr, (val) => {
+      updateRequestData({ params: { orderBy: val } })
+    })
 
     watch(isOpenFloatButtons, (val, oldVal) => {
       if (!val && oldVal) targetProjectSelected.value = {}
@@ -406,10 +425,10 @@ export default defineComponent({
       cloneProject,
       goToDeposit,
       projectDatas,
-      fetchProjectDatas,
       exportProjectAsCsvFile,
       deleteProjectCaller,
-      sort
+      sort,
+      updateRequestData
     }
   }
 })
