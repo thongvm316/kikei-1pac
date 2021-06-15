@@ -29,9 +29,11 @@
 
         <a-button
           v-if="currentSelectedRowKeys.length > 1"
-          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
           size="small"
-          type="primary">確定</a-button>
+          type="primary"
+          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
+          >確定</a-button
+        >
       </div>
 
       <a-select
@@ -46,7 +48,7 @@
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
-        <a-select-option v-for="option in bankAccountList" :key="option.name" :label="option.name" :id="option.id">
+        <a-select-option v-for="option in bankAccountList" :id="option.id" :key="option.name" :label="option.name">
           {{ option.name }}
         </a-select-option>
       </a-select>
@@ -70,6 +72,7 @@
     >
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
         <deposit-table
+          :key="tableKey"
           v-model:expanded-row-keys="expandedRowKeys"
           v-model:is-loading-data-table="isLoadingDataTable"
           v-model:data-deposit="dataDeposit"
@@ -77,7 +80,6 @@
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
-          :key="tableKey"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
           @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
         />
@@ -92,13 +94,15 @@
     v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="onEditRecordDeposit" />
-  <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
+    @on-edit-record-deposit="onEditRecordDeposit"
+  />
+  <delete-deposit-modal v-model:visible="isVisibleDepositModal" @on-delete-deposit-record="onDeleteDepositRecord" />
 
   <confirm-deposit-modal
     v-model:visible="isVisibleConfirmDepositModal"
     :current-selected-record="currentSelectedRecord"
-    @on-confirm-deposit-record="onConfirmDepositRecord" />
+    @on-confirm-deposit-record="onConfirmDepositRecord"
+  />
 </template>
 
 <script>
@@ -114,7 +118,8 @@ import {
   getBankAccounts,
   deleteDeposit,
   createDataTableFormat,
-  confirmDeposit } from './composables/useDeposit'
+  confirmDeposit
+} from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import SearchDepositModal from './-components/SearchDepositModal'
@@ -232,7 +237,7 @@ export default defineComponent({
     }
 
     const onHandleChangeBankAcountSelect = debounce(async (_, options) => {
-      const bankAccountId = options.map(option => option.id)
+      const bankAccountId = options.map((option) => option.id)
 
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
@@ -263,7 +268,6 @@ export default defineComponent({
       await fetchBankAccounts()
 
       expandIconColumnIndex.value = 10
-
 
       await getDataDeposit({ groupId })
       resetConfirmAllRecordButton()
@@ -400,17 +404,19 @@ export default defineComponent({
     const onConfirmDepositRecord = async () => {
       await confirmDeposit({ id: confirmedSelectedDepositRecord.value })
 
-      confirmedSelectedDepositRecord.value.forEach(confirmedId => {
-        const indexConfirmedRecord = dataDeposit.value.findIndex(record => record.id === confirmedId)
+      confirmedSelectedDepositRecord.value.forEach((confirmedId) => {
+        const indexConfirmedRecord = dataDeposit.value.findIndex((record) => record.id === confirmedId)
         if (indexConfirmedRecord < 0) return
 
         dataDeposit.value[indexConfirmedRecord].confirmed = true
-        currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter(key => key !== confirmedId)
+        currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
       })
 
       indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0
 
-      checkAllRowTable.value = (currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length) && currentSelectedRowKeys.value.length > 2
+      checkAllRowTable.value =
+        currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
+        currentSelectedRowKeys.value.length > 2
 
       disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
 
