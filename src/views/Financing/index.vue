@@ -15,7 +15,7 @@
         :loading="isLoading"
         size="middle"
         :scroll="{ y: height - 211 }"
-        row-key="Id"
+        :row-key="(record) => record.date"
         @change="handleChange"
       >
         <template v-for="col in columnsHeaderList" #[col]="{ text, record }" :key="col">

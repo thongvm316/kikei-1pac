@@ -52,8 +52,8 @@
             <div class="form-select">
               <a-range-picker
                 v-model:value="filter.date_from_to"
-                style="width: 300px"
-                format="YYYY/MM/DD"
+                :style="{ width: '300px' }"
+                format="YYYY-MM-DD"
                 :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
                 :disabled="isDisabledDate"
                 @change="onChangeDate"
