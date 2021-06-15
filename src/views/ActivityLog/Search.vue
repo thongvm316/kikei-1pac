@@ -8,10 +8,7 @@
             <label class="form-label">{{ $t('logs.stages') }}</label>
 
             <div class="form-select">
-              <a-range-picker style="width: 300px" format="YYYY-MM" :placeholder="['YYYY/MM', 'YYYY/MM']">
-                <template #suffixIcon>
-                  <CalendarOutlined />
-                </template>
+              <a-range-picker format="YYYY-MM-DD" :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']" @change="onChange">
               </a-range-picker>
             </div>
           </div>
@@ -38,17 +35,25 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { CalendarOutlined } from '@ant-design/icons-vue'
+
+const state = {
+  from: '',
+  to: ''
+}
 
 export default defineComponent({
   name: 'Search',
 
-  components: { SearchIcon, CalendarOutlined },
+  components: { SearchIcon },
 
-  setup() {
+  emits: ['filter-changed'],
+
+  setup(props, context) {
     const store = useStore()
     const route = useRoute()
     const { t } = useI18n()
+
+    const filter = ref({})
 
     const loading = ref(false)
 
@@ -59,7 +64,7 @@ export default defineComponent({
       }
     })
 
-    function handleOk() {
+    const handleOk = () => {
       loading.value = true
       setTimeout(() => {
         loading.value = false
@@ -67,16 +72,24 @@ export default defineComponent({
       }, 2000)
     }
 
-    function handleCancel() {
+    const onChange = (value) => {
+      if (value.length) {
+        filter.value = {
+          from: value[0].format(),
+          to: value[1].format()
+        }
+      } else {
+        filter.value = { ...state }
+      }
+    }
+
+    const handleCancel = () => {
       visible.value = false
     }
 
-    function onSubmit() {
-      alert('ok')
-    }
-
-    function handleChange() {
-      console.log('aa')
+    const onSubmit = () => {
+      context.emit('filter-changed', filter.value)
+      visible.value = false
     }
 
     return {
@@ -86,7 +99,7 @@ export default defineComponent({
       handleOk,
       handleCancel,
       onSubmit,
-      handleChange
+      onChange
     }
   }
 })
