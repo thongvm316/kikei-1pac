@@ -115,15 +115,23 @@ const depositBank = (depositMoney, withdrawMoney) => {
 }
 
 const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
-  if (type === 10) {
-    return depositMoney
-  } else if (type === 20) {
-    return `-${withdrawMoney}`
-  } else if (type === 30) {
-    return depositMoney > 0 ? depositMoney : withdrawMoney
-  } else {
-    return depositMoney > 0 ? depositMoney : `-${withdrawMoney}`
+  let money
+  switch (TYPE_NAME_DEPOSIT[type]) {
+    case TYPE_NAME_DEPOSIT[10]:
+      money = depositMoney
+      break
+    case TYPE_NAME_DEPOSIT[20]:
+      money = `-${withdrawMoney}`
+      break
+    case TYPE_NAME_DEPOSIT[30]:
+      money = withdrawMoney
+      break
+    case TYPE_NAME_DEPOSIT[40]:
+      money = depositMoney > 0 ? depositMoney : `-${withdrawMoney}`
+      break
   }
+
+  return money
 }
 
 const createExpandDataTable = (data, parentId) => {

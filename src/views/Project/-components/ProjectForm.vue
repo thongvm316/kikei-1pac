@@ -14,7 +14,7 @@
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
 
-      <p v-if="localErrors['companyId']" class="ant-form-explain">{{ localErrors['companyId'] }}</p>
+      <p v-if="localErrors['companyId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['companyId']}`) }}</p>
     </a-form-item>
     <!-- companyID -->
 
@@ -27,7 +27,8 @@
     <!-- name -->
     <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
-      <p v-if="localErrors['name']" class="ant-form-explain">{{ localErrors['name'] }}</p>
+
+      <p v-if="localErrors['name']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['name']}`) }}</p>
     </a-form-item>
     <!-- name -->
 
@@ -53,7 +54,8 @@
           {{ status.name }}
         </a-select-option>
       </a-select>
-      <p v-if="localErrors['statusId']" class="ant-form-explain">{{ localErrors['statusId'] }}</p>
+
+      <p v-if="localErrors['statusId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['statusId']}`) }}</p>
     </a-form-item>
     <!-- status -->
 
@@ -65,7 +67,7 @@
         </a-select-option>
       </a-select>
 
-      <p v-if="localErrors['accuracyId']" class="ant-form-explain">{{ localErrors['accuracyId'] }}</p>
+      <p v-if="localErrors['accuracyId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['accuracyId']}`) }}</p>
     </a-form-item>
     <!-- accuracy -->
 
@@ -109,7 +111,7 @@
           {{ group.name }}
         </a-select-option>
       </a-select>
-      <p v-if="localErrors['groupId']" class="ant-form-explain">{{ localErrors['groupId'] }}</p>
+      <p v-if="localErrors['groupId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['groupId']}`) }}</p>
     </a-form-item>
     <!-- groupID -->
 
@@ -126,7 +128,7 @@
           {{ account.fullname }}
         </a-select-option>
       </a-select>
-      <p v-if="localErrors['accountId']" class="ant-form-explain">{{ localErrors['accountId'] }}</p>
+      <p v-if="localErrors['accountId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['accountId']}`) }}</p>
     </a-form-item>
     <!-- accountID -->
 
@@ -139,7 +141,7 @@
         :precision="2"
         style="width: 300px"
       />
-      <p v-if="localErrors['money']" class="ant-form-explain">{{ localErrors['money'] }}</p>
+      <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
     </a-form-item>
     <!-- money -->
 
@@ -152,11 +154,10 @@
               <tr class="outsource__item">
                 <td :class="['u-flex u-flex-col', { 'has-error': order.errors && order.errors['companyId'] }]">
                   <p>会社名</p>
-                  <div v-if="order.companyId" class="outsource__company-info">
-                    <p class="text-grey-500">{{ order.companyName }}</p>
-                    <p @click="removeCompanyOnSearchForm(order)">削除</p>
+                  <div class="outsource__company-info">
+                    <p v-if="order.companyId" class="text-grey-500">{{ order.companyName }}</p>
+                    <p class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
                   </div>
-                  <p v-else class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
                 </td>
 
                 <td :class="['u-pl-40', { 'has-error': order.errors && order.errors['money'] }]">
@@ -184,12 +185,12 @@
               <tr>
                 <td class="u-pb-12">
                   <p v-if="order.errors && order.errors['companyId']" class="u-text-additional-red-6">
-                    company {{ order.errors && order.errors['companyId'] }}
+                    {{ order.errors && $t(`common.local_error.${order.errors['companyId']}`) }}
                   </p>
                 </td>
                 <td class="u-pl-40 u-pb-12">
                   <p v-if="order.errors && order.errors['money']" class="u-text-additional-red-6">
-                    money {{ order.errors && order.errors['money'] }}
+                    {{ order.errors && $t(`common.local_error.${order.errors['money']}`) }}
                   </p>
                 </td>
                 <td></td>
@@ -406,10 +407,6 @@ export default defineComponent({
       }
     }
 
-    const removeCompanyOnSearchForm = (order) => {
-      order.companyId = ''
-      order.companyName = ''
-    }
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
@@ -543,6 +540,8 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
+
+        console.log(localErrors.value)
         if (localErrors.value.adProjectOrders) {
           addProjectOrdersErrors()
         }
@@ -594,7 +593,6 @@ export default defineComponent({
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,
-      removeCompanyOnSearchForm,
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,
@@ -649,7 +647,6 @@ export default defineComponent({
     p + p {
       margin-left: 12px;
       cursor: pointer;
-      color: $color-additional-red-6;
     }
   }
 }
