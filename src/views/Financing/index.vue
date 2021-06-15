@@ -14,7 +14,7 @@
         :pagination="{ ...pagination, showTotal: showTotal }"
         :loading="isLoading"
         size="middle"
-        :scroll="{ y: height - 330 }"
+        :scroll="{ y: height - 211 }"
         row-key="Id"
         @change="handleChange"
       >
@@ -171,7 +171,7 @@ export default defineComponent({
     }
 
     const convertDataTableHeader = async (data) => {
-      if (Array.isArray(data.bankaccounts) && data.bankaccounts.length > 0) {
+      if (data.bankaccounts) {
         for (let i = 0; i < data.bankaccounts.length; i++) {
           initialListColumns.value = {
             title: data.bankaccounts[i].name,
@@ -187,7 +187,7 @@ export default defineComponent({
     }
 
     const convertDataTableRows = async (data) => {
-      if (Array.isArray(data.balances) && data.balances.length > 0) {
+      if (data.balances) {
         for (let i = 0; i < data.balances.length; i++) {
           dataTableRow.value['date'] = moment(data.balances[i].date).format('YYYY/MM/DD')
           Object.assign(
