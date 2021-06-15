@@ -2,16 +2,16 @@
   <div class="u-mx-32">
     <div class="u-flex u-justify-end u-mt-24 u-mb-16">
       <a-button :loading="loadingExportCsvButton" @click="exportDepositAsCsvFile">
-        <template #icon
-          ><span class="btn-icon"><line-down-icon /></span
-        ></template>
+        <template #icon>
+          <span class="btn-icon"><line-down-icon /></span>
+        </template>
         CSVファイルダウンロード
       </a-button>
 
       <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
-        <template #icon
-          ><span class="btn-icon"><line-add-icon /></span
-        ></template>
+        <template #icon>
+          <span class="btn-icon"><line-add-icon /></span>
+        </template>
         新規入出金追加
       </a-button>
     </div>
@@ -20,13 +20,20 @@
       <div>
         <a-checkbox
           v-model:checked="checkAllRowTable"
+          :disabled="disabledCheckAllRowTable"
           :indeterminate="indeterminateCheckAllRows"
           @change="onSelectAllRowsByCustomCheckbox"
         >
           チェックした項目全てを確定する
         </a-checkbox>
 
-        <a-button v-if="currentSelectedRowKeys.length > 1" size="small" type="primary">確定</a-button>
+        <a-button
+          v-if="currentSelectedRowKeys.length > 1"
+          size="small"
+          type="primary"
+          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
+          >確定</a-button
+        >
       </div>
 
       <a-select
@@ -36,16 +43,12 @@
         option-label-prop="label"
         dropdown-class-name="multiple-select-custom"
         mode="multiple"
-        placeholder="Select a bank"
-        style="width: 200px"
+        :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
+        :style="{ width: '200px' }"
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
-        <template #menuItemSelectedIcon>
-          <a-checkbox :checked="true" />
-        </template>
-
-        <a-select-option v-for="option in bankAccountList" :key="option.id" :label="option.name">
+        <a-select-option v-for="option in bankAccountList" :id="option.id" :key="option.name" :label="option.name">
           {{ option.name }}
         </a-select-option>
       </a-select>
@@ -61,52 +64,76 @@
     </div>
 
     <a-tabs
-      class="-mx-32"
       v-model:active-key="activeKeyGroupTab"
+      class="-mx-32"
       default-active-key="1"
       :animated="false"
-      @change="onHandleChangeTabGroup">
+      @change="onHandleChangeTabGroup"
+    >
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
         <deposit-table
+          :key="tableKey"
           v-model:expanded-row-keys="expandedRowKeys"
           v-model:is-loading-data-table="isLoadingDataTable"
-          v-model:dataDeposit="dataDeposit"
+          v-model:data-deposit="dataDeposit"
           v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
+          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
         />
       </a-tab-pane>
     </a-tabs>
   </div>
 
-  <search-deposit-modal v-model:current-active-id-group="currentActiveIdGroup" @on-search="getDataDeposit($event)" />
+  <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
+
   <deposit-buttons-float
     v-model:disable-button="disableButton"
     v-model:visible="isVisibleDepositButtonsFloat"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="onEditRecordDeposit" />
-  <delete-deposit-modal @on-delete-deposit-record="onDeleteDepositRecord" v-model:visible="isVisibleDepositModal" />
+    @on-edit-record-deposit="onEditRecordDeposit"
+  />
+
+  <delete-deposit-modal
+    v-model:visible="isVisibleDepositModal"
+    :current-selected-record="currentSelectedRecord"
+    @on-delete-deposit-record="onDeleteDepositRecord"
+  />
+
+  <confirm-deposit-modal
+    v-model:visible="isVisibleConfirmDepositModal"
+    :current-selected-record="currentSelectedRecord"
+    @on-confirm-deposit-record="onConfirmDepositRecord"
+  />
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import LineDownIcon from '@/assets/icons/ico_line-down.svg'
-import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DepositTable from './-components/DepositTable'
-import { getDeposit, getGroups, getBankAccounts, deleteDeposit, createDataTableFormat } from './composables/useDeposit'
+import {
+  getDeposit,
+  getGroups,
+  getBankAccounts,
+  deleteDeposit,
+  createDataTableFormat,
+  confirmDeposit
+} from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
+import ConfirmDepositModal from './-components/ConfirmDepositModal'
 
+import LineDownIcon from '@/assets/icons/ico_line-down.svg'
+import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -117,7 +144,8 @@ export default defineComponent({
     DepositTable,
     SearchDepositModal,
     DepositButtonsFloat,
-    DeleteDepositModal
+    DeleteDepositModal,
+    ConfirmDepositModal
   },
 
   setup() {
@@ -145,117 +173,171 @@ export default defineComponent({
     const currentActiveIdGroup = ref()
     const currentBankAccountList = ref([])
     const totalRecords = ref()
-    const expandIconColumnIndex = ref()
+    const expandIconColumnIndex = ref(10)
     const currentPageNumber = ref()
+    const isVisibleConfirmDepositModal = ref(false)
+    const confirmedSelectedDepositRecord = ref()
+    const disabledCheckAllRowTable = ref()
+    const tableKey = ref(0)
+
+    // data for request deposit
+    const paramRequestDataDeposit = ref({ data: {}, params: {} })
+
+    const updateParamRequestDeposit = (data = {}, params = {}) => {
+      paramRequestDataDeposit.value = {
+        data: { ...paramRequestDataDeposit.value.data, ...data },
+        params: { ...paramRequestDataDeposit.value.params, ...params }
+      }
+    }
 
     const onSelectAllRowsByCustomCheckbox = (e) => {
       indeterminateCheckAllRows.value = false
       const keyRowList = dataDeposit.value.filter((item) => !item.confirmed)
+
       e.target.checked
         ? (currentSelectedRowKeys.value = keyRowList.map((item) => item.key))
         : (currentSelectedRowKeys.value = [])
     }
 
-    const getDataDeposit = async (data, params) => {
+    const resetConfirmAllRecordButton = () => {
+      checkAllRowTable.value = false
+      indeterminateCheckAllRows.value = false
+      currentSelectedRowKeys.value = []
+    }
+
+    const getDataDeposit = async (dataRequest, paramsRequest) => {
+      isLoadingDataTable.value = true
+
       try {
-        isLoadingDataTable.value = true
-        const res = await getDeposit(data, params)
-        dataDeposit.value = createDataTableFormat(res.data.result?.data || [])
-        totalRecords.value = res.data.result?.meta.totalRecords || 0
+        const { data = {} } = await getDeposit(dataRequest, paramsRequest)
+
+        dataDeposit.value = createDataTableFormat(data.result?.data || [])
+        disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
+        totalRecords.value = data.result?.meta.totalRecords || 0
+
+        // select bank
+        const COLLUMNS_COUNT = 9
+        dataDeposit.value[0]?.bankAccounts?.length
+          ? (expandIconColumnIndex.value = COLLUMNS_COUNT)
+          : (expandIconColumnIndex.value = 10)
+
+        currentBankAccountList.value.length
+          ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
+          : (expandedRowKeys.value = [])
       } finally {
         isLoadingDataTable.value = false
       }
     }
 
-    onBeforeMount(async () => {
-      const groupList = await getGroups()
-      tabListGroup.value = groupList.result?.data || []
-      currentActiveIdGroup.value = (groupList.result?.data || [])[0]?.id || 1
-
-      const bankAccounts = await getBankAccounts({ group_id: currentActiveIdGroup.value })
+    const fetchBankAccounts = async () => {
+      bankAccountList.value = []
+      const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
       bankAccountList.value = bankAccounts.result?.data || []
+    }
 
+    const getTabIndex = (tabList) => {
       const { tab } = route.query || 1
-      const idGroupList = tabListGroup.value.map(item => item.id)
+      const indexTab = tabList.findIndex((item) => item.id === parseInt(tab))
+      const groupId = indexTab < 0 ? tabList[0].id : parseInt(tab)
 
-      const indexTab = idGroupList.findIndex(item => item.toString() === tab)
+      return groupId
+    }
 
-      if (indexTab < 0) {
-        await getDataDeposit({ groupId: tabListGroup.value[0].id })
-      } else {
-        activeKeyGroupTab.value = parseInt(tab)
-        await getDataDeposit({ groupId: parseInt(tab) })
-      }
-    })
+    const onHandleChangeBankAcountSelect = debounce(async (_, options) => {
+      const bankAccountId = options.map((option) => option.id)
 
-    const onHandleChangeBankAcountSelect = debounce(async (bankAccountId) => {
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
-      await getDataDeposit(
+
+      updateParamRequestDeposit(
         { groupId: currentActiveIdGroup.value, bankAccountId },
         { pageNumber: currentPageNumber.value }
       )
-
-      const COLLUMNS_COUNT = 9
-      dataDeposit.value[0].bankAccounts?.length ? expandIconColumnIndex.value = COLLUMNS_COUNT : expandIconColumnIndex.value = 10
-
-      bankAccountId.length
-        ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
-        : (expandedRowKeys.value = [])
     }, 1000)
 
     const onHandleChangeTabGroup = async (groupId) => {
+      dataDeposit.value = []
       currentActiveIdGroup.value = groupId
       router.push({ query: { ...route.query, tab: groupId } })
 
-      await getDataDeposit({ groupId, bankAccountId: currentBankAccountList.value })
+      searchKeyMultipleSelect.value = []
+      currentBankAccountList.value = []
+      currentPage.value = 1
+      expandedRowKeys.value = []
+
+      await fetchBankAccounts()
+
+      expandIconColumnIndex.value = 10
+
+      updateParamRequestDeposit({ groupId }, { pageNumber: currentPage.value })
+      resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
-      const res = await getDataDeposit(
-        { groupId: currentActiveIdGroup.value, bankAccountId: currentBankAccountList.value },
+      updateParamRequestDeposit(
+        {
+          groupId: currentActiveIdGroup.value,
+          bankAccountId: currentBankAccountList.value
+        },
         { pageNumber }
       )
+
+      currentBankAccountList.value.length
+        ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
+        : (expandedRowKeys.value = [])
       currentPageNumber.value = pageNumber
+      resetConfirmAllRecordButton()
     }
 
+    onBeforeMount(async () => {
+      const groupList = await getGroups()
+      tabListGroup.value = groupList.result?.data || []
+
+      const groupId = getTabIndex(tabListGroup.value)
+      activeKeyGroupTab.value = parseInt(groupId)
+      currentActiveIdGroup.value = parseInt(groupId)
+
+      await fetchBankAccounts()
+
+      const { purpose } = route.query || null
+      updateParamRequestDeposit({ groupId }, { purpose })
+
+      router.replace({ query: { tab: groupId, purpose: null } })
+    })
+
+    // watch to fetch data deposit
+    watch(
+      () => paramRequestDataDeposit.value,
+      () => {
+        getDataDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+      }
+    )
+
+    /* --------------------- handle export CSV ------------------- */
     const exportObj = reactive({
-      header: [
-        t('deposit.csv.header.confirmed'),
-        t('deposit.csv.header.date'),
-        t('deposit.csv.header.statictis_month'),
-        t('deposit.csv.header.deposit_money'),
-        t('deposit.csv.header.withdraw_money'),
-        t('deposit.csv.header.balance'),
-        t('deposit.csv.header.type_name'),
-        t('deposit.csv.header.category'),
-        t('deposit.csv.header.sub_category'),
-        t('deposit.csv.header.purpose')
-      ],
       fileTitle: 'Deposit',
       labels: [
-        { field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
-        { field: 'date', formatBy: 'moment_l' },
-        { field: 'statisticsMonth', formatBy: 'moment_mm_dd' },
-        'depositMoney',
-        'withdrawalMoney',
-        'balance',
-        { field: 'type', formatBy: 'format_deposit_type_name_text' },
-        'categoryName',
-        'subcategoryName',
-        'purpose'
+        { header: t('deposit.csv.header.confirmed'), field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
+        { header: t('deposit.csv.header.date'), field: 'date', formatBy: 'moment_l' },
+        { header: t('deposit.csv.header.statictis_month'), field: 'statisticsMonth', formatBy: 'moment_yyyy_mm' },
+        { header: t('deposit.csv.header.deposit_money'), field: 'depositMoney' },
+        { header: t('deposit.csv.header.withdraw_money'), field: 'withdrawalMoney' },
+        { header: t('deposit.csv.header.balance'), field: 'balance' },
+        { header: t('deposit.csv.header.type_name'), field: 'type', formatBy: 'format_deposit_type_name_text' },
+        { header: t('deposit.csv.header.category'), field: 'categoryName' },
+        { header: t('deposit.csv.header.sub_category'), field: 'subcategoryName' },
+        { header: t('deposit.csv.header.purpose'), field: 'purpose' }
       ],
       items: []
     })
 
     const generateKeyCsv = (data) => {
-      const SPACE_REGREX = /\s/g
       let objectData = {}
 
       data.forEach((item) => {
-        ;(objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_deposit`] = item.deposit),
-        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_withdrawal`] = item.withdrawal),
-        (objectData[`${item.name.replace(SPACE_REGREX, '').toLowerCase()}_balance`] = item.balance)
+        ;(objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit),
+        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_withdrawal`] = item.withdrawal),
+        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_balance`] = item.balance)
       })
 
       return objectData
@@ -263,37 +345,41 @@ export default defineComponent({
 
     const exportDepositAsCsvFile = async () => {
       loadingExportCsvButton.value = true
+      const params = {
+        pageNumber: 1,
+        pageSize: totalRecords.value + 100
+      }
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
         bankAccountId: currentBankAccountList.value
       }
 
-      const params = {
-        pageNumber: currentPageNumber.value
-      }
       const { data } = await getDeposit(dataRequest, params)
       loadingExportCsvButton.value = false
+      const depositItems = data.result.data
 
-      if (data.result.data[0].bankAccounts) {
-        exportObj.items = data.result.data.map((record) => {
+      if (depositItems[0].bankAccounts) {
+        exportObj.items = depositItems.map((record) => {
           const bankObj = generateKeyCsv(record.bankAccounts)
-
-          return Object.assign(record, bankObj)
+          return { ...record, ...bankObj }
         })
 
         // TODO: LOCALE header csv
-        const headerList = Object.keys(generateKeyCsv(data.result.data[0].bankAccounts))
-
-        headerList.forEach((item) => {
-          exportObj.header.push(item)
-          exportObj.labels.push(item)
+        Object.keys(generateKeyCsv(depositItems[0].bankAccounts)).forEach((key) => {
+          const headerSplit = key.split('_')
+          exportObj.labels.push({
+            header: `${headerSplit[0]}_${t(`deposit.csv.header.${headerSplit[1]}`)}`,
+            field: key
+          })
         })
       } else {
-        exportObj.items = data.result.data
+        exportObj.items = depositItems
       }
       exportCSVFile(exportObj)
     }
+    /* --------------------- handle export CSV ------------------- */
 
+    /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
       currentSelectedRecord.value = record
       disableButton.value = record.confirmed
@@ -307,9 +393,12 @@ export default defineComponent({
     }
 
     const onDeleteDepositRecord = async () => {
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      if (!depositId) return
+
       isLoadingDataTable.value = true
-      await deleteDeposit(currentSelectedRecord.value.id)
-      dataDeposit.value = dataDeposit.value.filter((item) => item.id !== currentSelectedRecord.value.id)
+      await deleteDeposit(depositId)
+      dataDeposit.value = dataDeposit.value.filter((item) => item.id !== depositId)
       isVisibleDepositModal.value = false
       isLoadingDataTable.value = false
       isVisibleDepositButtonsFloat.value = false
@@ -318,20 +407,66 @@ export default defineComponent({
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: 'プロジェクト名 を削除しました'
+        message: t('deposit.deposit_list.delete_success', { purpose: currentSelectedRecord.value?.purpose || '' })
       })
     }
 
     const onCopyRecordDeposit = () => {
-      router.push({ name: 'deposit-new', query: { selectedId: currentSelectedRecord.value.id } })
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      if (!depositId) return
+
+      router.push({
+        name: 'deposit-new',
+        query: { selectedId: depositId }
+      })
     }
 
     const onEditRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
       if (!depositId) return
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
+    /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
+
+    /* --------------------- handle confirm deposit ------------------- */
+    const onOpenConfirmDepositRecordModal = (depositIdList) => {
+      isVisibleConfirmDepositModal.value = true
+      confirmedSelectedDepositRecord.value = depositIdList
+    }
+
+    const onConfirmDepositRecord = async () => {
+      await confirmDeposit({ id: confirmedSelectedDepositRecord.value })
+
+      confirmedSelectedDepositRecord.value.forEach((confirmedId) => {
+        const indexConfirmedRecord = dataDeposit.value.findIndex((record) => record.id === confirmedId)
+        if (indexConfirmedRecord < 0) return
+
+        dataDeposit.value[indexConfirmedRecord].confirmed = true
+        currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
+      })
+
+      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0
+
+      checkAllRowTable.value =
+        currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
+        currentSelectedRowKeys.value.length > 2
+
+      disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
+
+      // Force rerender table
+      tableKey.value++
+
+      // show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: t('deposit.confirm_modal.confirm_success', { purpose: currentSelectedRecord.value?.purpose })
+      })
+
+      isVisibleConfirmDepositModal.value = false
+    }
+    /* --------------------- ./handle confirm deposit ------------------- */
 
     return {
       checkAllRowTable,
@@ -353,7 +488,12 @@ export default defineComponent({
       disableButton,
       loadingExportCsvButton,
       activeKeyGroupTab,
+      isVisibleConfirmDepositModal,
+      tableKey,
+      disabledCheckAllRowTable,
+      currentSelectedRecord,
 
+      updateParamRequestDeposit,
       onSelectAllRowsByCustomCheckbox,
       onHandleChangeBankAcountSelect,
       onHandleChangeTabGroup,
@@ -364,7 +504,10 @@ export default defineComponent({
       onEditRecordDeposit,
       onDeleteDepositRecord,
       onCopyRecordDeposit,
-      exportDepositAsCsvFile
+      exportDepositAsCsvFile,
+      onOpenConfirmDepositRecordModal,
+      onConfirmDepositRecord,
+      resetConfirmAllRecordButton
     }
   }
 })

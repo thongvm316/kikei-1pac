@@ -5,14 +5,14 @@
         <template #icon>
           <span class="btn-icon"><line-down-icon /></span>
         </template>
-        CSVファイルダウンロード
+        {{ $t('project.export_csv') }}
       </a-button>
 
       <a-button type="primary" @click="$router.push({ name: 'project-new' })">
         <template #icon>
           <span class="btn-icon"><line-add-icon /></span>
         </template>
-        新規プロジェクト追加
+        {{ $t('project.add_project_link') }}
       </a-button>
     </div>
 
@@ -32,37 +32,100 @@
       :columns="columns"
       :data-source="projectDatas"
       :loading="loading"
-      :locale="{ emptyText: '該当するプロジェクトが見つかりませんでした。' }"
       :pagination="false"
       :scroll="{ x: true }"
+      :row-class-name="
+        (record, index) => {
+          return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
+        }
+      "
       :custom-row="onCustomRow"
     >
-      <template #projectNameTitle>{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</template>
+      <template #updatedDateTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.updated_date') }}</span>
+          <k-sort-caret @sort="sort($event, 'updated_at')" />
+        </div>
+      </template>
+
+      <template #projectNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'name')" />
+        </div>
+      </template>
+
+      <template #accuracyCodeTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.code')" />
+        </div>
+      </template>
+
+      <template #releaseDateTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.release_date') }}</span>
+          <k-sort-caret @sort="sort($event, 'release_date')" />
+        </div>
+      </template>
+
+      <template #statisticsFromMonthTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.statistics_from_month') }}</span>
+          <k-sort-caret @sort="sort($event, 'statistics_from_month')" />
+        </div>
+      </template>
+
+      <template #groupNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.group_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'ADGroup.name')" />
+        </div>
+      </template>
+
+      <template #accountNameTitle>
+        <div class="u-flex u-items-center">
+          <span class="u-mr-8">{{ $t('project.account_name') }}</span>
+          <k-sort-caret @sort="sort($event, 'SEAccount.fullname')" />
+        </div>
+      </template>
+
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
-        <p class="mb-0 text-grey-55">{{ record.name }}</p>
-        <p class="mb-0 font-bold">{{ record.companyName }}</p>
+        <p class="mb-0 text-grey-55">{{ record.companyName }}</p>
+        <p class="mb-0 font-bold">{{ record.name }}</p>
+      </template>
+
+      <template #renderProjectCombineTypeAStatus="{ record }">
+        <div class="d-flex">
+          <p class="mb-0 text-grey-55">{{ $t(`project.type_${record.type}`) }}</p>
+          <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
+        </div>
       </template>
 
       <template #projectMoneyTitle>
-        <span class="d-inline-block text-right"
-          >{{ $t('project.money') }} <br />
-          (JPY)
-        </span>
+        <div class="d-flex u-items-center">
+          <span class="d-inline-block text-right u-mr-8">
+            {{ $t('project.money') }} <br />
+            (JPY)
+          </span>
+          <k-sort-caret @sort="sort($event, 'money')" />
+        </div>
       </template>
+
       <template #renderProjectMoney="{ record }">
-        {{ $filters.number_with_commas(record.money) }}
+        {{ $filters.number_with_commas(record.money, 2) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">
-        <p v-if="record.accuracyName.toUpperCase() === 'S'" class="mb-0 text-center font-bold text-additional-blue-6">
-          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
-            {{ record.accuracyName }}
+        <p v-if="record.accuracyCode.toUpperCase() === 'S'" class="mb-0 text-center font-bold text-additional-blue-6">
+          <a-tooltip color="#fff" :title="record.accuracyName">
+            {{ record.accuracyCode }}
           </a-tooltip>
         </p>
         <p v-else class="mb-0 text-center font-bold text-grey-55">
-          <a-tooltip color="#FFFFFF" :title="record.accuracyName">
-            {{ record.accuracyName }}
+          <a-tooltip color="#fff" :title="record.accuracyName">
+            {{ record.accuracyCode }}
           </a-tooltip>
         </p>
       </template>
@@ -71,7 +134,9 @@
 
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
 
-      <template #renderProjectStatisticsDate="{ record }">{{ $filters.moment_l(record.statisticsFromMonth) }}</template>
+      <template #renderProjectStatisticsDate="{ record }">{{
+        $filters.moment_yyyy_mm(record.statisticsFromMonth)
+      }}</template>
     </a-table>
   </div>
 
@@ -79,22 +144,26 @@
 
   <project-float-buttons
     v-model:visible="isOpenFloatButtons"
+    :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
     @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
     @on-copy-project="cloneProject"
+    @on-go-to-deposit="goToDeposit"
   />
 
-  <a-modal v-model:visible="isDeleteConfirmModalOpen" centered title="削除" width="380px">
+  <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
     <template #footer>
-      <p>プロジェクト名 を削除してもよろしですか？</p>
-      <a-button @click="isDeleteConfirmModalOpen = false">キャンセル</a-button>
-      <a-button type="danger" @click="deleteProjectCaller">削除</a-button>
+      <p>
+        {{ t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
+      </p>
+      <a-button @click="isDeleteConfirmModalOpen = false">{{ $t('project.delete_modal.cancel_btn') }}</a-button>
+      <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
     </template>
   </a-modal>
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, ref, watch } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
@@ -103,6 +172,8 @@ import ProjectSearchForm from './-components/ProjectSearchForm'
 import ProjectFloatButtons from './-components/ProjectFloatButtons'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import KSortCaret from '@/components/KSortCaret'
+import { SORT_BY } from '@/components/KSortCaret/constants'
 
 export default defineComponent({
   name: 'ProjectPage',
@@ -111,7 +182,8 @@ export default defineComponent({
     ProjectSearchForm,
     ProjectFloatButtons,
     LineDownIcon,
-    LineAddIcon
+    LineAddIcon,
+    KSortCaret
   },
 
   setup() {
@@ -129,86 +201,93 @@ export default defineComponent({
       {
         dataIndex: 'updatedAt',
         key: 'updatedAt',
-        title: t('project.updated_date'),
         slots: {
-          customRender: 'renderProjectUpdatedAt'
+          customRender: 'renderProjectUpdatedAt',
+          title: 'updatedDateTitle'
         },
-        sorter: (a, b) => (new Date(a.updated_at)).getTime() - (new Date(b.updated_at)).getTime()
+        ellipsis: true
       },
       {
         dataIndex: 'projectCombineName',
         key: 'projectCombineName',
-        colSpan: 3,
+        align: 'left',
+        colSpan: 2,
         slots: {
           title: 'projectNameTitle',
           customRender: 'renderProjectName'
         },
-        sorter: (a, b) => a.name.length - b.name.length
+        ellipsis: true
       },
       {
-        dataIndex: 'typeName',
-        key: 'typeName',
+        dataIndex: 'projectCombineTypeAStatus',
+        key: 'projectCombineTypeAStatus',
         title: '',
-        colSpan: 0
-      },
-      {
-        dataIndex: 'statusName',
-        key: 'statusName',
-        title: '',
-        colSpan: 0
-      },
-      {
-        dataIndex: 'accuracyName',
-        key: 'accuracyName',
-        title: t('project.accuracy_name'),
+        colSpan: 0,
         slots: {
+          customRender: 'renderProjectCombineTypeAStatus'
+        },
+        ellipsis: true
+      },
+      {
+        dataIndex: 'accuracyCode',
+        key: 'accuracyCode',
+        align: 'center',
+        slots: {
+          title: 'accuracyCodeTitle',
           customRender: 'renderProjectAccuracy'
         },
-        sorter: (a, b) => a.accuracyName - b.accuracyName
+        ellipsis: true
       },
       {
         dataIndex: 'releaseDate',
         key: 'releaseDate',
-        title: t('project.release_date'),
         slots: {
+          title: 'releaseDateTitle',
           customRender: 'renderProjectReleaseDate'
         },
-        sorter: (a, b) => a.name.length - b.name.length
+        ellipsis: true
       },
       {
         dataIndex: 'money',
         key: 'money',
+        align: 'right',
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
         },
-        sorter: (a, b) => a.name.length - b.name.length
+        ellipsis: true
       },
       {
         dataIndex: 'statisticsFromMonth',
         key: 'statisticsFromMonth',
-        title: t('project.statistics_from_month'),
+        align: 'center',
         slots: {
+          title: 'statisticsFromMonthTitle',
           customRender: 'renderProjectStatisticsDate'
         },
-        sorter: (a, b) => a.name.length - b.name.length
+        ellipsis: true
       },
       {
         dataIndex: 'groupName',
         key: 'groupName',
-        title: t('project.group_name'),
-        sorter: (a, b) => a.name.length - b.name.length
+        slots: {
+          title: 'groupNameTitle'
+        },
+        ellipsis: true
       },
       {
         dataIndex: 'accountName',
         key: 'accountName',
-        title: t('project.account_name'),
-        sorter: (a, b) => a.name.length - b.name.length
+        slots: {
+          title: 'accountNameTitle'
+        },
+        ellipsis: true
       }
     ]
     const isOpenFloatButtons = ref(false)
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
+    const currentSort = ref({})
 
     const onCustomRow = (record) => {
       return {
@@ -223,11 +302,38 @@ export default defineComponent({
       router.push({ name: 'project-new', query: { selectedId: targetProjectSelected.value.id } })
     }
 
+    const goToDeposit = () => {
+      const { name, code, groupId } = targetProjectSelected.value
+      if (!name || !code || !groupId) return
+
+      router.push({ name: 'deposit', query: { purpose: `${name} ${code}`, tab: groupId } })
+    }
+
+    const currentSortStr = computed(() => {
+      if (!currentSort.value) return null
+
+      let currentSortStr = ''
+      Object.keys(currentSort.value).forEach((key) => {
+        currentSortStr += `,${key} ${currentSort.value[key]}`
+      })
+
+      return currentSortStr.replace(',', '')
+    })
+
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
-      const { projectList, pageData } = await getProjectList(pagination.value, loading, data)
+      const { projectList, pageData } = await getProjectList(pagination.value, currentSortStr.value, loading, data)
       projectDatas.value = projectList
       pagination.value = pageData
+    }
+
+    const sort = (sortBy, field) => {
+      currentSort.value = {
+        ...currentSort.value,
+        [field]: sortBy
+      }
+
+      if (sortBy === SORT_BY.none) delete currentSort.value[field]
     }
 
     const exportProjectAsCsvFile = async () => {
@@ -243,6 +349,11 @@ export default defineComponent({
       const index = projectDatas.value.findIndex((project) => project.id === targetProjectSelected.value.id)
       projectDatas.value.splice(index, 1)
 
+      // deduct total records
+      if (pagination.value.totalRecords && pagination.value.totalRecords > 0) {
+        pagination.value.totalRecords -= 1
+      }
+
       // close all modal
       isDeleteConfirmModalOpen.value = false
       isOpenFloatButtons.value = false
@@ -253,7 +364,7 @@ export default defineComponent({
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: 'プロジェクト名 を削除しました'
+        message: 'project.flash_message.delete_success'
       })
     }
 
@@ -261,6 +372,12 @@ export default defineComponent({
       fetchProjectDatas()
     })
     watch(currentPage, fetchProjectDatas)
+
+    watch(currentSortStr, fetchProjectDatas)
+
+    watch(isOpenFloatButtons, (val, oldVal) => {
+      if (!val && oldVal) targetProjectSelected.value = {}
+    })
 
     return {
       t,
@@ -273,17 +390,20 @@ export default defineComponent({
       targetProjectSelected,
       onCustomRow,
       cloneProject,
+      goToDeposit,
       projectDatas,
       fetchProjectDatas,
       exportProjectAsCsvFile,
-      deleteProjectCaller
+      deleteProjectCaller,
+      sort
     }
   }
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/styles/shared/mixins';
+@import '@/styles/shared/variables';
 
 .project {
   &__filters {
@@ -305,18 +425,15 @@ export default defineComponent({
   &__list {
     white-space: nowrap;
   }
-}
 
-:deep(.ant-table-tbody > tr > td) {
-  cursor: pointer;
-}
+  table tbody > tr {
+    &.is-clicked-row > td {
+      background-color: $color-primary-1 !important;
+    }
 
-:deep(.ant-table-tbody > tr > td:nth-child(3)),
-:deep(.ant-table-tbody > tr > td:nth-child(4)) {
-  padding: 0;
-}
-
-:deep(.ant-table-tbody > tr > td:nth-child(3)) {
-  padding-right: 8px;
+    td {
+      cursor: pointer;
+    }
+  }
 }
 </style>

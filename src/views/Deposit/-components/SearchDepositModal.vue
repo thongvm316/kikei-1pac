@@ -9,8 +9,8 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="dateDepositValue"
-                  style="width: 256px"
+                  v-model:value="state.dateDepositValue"
+                  :style="{ width: '256px' }"
                   format="YYYY-MM-DD"
                   :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
                 >
@@ -28,8 +28,8 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="statisticsDateDepositValue"
-                  style="width: 256px"
+                  v-model:value="state.statisticsDateDepositValue"
+                  :style="{ width: '256px' }"
                   format="YYYY-MM"
                   :placeholder="['YYYY/MM', 'YYYY/MM']"
                 >
@@ -46,7 +46,7 @@
               <label class="form-label">区分</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedTypeDepositList" :options="typeDepositList" />
+                <a-checkbox-group v-model:value="state.checkedTypeDepositList" :options="typeDepositList" />
               </div>
             </div>
           </div>
@@ -56,7 +56,7 @@
               <label class="form-label">大分類</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedCategotyList" :options="categoryList" />
+                <a-checkbox-group v-model:value="state.checkedCategotyList" :options="categoryList" />
               </div>
             </div>
           </div>
@@ -66,7 +66,7 @@
               <label class="form-label">中分類</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedSubCategotyList" :options="subCategoryList" />
+                <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
               </div>
             </div>
           </div>
@@ -76,19 +76,29 @@
               <label class="form-label">確定</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="checkedSubConfirmedList" :options="confirmedList" />
+                <a-checkbox-group v-model:value="state.checkedSubConfirmedList" :options="confirmedList" />
               </div>
             </div>
           </div>
 
-          <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
+          <div class="form-group">
+            <div class="form-content">
+              <label class="form-label">項目名</label>
+
+              <div class="form-checkbox">
+                <a-input v-model:value="state.valuePurpose" placeholder="入力してください" />
+              </div>
+            </div>
+          </div>
+
+          <a-button key="back" @click="handleClearDepositFormSearch">クリア</a-button>
           <a-button key="submit" type="primary" html-type="submit">
             <template #icon>
               <span class="btn-icon">
                 <search-icon />
               </span>
             </template>
-            Ok
+            検索
           </a-button>
         </form>
       </a-config-provider>
@@ -97,7 +107,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, reactive, toRefs, onBeforeMount } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -112,22 +122,24 @@ import { CalendarOutlined } from '@ant-design/icons-vue'
 import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDeposit'
+import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'SearchDepositModal',
 
   components: { SearchIcon, CalendarOutlined },
 
-  props: {
-    currentActiveIdGroup: Number
-  },
+  emits: ['updateParamRequestDeposit'],
 
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const store = useStore()
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map(item => ({ value: item, label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`) }))
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
+      value: parseInt(item),
+      label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
+    }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
     const categoryList = ref([])
@@ -137,14 +149,17 @@ export default defineComponent({
       { value: false, label: 'No' }
     ])
 
-    const state = reactive({
+    const initState = {
       dateDepositValue: [],
       statisticsDateDepositValue: [],
-      checkedTypeDepositList: [typeDepositList[0].value],
+      checkedTypeDepositList: [],
       checkedCategotyList: [],
       checkedSubCategotyList: [],
-      checkedSubConfirmedList: [confirmedList.value[0].value]
-    })
+      checkedSubConfirmedList: [],
+      valuePurpose: ''
+    }
+
+    const state = ref(deepCopy(initState))
 
     const visible = computed({
       get: () => store.getters.currentRoute === route.name,
@@ -153,28 +168,28 @@ export default defineComponent({
       }
     })
 
-    const handleCancel = () => {
-      visible.value = false
+    const handleClearDepositFormSearch = () => {
+      state.value = initState
     }
 
     const onSubmit = () => {
       const searchDataDeposit = {
-        group_id: props.currentActiveIdGroup,
-        fromDate: state.dateDepositValue[0] ? moment(state.dateDepositValue[0]).format('YYYY-MM-DD') : null,
-        toDate: state.dateDepositValue[1] ? moment(state.dateDepositValue[1]).format('YYYY-MM-DD') : null,
-        statisticsFrom: state.statisticsDateDepositValue[0]
-          ? moment(state.statisticsDateDepositValue[0]).format('YYYY-MM')
+        fromDate: state.value.dateDepositValue[0] ? moment(state.value.dateDepositValue[0]).format('YYYY-MM-DD') : null,
+        toDate: state.value.dateDepositValue[1] ? moment(state.value.dateDepositValue[1]).format('YYYY-MM-DD') : null,
+        statisticsFrom: state.value.statisticsDateDepositValue[0]
+          ? moment(state.value.statisticsDateDepositValue[0]).format('YYYY-MM')
           : null,
-        statisticsTo: state.statisticsDateDepositValue[1]
-          ? moment(state.statisticsDateDepositValue[1]).format('YYYY-MM')
+        statisticsTo: state.value.statisticsDateDepositValue[1]
+          ? moment(state.value.statisticsDateDepositValue[1]).format('YYYY-MM')
           : null,
-        type: state.checkedTypeDepositList,
-        confirmed: state.checkedSubConfirmedList,
-        categoryId: state.checkedCategotyList,
-        subcategoryId: state.checkedSubCategotyList
+        type: state.value.checkedTypeDepositList,
+        confirmed: state.value.checkedSubConfirmedList,
+        categoryId: state.value.checkedCategotyList,
+        subcategoryId: state.value.checkedSubCategotyList,
+        purpose: state.value.valuePurpose
       }
 
-      emit('on-search', searchDataDeposit)
+      emit('updateParamRequestDeposit', searchDataDeposit)
       visible.value = false
     }
 
@@ -197,11 +212,9 @@ export default defineComponent({
     onBeforeMount(async () => {
       const dataCategory = await getCategory()
       categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
-      state.checkedCategotyList = [categoryList.value[0].value]
 
       const dataSubCategory = await getSubCategory()
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
-      state.checkedSubCategotyList = [subCategoryList.value[0].value]
     })
 
     return {
@@ -212,14 +225,15 @@ export default defineComponent({
       categoryList,
       subCategoryList,
       confirmedList,
-      ...toRefs(state),
+      state,
 
-      handleCancel,
+      handleClearDepositFormSearch,
       onSubmit
     }
   }
 })
 </script>
+
 <style lang="scss">
 .search-deposit {
   .ant-modal-footer {

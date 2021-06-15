@@ -10,7 +10,7 @@
     <template #footer>
       <div class="form-deposit">
         <a-form ref="searchCompanyRef" class="form-left" :model="filters" layout="vertical" @submit="handleSearch">
-          <a-form-item name="purpose" :label="$t('deposit.company_name.key_search')">
+          <a-form-item name="keySearch" :label="$t('deposit.company_name.key_search')">
             <a-input v-model:value="filters.keySearch" :placeholder="$t('deposit.company_name.place_input')" />
           </a-form-item>
 
@@ -18,12 +18,12 @@
             <a-checkbox-group v-model:value="filters.division" :options="divisionOptions" />
           </a-form-item>
 
-          <a-form-item name="country" :label="$t('deposit.company_name.country')">
-            <a-checkbox-group v-model:value="filters.country" :options="countryOptions" />
+          <a-form-item name="countryId" :label="$t('deposit.company_name.country')">
+            <a-checkbox-group v-model:value="filters.countryId" :options="countryOptions" />
           </a-form-item>
 
-          <a-form-item name="currency" :label="$t('deposit.company_name.currency')">
-            <a-checkbox-group v-model:value="filters.currency" :options="currencyOptions" />
+          <a-form-item name="currencyId" :label="$t('deposit.company_name.currency')">
+            <a-checkbox-group v-model:value="filters.currencyId" :options="currencyOptions" />
           </a-form-item>
 
           <a-button type="default" html-type="reset" @click="handleClearFilter">
@@ -105,7 +105,12 @@ export default defineComponent({
     subcategoryId: Number
   },
 
-  emits: { 'update:subcategoryId': null, 'update:companyName': null, 'update:visible': null },
+  emits: {
+    'update:subcategoryId': null,
+    'update:companyName': null,
+    'update:visible': null,
+    handleValidateSubCategory: null
+  },
 
   setup(_, context) {
     const { t } = useI18n()
@@ -127,7 +132,7 @@ export default defineComponent({
         dataIndex: 'select',
         key: 'select',
         slots: { customRender: 'action' },
-        width: 86
+        ellipsis: true
       },
       { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name', ellipsis: true },
       { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code', ellipsis: true },
@@ -135,22 +140,19 @@ export default defineComponent({
         title: t('deposit.company_name.table_header_country'),
         dataIndex: 'countryName',
         key: 'countryName',
-        ellipsis: true,
-        width: 100
+        ellipsis: true
       },
       {
         title: t('deposit.company_name.table_header_currency'),
         dataIndex: 'currencyCode',
         key: 'currencyCode',
-        ellipsis: true,
-        width: 60
+        ellipsis: true
       },
       {
         title: t('deposit.company_name.table_header_division'),
         dataIndex: 'divisionName',
         key: 'divisionName',
-        ellipsis: true,
-        width: 200
+        ellipsis: true
       }
     ]
 
@@ -179,6 +181,7 @@ export default defineComponent({
     const handleSelectCompany = (record) => {
       context.emit('update:companyName', record.name)
       context.emit('update:subcategoryId', record.id)
+      context.emit('handleValidateSubCategory')
       handleModalCancel()
     }
 
@@ -193,6 +196,7 @@ export default defineComponent({
 
     const handleClearFilter = () => {
       searchCompanyRef.value.resetFields()
+      fetchCompanyList()
     }
 
     // fetch table list

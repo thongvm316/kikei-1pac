@@ -19,6 +19,14 @@ export const getDeposit = async (data, params) => {
   }
 }
 
+export const confirmDeposit = async (data) => {
+  try {
+    await DepositService.confirmDeposit(data)
+  } catch (e) {
+    throw e
+  }
+}
+
 export const getGroups = async () => {
   try {
     const { data } = await GroupService.getGroups()
@@ -100,7 +108,7 @@ const depositBank = (depositMoney, withdrawMoney) => {
   if (depositMoney > withdrawMoney) {
     return depositMoney
   } else if (depositMoney < withdrawMoney) {
-    return withdrawMoney
+    return `-${withdrawMoney}`
   } else {
     return '-'
   }
@@ -110,7 +118,7 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
   if (type === 10) {
     return depositMoney
   } else if (type === 20) {
-    return withdrawMoney
+    return `-${withdrawMoney}`
   } else if (type === 30) {
     return depositMoney > 0 ? depositMoney : withdrawMoney
   } else {
@@ -118,26 +126,32 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
   }
 }
 
-export const createDataTableFormat = (data) => {
-  if (!data.length) return
+const createExpandDataTable = (data, parentId) => {
+  if (!data || data.length <= 0) return []
 
-  return data.map(item => {
-    return Object.assign(item,
-      {
-        key: item.id,
-        children: item.bankAccounts ? item.bankAccounts.map(
-          bank => Object.assign(bank,
-            { date: null },
-            { statisticsMonth: null },
-            { class: typeNameBank(bank.deposit, bank.withdrawal) },
-            { key: uniqueId('expand-row') },
-            { purpose: `${bank.name} (${bank.currency})` },
-            { typeName: typeNameBank(bank.deposit, bank.withdrawal) },
-            { deposit: depositBank(bank.deposit, bank.withdrawal) }))
-          : [],
-        deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
-        typeName: TYPE_NAME_DEPOSIT[item.type]
-      })
+  return data.map((bank) => ({
+    ...bank,
+    date: null,
+    statisticsMonth: null,
+    class: typeNameBank(bank.deposit, bank.withdrawal),
+    key: uniqueId('expand-row'),
+    purpose: `${bank.name} (${bank.currency})`,
+    typeName: typeNameBank(bank.deposit, bank.withdrawal),
+    deposit: depositBank(bank.deposit, bank.withdrawal),
+    parentId
+  }))
+}
+
+export const createDataTableFormat = (data) => {
+  if (!data.length) return []
+
+  return data.map((item) => {
+    return Object.assign(item, {
+      key: item.id,
+      children: createExpandDataTable(item.bankAccounts, item.id),
+      deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
+      typeName: TYPE_NAME_DEPOSIT[item.type]
+    })
   })
 }
 

@@ -121,10 +121,10 @@
               <a-button :disabled="record.disabled" type="primary">確定</a-button>
             </template>
 
-            <template #expandIcon="{ expanded, onExpand }">
+            <!-- <template #expandIcon="{ expanded, onExpand }">
               <arrow-up-icon v-if="expanded" class="u-cursor-pointer" @click="onExpand" />
               <arrow-down-icon v-else class="u-cursor-pointer" @click="onExpand" />
-            </template>
+            </template> -->
 
             <template #expandedRowRender="{ record }">
               <p>
@@ -149,10 +149,10 @@
           <a-button :disabled="record.disabled" type="primary">確定</a-button>
         </template>
 
-        <template #expandIcon="{ expanded, onExpand }">
+        <!-- <template #expandIcon="{ expanded, onExpand }">
           <arrow-up-icon v-if="expanded" class="u-cursor-pointer" @click="onExpand" />
           <arrow-down-icon v-else class="u-cursor-pointer" @click="onExpand" />
-        </template>
+        </template> -->
 
         <template #expandedRowRender="{ record }">
           <p>

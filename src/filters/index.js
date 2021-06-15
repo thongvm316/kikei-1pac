@@ -7,20 +7,19 @@ export default {
   /* ---------------------- date time format ---------------------------- */
   moment_l(value) {
     if (!value) return ''
-    return `${moment(new Date(value)).format('DD/MM/YYYY')}`
+    return `${moment(new Date(value)).format('YYYY/MM/DD')}`
   },
 
-  moment_mm_dd(value) {
+  moment_yyyy_mm(value) {
     if (!value) return ''
-    return `${moment(new Date(value)).format('MM/YYYY')}`
+    return `${moment(new Date(value)).format('YYYY/MM')}`
   },
 
   /* ---------------------- number & price format ----------------------- */
-  number_with_commas(value) {
+  number_with_commas(value, precision = 0) {
     if (!value) return 0
     const floatNumberFormatted = value
-      ? parseFloat(value)
-          .toFixed(0)
+      ? parseFloat(parseFloat(value).toFixed(precision))
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       : 0

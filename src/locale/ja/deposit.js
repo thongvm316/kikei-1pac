@@ -1,10 +1,13 @@
 export default {
   deposit_list: {
-    type_deposit_sales: 'Sales',
-    type_deposit_payment: 'Payments',
-    type_deposit_cash_transfer: 'Cash Transfer',
-    type_unclear_money: 'Unclear Money',
-    type_none: '-'
+    type_deposit_sales: '入金',
+    type_deposit_payment: '出金',
+    type_deposit_cash_transfer: '移動',
+    type_unclear_money: '不明',
+    type_none: '-',
+    delete_deposit: '{purpose}を削除してもよろしですか？',
+    delete_success: '{purpose}を削除されました',
+    select_bank_placeholder: '口座選択'
   },
   company_name: {
     title_search: '会社一覧',
@@ -52,6 +55,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
+    tag_caption: '※タグを入力して「Enter」を押してください',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -64,7 +68,9 @@ export default {
     repeated_expired_date: '終了日',
     confirmed: '確定',
     cancel: 'キャンセル',
-    registration: '登録'
+    registration: '登録',
+    create_success: '{purpose} が追加されました',
+    update_success: '{purpose} が更新されました'
   },
 
   csv: {
@@ -96,5 +102,26 @@ export default {
   currency: {
     vnd: 'VND',
     jpy: 'JPY'
+  },
+
+  error_message: {
+    date: '日付を選択して下さい',
+    type: 'タイプを選択して下さい',
+    category: '大分類を選択して下さい',
+    sub_category: '中分類を選択して下さい',
+    purpose: '項目名を入力して下さい',
+    statistics_month: '月を選択して下さい',
+    group: 'グループを選択して下さい',
+    bank_account: '銀行口座を選択して下さい',
+    money: '金額を入力して下さい',
+    tags: 'タグを入力して下さい',
+    repeated: 'リピートタイプを選択して下さい'
+  },
+
+  confirm_modal: {
+    message: '{purpose}を確定してもよろしですか？',
+    cancel_btn: 'キャンセル',
+    confirm_btn: '確定',
+    confirm_success: '{purpose}を確定されました'
   }
 }

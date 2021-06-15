@@ -4,7 +4,10 @@ export default {
     type_deposit_payment: 'Payments',
     type_deposit_cash_transfer: 'Cash Transfer',
     type_unclear_money: 'Unclear Money',
-    type_none: '-'
+    type_none: '-',
+    delete_deposit: '{purpose}を削除してもよろしですか？',
+    delete_success: '{purpose}を削除されました',
+    select_bank_placeholder: '口座選択'
   },
   company_name: {
     title_search: '会社一覧',
@@ -52,6 +55,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
+    tag_caption: 'Please input Tag and press Enter',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -64,7 +68,9 @@ export default {
     repeated_expired_date: '終了日',
     confirmed: '確定',
     cancel: 'キャンセル',
-    registration: '登録'
+    registration: '登録',
+    create_success: '{purpose} successfully added',
+    update_success: '{purpose} successfully updated'
   },
 
   csv: {
@@ -96,5 +102,26 @@ export default {
   currency: {
     vnd: 'VND',
     jpy: 'JPY'
+  },
+
+  error_message: {
+    date: 'Please select date',
+    type: 'Please select type',
+    category: 'Please select category',
+    sub_category: 'Please select sub category',
+    purpose: 'Please input item name',
+    statistics_month: 'Please select accounting month',
+    group: 'Please select month',
+    bank_account: 'Please select bank account',
+    money: 'Please input amount',
+    tags: 'Please input tag',
+    repeated: 'Please select repeat type'
+  },
+
+  confirm_modal: {
+    message: '{purpose} を確定してもよろしですか？',
+    cancel_btn: 'Cancel',
+    confirm_btn: 'OK',
+    confirm_success: '{purpose} を確定されました'
   }
 }
