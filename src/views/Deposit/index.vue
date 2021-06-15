@@ -292,30 +292,6 @@ export default defineComponent({
       resetConfirmAllRecordButton()
     }
 
-    onBeforeMount(async () => {
-      const groupList = await getGroups()
-      tabListGroup.value = groupList.result?.data || []
-
-      const groupId = getTabIndex(tabListGroup.value)
-      activeKeyGroupTab.value = parseInt(groupId)
-      currentActiveIdGroup.value = parseInt(groupId)
-
-      await fetchBankAccounts()
-
-      const { purpose } = route.query || null
-      updateParamRequestDeposit({ groupId, purpose }, {})
-
-      router.replace({ query: { tab: groupId, purpose: null } })
-    })
-
-    // watch to fetch data deposit
-    watch(
-      () => paramRequestDataDeposit.value,
-      () => {
-        getDataDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
-      }
-    )
-
     /* --------------------- handle export CSV ------------------- */
     const exportObj = reactive({
       fileTitle: 'Deposit',
@@ -491,6 +467,30 @@ export default defineComponent({
 
       updateParamRequestDeposit({}, { orderBy: currentSortStr.replace(',', '') })
     }
+
+    onBeforeMount(async () => {
+      const groupList = await getGroups()
+      tabListGroup.value = groupList.result?.data || []
+
+      const groupId = getTabIndex(tabListGroup.value)
+      activeKeyGroupTab.value = parseInt(groupId)
+      currentActiveIdGroup.value = parseInt(groupId)
+
+      await fetchBankAccounts()
+
+      const { purpose } = route.query || null
+      updateParamRequestDeposit({ groupId, purpose }, {})
+
+      router.replace({ query: { tab: groupId, purpose: null } })
+    })
+
+    // watch to fetch data deposit
+    watch(
+      () => paramRequestDataDeposit.value,
+      () => {
+        getDataDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+      }
+    )
 
     return {
       checkAllRowTable,

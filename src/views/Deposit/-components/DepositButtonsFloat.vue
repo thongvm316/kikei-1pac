@@ -4,7 +4,7 @@
     :closable="false"
     width="350px"
     class="deposit-buttons-float"
-    :maskStyle="{ backgroundColor: 'rgba(0, 0, 0, 0)'}">
+    :maskStyle="{ backgroundColor: 'rgba(0, 0, 0, 0)' }">
     <template #footer>
       <a-button @click="$emit('on-edit-record-deposit')">
         <template #icon>

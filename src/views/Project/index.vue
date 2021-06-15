@@ -58,7 +58,7 @@
       <template #accuracyCodeTitle>
         <div class="u-flex u-items-center">
           <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.code')" />
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.id')" />
         </div>
       </template>
 
@@ -322,7 +322,11 @@ export default defineComponent({
 
     const fetchProjectDatas = async (data = null) => {
       pagination.value.pageNumber = currentPage
-      const { projectList, pageData } = await getProjectList(pagination.value, currentSortStr.value, loading, data)
+      const params = {
+        ...pagination.value,
+        orderBy: currentSortStr.value
+      }
+      const { projectList, pageData } = await getProjectList(params, loading, data)
       projectDatas.value = projectList
       pagination.value = pageData
     }
@@ -368,9 +372,6 @@ export default defineComponent({
       })
     }
 
-    onBeforeMount(() => {
-      fetchProjectDatas()
-    })
     watch(currentPage, fetchProjectDatas)
 
     watch(currentSortStr, fetchProjectDatas)

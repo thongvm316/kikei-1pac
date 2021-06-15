@@ -5,7 +5,7 @@ export default {
     type_deposit_cash_transfer: '移動',
     type_unclear_money: '不明',
     type_none: '-',
-    delete_deposit: '{purpose}を削除してもよろしですか？',
+    delete_deposit: '{purpose}項目名を削除してもよろしいですか？',
     delete_success: '{purpose}を削除されました',
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',

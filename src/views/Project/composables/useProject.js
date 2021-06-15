@@ -6,14 +6,10 @@ import { exportCSVFile } from '@/helpers/export-csv-file'
 const ProjectService = service.get('ProjectService')
 const { t } = i18n.global
 
-export const getProjectList = async (pagination, orderBy, loading, data) => {
+export const getProjectList = async (params, loading, data) => {
   loading.value = true
   try {
-    const paramsRequest = {
-      ...pagination,
-      orderBy
-    }
-    const { data: response } = await ProjectService.getProjectList(paramsRequest, data)
+    const { data: response } = await ProjectService.getProjectList(params, data)
     let projectList = []
     let pageData = {}
     if (response.result) {

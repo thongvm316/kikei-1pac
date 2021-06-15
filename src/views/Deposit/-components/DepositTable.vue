@@ -60,7 +60,7 @@
 
     <template #balance="{ record }">
       <span :class="record.balance < 0 ? 'type-20' : ''">
-        {{ record.balance < 0 ? '-' : '' }}{{ $filters.number_with_commas(record.balance, 2) }}
+        {{ $filters.number_with_commas(record.balance, 2) }}
       </span>
     </template>
 

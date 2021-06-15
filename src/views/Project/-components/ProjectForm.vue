@@ -309,24 +309,7 @@ export default defineComponent({
     })
     const localErrors = ref({})
     const loading = ref(false)
-
-    // tags
     const valueTag = ref()
-    const createTag = () => {
-      if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
-      const valueTagLowerCase = valueTag.value.trim().toLowerCase()
-      if (projectParams.value.tags.includes(valueTagLowerCase)) return
-
-      projectParams.value.tags.push(valueTagLowerCase)
-      valueTag.value = ''
-    }
-
-    const removeTag = (e, index) => {
-      e.preventDefault()
-      projectParams.value.tags.splice(index, 1)
-      return false
-    }
-
     const isCompanySearchFormOpen = ref(false)
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
@@ -428,6 +411,23 @@ export default defineComponent({
       return accuracy.code === 'S'
     })
     /* --------------------- ./handle project orders --------------------- */
+
+    /* --------------------- ./handle project tags --------------------- */
+    const createTag = () => {
+      if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
+      const valueTagLowerCase = valueTag.value.trim().toLowerCase()
+      if (projectParams.value.tags.includes(valueTagLowerCase)) return
+
+      projectParams.value.tags.push(valueTagLowerCase)
+      valueTag.value = ''
+    }
+
+    const removeTag = (e, index) => {
+      e.preventDefault()
+      projectParams.value.tags.splice(index, 1)
+      return false
+    }
+    /* --------------------- ./handle project tags --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
     const initProjectPropData = () => {
@@ -542,7 +542,6 @@ export default defineComponent({
       if (response.data?.errors) {
         localErrors.value = response.data.errors
 
-        console.log(localErrors.value)
         if (localErrors.value.adProjectOrders) {
           addProjectOrdersErrors()
         }
