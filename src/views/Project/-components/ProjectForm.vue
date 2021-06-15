@@ -101,6 +101,7 @@
           <calendar-outlined />
         </template>
       </a-range-picker>
+      <p v-if="localErrors['statisticToMonth']" class="u-text-additional-red-6">{{ $t(`common.local_error.${localErrors['statisticToMonth']}`) }}</p>
     </a-form-item>
     <!-- statistics month -->
 
