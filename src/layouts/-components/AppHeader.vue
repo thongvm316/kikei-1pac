@@ -34,21 +34,24 @@ export default defineComponent({
     const store = useStore()
     const route = useRoute()
 
+    const openModalSearch = () => {
+      store.commit('setCurrentRoute', route.name)
+    }
+
     onMounted(() => {
       if (['financing'].includes(route.name)) {
         openModalSearch()
       }
     })
 
-    watch(route.name, (routeName) => {
-      if (['financing'].includes(routeName)) {
-        openModalSearch()
+    watch(
+      () => route.name,
+      (routeName) => {
+        if (['financing'].includes(routeName)) {
+          openModalSearch()
+        }
       }
-    })
-
-    const openModalSearch = () => {
-      store.commit('setCurrentRoute', route.name)
-    }
+    )
 
     return { route, openModalSearch }
   }
