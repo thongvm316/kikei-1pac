@@ -5,14 +5,14 @@
         <template #icon>
           <span class="btn-icon"><line-down-icon /></span>
         </template>
-        CSVファイルダウンロード
+        {{ $t('deposit.deposit_list.export_csv') }}
       </a-button>
 
       <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
         <template #icon>
           <span class="btn-icon"><line-add-icon /></span>
         </template>
-        新規入出金追加
+        {{ $t('deposit.deposit_list.create_deposit') }}
       </a-button>
     </div>
 
@@ -24,7 +24,7 @@
           :indeterminate="indeterminateCheckAllRows"
           @change="onSelectAllRowsByCustomCheckbox"
         >
-          チェックした項目全てを確定する
+          {{ $t('deposit.deposit_list.check_all') }}
         </a-checkbox>
 
         <a-button
@@ -32,8 +32,9 @@
           size="small"
           type="primary"
           @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
-          >確定</a-button
         >
+          {{ $t('deposit.deposit_list.confirm_all') }}
+        </a-button>
       </div>
 
       <a-select

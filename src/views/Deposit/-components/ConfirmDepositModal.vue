@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="visible" centered title="確定" width="380px">
+  <a-modal v-model:visible="visible" centered :title="$t('deposit.confirm_modal.title')" width="380px">
     <template #footer>
       <p>
         {{ $t('deposit.confirm_modal.message', { purpose: currentSelectedRecord?.purpose || '' }) }}
