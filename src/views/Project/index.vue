@@ -40,6 +40,7 @@
         }
       "
       :custom-row="onCustomRow"
+      :locale="localeTable"
       @change="changeProjectTable"
     >
       <template #projectNameTitle> {{ $t('project.customer_name') }} / {{ $t('project.project_name') }} </template>
@@ -255,6 +256,7 @@ export default defineComponent({
     const isOpenFloatButtons = ref(false)
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
+    const localeTable = { emptyText: t('project.project_table_empty') }
 
     // data and params request
     const requestData = ref({ params: pagination.value })
@@ -394,7 +396,8 @@ export default defineComponent({
       deleteProjectCaller,
       updateRequestData,
       changeProjectTable,
-      getInnerHeight
+      getInnerHeight,
+      localeTable
     }
   }
 })
@@ -432,6 +435,10 @@ export default defineComponent({
 
   &__list {
     white-space: nowrap;
+
+    .ant-table-placeholder {
+      padding-top: 48px;
+    }
   }
 
   table tbody > tr {
