@@ -81,7 +81,7 @@
           table-layout="fixed"
         >
           <template #action="{ record }">
-            <a-button :disabled="record.disabled" type="primary" @click="selectCompany(record)">確定</a-button>
+            <a-button :disabled="record.disabled" type="primary" @click="selectCompany(record)">選択</a-button>
           </template>
         </a-table>
 
