@@ -610,11 +610,6 @@ export default defineComponent({
   margin-bottom: 16px;
 }
 
-.ant-modal-footer {
-  @include flexbox(null, null);
-  padding: 0;
-}
-
 .modal-link {
   color: $color-additional-blue-6;
   margin-bottom: 0;

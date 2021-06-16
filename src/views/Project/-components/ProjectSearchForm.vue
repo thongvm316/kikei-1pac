@@ -324,6 +324,7 @@ export default defineComponent({
 .search-deposit {
   .ant-modal-footer {
     padding: 16px 140px;
+
     form {
       width: 100%;
     }
