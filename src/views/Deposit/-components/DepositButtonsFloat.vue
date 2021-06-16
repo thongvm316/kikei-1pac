@@ -44,14 +44,6 @@ export default defineComponent({
 
   props: {
     isDisableDelete: Boolean
-  },
-
-  setup() {
-    const visible = ref()
-
-    return {
-      visible
-    }
   }
 })
 </script>

@@ -14,7 +14,9 @@
         <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
 
-      <p v-if="localErrors['companyId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['companyId']}`) }}</p>
+      <p v-if="localErrors['companyId']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['companyId']}`) }}
+      </p>
     </a-form-item>
     <!-- companyID -->
 
@@ -55,7 +57,9 @@
         </a-select-option>
       </a-select>
 
-      <p v-if="localErrors['statusId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['statusId']}`) }}</p>
+      <p v-if="localErrors['statusId']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['statusId']}`) }}
+      </p>
     </a-form-item>
     <!-- status -->
 
@@ -67,7 +71,9 @@
         </a-select-option>
       </a-select>
 
-      <p v-if="localErrors['accuracyId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['accuracyId']}`) }}</p>
+      <p v-if="localErrors['accuracyId']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['accuracyId']}`) }}
+      </p>
     </a-form-item>
     <!-- accuracy -->
 
@@ -101,7 +107,9 @@
           <calendar-outlined />
         </template>
       </a-range-picker>
-      <p v-if="localErrors['statisticToMonth']" class="u-text-additional-red-6">{{ $t(`common.local_error.${localErrors['statisticToMonth']}`) }}</p>
+      <p v-if="localErrors['statisticToMonth']" class="u-text-additional-red-6">
+        {{ $t(`common.local_error.${localErrors['statisticToMonth']}`) }}
+      </p>
     </a-form-item>
     <!-- statistics month -->
 
@@ -112,7 +120,9 @@
           {{ group.name }}
         </a-select-option>
       </a-select>
-      <p v-if="localErrors['groupId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['groupId']}`) }}</p>
+      <p v-if="localErrors['groupId']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['groupId']}`) }}
+      </p>
     </a-form-item>
     <!-- groupID -->
 
@@ -129,7 +139,9 @@
           {{ account.fullname }}
         </a-select-option>
       </a-select>
-      <p v-if="localErrors['accountId']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['accountId']}`) }}</p>
+      <p v-if="localErrors['accountId']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['accountId']}`) }}
+      </p>
     </a-form-item>
     <!-- accountID -->
 
@@ -606,10 +618,6 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-:deep(.ant-form-item) {
-  margin-bottom: 16px;
-}
-
 .modal-link {
   color: $color-additional-blue-6;
   margin-bottom: 0;
@@ -647,7 +655,11 @@ export default defineComponent({
 }
 
 .project-add-form {
-  :deep(.ant-form-item-label > label.ant-form-item-required) {
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-form-item-label > label.ant-form-item-required {
     &:after {
       display: inline-block;
       margin-left: 4px;
@@ -658,7 +670,7 @@ export default defineComponent({
     }
   }
 
-  :deep(.ant-form-item-required) {
+  .ant-form-item-required {
     &:before {
       display: none;
     }
@@ -671,7 +683,7 @@ export default defineComponent({
     border: 1px solid $color-grey-85;
     border-radius: 2px;
 
-    :deep(.ant-tag) {
+    .ant-tag {
       background-color: $color-grey-85;
       color: $color-grey-15;
       margin-bottom: 12px;

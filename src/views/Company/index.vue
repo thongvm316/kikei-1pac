@@ -40,6 +40,7 @@
 import { defineComponent, computed, ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
@@ -70,7 +71,8 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
+    const store = useStore()
 
     const openDelete = ref(false)
     const dataSource = ref([])
@@ -170,6 +172,13 @@ export default defineComponent({
       openDelete.value = false
       recordVisible.value.visible = false
       await fetchList(params.value)
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message:
+          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
+      })
     }
 
     const handleEditRecord = () => {
