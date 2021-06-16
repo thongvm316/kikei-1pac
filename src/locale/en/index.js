@@ -9,6 +9,7 @@ import common from './common'
 import project from './project'
 import deposit from './deposit'
 import logs from './logs'
+import sidebar from './sidebar'
 
 export default {
   errors,
@@ -21,5 +22,6 @@ export default {
   common,
   project,
   deposit,
-  logs
+  logs,
+  sidebar
 }

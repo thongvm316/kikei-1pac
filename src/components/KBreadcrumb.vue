@@ -24,13 +24,141 @@ export default defineComponent({
     const routes = ref([])
     const route = useRoute()
 
+    // all breadcrumbs
+    const routesList = {
+      dashboard: [
+        {
+          path: '/',
+          breadcrumbName: t('breadcrumb.dashboard')
+        }
+      ],
+
+      // project
+      project: [
+        {
+          path: 'project',
+          breadcrumbName: t('breadcrumb.project')
+        }
+      ],
+
+      'project-new': [
+        {
+          path: '/project',
+          breadcrumbName: t('breadcrumb.project_new_edit')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'project-edit': [
+        {
+          path: 'project',
+          breadcrumbName: t('breadcrumb.project_new_edit')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
+      // deposit
+      deposit: [
+        {
+          path: 'deposit',
+          breadcrumbName: t('breadcrumb.deposit')
+        }
+      ],
+
+      'deposit-new': [
+        {
+          path: 'deposit',
+          breadcrumbName: t('breadcrumb.deposit')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'deposit-edit': [
+        {
+          path: 'deposit',
+          breadcrumbName: t('breadcrumb.deposit')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
+      // financing
+      financing: [
+        {
+          path: 'financing',
+          breadcrumbName: t('breadcrumb.financing')
+        }
+      ],
+
+      // accounting
+      accounting: [
+        {
+          path: 'accounting',
+          breadcrumbName: t('breadcrumb.accounting')
+        }
+      ],
+
+      // company
+      company: [
+        {
+          path: 'company',
+          breadcrumbName: t('breadcrumb.company')
+        }
+      ],
+
+      'company-new': [
+        {
+          path: 'company',
+          breadcrumbName: t('breadcrumb.company')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'company-edit': [
+        {
+          path: 'company',
+          breadcrumbName: t('breadcrumb.company')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
+      // category
+      category: [
+        {
+          path: 'category',
+          breadcrumbName: t('breadcrumb.category')
+        }
+      ],
+
+      // logs
+      logs: [
+        {
+          path: 'logs',
+          breadcrumbName: t('breadcrumb.logs')
+        }
+      ]
+    }
+
     const getRoutesList = () => {
-      routes.value = route.matched
-        .filter((item) => !!item.meta?.breadcrumbKey)
-        .map((item) => ({
-          breadcrumbName: t(item.meta?.breadcrumbKey),
-          path: item.path
-        }))
+      const nameRoute = route?.name || ''
+      routes.value = routesList[nameRoute] || []
     }
 
     onMounted(() => {
