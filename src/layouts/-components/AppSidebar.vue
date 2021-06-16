@@ -87,7 +87,7 @@ export default defineComponent({
     AccountingIcon
   },
 
-  setup() {
+  setup(_, { emit }) {
     const navList = [
       {
         name: 'dashboard',
@@ -156,6 +156,7 @@ export default defineComponent({
 
     const toggleSideBar = () => {
       isCollapse.value = !isCollapse.value
+      emit('on-collapse-side-bar', isCollapse.value)
     }
 
     // collapse active sub menu
