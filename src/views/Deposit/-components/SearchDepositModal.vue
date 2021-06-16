@@ -52,7 +52,11 @@
               <label class="form-label">{{ $t('deposit.search_deposit.type') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedTypeDepositList" :options="typeDepositList" />
+                <a-checkbox-group
+                  v-model:value="state.checkedTypeDepositList"
+                  :options="typeDepositList"
+                  @change="handleCheckedTypeDepositList($event)"
+                />
               </div>
             </div>
           </div>
@@ -62,7 +66,11 @@
               <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedCategotyList" :options="categoryList" />
+                <a-checkbox-group
+                  v-model:value="state.checkedCategotyList"
+                  :options="categoryList"
+                  @change="handleCheckedCategoryList($event)"
+                />
               </div>
             </div>
           </div>
@@ -118,7 +126,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -211,12 +219,37 @@ export default defineComponent({
       store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
+    const handleCheckedTypeDepositList = async (event) => {
+      event = { division_type: event.toString() }
+
+      if (event.division_type) {
+        const dataCategory = await getCategory(event)
+        state.value.checkedCategotyList = []
+        categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
+      } else {
+        state.value.checkedCategotyList = []
+        state.value.checkedSubCategotyList = []
+        categoryList.value = []
+        subCategoryList.value = []
+      }
+    }
     const toCategoryOptions = (options) => {
       if (!options) return
 
       return options.map((item) => {
         return { value: item.id, label: item.name }
       })
+    }
+
+    const handleCheckedCategoryList = async (event) => {
+      event = { category_id: event.toString() }
+      if (event.category_id) {
+        state.value.checkedSubCategotyList = []
+        const dataSubCategory = await getSubCategory(event)
+        subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+      } else {
+        subCategoryList.value = []
+      }
     }
 
     const toSubCategoryOptions = (options) => {
@@ -232,12 +265,6 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      const dataCategory = await getCategory()
-      categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
-
-      const dataSubCategory = await getSubCategory()
-      subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
-
       store.commit('setIsShowSearchBadge', false)
     })
 
@@ -250,7 +277,8 @@ export default defineComponent({
       subCategoryList,
       confirmedList,
       state,
-
+      handleCheckedTypeDepositList,
+      handleCheckedCategoryList,
       handleClearDepositFormSearch,
       handleModalCancel,
       onSubmit
@@ -263,6 +291,8 @@ export default defineComponent({
 .search-deposit {
   .ant-modal-footer {
     padding: 16px 140px;
+    max-height: 650px;
+    overflow: auto;
 
     form {
       width: 100%;
