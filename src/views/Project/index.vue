@@ -42,9 +42,7 @@
       :custom-row="onCustomRow"
       @change="changeProjectTable"
     >
-      <template #projectNameTitle>
-        {{ $t('project.customer_name') }} / {{ $t('project.project_name') }}
-      </template>
+      <template #projectNameTitle> {{ $t('project.customer_name') }} / {{ $t('project.project_name') }} </template>
 
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
@@ -93,25 +91,21 @@
         $filters.moment_yyyy_mm(record.statisticsFromMonth)
       }}</template>
 
-      <template #renderGroupName="{ record }">{{
-        record.groupName
-      }}</template>
+      <template #renderGroupName="{ record }">{{ record.groupName }}</template>
 
-      <template #renderAccountName="{ record }">{{
-        record.accountName
-      }}</template>
+      <template #renderAccountName="{ record }">{{ record.accountName }}</template>
     </a-table>
   </div>
 
   <project-search-form @on-search="updateRequestData" />
 
-  <project-float-buttons
+  <modal-actions
     v-if="isOpenFloatButtons"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
-    @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
-    @on-confirm-delete="isDeleteConfirmModalOpen = true"
-    @on-copy-project="cloneProject"
+    @on-go-to-edit="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
+    @on-go-to-copy="cloneProject"
     @on-go-to-deposit="goToDeposit"
+    @on-go-to-delete="isDeleteConfirmModalOpen = true"
   />
 
   <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
@@ -130,10 +124,12 @@ import { defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
 import { toOrderBy } from '@/helpers/table'
 import ProjectSearchForm from './-components/ProjectSearchForm'
-import ProjectFloatButtons from './-components/ProjectFloatButtons'
+import ModalActions from '@/components/ModalActions'
+
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -142,7 +138,7 @@ export default defineComponent({
 
   components: {
     ProjectSearchForm,
-    ProjectFloatButtons,
+    ModalActions,
     LineDownIcon,
     LineAddIcon
   },
