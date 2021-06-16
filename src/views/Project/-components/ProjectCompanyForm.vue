@@ -1,116 +1,112 @@
 <template>
-  <a-modal
-    v-model:visible="visibility"
-    :title="$t('project.title_search')"
-    class="project-search-company"
-    width="85%"
-    max-height="85%"
-  >
-    <template #footer>
-      <div class="form-project">
-        <Form class="form-left" @submit="onSubmit">
-          <!-- Keyword -->
-          <div class="form-group">
-            <Field v-slot="{ field, handleChange }" v-model="filter.keyword" :name="$t('project.company_form.keyword')">
+  <section>
+    <a-modal
+      :visible="visible"
+      :title="$t('company.title_search_modal')"
+      class="modal-company"
+      width="85%"
+      max-height="85%"
+      @cancel="handleModalCancel"
+    >
+      <template #footer>
+        <div class="form-company__search">
+          <form class="form-left" @submit.prevent="onSearch">
+            <!-- Keyword -->
+            <div class="form-group">
               <div class="form-content">
-                <label class="form-label">{{ $t('project.company_form.keyword') }}</label>
+                <label class="form-label">{{ $t('company.key_word') }}</label>
                 <div class="form-input">
-                  <a-input
-                    :value="field.value"
-                    :placeholder="$t('project.company_form.place_input')"
-                    @change="handleChange"
-                  />
+                  <a-input v-model:value="filter.key_search" :placeholder="$t('company.place_input')" />
                 </div>
               </div>
-            </Field>
-          </div>
-
-          <!-- Classification -->
-          <Field
-            v-slot="{ field, handleChange }"
-            v-model="filter.classification"
-            :name="$t('project.company_form.classification')"
-          >
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('project.company_form.classification') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="plainOptions" @change="handleChange" />
             </div>
-          </Field>
 
-          <!-- Country -->
-          <Field v-slot="{ field, handleChange }" v-model="filter.country" :name="$t('project.company_form.country')">
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('project.company_form.country') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="countries" @change="handleChange" />
+            <!-- Classification -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.division') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.division">
+                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                    $t(`company.${item.value}`)
+                  }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
             </div>
-          </Field>
 
-          <!-- Currency -->
-          <Field v-slot="{ field, handleChange }" v-model="filter.currency" :name="$t('project.company_form.currency')">
-            <div class="checkbox__input">
-              <label class="label-input">
-                {{ $t('project.company_form.currency') }}
-              </label>
-              <a-checkbox-group v-model="field.value" :options="currencies" @change="handleChange" />
+            <!-- Country -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.country') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.country_id">
+                  <a-checkbox v-for="item in COUNTRY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
             </div>
-          </Field>
 
-          <a-button key="submit" type="primary" html-type="submit" :loading="loading">
-            <template #icon>
-              <span class="btn-icon">
-                <search-icon />
-              </span>
-            </template>
-            {{ $t('project.company_form.handle_ok') }}
-          </a-button>
-        </Form>
-      </div>
+            <!-- Currency -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.currency') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.currency_id">
+                  <a-checkbox v-for="item in CURRENCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
 
-      <div class="table-project-search">
+            <!-- Box-Action-->
+            <div class="box-action">
+              <a-button key="clear" @click="handleClear">{{ $t('company.clear') }} </a-button>
+              <a-button key="submit" type="primary" html-type="submit">
+                <template #icon>
+                  <span class="btn-icon">
+                    <search-icon />
+                  </span>
+                </template>
+                {{ $t('company.search') }}
+              </a-button>
+            </div>
+          </form>
+        </div>
+
         <a-table
           :columns="columns"
-          :data-source="datas"
-          :pagination="false"
-          :expand-icon-as-cell="false"
-          :scroll="{ x: 600, y: 330 }"
-          :loading="loading"
+          :data-source="dataSource"
+          :row-key="(record) => record.id"
+          :loading="isLoading"
+          :pagination="pagination"
+          :scroll="{ y: height - 330 }"
+          :custom-row="customRow"
+          size="middle"
           table-layout="fixed"
+          @change="handleChange"
         >
           <template #action="{ record }">
-            <a-button :disabled="record.disabled" type="primary" @click="selectCompany(record)">確定</a-button>
+            <a-button type="primary" @click="handleSelectCompany(record)">{{ $t('company.confirm') }}</a-button>
           </template>
         </a-table>
-
-        <a-pagination
-          v-model:current="currentPage"
-          :total="pagination.totalRecords"
-          :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
-          :page-size="pagination.pageSize"
-          size="small"
-        />
-      </div>
-    </template>
-  </a-modal>
+      </template>
+    </a-modal>
+  </section>
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, onBeforeMount } from 'vue'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+import { convertPagination } from '@/helpers/convert-pagination'
+import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+
 import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { addUniqueRowKey } from '@/helpers/table'
-
-const columns = [
-  { title: '選択', dataIndex: 'select', key: 'select', slots: { customRender: 'action' } },
-  { title: '企業名', dataIndex: 'name', key: 'name' },
-  { title: '企業コード', dataIndex: 'code', key: 'code' },
-  { title: '国', dataIndex: 'countryName', key: 'countryName' },
-  { title: '通貨', dataIndex: 'currencyCode', key: 'currencyCode' },
-  { title: '区分', dataIndex: 'divisionName', key: 'divisionName' }
-]
+import Table from '@/mixins/table.mixin'
+import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
 
 export default defineComponent({
   name: 'Search',
@@ -119,151 +115,165 @@ export default defineComponent({
     SearchIcon
   },
 
+  mixins: [Table],
+
   props: {
-    visibility: {
-      type: Boolean
-    }
+    visible: Boolean
   },
 
-  setup(props, { emit }) {
-    const visibility = props.visible
+  emits: ['update:visible', 'update:subcategoryId', 'update:companyName', 'handleValidateSubCategory'],
 
-    const currentPage = ref(1)
-    const pagination = ref({
-      pageSize: 10,
-      pageNumber: 1
+  setup(_, context) {
+    const route = useRoute()
+    const { t } = useI18n()
+
+    const dataSource = ref([])
+    const pagination = ref({ pageNumber: 1, pageSize: 30 })
+    const selected = ref({})
+    const filters = ref({})
+    const tmpCompany = ref({})
+    const height = ref(0)
+    const isLoading = ref(false)
+
+    const initialState = {
+      key_search: '',
+      division: [],
+      country_id: [],
+      currency_id: []
+    }
+
+    const filter = reactive({ ...initialState })
+
+    const columns = computed(() => {
+      return [
+        {
+          title: t('company.confirm'),
+          dataIndex: 'confirm',
+          key: 'confirm',
+          slots: { customRender: 'action' }
+        },
+        {
+          title: t('company.company'),
+          dataIndex: 'name',
+          key: 'name'
+        },
+        {
+          title: t('company.company_code'),
+          dataIndex: 'code',
+          key: 'code'
+        },
+        {
+          title: t('company.country'),
+          dataIndex: 'countryName',
+          key: 'countryName'
+        },
+        {
+          title: t('company.currency'),
+          dataIndex: 'currencyCode',
+          key: 'currencyCode'
+        },
+        {
+          title: t('company.division'),
+          dataIndex: 'divisionName',
+          key: 'divisionName'
+        }
+      ]
     })
-    const datas = ref([])
-    const loading = ref(false)
-    const plainOptions = reactive(['顧客', 'パートナー'])
-    const countries = reactive(['Japan', 'Vietnam'])
-    const currencies = reactive(['JPY', 'VND'])
-    const filter = reactive({ keyword: '', classification: [], country: [], currency: [] })
 
-    const fetchCompanies = async () => {
-      loading.value = true
-      pagination.value.pageNumber = currentPage
-      const { getLists } = useGetCompanyListService(pagination.value, filter)
-      const { result } = await getLists()
-      datas.value = addUniqueRowKey(result.data)
-      pagination.value = result.meta
-      loading.value = false
+    onMounted(async () => {
+      dataSource.value = [...(route?.meta['lists'] || [])]
+      pagination.value = { ...(route?.meta['pagination'] || {}) }
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
     }
 
-    const handleCancel = () => {
-      emit('update:visible', false)
+    const handleClear = async () => {
+      Object.assign(filter, initialState)
+      await fetchList({ pageNumber: 1, pageSize: 30 })
     }
-    const onSubmit = () => {
-      fetchCompanies()
+
+    const handleChange = async (pagination) => {
+      const params = {
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize
+      }
+
+      await fetchList(params, filter)
     }
-    const selectCompany = (company) => {
-      emit('select-company', company)
-      handleCancel()
+
+    const onSearch = async () => {
+      filters.value = { ...deleteEmptyValue(filter) }
+      await fetchList({ pageNumber: 1, pageSize: 30 }, filters.value)
+    }
+
+    const customRow = (record) => {
+      return {
+        onClick: () => {
+          tmpCompany.value = { ...record }
+        }
+      }
+    }
+
+    const handleSelectCompany = (record) => {
+      // context.emit('update:companyName', record.name)
+      // context.emit('update:subcategoryId', record.id)
+      // context.emit('handleValidateSubCategory')
+      context.emit('select-company', record)
+      handleModalCancel()
+    }
+
+    const fetchList = async (params = {}, data) => {
+      isLoading.value = true
+
+      try {
+        const { getLists } = useGetCompanyListService({ ...params }, data)
+        const { result } = await getLists()
+
+        dataSource.value = [...result.data]
+        pagination.value = convertPagination(result.meta, 'bottom')
+        isLoading.value = false
+      } catch (e) {
+        isLoading.value = false
+      }
+    }
+
+    const handleModalCancel = () => {
+      context.emit('update:visible', false)
     }
 
     onBeforeMount(() => {
-      fetchCompanies()
+      fetchList({ pageNumber: 1, pageSize: 30 })
     })
-    watch(currentPage, fetchCompanies)
 
     return {
-      visibility,
-      currentPage,
-      pagination,
+      isLoading,
       filter,
-      datas,
+      filters,
+      t,
       columns,
-      loading,
-      plainOptions,
-      countries,
-      currencies,
-      selectCompany,
-      handleCancel,
-      onSubmit
+      dataSource,
+      pagination,
+      selected,
+      tmpCompany,
+      height,
+      handleClear,
+      handleChange,
+      onSearch,
+      fetchList,
+      handleSelectCompany,
+      customRow,
+      CURRENCY,
+      COUNTRY,
+      DIVISION,
+      handleModalCancel
     }
   }
 })
 </script>
 
-<style lang="scss">
-@import '@/styles/shared/variables';
-@import '@/styles/shared/mixins';
-
-.project-search-company {
-  .ant-modal-footer {
-    @include flexbox(null, null);
-    padding: 0;
-  }
-
-  .form-project {
-    text-align: left;
-    padding: 24px;
-    border-right: 1px solid $color-grey-55;
-    width: 296px;
-    background-color: $color-grey-94;
-
-    .form-left {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      overflow: auto;
-    }
-
-    .form-group,
-    .checkbox__input {
-      margin-bottom: 16px;
-    }
-  }
-
-  .table-project-search {
-    flex: 1;
-    padding: 24px;
-    width: 200px;
-
-    &__select-btn {
-      font-size: 12px;
-      line-height: 18px;
-      height: 20px;
-    }
-  }
-
-  .ant-checkbox-group {
-    @include flexbox(null, null);
-    flex-direction: column;
-  }
-
-  .ant-table-wrapper {
-    margin-bottom: 16px;
-  }
-
-  form .form-group .form-content .form-input {
-    width: 100%;
-  }
-
-  .ant-checkbox-group-item {
-    margin-top: 8px;
-  }
-
-  .ant-table-thead > tr > th {
-    padding: 7px 16px;
-  }
-
-  .ant-table-tbody > tr > td:not(:first-child) {
-    padding: 7px 16px;
-    line-height: 14px;
-  }
-
-  .ant-table-tbody > tr > td:first-child {
-    padding: 6px 16px;
-    line-height: 14px;
-  }
-
-  .ant-table {
-    border: 1px solid $color-grey-85;
-  }
-
-  .ant-table-body {
-    overflow-x: auto !important;
-  }
-}
-</style>
+<style scoped></style>

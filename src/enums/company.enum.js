@@ -37,11 +37,11 @@ export const CURRENCY = [
 
 export const PAYMENT = [
   {
-    id: 1,
+    id: 0,
     value: 'next_month_end'
   },
   {
-    id: 2,
+    id: 1,
     value: 'end_of_month_after_next'
   }
 ]

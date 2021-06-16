@@ -40,54 +40,10 @@
         }
       "
       :custom-row="onCustomRow"
+      @change="changeProjectTable"
     >
-      <template #updatedDateTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.updated_date') }}</span>
-          <k-sort-caret @sort="sort($event, 'updated_at')" />
-        </div>
-      </template>
-
       <template #projectNameTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.customer_name') }} / {{ $t('project.project_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'name')" />
-        </div>
-      </template>
-
-      <template #accuracyCodeTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.id')" />
-        </div>
-      </template>
-
-      <template #releaseDateTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.release_date') }}</span>
-          <k-sort-caret @sort="sort($event, 'release_date')" />
-        </div>
-      </template>
-
-      <template #statisticsFromMonthTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.statistics_from_month') }}</span>
-          <k-sort-caret @sort="sort($event, 'statistics_from_month')" />
-        </div>
-      </template>
-
-      <template #groupNameTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.group_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADGroup.name')" />
-        </div>
-      </template>
-
-      <template #accountNameTitle>
-        <div class="u-flex u-items-center">
-          <span class="u-mr-8">{{ $t('project.account_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'SEAccount.fullname')" />
-        </div>
+        {{ $t('project.customer_name') }} / {{ $t('project.project_name') }}
       </template>
 
       <template #renderProjectName="{ record }">
@@ -109,7 +65,6 @@
             {{ $t('project.money') }} <br />
             (JPY)
           </span>
-          <k-sort-caret @sort="sort($event, 'money')" />
         </div>
       </template>
 
@@ -137,6 +92,14 @@
       <template #renderProjectStatisticsDate="{ record }">{{
         $filters.moment_yyyy_mm(record.statisticsFromMonth)
       }}</template>
+
+      <template #renderGroupName="{ record }">{{
+        record.groupName
+      }}</template>
+
+      <template #renderAccountName="{ record }">{{
+        record.accountName
+      }}</template>
     </a-table>
   </div>
 
@@ -163,17 +126,16 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
+import { toOrderBy } from '@/helpers/table'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ProjectFloatButtons from './-components/ProjectFloatButtons'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import KSortCaret from '@/components/KSortCaret'
-import { SORT_BY } from '@/components/KSortCaret/constants'
 
 export default defineComponent({
   name: 'ProjectPage',
@@ -182,8 +144,7 @@ export default defineComponent({
     ProjectSearchForm,
     ProjectFloatButtons,
     LineDownIcon,
-    LineAddIcon,
-    KSortCaret
+    LineAddIcon
   },
 
   setup() {
@@ -199,24 +160,26 @@ export default defineComponent({
     const projectDatas = ref([])
     const columns = [
       {
-        dataIndex: 'updatedAt',
-        key: 'updatedAt',
+        title: t('project.updated_date'),
+        dataIndex: 'updated_at',
+        key: 'updated_at',
         slots: {
-          customRender: 'renderProjectUpdatedAt',
-          title: 'updatedDateTitle'
+          customRender: 'renderProjectUpdatedAt'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
-        dataIndex: 'projectCombineName',
-        key: 'projectCombineName',
+        dataIndex: 'name',
+        key: 'name',
         align: 'left',
         colSpan: 2,
         slots: {
           title: 'projectNameTitle',
           customRender: 'renderProjectName'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
         dataIndex: 'projectCombineTypeAStatus',
@@ -229,23 +192,25 @@ export default defineComponent({
         ellipsis: true
       },
       {
-        dataIndex: 'accuracyCode',
-        key: 'accuracyCode',
+        title: t('project.accuracy_name'),
+        dataIndex: 'ADProjectAccuracy.order',
+        key: 'ADProjectAccuracy.order',
         align: 'center',
         slots: {
-          title: 'accuracyCodeTitle',
           customRender: 'renderProjectAccuracy'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
-        dataIndex: 'releaseDate',
-        key: 'releaseDate',
+        title: t('project.release_date'),
+        dataIndex: 'release_date',
+        key: 'release_date',
         slots: {
-          title: 'releaseDateTitle',
           customRender: 'renderProjectReleaseDate'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
         dataIndex: 'money',
@@ -255,39 +220,44 @@ export default defineComponent({
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
-        dataIndex: 'statisticsFromMonth',
-        key: 'statisticsFromMonth',
+        title: t('project.statistics_from_month'),
+        dataIndex: 'statistics_from_month',
+        key: 'statistics_from_month',
         align: 'center',
         slots: {
-          title: 'statisticsFromMonthTitle',
           customRender: 'renderProjectStatisticsDate'
         },
-        ellipsis: true
+        ellipsis: true,
+        sorter: true
       },
       {
-        dataIndex: 'groupName',
-        key: 'groupName',
+        title: t('project.group_name'),
+        dataIndex: 'ADGroup.name',
+        key: 'ADGroup.name',
+        ellipsis: true,
         slots: {
-          title: 'groupNameTitle'
+          customRender: 'renderGroupName'
         },
-        ellipsis: true
+        sorter: true
       },
       {
-        dataIndex: 'accountName',
-        key: 'accountName',
+        title: t('project.account_name'),
+        dataIndex: 'SEAccount.fullname',
+        key: 'SEAccount.fullname',
+        ellipsis: true,
         slots: {
-          title: 'accountNameTitle'
+          customRender: 'renderAccountName'
         },
-        ellipsis: true
+        sorter: true
       }
     ]
     const isOpenFloatButtons = ref(false)
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
-    const currentSort = ref({})
 
     // data and params request
     const requestData = ref({ params: pagination.value })
@@ -328,17 +298,6 @@ export default defineComponent({
       router.push({ name: 'deposit', query: { purpose: `${name} ${code}`, tab: groupId } })
     }
 
-    const currentSortStr = computed(() => {
-      if (!currentSort.value) return null
-
-      let currentSortStr = ''
-      Object.keys(currentSort.value).forEach((key) => {
-        currentSortStr += `,${key} ${currentSort.value[key]}`
-      })
-
-      return currentSortStr.replace(',', '')
-    })
-
     const fetchProjectDatas = async () => {
       const { projectList, pageData } = await getProjectList(requestData.value.params, loading, requestData.value.data)
 
@@ -346,15 +305,6 @@ export default defineComponent({
       pagination.value = pageData
       pagination.value.pageNumber = requestData.value.params.pageNumber
       currentPage.value = requestData.value.params.pageNumber
-    }
-
-    const sort = (sortBy, field) => {
-      currentSort.value = {
-        ...currentSort.value,
-        [field]: sortBy
-      }
-
-      if (sortBy === SORT_BY.none) delete currentSort.value[field]
     }
 
     const exportProjectAsCsvFile = async () => {
@@ -379,14 +329,27 @@ export default defineComponent({
       isDeleteConfirmModalOpen.value = false
       isOpenFloatButtons.value = false
 
-      // clear selected value
-      targetProjectSelected.value = {}
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: 'project.flash_message.delete_success'
+        message: t('project.flash_message.delete_success', { name: targetProjectSelected.value?.name || '' })
       })
+
+      // clear selected value
+      targetProjectSelected.value = {}
+    }
+
+    const changeProjectTable = (pagination, filter, sorter) => {
+      const orderBy = toOrderBy(sorter.order)
+      let currentSortStr = ''
+      if (!orderBy) {
+        currentSortStr = null
+        return
+      }
+
+      currentSortStr = `${sorter.field} ${orderBy}`
+      updateRequestData({ params: { orderBy: currentSortStr } })
     }
 
     onBeforeMount(() => {
@@ -402,10 +365,6 @@ export default defineComponent({
 
     watch(currentPage, (val) => {
       updateRequestData({ params: { pageNumber: val } })
-    })
-
-    watch(currentSortStr, (val) => {
-      updateRequestData({ params: { orderBy: val } })
     })
 
     watch(isOpenFloatButtons, (val, oldVal) => {
@@ -427,8 +386,8 @@ export default defineComponent({
       projectDatas,
       exportProjectAsCsvFile,
       deleteProjectCaller,
-      sort,
-      updateRequestData
+      updateRequestData,
+      changeProjectTable
     }
   }
 })
@@ -439,6 +398,15 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 
 .project {
+  .ant-table-column-sorters {
+    display: flex !important;
+    align-items: center !important;
+
+    .ant-table-column-sorter {
+      margin-bottom: 4px;
+    }
+  }
+
   &__filters {
     @include flexbox(flex-end, flex-end);
     flex-direction: column;

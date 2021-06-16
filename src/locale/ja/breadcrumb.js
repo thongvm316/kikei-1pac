@@ -1,6 +1,6 @@
 export default {
   dashboard: '経理業務',
-  project: 'プロジェクト一覧',
+  project: 'プロジェクト',
   deposit: '入出金',
   financing: '資金繰り',
   accounting: '管理会計',
