@@ -124,7 +124,7 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
       money = `-${withdrawMoney}`
       break
     case TYPE_NAME_DEPOSIT[30]:
-      money = withdrawMoney
+      money = 0
       break
     case TYPE_NAME_DEPOSIT[40]:
       money = depositMoney > 0 ? depositMoney : `-${withdrawMoney}`

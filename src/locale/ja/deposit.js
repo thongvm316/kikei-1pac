@@ -121,7 +121,8 @@ export default {
     bank_account: '銀行口座を選択して下さい',
     money: '金額を入力して下さい',
     tags: 'タグを入力して下さい',
-    repeated: 'リピートタイプを選択して下さい'
+    repeated: 'リピートタイプを選択して下さい',
+    repeated_expired_date: '「繰返し終了日」は「入出金日」より大きく入力してください'
   },
 
   confirm_modal: {

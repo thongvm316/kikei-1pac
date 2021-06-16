@@ -190,12 +190,17 @@
         v-if="params.repeated !== 0 && params.repeated !== null"
         name="repeatedExpiredDate"
         :label="$t('deposit.new.repeated_expired_date')"
+        :class="{ 'has-error': !isRepeatedExpiredDateCorrect }"
       >
         <a-date-picker
           v-model:value="params.repeatedExpiredDate"
           :disabled="isDisableEditField"
           placeholder="YYYY/MM/DD"
         />
+
+        <p v-if="!isRepeatedExpiredDateCorrect" class="ant-form-explain">
+          {{ $t(`deposit.error_message.repeated_expired_date`) }}
+        </p>
       </a-form-item>
     </div>
 
@@ -267,6 +272,7 @@ export default defineComponent({
     const isAllowNegativeMoney = ref(false)
     const isCloneDeposit = ref(false)
     const isRepeatedEndMonth = ref(false)
+    const isRepeatedExpiredDateCorrect = ref(true)
 
     // list data
     const categoryList = ref([])
@@ -415,6 +421,24 @@ export default defineComponent({
         isSubCategoryDisabled.value = [0].indexOf(currentCategory.subcategoryKind) !== -1 // select options
         isCompanySelection.value = [20, 30].indexOf(currentCategory.subcategoryKind) !== -1 // open modal company
       }
+    }
+
+    const checkRepeatedExpriedDate = () => {
+      if (params.value.repeatedExpiredDate) {
+        const _repeatedExpiredDate = new Date(params.value.repeatedExpiredDate)
+        const _date = new Date(params.value.date)
+
+        const repeatedExpiredDate = new Date(
+          _repeatedExpiredDate.getFullYear(),
+          _repeatedExpiredDate.getMonth(),
+          _repeatedExpiredDate.getDate()
+        )
+        const date = new Date(_date.getFullYear(), _date.getMonth(), _date.getDate())
+
+        return repeatedExpiredDate > date
+      }
+
+      return true
     }
 
     const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
@@ -592,8 +616,10 @@ export default defineComponent({
       isLoading.value = true
       try {
         const validateRes = await depositNewRef.value.validate()
+        isRepeatedExpiredDateCorrect.value = checkRepeatedExpriedDate()
+        console.log('isRepeatedExpiredDateCorrect', isRepeatedExpiredDateCorrect.value)
 
-        if (validateRes) {
+        if (validateRes && isRepeatedExpiredDateCorrect.value) {
           const depositDataRequest = convertFormToDataRequest(params.value)
 
           props.isEditDeposit ? callEditDeposit(depositDataRequest) : callAddDeposit(depositDataRequest)
@@ -792,6 +818,7 @@ export default defineComponent({
       isDisabledSubmit,
       isAllowNegativeMoney,
       isDisableEditField,
+      isRepeatedExpiredDateCorrect,
 
       onSelectWithdrawalMoney,
       onSelectDepositMoney,

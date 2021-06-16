@@ -184,7 +184,7 @@ export default defineComponent({
     const currentSort = ref({})
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: currentPage.value } })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -217,7 +217,7 @@ export default defineComponent({
         dataDeposit.value = createDataTableFormat(data.result?.data || [])
         disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
-        currentPage.value = paramsRequest.pageNumber
+        currentPage.value = paramsRequest.pageNumber || 1
 
         // select bank
         const COLLUMNS_COUNT = 9
@@ -363,6 +363,8 @@ export default defineComponent({
     const onOpenDepositButtonsFloat = (record) => {
       const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
       const recordId = record?.id || record?.parentId || ''
+
+      console.log('record', record)
 
       if (depositId === recordId) {
         currentSelectedRecord.value = {}
