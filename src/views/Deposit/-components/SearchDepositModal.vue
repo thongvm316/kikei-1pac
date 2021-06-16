@@ -298,9 +298,9 @@ export default defineComponent({
 <style lang="scss">
 .search-deposit {
   .ant-modal-footer {
-    padding: 16px 140px;
+    padding: 16px 127px;
     max-height: 650px;
-    overflow: auto;
+    overflow-y: scroll;
 
     form {
       width: 100%;
@@ -313,7 +313,7 @@ export default defineComponent({
     }
 
     .form-label {
-      width: 120px;
+      width: 110px;
       text-align: left;
     }
 
