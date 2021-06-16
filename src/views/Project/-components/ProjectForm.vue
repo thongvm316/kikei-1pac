@@ -606,10 +606,6 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-:deep(.ant-form-item) {
-  margin-bottom: 16px;
-}
-
 .modal-link {
   color: $color-additional-blue-6;
   margin-bottom: 0;
@@ -647,7 +643,11 @@ export default defineComponent({
 }
 
 .project-add-form {
-  :deep(.ant-form-item-label > label.ant-form-item-required) {
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-form-item-label > label.ant-form-item-required {
     &:after {
       display: inline-block;
       margin-left: 4px;
@@ -658,7 +658,7 @@ export default defineComponent({
     }
   }
 
-  :deep(.ant-form-item-required) {
+  .ant-form-item-required {
     &:before {
       display: none;
     }
@@ -671,7 +671,7 @@ export default defineComponent({
     border: 1px solid $color-grey-85;
     border-radius: 2px;
 
-    :deep(.ant-tag) {
+    .ant-tag {
       background-color: $color-grey-85;
       color: $color-grey-15;
       margin-bottom: 12px;
