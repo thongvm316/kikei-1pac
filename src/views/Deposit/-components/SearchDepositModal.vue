@@ -63,9 +63,9 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="categoryList.length > 0" class="form-group">
             <div class="form-content">
-              <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.category') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group
@@ -77,9 +77,9 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="subCategoryList.length > 0" class="form-group">
             <div class="form-content">
-              <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }}</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }} asasd</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
