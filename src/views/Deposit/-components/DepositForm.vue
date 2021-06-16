@@ -221,12 +221,7 @@
     </a-form-item>
   </a-form>
 
-  <search-company-name
-    v-model:visible="isOpenModalCompany"
-    v-model:companyName="companyNameSelected"
-    v-model:subcategoryId="params.subcategoryId"
-    @handleValidateSubCategory="handleValidateSubCategory"
-  />
+  <modal-select-company v-model:visible="isOpenModalCompany" @select-company="handleSelectCompanyModal" />
 </template>
 
 <script>
@@ -246,13 +241,13 @@ import {
   updateDeposit
 } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
-const SearchCompanyName = defineAsyncComponent(() => import('../-components/SearchCompanyName'))
+const ModalSelectCompany = defineAsyncComponent(() => import('@/containers/ModalSelectCompany'))
 
 export default defineComponent({
   name: 'DepositForm',
 
   components: {
-    SearchCompanyName
+    ModalSelectCompany
   },
 
   props: {
@@ -400,6 +395,12 @@ export default defineComponent({
 
     const handleOpenModalCompany = () => {
       isOpenModalCompany.value = true
+    }
+
+    const handleSelectCompanyModal = (companyRecord) => {
+      companyNameSelected.value = companyRecord?.name || ''
+      params.value.subcategoryId = companyRecord?.id || ''
+      handleValidateSubCategory()
     }
 
     const handleValidateSubCategory = () => {
@@ -797,6 +798,7 @@ export default defineComponent({
       handleInputTagConfirm,
       handleCloseTag,
       handleOpenModalCompany,
+      handleSelectCompanyModal,
       handleValidateSubCategory,
       onSubmitForm,
       onCancelForm

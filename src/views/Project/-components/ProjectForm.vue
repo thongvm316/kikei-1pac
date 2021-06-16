@@ -253,7 +253,7 @@
     </a-form-item>
   </a-form>
 
-  <project-company-form v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
+  <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
 </template>
 
 <script>
@@ -274,8 +274,9 @@ import {
 } from '../composables/useProjectOrders'
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat } from '@/helpers/date-time-format'
+import ModalSelectCompany from '@/containers/ModalSelectCompany'
+
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import ProjectCompanyForm from './ProjectCompanyForm'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
 export default defineComponent({
@@ -283,7 +284,7 @@ export default defineComponent({
 
   components: {
     CalendarOutlined,
-    ProjectCompanyForm,
+    ModalSelectCompany,
     LineAddIcon
   },
 

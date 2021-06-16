@@ -89,6 +89,11 @@
           <template #action="{ record }">
             <a-button type="primary" @click="handleSelectCompany(record)">{{ $t('company.confirm') }}</a-button>
           </template>
+          <template #divisions="{ text: divisions }">
+            {{
+              divisions === 0 ? $t('company.customer') : divisions === 1 ? $t('company.partner') : $t('company.both')
+            }}
+          </template>
         </a-table>
       </template>
     </a-modal>
@@ -173,9 +178,9 @@ export default defineComponent({
           key: 'currencyCode'
         },
         {
-          title: t('company.division'),
-          dataIndex: 'divisionName',
-          key: 'divisionName'
+          dataIndex: 'divisions',
+          key: 'divisions',
+          slots: { customRender: 'divisions' }
         }
       ]
     })
@@ -220,9 +225,7 @@ export default defineComponent({
     }
 
     const handleSelectCompany = (record) => {
-      context.emit('update:companyName', record.name)
-      context.emit('update:subcategoryId', record.id)
-      context.emit('handleValidateSubCategory')
+      context.emit('select-company', record)
       handleModalCancel()
     }
 

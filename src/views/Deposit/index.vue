@@ -393,10 +393,13 @@ export default defineComponent({
       isVisibleDepositButtonsFloat.value = false
 
       // show notification
+      const purpose = currentSelectedRecord.value?.purpose
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: t('deposit.deposit_list.delete_success', { purpose: currentSelectedRecord.value?.purpose || '' })
+        message: purpose
+          ? t('deposit.deposit_list.delete_success', { purpose })
+          : t('deposit.deposit_list.delete_success_multiple')
       })
     }
 
@@ -453,10 +456,13 @@ export default defineComponent({
       tableKey.value++
 
       // show notification
+      const purpose = currentSelectedRecord.value?.purpose
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: t('deposit.confirm_modal.confirm_success', { purpose: currentSelectedRecord.value?.purpose })
+        message: purpose
+          ? t('deposit.confirm_modal.confirm_success', { purpose })
+          : t('deposit.confirm_modal.confirm_success_multiple')
       })
 
       isVisibleConfirmDepositModal.value = false

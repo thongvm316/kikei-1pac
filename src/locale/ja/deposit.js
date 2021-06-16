@@ -5,8 +5,10 @@ export default {
     type_deposit_cash_transfer: '移動',
     type_unclear_money: '不明',
     type_none: '-',
-    delete_deposit: '{purpose}項目名を削除してもよろしいですか？',
+    delete_deposit: '{purpose}を削除してもよろしいですか？',
+    delete_deposit_multiple: '削除してもよろしいですか？',
     delete_success: '{purpose}を削除されました',
+    delete_success_multiple: '削除されました',
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',
     create_deposit: '新規入出金追加',
@@ -124,11 +126,12 @@ export default {
 
   confirm_modal: {
     title: '確定',
-    message: '{purpose}を確定してもよろしですか？',
-    message_multiple: '確定してもよろしいですか?',
+    message: '{purpose}を確定してもよろしいですか？',
+    message_multiple: '確定してもよろしいですか？',
     cancel_btn: 'キャンセル',
     confirm_btn: '確定',
-    confirm_success: '{purpose}を確定されました'
+    confirm_success: '{purpose}を確定されました',
+    confirm_success_multiple: '確定されました'
   },
 
   search_deposit: {

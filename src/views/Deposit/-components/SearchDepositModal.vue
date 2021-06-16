@@ -139,7 +139,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
-import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
+import { TYPE_NAME_DEPOSIT_FOR_FILTER } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
@@ -156,9 +156,9 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT_FOR_FILTER).map((item) => ({
       value: parseInt(item),
-      label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
+      label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT_FOR_FILTER[item]}`)
     }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
