@@ -87,6 +87,11 @@
           <template #action>
             <a-button type="primary" @click="handleSelectCompany">{{ $t('company.confirm') }}</a-button>
           </template>
+          <template #divisions="{ text: divisions }">
+            {{
+              divisions === 0 ? $t('company.customer') : divisions === 1 ? $t('company.partner') : $t('company.both')
+            }}
+          </template>
         </a-table>
       </template>
     </a-modal>
@@ -183,8 +188,9 @@ export default defineComponent({
         },
         {
           title: t('company.division'),
-          dataIndex: 'divisionName',
-          key: 'divisionName'
+          dataIndex: 'divisions',
+          key: 'divisions',
+          slots: { customRender: 'divisions' }
         }
       ]
     })
