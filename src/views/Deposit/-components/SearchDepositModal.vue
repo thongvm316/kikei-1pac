@@ -34,10 +34,12 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="state.statisticsDateDepositValue"
+                  :value="state.statisticsDateDepositValue"
                   :style="{ width: '256px' }"
+                  :mode="['month', 'month']"
                   format="YYYY-MM"
                   :placeholder="['YYYY/MM', 'YYYY/MM']"
+                  @panelChange="handleChangeStatisticsDateValue"
                 >
                   <template #suffixIcon>
                     <calendar-outlined />
@@ -190,6 +192,10 @@ export default defineComponent({
       }
     })
 
+    const handleChangeStatisticsDateValue = (val) => {
+      state.value.statisticsDateDepositValue = val
+    }
+
     const handleClearDepositFormSearch = () => {
       isNeedSubmit.value = !isEqual(state.value, initState)
       state.value = deepCopy(initState)
@@ -282,7 +288,8 @@ export default defineComponent({
       handleCheckedCategoryList,
       handleClearDepositFormSearch,
       handleModalCancel,
-      onSubmit
+      onSubmit,
+      handleChangeStatisticsDateValue
     }
   }
 })
