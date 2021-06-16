@@ -3,16 +3,21 @@ import flash from './flash'
 import auth from './auth'
 
 const state = {
-  currentRoute: null
+  currentRoute: null,
+  isShowSearchBadge: false
 }
 
 const getters = {
-  currentRoute: (state) => state.currentRoute
+  currentRoute: (state) => state.currentRoute,
+  isShowSearchBadge: (state) => state.isShowSearchBadge
 }
 
 const mutations = {
   setCurrentRoute(state, routeName) {
     state.currentRoute = routeName
+  },
+  setIsShowSearchBadge(state, isSearching) {
+    state.isShowSearchBadge = isSearching
   }
 }
 

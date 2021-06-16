@@ -5,7 +5,9 @@
         <k-breadcrumb />
       </div>
       <div class="header__content--right">
-        <a-button class="header__search" @click="openModalSearch"><search-icon /></a-button>
+        <a-button :class="['header__search', isShowSearchBadge && 'is-badge']" @click="openModalSearch">
+          <search-icon />
+        </a-button>
         <k-profile />
       </div>
     </div>
@@ -13,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, watch } from 'vue'
+import { defineComponent, computed, watch, onMounted } from 'vue'
 import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
@@ -38,6 +40,15 @@ export default defineComponent({
       store.commit('setCurrentRoute', route.name)
     }
 
+    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
+
+    watch(
+      () => route.name,
+      () => {
+        store.commit('setIsShowSearchBadge', false)
+      }
+    )
+
     onMounted(() => {
       if (['financing'].includes(route.name)) {
         openModalSearch()
@@ -53,7 +64,7 @@ export default defineComponent({
       }
     )
 
-    return { route, openModalSearch }
+    return { route, isShowSearchBadge, openModalSearch }
   }
 })
 </script>
@@ -96,6 +107,19 @@ export default defineComponent({
     &:hover {
       background-color: $color-primary-6;
       color: $color-grey-100;
+    }
+  }
+
+  .header__search.is-badge {
+    &:after {
+      position: absolute;
+      top: 0;
+      right: -30%;
+      height: 16px;
+      width: 16px;
+      background-color: $color-additional-red-6;
+      content: ' ';
+      border-radius: 50%;
     }
   }
 }
