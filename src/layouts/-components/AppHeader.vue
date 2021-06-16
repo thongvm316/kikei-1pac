@@ -88,7 +88,7 @@ export default defineComponent({
 
   &__content {
     @include flexbox(center, center);
-    padding: 14px 0;
+    padding: 12px 0;
 
     &--left {
       flex-grow: 1;
