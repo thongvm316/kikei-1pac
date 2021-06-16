@@ -379,14 +379,15 @@ export default defineComponent({
       isDeleteConfirmModalOpen.value = false
       isOpenFloatButtons.value = false
 
-      // clear selected value
-      targetProjectSelected.value = {}
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message: 'project.flash_message.delete_success'
+        message: t('project.flash_message.delete_success', { name: targetProjectSelected.value?.name || '' })
       })
+
+      // clear selected value
+      targetProjectSelected.value = {}
     }
 
     onBeforeMount(() => {

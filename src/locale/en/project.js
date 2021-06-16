@@ -31,7 +31,7 @@ export default {
   flash_message: {
     create_success: '{name} successfully added',
     update_success: '{name} successfully updated',
-    delete_success: 'Delete project success'
+    delete_success: '{name} successfully deleted'
   },
 
   delete_modal: {

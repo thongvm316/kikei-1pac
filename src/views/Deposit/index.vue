@@ -185,7 +185,7 @@ export default defineComponent({
     const currentSort = ref({})
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: {} })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: currentPage.value } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
