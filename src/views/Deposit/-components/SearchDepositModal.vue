@@ -225,6 +225,7 @@ export default defineComponent({
       if (event.division_type) {
         const dataCategory = await getCategory(event)
         state.value.checkedCategotyList = []
+        state.value.checkedSubCategotyList = []
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       } else {
         state.value.checkedCategotyList = []
