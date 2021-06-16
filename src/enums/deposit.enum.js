@@ -43,8 +43,8 @@ export const TYPE_NAME_DEPOSIT = Object.freeze({
 })
 
 export const TYPE_NAME_DEPOSIT_FOR_FILTER = Object.freeze({
-  0: 'type_deposit_sales',
-  1: 'type_deposit_payment',
-  98: 'type_deposit_cash_transfer',
-  99: 'type_unclear_money'
+  10: '0',
+  20: '1',
+  30: '98',
+  40: '99'
 })
