@@ -48,7 +48,7 @@ const convertToCSV = (labels, objArray) => {
 const exportCSVFile = ({ labels, items, fileTitle }) => {
   // Convert Object to JSON
   let jsonObject = JSON.stringify(items)
-  let csv = convertToCSV(labels, jsonObject)
+  let csv = '\uFEFF' + convertToCSV(labels, jsonObject)
   let exportedFilenmae = fileTitle ? `${fileTitle}.csv` : 'export.csv'
   let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   if (navigator.msSaveBlob) {

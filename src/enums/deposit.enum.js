@@ -36,6 +36,13 @@ export const CURRENCY = [
 ]
 
 export const TYPE_NAME_DEPOSIT = Object.freeze({
+  10: 'type_deposit_sales',
+  20: 'type_deposit_payment',
+  30: 'type_deposit_cash_transfer',
+  40: 'type_unclear_money'
+})
+
+export const TYPE_NAME_DEPOSIT_FOR_FILTER = Object.freeze({
   0: 'type_deposit_sales',
   1: 'type_deposit_payment',
   98: 'type_deposit_cash_transfer',
