@@ -29,14 +29,14 @@ export default {
   },
 
   flash_message: {
-    create_success: '{name} が追加されました',
-    update_success: '{name} が更新されました',
-    delete_success: '{name} が削除されました'
+    create_success: '{name}が追加されました',
+    update_success: '{name}が更新されました',
+    delete_success: '{name}が削除されました'
   },
 
   delete_modal: {
     title: '削除',
-    message: '{name} を削除してもよろしですか？',
+    message: '{name}を削除してもよろしいですか？',
     confirm_btn: '削除',
     cancel_btn: 'キャンセル'
   },
