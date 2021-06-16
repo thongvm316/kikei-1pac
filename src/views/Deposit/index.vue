@@ -133,7 +133,6 @@ import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
-import { SORT_BY } from '@/components/KSortCaret/constants'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -465,25 +464,17 @@ export default defineComponent({
     }
     /* --------------------- ./handle confirm deposit ------------------- */
 
-    const sort = ({ sortBy, field }) => {
-      currentSort.value = {
-        ...currentSort.value,
-        [field]: sortBy
-      }
-
-      if (sortBy === SORT_BY.none) delete currentSort.value[field]
-
+    const sort = (emitData) => {
       let currentSortStr = ''
 
-      if (!currentSort.value) {
+      if (!emitData.orderBy) {
         currentSortStr = null
-      } else {
-        Object.keys(currentSort.value).forEach((key) => {
-          currentSortStr += `,${key} ${currentSort.value[key]}`
-        })
+        return
       }
 
-      updateParamRequestDeposit({ params: { orderBy: currentSortStr.replace(',', '') } })
+      currentSortStr = `${emitData.field} ${emitData.orderBy}`
+
+      updateParamRequestDeposit({ params: { orderBy: currentSortStr } })
     }
 
     onBeforeMount(async () => {
