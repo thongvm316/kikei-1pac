@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1200 }"
+    :scroll="{ x: 1200, y: height - 295 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -68,7 +68,7 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
 import humps from 'humps'
 import { toOrderBy } from '@/helpers/table'
 
@@ -152,6 +152,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const currentRowClick = ref()
+    const height = ref(0)
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
@@ -214,9 +215,20 @@ export default defineComponent({
       emit('on-sort', emitData)
     }
 
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
+    onBeforeMount(() => {
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
     return {
       columnsDeposit,
       localeTable,
+      height,
 
       onSelectChangeRow,
       onSelectAllChangeRows,

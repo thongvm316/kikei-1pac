@@ -6,7 +6,7 @@
         <slot name="header" />
       </app-header>
 
-      <a-layout-content class="u-pt-60">
+      <a-layout-content class="u-pt-56">
         <a-config-provider :locale="locales[locale]">
           <router-view />
         </a-config-provider>

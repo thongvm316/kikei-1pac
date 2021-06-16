@@ -182,7 +182,6 @@ export default defineComponent({
     const confirmedSelectedPurpose = ref()
     const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
-    const currentSort = ref({})
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
@@ -535,7 +534,6 @@ export default defineComponent({
       tableKey,
       disabledCheckAllRowTable,
       currentSelectedRecord,
-
       confirmedSelectedDepositRecord,
       confirmedSelectedPurpose,
 

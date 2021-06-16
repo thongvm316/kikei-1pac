@@ -33,7 +33,7 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: true }"
+      :scroll="{ x: true, y: height - 236 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
@@ -153,6 +153,7 @@ export default defineComponent({
       pageSize: 10,
       pageNumber: 1
     })
+    const height = ref(0)
     const projectDatas = ref([])
     const columns = [
       {
@@ -348,8 +349,16 @@ export default defineComponent({
       updateRequestData({ params: { orderBy: currentSortStr } })
     }
 
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
     onBeforeMount(() => {
       fetchProjectDatas()
+
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
     })
 
     watch(
@@ -376,6 +385,7 @@ export default defineComponent({
       isOpenFloatButtons,
       isDeleteConfirmModalOpen,
       targetProjectSelected,
+      height,
       onCustomRow,
       cloneProject,
       goToDeposit,
@@ -383,7 +393,8 @@ export default defineComponent({
       exportProjectAsCsvFile,
       deleteProjectCaller,
       updateRequestData,
-      changeProjectTable
+      changeProjectTable,
+      getInnerHeight
     }
   }
 })
