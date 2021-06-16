@@ -28,11 +28,7 @@ export default defineComponent({
       emit('update:visible', false)
     }
 
-    const purpose = computed(() =>
-      props.currentSelectedRecord?.parentId
-        ? props.currentSelectedRecord?.parentPurpose
-        : props.currentSelectedRecord?.purpose
-    )
+    const purpose = computed(() => props.currentSelectedRecord?.purpose)
 
     return {
       visible,

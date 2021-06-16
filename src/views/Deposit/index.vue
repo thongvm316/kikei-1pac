@@ -361,10 +361,10 @@ export default defineComponent({
 
     /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
-      const recordId = record?.id || record?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
+      const recordId = record?.id || ''
 
-      if (depositId === recordId) {
+      if (!recordId || depositId === recordId) {
         currentSelectedRecord.value = {}
         isDisableDelete.value = false
         isVisibleDepositButtonsFloat.value = false
@@ -382,7 +382,7 @@ export default defineComponent({
     }
 
     const onDeleteDepositRecord = async () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       isLoadingDataTable.value = true
@@ -393,9 +393,7 @@ export default defineComponent({
       isVisibleDepositButtonsFloat.value = false
 
       // show notification
-      const purpose = currentSelectedRecord.value?.parentId
-        ? currentSelectedRecord.value?.parentPurpose
-        : currentSelectedRecord.value?.purpose
+      const purpose = currentSelectedRecord.value?.purpose
 
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
@@ -407,7 +405,7 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       router.push({
@@ -417,7 +415,7 @@ export default defineComponent({
     }
 
     const onEditRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
