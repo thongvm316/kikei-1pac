@@ -81,11 +81,11 @@ export default {
 
   csv: {
     header: {
-      confirmed: 'Confirmed',
-      date: '入出金日',
+      confirmed: '確定',
+      date: '日付',
       statictis_month: '計上月',
-      deposit_money: '入出金額',
-      withdraw_money: 'Withdraw money',
+      deposit_money: '入金',
+      withdraw_money: '出金',
       balance: '残高',
       type_name: '区分',
       category: '大分類',

@@ -348,7 +348,7 @@ export default defineComponent({
         Object.keys(generateKeyCsv(depositItems[0].bankAccounts)).forEach((key) => {
           const headerSplit = key.split('_')
           exportObj.labels.push({
-            header: `${headerSplit[0]}_${t(`deposit.csv.header.${headerSplit[1]}`)}`,
+            header: `${headerSplit[0]}-${t(`deposit.csv.header.${headerSplit[1]}`)}`,
             field: key
           })
         })

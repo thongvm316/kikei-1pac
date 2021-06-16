@@ -6,12 +6,10 @@ export default {
   login_0101: 'Not login',
   login_0102: 'No permission',
   //deposit
-  deposit_0000: 'No error',
   deposit_0001: 'Deposit not found',
   deposit_0002: 'Deposit is valid',
   deposit_0003: 'Deposit existed',
   deposit_0004: 'Input is not valid',
-  deposit_root_0000: 'No error',
   deposit_root_0001: 'Root deposit not found',
   deposit_root_0002: 'Root deposit is valid',
   deposit_root_0003: 'Root deposit existed',

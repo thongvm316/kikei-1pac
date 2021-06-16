@@ -95,8 +95,8 @@
                 <a-range-picker
                   v-model:value="state.statisticsDateValue"
                   style="width: 300px"
-                  format="YYYY-MM-DD"
-                  :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                  format="YYYY-MM"
+                  :placeholder="['YYYY/MM', 'YYYY/MM']"
                 >
                   <template #suffixIcon>
                     <calendar-outlined />
@@ -149,7 +149,11 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
-                <a-input v-model:value="state.nameValue" style="width: 340px" name="projectName" />
+                <a-input
+                  v-model:value="state.nameValue"
+                  style="width: 340px"
+                  name="projectName"
+                  :placeholder="$t('project.purpose_placeholder')" />
               </div>
             </div>
           </div>
