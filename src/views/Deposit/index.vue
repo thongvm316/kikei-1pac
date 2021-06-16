@@ -185,7 +185,7 @@ export default defineComponent({
     const currentSort = ref({})
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: {} })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: currentPage.value } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -396,8 +396,8 @@ export default defineComponent({
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
-        duration: 5,
-        message: t('deposit.deposit_list.delete_success', { purpose: currentSelectedRecord.value?.purpose || '' })
+        duration: 5,   message: t('deposit.deposit_list.delete_success', { purpose: currentSelectedRecord.value?.purpose || '' })
+
       })
     }
 
