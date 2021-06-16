@@ -179,7 +179,7 @@ export default defineComponent({
     const onCustomRow = (record) => {
       return {
         onClick: (event) => {
-          if (event.target.type === 'button') return
+          if (event.target.type === 'button' || record.class) return
           currentRowClick.value = record.key
           emit('on-open-deposit-buttons-float', record)
         }
