@@ -21,21 +21,8 @@
     :expand-icon-as-cell="false"
     :locale="localeTable"
     @expand="onClickExpandRowButton"
+    @change="changeDepositTable"
   >
-    <template #dateTitle>
-      <div class="u-flex u-items-center">
-        <span class="u-mr-8">入出金日</span>
-        <k-sort-caret @sort="sort($event, 'date')" />
-      </div>
-    </template>
-
-    <template #statisticsMonthTitle>
-      <div class="u-flex u-items-center">
-        <span class="u-mr-8">計上月</span>
-        <k-sort-caret @sort="sort($event, 'statistics_month')" />
-      </div>
-    </template>
-
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
@@ -82,27 +69,30 @@
 </template>
 <script>
 import { defineComponent, ref } from 'vue'
-import KSortCaret from '@/components/KSortCaret'
+import humps from 'humps'
+import { toOrderBy } from '@/helpers/table'
 
 const columnsDeposit = [
   {
+    title: '入出金日',
     dataIndex: 'date',
     key: 'date',
     align: 'left',
     slots: {
-      customRender: 'renderDepositUpdatedAt',
-      title: 'dateTitle'
+      customRender: 'renderDepositUpdatedAt'
     },
-    ellipsis: true
+    ellipsis: true,
+    sorter: true
   },
   {
+    title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
     slots: {
-      customRender: 'renderDepositStatictis',
-      title: 'statisticsMonthTitle'
+      customRender: 'renderDepositStatictis'
     },
-    ellipsis: true
+    ellipsis: true,
+    sorter: true
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true },
@@ -148,10 +138,6 @@ const columnsDeposit = [
 
 export default defineComponent({
   name: 'DepositTable',
-
-  components: {
-    KSortCaret
-  },
 
   props: {
     indeterminateCheckAllRows: Boolean,
@@ -219,8 +205,13 @@ export default defineComponent({
       return classes
     }
 
-    const sort = (sortBy, field) => {
-      emit('on-sort', { sortBy, field })
+    const changeDepositTable = (pagination, filters, sorter) => {
+      const emitData = {
+        orderBy: toOrderBy(sorter.order),
+        field: humps.decamelize(sorter.field)
+      }
+
+      emit('on-sort', emitData)
     }
 
     return {
@@ -232,7 +223,7 @@ export default defineComponent({
       onCustomRow,
       onClickExpandRowButton,
       onAddRowClass,
-      sort
+      changeDepositTable
     }
   }
 })

@@ -185,7 +185,7 @@ export default defineComponent({
     const currentSort = ref({})
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: {} })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: currentPage.value } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -218,7 +218,7 @@ export default defineComponent({
         dataDeposit.value = createDataTableFormat(data.result?.data || [])
         disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
-        currentPage.value = data.result?.meta.pageNumber || 1
+        currentPage.value = paramsRequest.pageNumber
 
         // select bank
         const COLLUMNS_COUNT = 9
@@ -465,25 +465,17 @@ export default defineComponent({
     }
     /* --------------------- ./handle confirm deposit ------------------- */
 
-    const sort = ({ sortBy, field }) => {
-      currentSort.value = {
-        ...currentSort.value,
-        [field]: sortBy
-      }
-
-      if (sortBy === SORT_BY.none) delete currentSort.value[field]
-
+    const sort = (emitData) => {
       let currentSortStr = ''
 
-      if (!currentSort.value) {
+      if (!emitData.orderBy) {
         currentSortStr = null
-      } else {
-        Object.keys(currentSort.value).forEach((key) => {
-          currentSortStr += `,${key} ${currentSort.value[key]}`
-        })
+        return
       }
 
-      updateParamRequestDeposit({ params: { orderBy: currentSortStr.replace(',', '') } })
+      currentSortStr = `${emitData.field} ${emitData.orderBy}`
+
+      updateParamRequestDeposit({ params: { orderBy: currentSortStr } })
     }
 
     onBeforeMount(async () => {
