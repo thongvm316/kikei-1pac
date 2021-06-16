@@ -13,7 +13,9 @@ export default {
     conflict: 'データが競合していました',
     invalid: ' データが無効でした',
     confirmed: 'データが確認されました ',
-    to_month_must_less_than_from_month: '「月に」「月から」より大きく',
-    alphanum: 'テキスト/ 数字を入力して下さい'
+    to_month_must_less_than_from_month: '「YYYY/MMに」は「YYYY/MMから」より大きく入力してください',
+    alphanum: 'テキスト/ 数字を入力して下さい',
+    expired_must_less_than_deposit_date: '「繰返し終了日」は「入出金日」以上である必要があります',
+    invalidchar: '無効な文字が見つかりました'
   }
 }

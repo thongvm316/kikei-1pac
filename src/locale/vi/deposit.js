@@ -79,7 +79,7 @@ export default {
 
   csv: {
     header: {
-      confirmed: 'Confirmed',
+      confirmed: '確定',
       date: '入出金日',
       statictis_month: '計上月',
       deposit_money: '入出金額',
