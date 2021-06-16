@@ -232,12 +232,10 @@ export default defineComponent({
         const dataCategory = await getCategory(event)
         state.value.checkedCategotyList = []
         state.value.checkedSubCategotyList = []
+        subCategoryList.value = []
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       } else {
-        state.value.checkedCategotyList = []
-        state.value.checkedSubCategotyList = []
         categoryList.value = []
-        subCategoryList.value = []
       }
     }
     const toCategoryOptions = (options) => {
@@ -252,6 +250,7 @@ export default defineComponent({
       event = { category_id: event.toString() }
       if (event.category_id) {
         state.value.checkedSubCategotyList = []
+        subCategoryList.value = []
         const dataSubCategory = await getSubCategory(event)
         subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       } else {
