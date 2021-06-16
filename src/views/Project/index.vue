@@ -58,7 +58,7 @@
       <template #accuracyCodeTitle>
         <div class="u-flex u-items-center">
           <span class="u-mr-8">{{ $t('project.accuracy_name') }}</span>
-          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.code')" />
+          <k-sort-caret @sort="sort($event, 'ADProjectAccuracy.id')" />
         </div>
       </template>
 
@@ -140,10 +140,10 @@
     </a-table>
   </div>
 
-  <project-search-form @on-search="fetchProjectDatas($event)" />
+  <project-search-form @on-search="updateRequestData" />
 
   <project-float-buttons
-    v-model:visible="isOpenFloatButtons"
+    v-if="isOpenFloatButtons"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
     @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
     @on-confirm-delete="isDeleteConfirmModalOpen = true"
@@ -289,15 +289,34 @@ export default defineComponent({
     const targetProjectSelected = ref({})
     const currentSort = ref({})
 
+    // data and params request
+    const requestData = ref({ params: pagination.value })
+
+    const updateRequestData = ({ data = {}, params = {} }) => {
+      requestData.value = {
+        data: { ...requestData.value.data, ...data },
+        params: { ...requestData.value.params, ...params }
+      }
+    }
+
     const onCustomRow = (record) => {
       return {
         onClick: () => {
-          targetProjectSelected.value = record
-          isOpenFloatButtons.value = true
+          const targetId = targetProjectSelected.value?.id || ''
+          const recordId = record?.id || ''
+
+          if (targetId === recordId) {
+            targetProjectSelected.value = {}
+            isOpenFloatButtons.value = false
+          } else {
+            targetProjectSelected.value = record
+            isOpenFloatButtons.value = true
+          }
         }
       }
     }
 
+    // handle actions
     const cloneProject = () => {
       router.push({ name: 'project-new', query: { selectedId: targetProjectSelected.value.id } })
     }
@@ -320,11 +339,13 @@ export default defineComponent({
       return currentSortStr.replace(',', '')
     })
 
-    const fetchProjectDatas = async (data = null) => {
-      pagination.value.pageNumber = currentPage
-      const { projectList, pageData } = await getProjectList(pagination.value, currentSortStr.value, loading, data)
+    const fetchProjectDatas = async () => {
+      const { projectList, pageData } = await getProjectList(requestData.value.params, loading, requestData.value.data)
+
       projectDatas.value = projectList
       pagination.value = pageData
+      pagination.value.pageNumber = requestData.value.params.pageNumber
+      currentPage.value = requestData.value.params.pageNumber
     }
 
     const sort = (sortBy, field) => {
@@ -371,9 +392,21 @@ export default defineComponent({
     onBeforeMount(() => {
       fetchProjectDatas()
     })
-    watch(currentPage, fetchProjectDatas)
 
-    watch(currentSortStr, fetchProjectDatas)
+    watch(
+      () => requestData.value,
+      () => {
+        fetchProjectDatas()
+      }
+    )
+
+    watch(currentPage, (val) => {
+      updateRequestData({ params: { pageNumber: val } })
+    })
+
+    watch(currentSortStr, (val) => {
+      updateRequestData({ params: { orderBy: val } })
+    })
 
     watch(isOpenFloatButtons, (val, oldVal) => {
       if (!val && oldVal) targetProjectSelected.value = {}
@@ -392,10 +425,10 @@ export default defineComponent({
       cloneProject,
       goToDeposit,
       projectDatas,
-      fetchProjectDatas,
       exportProjectAsCsvFile,
       deleteProjectCaller,
-      sort
+      sort,
+      updateRequestData
     }
   }
 })

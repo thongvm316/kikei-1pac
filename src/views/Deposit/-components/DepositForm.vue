@@ -206,7 +206,7 @@
     </a-form-item>
 
     <a-form-item>
-      <a-button type="default" class="deposit-form__submit-btn" :disabled="isDisabledSubmit" @click="onCancelForm">
+      <a-button type="default" class="deposit-form__submit-btn" @click="onCancelForm">
         {{ $t('deposit.new.cancel') }}
       </a-button>
       <a-button

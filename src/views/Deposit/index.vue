@@ -5,14 +5,14 @@
         <template #icon>
           <span class="btn-icon"><line-down-icon /></span>
         </template>
-        CSVファイルダウンロード
+        {{ $t('deposit.deposit_list.export_csv') }}
       </a-button>
 
       <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
         <template #icon>
           <span class="btn-icon"><line-add-icon /></span>
         </template>
-        新規入出金追加
+        {{ $t('deposit.deposit_list.create_deposit') }}
       </a-button>
     </div>
 
@@ -24,16 +24,17 @@
           :indeterminate="indeterminateCheckAllRows"
           @change="onSelectAllRowsByCustomCheckbox"
         >
-          チェックした項目全てを確定する
+          {{ $t('deposit.deposit_list.check_all') }}
         </a-checkbox>
 
         <a-button
           v-if="currentSelectedRowKeys.length > 1"
           size="small"
           type="primary"
-          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys)"
-          >確定</a-button
+          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
         >
+          {{ $t('deposit.deposit_list.confirm_all') }}
+        </a-button>
       </div>
 
       <a-select
@@ -81,7 +82,8 @@
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
-          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event)"
+          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
+          @on-sort="sort"
         />
       </a-tab-pane>
     </a-tabs>
@@ -90,8 +92,8 @@
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
   <deposit-buttons-float
-    v-model:disable-button="disableButton"
-    v-model:visible="isVisibleDepositButtonsFloat"
+    v-if="isVisibleDepositButtonsFloat"
+    v-model:is-disable-delete="isDisableDelete"
     @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
     @on-copy-record-deposit="onCopyRecordDeposit"
     @on-edit-record-deposit="onEditRecordDeposit"
@@ -105,7 +107,7 @@
 
   <confirm-deposit-modal
     v-model:visible="isVisibleConfirmDepositModal"
-    :current-selected-record="currentSelectedRecord"
+    :confirmed-selected-purpose="confirmedSelectedPurpose"
     @on-confirm-deposit-record="onConfirmDepositRecord"
   />
 </template>
@@ -131,7 +133,7 @@ import SearchDepositModal from './-components/SearchDepositModal'
 import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
-
+import { SORT_BY } from '@/components/KSortCaret/constants'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -155,7 +157,7 @@ export default defineComponent({
     const store = useStore()
 
     const activeKeyGroupTab = ref(1)
-    const disableButton = ref()
+    const isDisableDelete = ref()
     const loadingExportCsvButton = ref()
     const currentSelectedRecord = ref()
     const isVisibleDepositButtonsFloat = ref()
@@ -177,13 +179,15 @@ export default defineComponent({
     const currentPageNumber = ref()
     const isVisibleConfirmDepositModal = ref(false)
     const confirmedSelectedDepositRecord = ref()
+    const confirmedSelectedPurpose = ref()
     const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
+    const currentSort = ref({})
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: {} })
 
-    const updateParamRequestDeposit = (data = {}, params = {}) => {
+    const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
         data: { ...paramRequestDataDeposit.value.data, ...data },
         params: { ...paramRequestDataDeposit.value.params, ...params }
@@ -214,6 +218,7 @@ export default defineComponent({
         dataDeposit.value = createDataTableFormat(data.result?.data || [])
         disabledCheckAllRowTable.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
+        currentPage.value = paramsRequest.pageNumber
 
         // select bank
         const COLLUMNS_COUNT = 9
@@ -249,10 +254,10 @@ export default defineComponent({
       dataDeposit.value = []
       currentBankAccountList.value = bankAccountId
 
-      updateParamRequestDeposit(
-        { groupId: currentActiveIdGroup.value, bankAccountId },
-        { pageNumber: currentPageNumber.value }
-      )
+      updateParamRequestDeposit({
+        data: { groupId: currentActiveIdGroup.value, bankAccountId },
+        params: { pageNumber: currentPageNumber.value }
+      })
     }, 1000)
 
     const onHandleChangeTabGroup = async (groupId) => {
@@ -269,18 +274,18 @@ export default defineComponent({
 
       expandIconColumnIndex.value = 10
 
-      updateParamRequestDeposit({ groupId }, { pageNumber: currentPage.value })
+      updateParamRequestDeposit({ data: { groupId }, params: { pageNumber: currentPage.value } })
       resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
-      updateParamRequestDeposit(
-        {
+      updateParamRequestDeposit({
+        data: {
           groupId: currentActiveIdGroup.value,
           bankAccountId: currentBankAccountList.value
         },
-        { pageNumber }
-      )
+        params: { pageNumber }
+      })
 
       currentBankAccountList.value.length
         ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
@@ -288,30 +293,6 @@ export default defineComponent({
       currentPageNumber.value = pageNumber
       resetConfirmAllRecordButton()
     }
-
-    onBeforeMount(async () => {
-      const groupList = await getGroups()
-      tabListGroup.value = groupList.result?.data || []
-
-      const groupId = getTabIndex(tabListGroup.value)
-      activeKeyGroupTab.value = parseInt(groupId)
-      currentActiveIdGroup.value = parseInt(groupId)
-
-      await fetchBankAccounts()
-
-      const { purpose } = route.query || null
-      updateParamRequestDeposit({ groupId }, { purpose })
-
-      router.replace({ query: { tab: groupId, purpose: null } })
-    })
-
-    // watch to fetch data deposit
-    watch(
-      () => paramRequestDataDeposit.value,
-      () => {
-        getDataDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
-      }
-    )
 
     /* --------------------- handle export CSV ------------------- */
     const exportObj = reactive({
@@ -381,9 +362,18 @@ export default defineComponent({
 
     /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
-      currentSelectedRecord.value = record
-      disableButton.value = record.confirmed
-      isVisibleDepositButtonsFloat.value = true
+      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const recordId = record?.id || record?.parentId || ''
+
+      if (depositId === recordId) {
+        currentSelectedRecord.value = {}
+        isDisableDelete.value = false
+        isVisibleDepositButtonsFloat.value = false
+      } else {
+        currentSelectedRecord.value = record
+        isDisableDelete.value = record.confirmed
+        isVisibleDepositButtonsFloat.value = true
+      }
     }
 
     const onOpenDeleteDepositModal = () => {
@@ -430,9 +420,15 @@ export default defineComponent({
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
     /* --------------------- handle confirm deposit ------------------- */
-    const onOpenConfirmDepositRecordModal = (depositIdList) => {
+    const onOpenConfirmDepositRecordModal = (data, typeConfirm) => {
       isVisibleConfirmDepositModal.value = true
-      confirmedSelectedDepositRecord.value = depositIdList
+      if (typeConfirm === 'confirmAll') {
+        confirmedSelectedDepositRecord.value = data
+        confirmedSelectedPurpose.value = ''
+      } else {
+        confirmedSelectedDepositRecord.value = [data.id]
+        confirmedSelectedPurpose.value = data.purpose
+      }
     }
 
     const onConfirmDepositRecord = async () => {
@@ -465,8 +461,54 @@ export default defineComponent({
       })
 
       isVisibleConfirmDepositModal.value = false
+      confirmedSelectedPurpose.value = ''
     }
     /* --------------------- ./handle confirm deposit ------------------- */
+
+    const sort = ({ sortBy, field }) => {
+      currentSort.value = {
+        ...currentSort.value,
+        [field]: sortBy
+      }
+
+      if (sortBy === SORT_BY.none) delete currentSort.value[field]
+
+      let currentSortStr = ''
+
+      if (!currentSort.value) {
+        currentSortStr = null
+      } else {
+        Object.keys(currentSort.value).forEach((key) => {
+          currentSortStr += `,${key} ${currentSort.value[key]}`
+        })
+      }
+
+      updateParamRequestDeposit({ params: { orderBy: currentSortStr.replace(',', '') } })
+    }
+
+    onBeforeMount(async () => {
+      const groupList = await getGroups()
+      tabListGroup.value = groupList.result?.data || []
+
+      const groupId = getTabIndex(tabListGroup.value)
+      activeKeyGroupTab.value = parseInt(groupId)
+      currentActiveIdGroup.value = parseInt(groupId)
+
+      await fetchBankAccounts()
+
+      const { purpose } = route.query || null
+      updateParamRequestDeposit({ data: { groupId, purpose } })
+
+      router.replace({ query: { tab: groupId, purpose: null } })
+    })
+
+    // watch to fetch data deposit
+    watch(
+      () => paramRequestDataDeposit.value,
+      () => {
+        getDataDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+      }
+    )
 
     return {
       checkAllRowTable,
@@ -485,13 +527,16 @@ export default defineComponent({
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
       currentPageNumber,
-      disableButton,
+      isDisableDelete,
       loadingExportCsvButton,
       activeKeyGroupTab,
       isVisibleConfirmDepositModal,
       tableKey,
       disabledCheckAllRowTable,
       currentSelectedRecord,
+
+      confirmedSelectedDepositRecord,
+      confirmedSelectedPurpose,
 
       updateParamRequestDeposit,
       onSelectAllRowsByCustomCheckbox,
@@ -507,7 +552,8 @@ export default defineComponent({
       exportDepositAsCsvFile,
       onOpenConfirmDepositRecordModal,
       onConfirmDepositRecord,
-      resetConfirmAllRecordButton
+      resetConfirmAllRecordButton,
+      sort
     }
   }
 })

@@ -1,11 +1,17 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('financing.title_search')" class="search-deposit" width="800px">
+  <a-modal
+    v-model:visible="visible"
+    :title="$t('deposit.search_deposit.title_search')"
+    class="search-deposit"
+    width="800px"
+    @cancel="handleModalCancel"
+  >
     <template #footer>
       <a-config-provider :locale="locales[locale]">
         <form @submit.prevent="onSubmit">
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">入出金日</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.date') }}</label>
 
               <div class="form-select">
                 <a-range-picker
@@ -24,7 +30,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">計上月</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
 
               <div class="form-select">
                 <a-range-picker
@@ -43,7 +49,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">区分</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.type') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedTypeDepositList" :options="typeDepositList" />
@@ -53,7 +59,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">大分類</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedCategotyList" :options="categoryList" />
@@ -63,7 +69,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">中分類</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
@@ -73,7 +79,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">確定</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.confirm_label') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedSubConfirmedList" :options="confirmedList" />
@@ -83,22 +89,27 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">項目名</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.purpose') }}</label>
 
               <div class="form-checkbox">
-                <a-input v-model:value="state.valuePurpose" placeholder="入力してください" />
+                <a-input
+                  v-model:value="state.valuePurpose"
+                  :placeholder="$t('deposit.search_deposit.purpose_place_holder')"
+                />
               </div>
             </div>
           </div>
 
-          <a-button key="back" @click="handleClearDepositFormSearch">クリア</a-button>
+          <a-button key="back" @click="handleClearDepositFormSearch">
+            {{ $t('deposit.search_deposit.clear_search') }}
+          </a-button>
           <a-button key="submit" type="primary" html-type="submit">
             <template #icon>
               <span class="btn-icon">
                 <search-icon />
               </span>
             </template>
-            検索
+            {{ $t('deposit.search_deposit.submit_search') }}
           </a-button>
         </form>
       </a-config-provider>
@@ -112,6 +123,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
+import { isEqual } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -129,7 +141,7 @@ export default defineComponent({
 
   components: { SearchIcon, CalendarOutlined },
 
-  emits: ['updateParamRequestDeposit'],
+  emits: ['updateParamRequestDeposit', 'update:currentPage'],
 
   setup(_, { emit }) {
     const store = useStore()
@@ -145,9 +157,11 @@ export default defineComponent({
     const categoryList = ref([])
     const subCategoryList = ref([])
     const confirmedList = ref([
-      { value: true, label: 'Yes' },
-      { value: false, label: 'No' }
+      { value: false, label: t('deposit.search_deposit.confirm_no') },
+      { value: true, label: t('deposit.search_deposit.confirm_yes') }
     ])
+
+    const isNeedSubmit = ref(false)
 
     const initState = {
       dateDepositValue: [],
@@ -169,7 +183,8 @@ export default defineComponent({
     })
 
     const handleClearDepositFormSearch = () => {
-      state.value = initState
+      isNeedSubmit.value = !isEqual(state.value, initState)
+      state.value = deepCopy(initState)
     }
 
     const onSubmit = () => {
@@ -189,8 +204,11 @@ export default defineComponent({
         purpose: state.value.valuePurpose
       }
 
-      emit('updateParamRequestDeposit', searchDataDeposit)
+      emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
+
       visible.value = false
+      isNeedSubmit.value = false
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
     const toCategoryOptions = (options) => {
@@ -209,12 +227,18 @@ export default defineComponent({
       })
     }
 
+    const handleModalCancel = () => {
+      isNeedSubmit.value && onSubmit()
+    }
+
     onBeforeMount(async () => {
       const dataCategory = await getCategory()
       categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
 
       const dataSubCategory = await getSubCategory()
       subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+
+      store.commit('setIsShowSearchBadge', false)
     })
 
     return {
@@ -228,6 +252,7 @@ export default defineComponent({
       state,
 
       handleClearDepositFormSearch,
+      handleModalCancel,
       onSubmit
     }
   }
