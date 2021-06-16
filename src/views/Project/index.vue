@@ -170,8 +170,8 @@ export default defineComponent({
         sorter: true
       },
       {
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'ADCompany.name',
+        key: 'ADCompany.name',
         align: 'left',
         colSpan: 2,
         slots: {
@@ -434,7 +434,15 @@ export default defineComponent({
 
     td {
       cursor: pointer;
+
+      &:first-child {
+        padding-left: 32px !important;
+      }
     }
+  }
+
+  table thead tr th:first-child {
+    padding-left: 32px !important;
   }
 }
 </style>
