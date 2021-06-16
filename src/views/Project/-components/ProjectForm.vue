@@ -98,10 +98,12 @@
     </a-form-item>
     <a-form-item v-else name="statisticsMonths" label="計上予定月">
       <a-range-picker
-        v-model:value="projectParams.statisticsMonths"
+        :value="projectParams.statisticsMonths"
         style="width: 300px"
         format="YYYY/MM"
+        :mode="['month', 'month']"
         :placeholder="['YYYY/MM', 'YYYY/MM']"
+        @panelChange="handleChangeStatisticsDateValue"
       >
         <template #suffixIcon>
           <calendar-outlined />
@@ -334,6 +336,10 @@ export default defineComponent({
     const dataGroups = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
+
+    const handleChangeStatisticsDateValue = (val) => {
+      projectParams.value.statisticsMonths = val
+    }
 
     // input validator rules
     const projectFormRules = ref({
@@ -609,7 +615,8 @@ export default defineComponent({
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,
-      removeTag
+      removeTag,
+      handleChangeStatisticsDateValue
     }
   }
 })
