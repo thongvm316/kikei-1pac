@@ -36,7 +36,7 @@ export default defineComponent({
       // project
       project: [
         {
-          path: 'project',
+          path: '/project',
           breadcrumbName: t('breadcrumb.project')
         }
       ],
@@ -54,7 +54,7 @@ export default defineComponent({
 
       'project-edit': [
         {
-          path: 'project',
+          path: '/project',
           breadcrumbName: t('breadcrumb.project_new_edit')
         },
         {
@@ -66,14 +66,14 @@ export default defineComponent({
       // deposit
       deposit: [
         {
-          path: 'deposit',
+          path: '/deposit',
           breadcrumbName: t('breadcrumb.deposit')
         }
       ],
 
       'deposit-new': [
         {
-          path: 'deposit',
+          path: '/deposit',
           breadcrumbName: t('breadcrumb.deposit')
         },
         {
@@ -84,7 +84,7 @@ export default defineComponent({
 
       'deposit-edit': [
         {
-          path: 'deposit',
+          path: '/deposit',
           breadcrumbName: t('breadcrumb.deposit')
         },
         {
@@ -96,7 +96,7 @@ export default defineComponent({
       // financing
       financing: [
         {
-          path: 'financing',
+          path: '/financing',
           breadcrumbName: t('breadcrumb.financing')
         }
       ],
@@ -104,7 +104,7 @@ export default defineComponent({
       // accounting
       accounting: [
         {
-          path: 'accounting',
+          path: '/accounting',
           breadcrumbName: t('breadcrumb.accounting')
         }
       ],
@@ -112,14 +112,14 @@ export default defineComponent({
       // company
       company: [
         {
-          path: 'company',
+          path: '/setting/company',
           breadcrumbName: t('breadcrumb.company')
         }
       ],
 
       'company-new': [
         {
-          path: 'company',
+          path: '/setting/company',
           breadcrumbName: t('breadcrumb.company')
         },
         {
@@ -130,7 +130,7 @@ export default defineComponent({
 
       'company-edit': [
         {
-          path: 'company',
+          path: '/setting/company',
           breadcrumbName: t('breadcrumb.company')
         },
         {
@@ -142,7 +142,7 @@ export default defineComponent({
       // category
       category: [
         {
-          path: 'category',
+          path: '/setting/category',
           breadcrumbName: t('breadcrumb.category')
         }
       ],
@@ -150,7 +150,7 @@ export default defineComponent({
       // logs
       logs: [
         {
-          path: 'logs',
+          path: '/setting/logs',
           breadcrumbName: t('breadcrumb.logs')
         }
       ]
