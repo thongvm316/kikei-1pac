@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
@@ -53,5 +53,9 @@ export default defineComponent({
   button + button {
     margin-left: 16px;
   }
+}
+
+.ant-layout .box-btn.deposit-buttons-float {
+  bottom: 32px;
 }
 </style>

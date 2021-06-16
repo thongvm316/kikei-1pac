@@ -72,4 +72,8 @@ export default defineComponent({
     margin-left: 16px;
   }
 }
+
+.ant-layout .box-btn.project-buttons-float {
+  bottom: 32px;
+}
 </style>
