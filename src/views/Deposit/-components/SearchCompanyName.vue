@@ -1,183 +1,224 @@
 <template>
-  <a-modal
-    :visible="visible"
-    :title="$t('deposit.company_name.title_search')"
-    class="deposit-search-company"
-    width="85%"
-    max-height="85%"
-    @cancel="handleModalCancel"
-  >
-    <template #footer>
-      <div class="form-deposit">
-        <a-form ref="searchCompanyRef" class="form-left" :model="filters" layout="vertical" @submit="handleSearch">
-          <a-form-item name="keySearch" :label="$t('deposit.company_name.key_search')">
-            <a-input v-model:value="filters.keySearch" :placeholder="$t('deposit.company_name.place_input')" />
-          </a-form-item>
+  <section>
+    <a-modal
+      :visible="visible"
+      :title="$t('company.title_search_modal')"
+      class="modal-company"
+      width="85%"
+      max-height="85%"
+      @cancel="handleModalCancel"
+    >
+      <template #footer>
+        <div class="form-company__search">
+          <form class="form-left" @submit.prevent="onSearch">
+            <!-- Keyword -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="form-label">{{ $t('company.key_word') }}</label>
+                <div class="form-input">
+                  <a-input v-model:value="filter.key_search" :placeholder="$t('company.place_input')" />
+                </div>
+              </div>
+            </div>
 
-          <a-form-item name="division" :label="$t('deposit.company_name.division')">
-            <a-checkbox-group v-model:value="filters.division" :options="divisionOptions" />
-          </a-form-item>
+            <!-- Classification -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.division') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.division">
+                  <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
+                    $t(`company.${item.value}`)
+                  }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
 
-          <a-form-item name="countryId" :label="$t('deposit.company_name.country')">
-            <a-checkbox-group v-model:value="filters.countryId" :options="countryOptions" />
-          </a-form-item>
+            <!-- Country -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.country') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.country_id">
+                  <a-checkbox v-for="item in COUNTRY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
 
-          <a-form-item name="currencyId" :label="$t('deposit.company_name.currency')">
-            <a-checkbox-group v-model:value="filters.currencyId" :options="currencyOptions" />
-          </a-form-item>
+            <!-- Currency -->
+            <div class="form-group">
+              <div class="form-content">
+                <label class="label-input">
+                  {{ $t('company.currency') }}
+                </label>
+                <a-checkbox-group v-model:value="filter.currency_id">
+                  <a-checkbox v-for="item in CURRENCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
 
-          <a-button type="default" html-type="reset" @click="handleClearFilter">
-            {{ $t('deposit.company_name.handle_clear') }}
-          </a-button>
+            <!-- Box-Action-->
+            <div class="box-action">
+              <a-button key="clear" @click="handleClear">{{ $t('company.clear') }} </a-button>
+              <a-button key="submit" type="primary" html-type="submit">
+                <template #icon>
+                  <span class="btn-icon">
+                    <search-icon />
+                  </span>
+                </template>
+                {{ $t('company.search') }}
+              </a-button>
+            </div>
+          </form>
+        </div>
 
-          <a-button key="submit" type="primary" html-type="submit" :loading="isFilterloading">
-            <template #icon>
-              <span class="btn-icon">
-                <search-icon />
-              </span>
-            </template>
-            {{ $t('deposit.company_name.handle_ok') }}
-          </a-button>
-        </a-form>
-      </div>
-
-      <div class="table-deposit">
         <a-table
           :columns="columns"
-          :data-source="companyListData"
-          :pagination="false"
-          :expand-icon-as-cell="false"
-          :scroll="{ x: 1000, y: 350 }"
-          :loading="isTableLoading"
+          :data-source="dataSource"
+          :row-key="(record) => record.id"
+          :loading="isLoading"
+          :pagination="pagination"
+          :scroll="{ y: height - 330 }"
+          :custom-row="customRow"
+          size="middle"
           table-layout="fixed"
+          @change="handleChange"
         >
           <template #action="{ record }">
-            <a-button
-              :disabled="record.disabled"
-              type="primary"
-              class="table-deposit__select-btn"
-              @click="handleSelectCompany(record)"
-            >
-              {{ $t('deposit.company_name.handle_select') }}
-            </a-button>
+            <a-button type="primary" @click="handleSelectCompany(record)">{{ $t('company.confirm') }}</a-button>
           </template>
         </a-table>
-
-        <a-pagination
-          v-if="totalRecords !== 0"
-          v-model:current="pageNumber"
-          :total="totalRecords"
-          :page-size="pageSize"
-          size="small"
-        />
-      </div>
-    </template>
-  </a-modal>
+      </template>
+    </a-modal>
+  </section>
 </template>
 
 <script>
-import { defineComponent, reactive, ref, onBeforeMount, watch, toRefs } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, onBeforeMount } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-import { DIVISION, COUNTRY, CURRENCY } from '@/enums/deposit.enum'
-import { getCompanyList } from '../composables/useSearchCompany'
-import { addUniqueRowKey } from '@/helpers/table'
+import { convertPagination } from '@/helpers/convert-pagination'
+import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
+import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import SearchIcon from '@/assets/icons/ico_search.svg'
+import Table from '@/mixins/table.mixin'
+import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
 
 export default defineComponent({
-  name: 'KSearchCompanyName',
+  name: 'Search',
 
   components: {
     SearchIcon
   },
 
+  mixins: [Table],
+
   props: {
-    visible: {
-      type: Boolean,
-      required: true
-    },
-    companyName: {
-      type: String,
-      required: true
-    },
-    // eslint-disable-next-line vue/require-default-prop
-    subcategoryId: Number
+    visible: Boolean
   },
 
-  emits: {
-    'update:subcategoryId': null,
-    'update:companyName': null,
-    'update:visible': null,
-    handleValidateSubCategory: null
-  },
+  emits: ['update:visible', 'update:subcategoryId', 'update:companyName', 'handleValidateSubCategory'],
 
   setup(_, context) {
+    const route = useRoute()
     const { t } = useI18n()
 
-    const searchCompanyRef = ref()
-    const isTableLoading = ref(false)
-    const isFilterloading = ref(false)
-    const companyListData = ref([])
-    const pagination = reactive({ pageNumber: 1, pageSize: 10, orderBy: 'name', totalPages: 0, totalRecords: 0 })
-    const filters = ref({ keySearch: '', division: [], countryId: [], currencyId: [] })
+    const dataSource = ref([])
+    const pagination = ref({ pageNumber: 1, pageSize: 30 })
+    const selected = ref({})
+    const filters = ref({})
+    const tmpCompany = ref({})
+    const height = ref(0)
+    const isLoading = ref(false)
 
-    const divisionOptions = DIVISION.map((item) => ({ ...item, label: t(`deposit.division.${item.label}`) }))
-    const countryOptions = COUNTRY.map((item) => ({ ...item, label: t(`deposit.country.${item.label}`) }))
-    const currencyOptions = CURRENCY.map((item) => ({ ...item, label: t(`deposit.currency.${item.label}`) }))
+    const initialState = {
+      key_search: '',
+      division: [],
+      country_id: [],
+      currency_id: []
+    }
 
-    const columns = [
-      {
-        title: t('deposit.company_name.table_header_select'),
-        dataIndex: 'select',
-        key: 'select',
-        slots: { customRender: 'action' },
-        ellipsis: true
-      },
-      { title: t('deposit.company_name.table_header_name'), dataIndex: 'name', key: 'name', ellipsis: true },
-      { title: t('deposit.company_name.table_header_code'), dataIndex: 'code', key: 'code', ellipsis: true },
-      {
-        title: t('deposit.company_name.table_header_country'),
-        dataIndex: 'countryName',
-        key: 'countryName',
-        ellipsis: true
-      },
-      {
-        title: t('deposit.company_name.table_header_currency'),
-        dataIndex: 'currencyCode',
-        key: 'currencyCode',
-        ellipsis: true
-      },
-      {
-        title: t('deposit.company_name.table_header_division'),
-        dataIndex: 'divisionName',
-        key: 'divisionName',
-        ellipsis: true
+    const filter = reactive({ ...initialState })
+
+    const columns = computed(() => {
+      return [
+        {
+          title: t('company.confirm'),
+          dataIndex: 'confirm',
+          key: 'confirm',
+          slots: { customRender: 'action' }
+        },
+        {
+          title: t('company.company'),
+          dataIndex: 'name',
+          key: 'name'
+        },
+        {
+          title: t('company.company_code'),
+          dataIndex: 'code',
+          key: 'code'
+        },
+        {
+          title: t('company.country'),
+          dataIndex: 'countryName',
+          key: 'countryName'
+        },
+        {
+          title: t('company.currency'),
+          dataIndex: 'currencyCode',
+          key: 'currencyCode'
+        },
+        {
+          title: t('company.division'),
+          dataIndex: 'divisionName',
+          key: 'divisionName'
+        }
+      ]
+    })
+
+    onMounted(async () => {
+      dataSource.value = [...(route?.meta['lists'] || [])]
+      pagination.value = { ...(route?.meta['pagination'] || {}) }
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
+    const handleClear = async () => {
+      Object.assign(filter, initialState)
+      await fetchList({ pageNumber: 1, pageSize: 30 })
+    }
+
+    const handleChange = async (pagination) => {
+      const params = {
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize
       }
-    ]
 
-    const fetchCompanyList = async () => {
-      isTableLoading.value = true
+      await fetchList(params, filter)
+    }
 
-      try {
-        const { result = {} } = await getCompanyList(
-          {
-            pageNumber: pagination.pageNumber,
-            pageSize: pagination.pageSize,
-            orderBy: pagination.orderBy
-          },
-          filters.value
-        )
+    const onSearch = async () => {
+      filters.value = { ...deleteEmptyValue(filter) }
+      await fetchList({ pageNumber: 1, pageSize: 30 }, filters.value)
+    }
 
-        companyListData.value = addUniqueRowKey(result.data)
-        pagination.totalPages = result.meta?.totalPages || 0
-        pagination.totalRecords = result.meta?.totalRecords || 0
-      } finally {
-        isTableLoading.value = false
+    const customRow = (record) => {
+      return {
+        onClick: () => {
+          tmpCompany.value = { ...record }
+        }
       }
     }
 
-    // update state in parent
     const handleSelectCompany = (record) => {
       context.emit('update:companyName', record.name)
       context.emit('update:subcategoryId', record.id)
@@ -185,135 +226,53 @@ export default defineComponent({
       handleModalCancel()
     }
 
-    // cancel modal
+    const fetchList = async (params = {}, data) => {
+      isLoading.value = true
+
+      try {
+        const { getLists } = useGetCompanyListService({ ...params }, data)
+        const { result } = await getLists()
+
+        dataSource.value = [...result.data]
+        pagination.value = convertPagination(result.meta, 'bottom')
+        isLoading.value = false
+      } catch (e) {
+        isLoading.value = false
+      }
+    }
+
     const handleModalCancel = () => {
       context.emit('update:visible', false)
     }
 
-    const handleSearch = () => {
-      fetchCompanyList()
-    }
-
-    const handleClearFilter = () => {
-      searchCompanyRef.value.resetFields()
-      fetchCompanyList()
-    }
-
-    // fetch table list
     onBeforeMount(() => {
-      fetchCompanyList()
+      fetchList({ pageNumber: 1, pageSize: 30 })
     })
 
-    watch(
-      () => pagination.pageNumber,
-      () => {
-        fetchCompanyList()
-      }
-    )
-
     return {
-      searchCompanyRef,
-      isTableLoading,
-      isFilterloading,
-      divisionOptions,
-      countryOptions,
-      currencyOptions,
+      isLoading,
+      filter,
       filters,
-      companyListData,
+      t,
       columns,
-
+      dataSource,
+      pagination,
+      selected,
+      tmpCompany,
+      height,
+      handleClear,
+      handleChange,
+      onSearch,
+      fetchList,
       handleSelectCompany,
-      handleModalCancel,
-      handleSearch,
-      handleClearFilter,
-      ...toRefs(pagination)
+      customRow,
+      CURRENCY,
+      COUNTRY,
+      DIVISION,
+      handleModalCancel
     }
   }
 })
 </script>
 
-<style lang="scss">
-@import '@/styles/shared/variables';
-@import '@/styles/shared/mixins';
-
-.deposit-search-company {
-  .ant-modal-footer {
-    @include flexbox(null, null);
-    padding: 0;
-  }
-
-  .form-deposit {
-    text-align: left;
-    padding: 24px;
-    border-right: 1px solid $color-grey-55;
-    width: 296px;
-    background-color: $color-grey-94;
-
-    .form-left {
-      position: relative;
-      width: 100%;
-      overflow: auto;
-    }
-
-    .form-group,
-    .checkbox__input {
-      margin-bottom: 16px;
-    }
-  }
-
-  .table-deposit {
-    flex: 1;
-    padding: 24px;
-    width: 200px;
-
-    &__select-btn {
-      font-size: 12px;
-      line-height: 18px;
-      height: 20px;
-    }
-  }
-
-  .ant-form-item {
-    margin-bottom: 16px;
-  }
-
-  .ant-checkbox-group {
-    @include flexbox(null, null);
-    flex-direction: column;
-  }
-
-  .ant-table-wrapper {
-    margin-bottom: 16px;
-  }
-
-  form .form-group .form-content .form-input {
-    width: 100%;
-  }
-
-  .ant-table-thead > tr > th {
-    padding: 7px 16px;
-  }
-
-  .ant-table-tbody > tr > td:not(:first-child) {
-    padding: 7px 16px;
-    line-height: 14px;
-  }
-
-  .ant-table-tbody > tr > td:first-child {
-    padding: 6px 16px;
-    line-height: 14px;
-  }
-
-  .ant-table {
-    border: 1px solid $color-grey-85;
-  }
-
-  .ant-table-body {
-    overflow-x: auto !important;
-  }
-
-  .ant-table-placeholder {
-    height: 338px;
-  }
-}
-</style>
+<style scoped></style>

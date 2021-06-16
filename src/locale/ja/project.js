@@ -31,7 +31,7 @@ export default {
   flash_message: {
     create_success: '{name} が追加されました',
     update_success: '{name} が更新されました',
-    delete_success: 'プロジェクト名 を削除してもよろしですか？'
+    delete_success: '{name} が削除されました'
   },
 
   delete_modal: {
