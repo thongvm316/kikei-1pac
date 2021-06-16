@@ -234,6 +234,14 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .ant-table-wrapper.deposit-table {
+  .ant-table-column-sorters {
+    display: flex !important;
+
+    .ant-table-column-sorter {
+      margin-top: 2px;
+    }
+  }
+
   table thead .ant-checkbox-wrapper {
     display: none;
   }

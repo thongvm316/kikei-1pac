@@ -398,6 +398,15 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 
 .project {
+  .ant-table-column-sorters {
+    display: flex !important;
+    align-items: center !important;
+
+    .ant-table-column-sorter {
+      margin-bottom: 4px;
+    }
+  }
+
   &__filters {
     @include flexbox(flex-end, flex-end);
     flex-direction: column;
