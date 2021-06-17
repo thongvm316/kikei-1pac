@@ -3,11 +3,12 @@
     <Search @filter-changed="onFilterChange($event)" />
 
     <a-table
+      id="list-table"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
-      :scroll="{ y: height - 158 }"
+      :scroll="{ y: height - 163 }"
       :custom-row="customRow"
       :pagination="{
         ...pagination,
@@ -33,7 +34,7 @@
       </template>
     </a-table>
 
-    <ModalActivityLogs v-model:visible="openActivityLog" :datalog="dataLog" />
+    <ModalActivityLogs v-model:visible="openActivityLog" :data-log="dataLog" />
   </section>
 </template>
 
@@ -90,7 +91,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         { title: t('logs.timesTamp'), dataIndex: 'time', key: 'time', slots: { customRender: 'time' }, sorter: true },
-        { title: t('logs.account'), dataIndex: 'userId', key: 'userId' },
+        { title: t('logs.account'), dataIndex: 'userName', key: 'userName' },
         {
           title: t('logs.action'),
           dataIndex: 'header',
@@ -168,7 +169,7 @@ export default defineComponent({
       openActivityLog.value = true
       try {
         const { logDetail } = useGetLogDetailService(id)
-        await logDetail()
+        dataLog.value = await logDetail()
       } catch (error) {
         console.log(error)
       }
