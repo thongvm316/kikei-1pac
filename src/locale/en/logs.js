@@ -5,5 +5,14 @@ export default {
   stages: 'Stages',
   date: 'Date',
   date_start: 'Date start',
-  date_finish: 'Date finish'
+  date_finish: 'Date finish',
+  timesTamp: 'Timestamp',
+  account: 'Account',
+  action: 'Action',
+  pageData: 'Page / Data',
+  delete: 'Delete',
+  add: 'Add',
+  edit: 'Edit',
+  seen: 'Detail',
+  detail: 'Show Detail'
 }

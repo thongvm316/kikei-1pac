@@ -1,8 +1,10 @@
 .activity-log{
-  .ant-table-content{
-
-    .ant-dropdown-link{
-      color: #064780;
+  .ant-table-wrapper {
+    margin-top: 16px;
+    .ant-table-content{
+      .ant-dropdown-link{
+        color: #0070c0;
+      }
     }
   }
 }

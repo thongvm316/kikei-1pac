@@ -155,7 +155,8 @@
                   v-model:value="state.nameValue"
                   style="width: 340px"
                   name="projectName"
-                  :placeholder="$t('project.purpose_placeholder')" />
+                  :placeholder="$t('project.purpose_placeholder')"
+                />
               </div>
             </div>
           </div>
