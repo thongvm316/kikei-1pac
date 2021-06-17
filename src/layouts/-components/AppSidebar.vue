@@ -17,7 +17,7 @@
             :class="['aside__link', navItem.name === 'dashboard' && 'is-dashboard']"
           >
             <component :is="navItem.icon" class="aside__link--nav-icon" />
-            <span class="aside__link--text">{{ $t(navItem.label) }}</span>
+            <span class="aside__link--text">{{ navItem.label }}</span>
           </router-link>
 
           <div v-else class="aside__collapse">
@@ -37,7 +37,7 @@
                         @click="null"
                       >
                         <component :is="navItem.icon" class="aside__link--nav-icon" />
-                        <span class="aside__link--text">{{ $t(navItem.label) }}</span>
+                        <span class="aside__link--text">{{ navItem.label }}</span>
                         <arrow-down-icon class="aside__link--arrow-icon" />
                       </div>
                     </router-link>
@@ -48,7 +48,7 @@
                   <li v-for="subNavItem in navItem.children" :key="subNavItem.name" class="aside__list">
                     <router-link :to="{ name: subNavItem.name }" class="aside__link">
                       <i class="aside__link--circle-icon" />
-                      <span class="aside__text">{{ $t(subNavItem.label) }}</span>
+                      <span class="aside__text">{{ subNavItem.label }}</span>
                     </router-link>
                   </li>
                 </ul>
@@ -63,6 +63,7 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
@@ -87,65 +88,51 @@ export default defineComponent({
     AccountingIcon
   },
 
-  setup() {
+  setup(_, { emit }) {
+    const { t } = useI18n()
+
     const navList = [
       {
         name: 'dashboard',
-        label: 'breadcrumb.dashboard',
+        label: t('sidebar.dashboard'),
         icon: 'DashboardIcon'
       },
       {
         name: 'project',
-        label: 'breadcrumb.project',
+        label: t('sidebar.project'),
         icon: 'ProjectIcon'
       },
       {
         name: 'deposit',
-        label: 'breadcrumb.deposit',
+        label: t('sidebar.deposit'),
         icon: 'DepositIcon'
       },
       {
         name: 'financing',
-        label: 'breadcrumb.financing',
+        label: t('sidebar.financing'),
         icon: 'FinancingIcon'
       },
       {
         name: 'accounting',
-        label: 'breadcrumb.accounting',
+        label: t('sidebar.accounting'),
         icon: 'AccountingIcon'
       },
       {
         name: 'setting',
-        label: 'breadcrumb.setting',
+        label: t('sidebar.setting'),
         icon: 'SettingIcon',
         children: [
           {
             name: 'company',
-            label: 'breadcrumb.company'
+            label: t('sidebar.company')
           },
           {
             name: 'category',
-            label: 'breadcrumb.category'
-          },
-          {
-            name: 'setting-1',
-            label: 'breadcrumb.setting'
-          },
-          {
-            name: 'setting-2',
-            label: 'breadcrumb.setting'
-          },
-          {
-            name: 'setting-3',
-            label: 'breadcrumb.setting'
-          },
-          {
-            name: 'setting-4',
-            label: 'breadcrumb.setting'
+            label: t('sidebar.category')
           },
           {
             name: 'logs',
-            label: 'breadcrumb.logs'
+            label: t('sidebar.logs')
           }
         ]
       }
@@ -156,6 +143,7 @@ export default defineComponent({
 
     const toggleSideBar = () => {
       isCollapse.value = !isCollapse.value
+      emit('on-collapse-side-bar', isCollapse.value)
     }
 
     // collapse active sub menu

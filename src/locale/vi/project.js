@@ -4,6 +4,8 @@ export default {
   updated_date: '更新日',
   customer_name: 'クライアント',
   project_name: 'プロジェクト名',
+  project_code: 'プロジェクトコード',
+  company_name: '会社名',
   accuracy_name: '受注確度',
   release_date: 'リリース日',
   money: '受注金額',
@@ -17,6 +19,7 @@ export default {
   title_search: '検索',
   group_placeholder: '選択して下さい',
   accounts_placeholder: '選択して下さい',
+  purpose_placeholder: '入力してください',
   company_form: {
     handle_cancel: 'クリア',
     handle_ok: '検索',

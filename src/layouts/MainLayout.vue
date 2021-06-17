@@ -1,12 +1,12 @@
 <template>
   <a-layout class="main">
-    <app-sidebar />
+    <app-sidebar @on-collapse-side-bar="onCollapseSideBar($event)"/>
     <a-layout class="main__content">
-      <app-header>
+      <app-header :class="isCollapse ? 'is-collapse' : ''">
         <slot name="header" />
       </app-header>
 
-      <a-layout-content>
+      <a-layout-content class="u-pt-56">
         <a-config-provider :locale="locales[locale]">
           <router-view />
         </a-config-provider>
@@ -35,6 +35,11 @@ export default defineComponent({
   setup() {
     const locales = ref({ en: localeEn, ja: localeJa })
     const { locale } = useI18n()
+    const isCollapse = ref()
+
+    const onCollapseSideBar = (isCollapseEmit) => {
+      isCollapse.value = isCollapseEmit
+    }
 
     onMounted(() => {
       locales.value = {
@@ -43,12 +48,22 @@ export default defineComponent({
       }
     })
 
-    return { locale, locales }
+    return {
+      locale,
+      locales,
+      isCollapse,
+      onCollapseSideBar
+    }
   }
 })
 </script>
 
 <style lang="scss">
+.header.is-collapse {
+  left: 66px;
+  transition: transform 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+
 .main {
   height: 100vh;
 }

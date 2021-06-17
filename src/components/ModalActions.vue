@@ -1,6 +1,6 @@
 <template>
-  <div class="box-btn project-buttons-float">
-    <a-button size="large" @click="$emit('on-go-to-edit-project')">
+  <div class="box-btn modal-actions">
+    <a-button size="large" @click="$emit('on-go-to-edit')">
       <template #icon>
         <span class="btn-icon">
           <edit-icon />
@@ -9,7 +9,7 @@
       {{ $t('project.float_modal.edit') }}
     </a-button>
 
-    <a-button size="large" @click="$emit('on-copy-project')">
+    <a-button size="large" @click="$emit('on-go-to-copy')">
       <template #icon>
         <span class="btn-icon">
           <copy-icon />
@@ -27,7 +27,7 @@
       {{ $t('project.float_modal.search_deposit') }}
     </a-button>
 
-    <a-button size="large" @click="$emit('on-confirm-delete')">
+    <a-button :disabled="isDisableDelete" size="large" @click="$emit('on-go-to-delete')">
       <template #icon>
         <span class="btn-icon">
           <delete-icon />
@@ -56,7 +56,15 @@ export default defineComponent({
   },
 
   props: {
-    enableGoToDeposit: Boolean
+    enableGoToDeposit: {
+      type: Boolean,
+      default: false
+    },
+
+    isDisableDelete: {
+      type: Boolean,
+      default: false
+    }
   },
 
   setup() {
@@ -67,9 +75,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.project-buttons-float {
+.modal-actions {
   button + button {
     margin-left: 16px;
   }
+}
+
+.ant-layout .box-btn.modal-actions {
+  bottom: 32px;
 }
 </style>

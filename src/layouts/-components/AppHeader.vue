@@ -74,15 +74,21 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .header {
+  position: fixed;
+  left: 232px;
+  right: 0;
+  top: 0;
+  z-index: 200;
   background-color: $color-grey-100;
   box-shadow: 0 1px 0 #f0f0f0;
   height: 56px;
   line-height: 28px;
   padding: 0 32px;
+  transition: transform 0.3s ease-in-out, left 0.3s ease-in-out;
 
   &__content {
     @include flexbox(center, center);
-    padding: 14px 0;
+    padding: 12px 0;
 
     &--left {
       flex-grow: 1;

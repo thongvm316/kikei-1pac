@@ -5,7 +5,7 @@
         {{ $t('deposit.confirm_modal.message', { purpose: confirmedSelectedPurpose }) }}
       </p>
       <p v-else>
-        {{ $t('deposit.confirm_modal.message_multiple', { purpose: confirmedSelectedPurpose }) }}
+        {{ $t('deposit.confirm_modal.message_multiple') }}
       </p>
       <a-button @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
       <a-button type="primary" @click="$emit('on-confirm-deposit-record')">

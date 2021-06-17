@@ -3,7 +3,7 @@
     v-model:visible="visible"
     :title="$t('project.title_search')"
     class="search-deposit"
-    width="1000px"
+    width="800px"
     @cancel="handleModalCancel"
   >
     <template #footer>
@@ -93,10 +93,12 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="state.statisticsDateValue"
+                  :value="state.statisticsDateValue"
                   style="width: 300px"
-                  format="YYYY-MM-DD"
-                  :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                  format="YYYY-MM"
+                  :mode="['month', 'month']"
+                  :placeholder="['YYYY/MM', 'YYYY/MM']"
+                  @panelChange="handleChangeStatisticsDateValue"
                 >
                   <template #suffixIcon>
                     <calendar-outlined />
@@ -149,7 +151,11 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
-                <a-input v-model:value="state.nameValue" style="width: 340px" name="projectName" />
+                <a-input
+                  v-model:value="state.nameValue"
+                  style="width: 340px"
+                  name="projectName"
+                  :placeholder="$t('project.purpose_placeholder')" />
               </div>
             </div>
           </div>
@@ -210,7 +216,7 @@ export default defineComponent({
       updatedDateValue: [],
       typeValue: [],
       statusValue: [],
-      statisticsDateValue: [],
+      statisticsDateValue: [null, null],
       accuracyValue: [],
       nameValue: ''
     }
@@ -221,8 +227,11 @@ export default defineComponent({
     const dataTypes = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
-
     const isNeedSubmit = ref(false)
+
+    const handleChangeStatisticsDateValue = (val) => {
+      state.value.statisticsDateValue = val
+    }
 
     const toStatusOptions = (data) => {
       if (data.length <= 0) return []
@@ -314,7 +323,8 @@ export default defineComponent({
       onSubmit,
       clearSearchForm,
       state,
-      handleModalCancel
+      handleModalCancel,
+      handleChangeStatisticsDateValue
     }
   }
 })
