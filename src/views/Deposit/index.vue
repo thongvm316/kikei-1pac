@@ -273,7 +273,7 @@ export default defineComponent({
 
       expandIconColumnIndex.value = 10
 
-      updateParamRequestDeposit({ data: { groupId }, params: { pageNumber: currentPage.value } })
+      updateParamRequestDeposit({ data: { groupId, bankAccountId: [] }, params: { pageNumber: currentPage.value } })
       resetConfirmAllRecordButton()
     }
 
