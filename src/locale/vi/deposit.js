@@ -7,7 +7,11 @@ export default {
     type_none: '-',
     delete_deposit: '{purpose}を削除してもよろしですか？',
     delete_success: '{purpose}を削除されました',
-    select_bank_placeholder: '口座選択'
+    select_bank_placeholder: '口座選択',
+    export_csv: 'CSVファイルダウンロード',
+    create_deposit: '新規入出金追加',
+    check_all: 'チェックした項目全てを確定する',
+    confirm_all: '確定'
   },
   company_name: {
     title_search: '会社一覧',
@@ -75,7 +79,7 @@ export default {
 
   csv: {
     header: {
-      confirmed: 'Confirmed',
+      confirmed: '確定',
       date: '入出金日',
       statictis_month: '計上月',
       deposit_money: '入出金額',
@@ -123,5 +127,21 @@ export default {
     cancel_btn: 'キャンセル',
     confirm_btn: '削除',
     confirm_success: '{purpose} を確定されました'
+  },
+
+  search_deposit: {
+    title_search: '検索',
+    date: '入出金日',
+    statistics_month: '計上月',
+    type: '区分',
+    category: '大分類',
+    sub_category: '中分類',
+    confirm_label: '確定',
+    confirm_yes: 'Yes',
+    confirm_no: 'No',
+    purpose: '項目名',
+    purpose_place_holder: '入力してください',
+    clear_search: 'クリア',
+    submit_search: '検索'
   }
 }

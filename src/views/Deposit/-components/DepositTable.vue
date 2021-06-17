@@ -3,7 +3,7 @@
     class="deposit-table"
     :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1200 }"
+    :scroll="{ x: 1200, y: height - 295 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -12,15 +12,14 @@
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,
       selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => {
-        return { disabled: record.confirmed }
-      }
+      getCheckboxProps: (record) => ({ disabled: record.confirmed })
     }"
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false"
     :locale="localeTable"
     @expand="onClickExpandRowButton"
+    @change="changeDepositTable"
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
@@ -46,7 +45,7 @@
 
     <template #balance="{ record }">
       <span :class="record.balance < 0 ? 'type-20' : ''">
-        {{ record.balance < 0 ? '-' : '' }}{{ $filters.number_with_commas(record.balance, 2) }}
+        {{ $filters.number_with_commas(record.balance, 2) }}
       </span>
     </template>
 
@@ -55,7 +54,7 @@
         v-if="record.children"
         :disabled="record.confirmed"
         type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', [record.id])"
+        @click="$emit('on-open-confirm-deposit-record-modal', record)"
       >
         確定
       </a-button>
@@ -67,7 +66,9 @@
   </a-table>
 </template>
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
+import humps from 'humps'
+import { toOrderBy } from '@/helpers/table'
 
 const columnsDeposit = [
   {
@@ -75,17 +76,21 @@ const columnsDeposit = [
     dataIndex: 'date',
     key: 'date',
     align: 'left',
-    slots: { customRender: 'renderDepositUpdatedAt' },
-    sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    ellipsis: true
+    slots: {
+      customRender: 'renderDepositUpdatedAt'
+    },
+    ellipsis: true,
+    sorter: true
   },
   {
     title: '計上月',
     dataIndex: 'statisticsMonth',
     key: 'statisticsMonth',
-    slots: { customRender: 'renderDepositStatictis' },
-    sorter: (a, b) => new Date(a.statisticsMonth).getMonth() - new Date(b.statisticsMonth).getMonth(),
-    ellipsis: true
+    slots: {
+      customRender: 'renderDepositStatictis'
+    },
+    ellipsis: true,
+    sorter: true
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true },
@@ -145,6 +150,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const currentRowClick = ref()
+    const height = ref(0)
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
@@ -173,7 +179,7 @@ export default defineComponent({
       return {
         onClick: (event) => {
           if (event.target.type === 'button') return
-          currentRowClick.value = record.key
+          currentRowClick.value !== record.key ? (currentRowClick.value = record.key) : (currentRowClick.value = null)
           emit('on-open-deposit-buttons-float', record)
         }
       }
@@ -198,15 +204,36 @@ export default defineComponent({
       return classes
     }
 
+    const changeDepositTable = (pagination, filters, sorter) => {
+      const emitData = {
+        orderBy: toOrderBy(sorter.order),
+        field: humps.decamelize(sorter.field)
+      }
+
+      emit('on-sort', emitData)
+    }
+
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
+    onBeforeMount(() => {
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
     return {
       columnsDeposit,
       localeTable,
+      height,
 
       onSelectChangeRow,
       onSelectAllChangeRows,
       onCustomRow,
       onClickExpandRowButton,
-      onAddRowClass
+      onAddRowClass,
+      changeDepositTable
     }
   }
 })
@@ -217,6 +244,14 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .ant-table-wrapper.deposit-table {
+  .ant-table-column-sorters {
+    display: flex !important;
+
+    .ant-table-column-sorter {
+      margin-top: 2px;
+    }
+  }
+
   table thead .ant-checkbox-wrapper {
     display: none;
   }

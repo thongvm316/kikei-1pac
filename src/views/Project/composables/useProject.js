@@ -6,14 +6,10 @@ import { exportCSVFile } from '@/helpers/export-csv-file'
 const ProjectService = service.get('ProjectService')
 const { t } = i18n.global
 
-export const getProjectList = async (pagination, orderBy, loading, data) => {
+export const getProjectList = async (params, loading, data) => {
   loading.value = true
   try {
-    const paramsRequest = {
-      ...pagination,
-      orderBy
-    }
-    const { data: response } = await ProjectService.getProjectList(paramsRequest, data)
+    const { data: response } = await ProjectService.getProjectList(params, data)
     let projectList = []
     let pageData = {}
     if (response.result) {
@@ -36,9 +32,9 @@ export const exportProject = (items) => {
     fileTitle: 'project',
     labels: [
       { header: t('project.updated_date'), field: 'updatedAt', formatBy: 'moment_l' },
-      { header: 'Project Code', field: 'code' },
+      { header: t('project.project_code'), field: 'code' },
       { header: t('project.project_name'), field: 'name' },
-      { header: 'Company Name', field: 'companyName' },
+      { header: t('project.company_name'), field: 'companyName' },
       { header: t('project.type'), field: 'type', localeBy: 'project.type_' },
       { header: t('project.accuracy_name'), field: 'accuracyName' },
       { header: t('project.release_date'), field: 'releaseDate', formatBy: 'moment_l' },

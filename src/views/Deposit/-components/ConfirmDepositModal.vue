@@ -1,8 +1,11 @@
 <template>
-  <a-modal v-model:visible="visible" centered title="確定" width="380px">
+  <a-modal v-model:visible="visible" centered :title="$t('deposit.confirm_modal.title')" width="380px">
     <template #footer>
-      <p>
-        {{ $t('deposit.confirm_modal.message', { purpose: currentSelectedRecord?.purpose || '' }) }}
+      <p v-if="confirmedSelectedPurpose">
+        {{ $t('deposit.confirm_modal.message', { purpose: confirmedSelectedPurpose }) }}
+      </p>
+      <p v-else>
+        {{ $t('deposit.confirm_modal.message_multiple') }}
       </p>
       <a-button @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
       <a-button type="primary" @click="$emit('on-confirm-deposit-record')">
@@ -19,7 +22,7 @@ export default defineComponent({
   name: 'ConfirmDepositModal',
 
   props: {
-    currentSelectedRecord: Object
+    confirmedSelectedPurpose: String
   },
 
   setup(_, { emit }) {

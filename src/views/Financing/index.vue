@@ -14,7 +14,7 @@
         :pagination="{ ...pagination, showTotal: showTotal }"
         :loading="isLoading"
         size="middle"
-        :scroll="{ y: height - 211 }"
+        :scroll="{ y: height - 214 }"
         :row-key="(record) => record.date"
         @change="handleChange"
       >

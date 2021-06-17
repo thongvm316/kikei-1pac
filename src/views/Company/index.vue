@@ -21,10 +21,13 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 211 }"
+      :scroll="{ y: height - 219 }"
       size="middle"
       @change="handleChange"
     >
+      <template #divisions="{ text: divisions }">
+        {{ divisions === 0 ? $t('company.customer') : divisions === 1 ? $t('company.partner') : $t('company.both') }}
+      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
@@ -118,8 +121,9 @@ export default defineComponent({
         },
         {
           title: t('company.classification'),
-          dataIndex: 'divisionName',
-          key: 'divisionName'
+          dataIndex: 'divisions',
+          key: 'divisions',
+          slots: { customRender: 'divisions' }
         }
       ]
     })
@@ -168,12 +172,12 @@ export default defineComponent({
       openDelete.value = false
       recordVisible.value.visible = false
       await fetchList(params.value)
-      // show notification
+      //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
         message:
-          locale.value === 'en' ? 'Deleted ' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
+          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
       })
     }
 
@@ -252,9 +256,7 @@ export default defineComponent({
 
   .btn-modal {
     width: auto;
-    height: 24px;
     border-radius: 2px;
-    padding: 1px 8px;
     text-align: center;
     display: flex;
     align-items: center;

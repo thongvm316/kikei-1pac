@@ -1,11 +1,12 @@
 <template>
   <section>
     <a-modal
-      v-model:visible="visible"
+      :visible="visible"
       :title="$t('company.title_search_modal')"
       class="modal-company"
       width="85%"
       max-height="85%"
+      @cancel="handleModalCancel"
     >
       <template #footer>
         <div class="form-company__search">
@@ -82,10 +83,11 @@
           :scroll="{ y: height - 330 }"
           :custom-row="customRow"
           size="middle"
+          table-layout="fixed"
           @change="handleChange"
         >
-          <template #action>
-            <a-button type="primary" @click="handleSelectCompany">{{ $t('company.confirm') }}</a-button>
+          <template #action="{ record }">
+            <a-button type="primary" @click="handleSelectCompany(record)">{{ $t('company.confirm') }}</a-button>
           </template>
           <template #divisions="{ text: divisions }">
             {{
@@ -99,8 +101,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, reactive, ref } from 'vue'
-import { useStore } from 'vuex'
+import { computed, defineComponent, onMounted, reactive, ref, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -121,21 +122,18 @@ export default defineComponent({
 
   mixins: [Table],
 
-  async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30 })
-    const { result } = await getLists()
-    to.meta['lists'] = result.data
-    to.meta['pagination'] = { ...convertPagination(result.meta, 'bottom') }
-    next()
+  props: {
+    visible: Boolean
   },
 
-  setup() {
-    const store = useStore()
+  emits: ['update:visible', 'update:subcategoryId', 'update:companyName', 'handleValidateSubCategory'],
+
+  setup(_, context) {
     const route = useRoute()
     const { t } = useI18n()
 
     const dataSource = ref([])
-    const pagination = ref({})
+    const pagination = ref({ pageNumber: 1, pageSize: 30 })
     const selected = ref({})
     const filters = ref({})
     const tmpCompany = ref({})
@@ -150,13 +148,6 @@ export default defineComponent({
     }
 
     const filter = reactive({ ...initialState })
-
-    const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
-      set: (val) => {
-        store.commit('setCurrentRoute', val)
-      }
-    })
 
     const columns = computed(() => {
       return [
@@ -187,7 +178,6 @@ export default defineComponent({
           key: 'currencyCode'
         },
         {
-          title: t('company.division'),
           dataIndex: 'divisions',
           key: 'divisions',
           slots: { customRender: 'divisions' }
@@ -196,8 +186,8 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      dataSource.value = [...route.meta['lists']]
-      pagination.value = { ...route.meta['pagination'] }
+      dataSource.value = [...(route?.meta['lists'] || [])]
+      pagination.value = { ...(route?.meta['pagination'] || {}) }
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -234,12 +224,9 @@ export default defineComponent({
       }
     }
 
-    const handleSelectCompany = () => {
-      setTimeout(() => {
-        route.meta['company'] = { ...tmpCompany.value }
-        visible.value = false
-        console.log(route.meta['company'])
-      }, 0)
+    const handleSelectCompany = (record) => {
+      context.emit('select-company', record)
+      handleModalCancel()
     }
 
     const fetchList = async (params = {}, data) => {
@@ -257,9 +244,16 @@ export default defineComponent({
       }
     }
 
+    const handleModalCancel = () => {
+      context.emit('update:visible', false)
+    }
+
+    onBeforeMount(() => {
+      fetchList({ pageNumber: 1, pageSize: 30 })
+    })
+
     return {
       isLoading,
-      visible,
       filter,
       filters,
       t,
@@ -277,7 +271,8 @@ export default defineComponent({
       customRow,
       CURRENCY,
       COUNTRY,
-      DIVISION
+      DIVISION,
+      handleModalCancel
     }
   }
 })

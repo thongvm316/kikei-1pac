@@ -1,11 +1,17 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('financing.title_search')" class="search-deposit" width="800px">
+  <a-modal
+    v-model:visible="visible"
+    :title="$t('deposit.search_deposit.title_search')"
+    class="search-deposit"
+    width="800px"
+    @cancel="handleModalCancel"
+  >
     <template #footer>
       <a-config-provider :locale="locales[locale]">
         <form @submit.prevent="onSubmit">
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">入出金日</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.date') }}</label>
 
               <div class="form-select">
                 <a-range-picker
@@ -24,14 +30,16 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">計上月</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="state.statisticsDateDepositValue"
+                  :value="state.statisticsDateDepositValue"
                   :style="{ width: '256px' }"
+                  :mode="['month', 'month']"
                   format="YYYY-MM"
                   :placeholder="['YYYY/MM', 'YYYY/MM']"
+                  @panelChange="handleChangeStatisticsDateValue"
                 >
                   <template #suffixIcon>
                     <calendar-outlined />
@@ -43,27 +51,35 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">区分</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.type') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedTypeDepositList" :options="typeDepositList" />
+                <a-checkbox-group
+                  v-model:value="state.checkedTypeDepositList"
+                  :options="typeDepositList"
+                  @change="handleCheckedTypeDepositList($event)"
+                />
               </div>
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="categoryList.length > 0" class="form-group">
             <div class="form-content">
-              <label class="form-label">大分類</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.category') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedCategotyList" :options="categoryList" />
+                <a-checkbox-group
+                  v-model:value="state.checkedCategotyList"
+                  :options="categoryList"
+                  @change="handleCheckedCategoryList($event)"
+                />
               </div>
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="subCategoryList.length > 0" class="form-group">
             <div class="form-content">
-              <label class="form-label">中分類</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
@@ -73,7 +89,7 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">確定</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.confirm_label') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group v-model:value="state.checkedSubConfirmedList" :options="confirmedList" />
@@ -83,22 +99,27 @@
 
           <div class="form-group">
             <div class="form-content">
-              <label class="form-label">項目名</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.purpose') }}</label>
 
               <div class="form-checkbox">
-                <a-input v-model:value="state.valuePurpose" placeholder="入力してください" />
+                <a-input
+                  v-model:value="state.valuePurpose"
+                  :placeholder="$t('deposit.search_deposit.purpose_place_holder')"
+                />
               </div>
             </div>
           </div>
 
-          <a-button key="back" @click="handleClearDepositFormSearch">クリア</a-button>
+          <a-button key="back" @click="handleClearDepositFormSearch">
+            {{ $t('deposit.search_deposit.clear_search') }}
+          </a-button>
           <a-button key="submit" type="primary" html-type="submit">
             <template #icon>
               <span class="btn-icon">
                 <search-icon />
               </span>
             </template>
-            検索
+            {{ $t('deposit.search_deposit.submit_search') }}
           </a-button>
         </form>
       </a-config-provider>
@@ -107,11 +128,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
+import { isEqual } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -119,7 +141,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
-import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
+import { TYPE_NAME_DEPOSIT_FOR_FILTER, TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
@@ -129,7 +151,7 @@ export default defineComponent({
 
   components: { SearchIcon, CalendarOutlined },
 
-  emits: ['updateParamRequestDeposit'],
+  emits: ['updateParamRequestDeposit', 'update:currentPage'],
 
   setup(_, { emit }) {
     const store = useStore()
@@ -145,9 +167,11 @@ export default defineComponent({
     const categoryList = ref([])
     const subCategoryList = ref([])
     const confirmedList = ref([
-      { value: true, label: 'Yes' },
-      { value: false, label: 'No' }
+      { value: false, label: t('deposit.search_deposit.confirm_no') },
+      { value: true, label: t('deposit.search_deposit.confirm_yes') }
     ])
+
+    const isNeedSubmit = ref(false)
 
     const initState = {
       dateDepositValue: [],
@@ -168,8 +192,13 @@ export default defineComponent({
       }
     })
 
+    const handleChangeStatisticsDateValue = (val) => {
+      state.value.statisticsDateDepositValue = val
+    }
+
     const handleClearDepositFormSearch = () => {
-      state.value = initState
+      isNeedSubmit.value = !isEqual(state.value, initState)
+      state.value = deepCopy(initState)
     }
 
     const onSubmit = () => {
@@ -189,16 +218,45 @@ export default defineComponent({
         purpose: state.value.valuePurpose
       }
 
-      emit('updateParamRequestDeposit', searchDataDeposit)
+      emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
+
       visible.value = false
+      isNeedSubmit.value = false
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
+    const handleCheckedTypeDepositList = async (event) => {
+      const divisionTypes = event.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
+      event = { division_type: divisionTypes.toString() }
+
+      if (event.division_type) {
+        const dataCategory = await getCategory(event)
+        state.value.checkedCategotyList = []
+        state.value.checkedSubCategotyList = []
+        subCategoryList.value = []
+        categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
+      } else {
+        categoryList.value = []
+      }
+    }
     const toCategoryOptions = (options) => {
       if (!options) return
 
       return options.map((item) => {
         return { value: item.id, label: item.name }
       })
+    }
+
+    const handleCheckedCategoryList = async (event) => {
+      event = { category_id: event.toString() }
+      if (event.category_id) {
+        state.value.checkedSubCategotyList = []
+        subCategoryList.value = []
+        const dataSubCategory = await getSubCategory(event)
+        subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+      } else {
+        subCategoryList.value = []
+      }
     }
 
     const toSubCategoryOptions = (options) => {
@@ -209,12 +267,12 @@ export default defineComponent({
       })
     }
 
-    onBeforeMount(async () => {
-      const dataCategory = await getCategory()
-      categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
+    const handleModalCancel = () => {
+      isNeedSubmit.value && onSubmit()
+    }
 
-      const dataSubCategory = await getSubCategory()
-      subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+    onBeforeMount(async () => {
+      store.commit('setIsShowSearchBadge', false)
     })
 
     return {
@@ -226,9 +284,12 @@ export default defineComponent({
       subCategoryList,
       confirmedList,
       state,
-
+      handleCheckedTypeDepositList,
+      handleCheckedCategoryList,
       handleClearDepositFormSearch,
-      onSubmit
+      handleModalCancel,
+      onSubmit,
+      handleChangeStatisticsDateValue
     }
   }
 })
@@ -237,7 +298,9 @@ export default defineComponent({
 <style lang="scss">
 .search-deposit {
   .ant-modal-footer {
-    padding: 16px 140px;
+    padding: 16px 127px;
+    max-height: 650px;
+    overflow-y: scroll;
 
     form {
       width: 100%;
@@ -250,7 +313,7 @@ export default defineComponent({
     }
 
     .form-label {
-      width: 120px;
+      width: 110px;
       text-align: left;
     }
 
