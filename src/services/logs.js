@@ -12,5 +12,9 @@ export default {
       params,
       data
     })
+  },
+
+  logDetail(id) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.log}/${id}` })
   }
 }

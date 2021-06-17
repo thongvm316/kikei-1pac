@@ -126,10 +126,10 @@ export default defineComponent({
             name: 'company',
             label: t('sidebar.company')
           },
-          {
-            name: 'category',
-            label: t('sidebar.category')
-          },
+          // {
+          //   name: 'category',
+          //   label: t('sidebar.category')
+          // },
           {
             name: 'logs',
             label: t('sidebar.logs')

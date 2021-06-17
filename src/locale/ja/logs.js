@@ -6,9 +6,13 @@ export default {
   date: '日付',
   date_start: '日付開始',
   date_finish: '日付終了',
-  timesTamp: 'Timestamp JA',
-  account: 'Account JA',
-  action: 'Action JA',
-  pageData: 'Page / Data JA',
-  detail: 'Detail JA'
+  timesTamp: '日時',
+  account: 'アカウントID',
+  action: '操作',
+  pageData: '画面',
+  delete: '削除',
+  add: '新規',
+  edit: '編集',
+  seen: '編集',
+  detail: '詳細'
 }

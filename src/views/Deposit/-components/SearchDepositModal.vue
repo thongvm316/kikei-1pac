@@ -226,7 +226,7 @@ export default defineComponent({
     }
 
     const handleCheckedTypeDepositList = async (event) => {
-      const divisionTypes = event.map(divisionType => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
+      const divisionTypes = event.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
       event = { division_type: divisionTypes.toString() }
 
       if (event.division_type) {

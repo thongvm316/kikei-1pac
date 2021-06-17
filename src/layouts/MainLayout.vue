@@ -1,6 +1,6 @@
 <template>
   <a-layout class="main">
-    <app-sidebar @on-collapse-side-bar="onCollapseSideBar($event)"/>
+    <app-sidebar @on-collapse-side-bar="onCollapseSideBar($event)" />
     <a-layout class="main__content">
       <app-header :class="isCollapse ? 'is-collapse' : ''">
         <slot name="header" />

@@ -10,5 +10,9 @@ export default {
   account: 'Account',
   action: 'Action',
   pageData: 'Page / Data',
-  detail: 'Detail'
+  delete: 'Delete',
+  add: 'Add',
+  edit: 'Edit',
+  seen: 'Detail',
+  detail: 'Show Detail'
 }

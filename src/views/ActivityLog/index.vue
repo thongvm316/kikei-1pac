@@ -21,16 +21,15 @@
           {{ formattedDate(time) }}
         </span>
       </template>
-      <template #tags="{ text: tags }">
+      <template #tags="{ text: header }">
         <span>
-          <a-tag :color="tags === 'DELETE' ? 'geekblue' : tags === 'POST' ? 'volcano' : 'green'">
-            {{ tags === 'GET' ? 'Them' : tags === 'POST' ? 'Xoa' : 'Sua' }}
+          <a-tag class="a-tag" :color="tagsAction(header).color">
+            {{ tagsAction(header).value }}
           </a-tag>
         </span>
       </template>
-      <template #detail="{ detail }">
-        {{ detail }}
-        <a-button type="primary" @click="handleSelectLog">Show detail</a-button>
+      <template #detail="{ text }">
+        <a-button type="primary" @click="handleSelectLog(text)">{{ $t('logs.detail') }}</a-button>
       </template>
     </a-table>
 
@@ -45,6 +44,7 @@ import { useI18n } from 'vue-i18n'
 import moment from 'moment'
 
 import useGetLogListService from '@/views/ActivityLog/composables/useGetLogListService'
+import useGetLogDetailService from '@/views/ActivityLog/composables/useGetLogDetailService'
 import { convertPagination } from '@/helpers/convert-pagination'
 
 import Table from '@/mixins/table.mixin'
@@ -68,7 +68,6 @@ export default defineComponent({
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
-    to.meta['dataDate'] = state
     next()
   },
 
@@ -83,6 +82,7 @@ export default defineComponent({
     const isLoading = ref(false)
     const openActivityLog = ref(false)
     const height = ref(0)
+    const isFilter = ref(false)
 
     const tmpLog = ref({})
     const dataLog = ref({})
@@ -93,14 +93,14 @@ export default defineComponent({
         { title: t('logs.account'), dataIndex: 'userId', key: 'userId' },
         {
           title: t('logs.action'),
-          dataIndex: 'method',
-          key: 'method',
+          dataIndex: 'header',
+          key: 'header',
           slots: {
             customRender: 'tags'
           }
         },
         { title: t('logs.pageData'), dataIndex: 'path', key: 'path' },
-        { title: t('logs.detail'), dataIndex: 'id', key: 'id', slots: { customRender: 'detail' } }
+        { dataIndex: 'id', key: 'id', slots: { customRender: 'detail' } }
       ]
     })
 
@@ -120,7 +120,25 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    const tagsAction = (header) => {
+      if (header.includes('POST')) {
+        if (header.includes('/search')) {
+          return { value: t('logs.seen'), color: 'green' }
+        }
+        return { value: t('logs.add'), color: 'volcano' }
+      }
+
+      if (header.includes('GET')) return { value: t('logs.seen'), color: 'green' }
+
+      if (header.includes('PUT')) return { value: t('logs.edit'), color: 'geekblue' }
+
+      if (header.includes('DELETE')) return { value: t('logs.delete'), color: 'red' }
+    }
+
     const handleChange = async (pagination) => {
+      if (!isFilter.value) {
+        filter.value = { ...state }
+      }
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize
@@ -129,6 +147,7 @@ export default defineComponent({
     }
 
     const onFilterChange = async (evt) => {
+      isFilter.value = true
       if (!evt.from && !evt.to) {
         filter.value = { ...state }
       } else {
@@ -145,12 +164,14 @@ export default defineComponent({
       }
     }
 
-    const handleSelectLog = () => {
-      setTimeout(() => {
-        route.meta['log'] = { ...tmpLog.value }
-        openActivityLog.value = true
-        dataLog.value = route.meta['log']
-      }, 0)
+    const handleSelectLog = async (id) => {
+      openActivityLog.value = true
+      try {
+        const { logDetail } = useGetLogDetailService(id)
+        await logDetail()
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     const fetchList = async (params = {}, data) => {
@@ -176,6 +197,7 @@ export default defineComponent({
       height,
       openActivityLog,
       dataLog,
+      tagsAction,
       formattedDate,
       handleChange,
       onFilterChange,
@@ -186,4 +208,9 @@ export default defineComponent({
   }
 })
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.a-tag {
+  width: 60px;
+  text-align: center;
+}
+</style>
