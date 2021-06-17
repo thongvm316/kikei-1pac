@@ -12,9 +12,7 @@
       onChange: onSelectChangeRow,
       onSelectAll: onSelectAllChangeRows,
       selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => {
-        return { disabled: record.confirmed }
-      }
+      getCheckboxProps: (record) => ({ disabled: record.confirmed })
     }"
     :pagination="false"
     :expand-icon-column-index="expandIconColumnIndex"
@@ -181,7 +179,7 @@ export default defineComponent({
       return {
         onClick: (event) => {
           if (event.target.type === 'button') return
-          currentRowClick.value = record.key
+          currentRowClick.value !== record.key ? currentRowClick.value = record.key : currentRowClick.value = null
           emit('on-open-deposit-buttons-float', record)
         }
       }

@@ -134,7 +134,7 @@ const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
   return money
 }
 
-const createExpandDataTable = (data, confirmed) => {
+const createExpandDataTable = (data) => {
   if (!data || data.length <= 0) return []
 
   return data.map((bank) => ({
@@ -145,8 +145,7 @@ const createExpandDataTable = (data, confirmed) => {
     key: uniqueId('expand-row'),
     purpose: `${bank.name} (${bank.currency})`,
     typeName: typeNameBank(bank.deposit, bank.withdrawal),
-    deposit: depositBank(bank.deposit, bank.withdrawal),
-    confirmed
+    deposit: depositBank(bank.deposit, bank.withdrawal)
   }))
 }
 
@@ -156,7 +155,7 @@ export const createDataTableFormat = (data) => {
   return data.map((item) => {
     return Object.assign(item, {
       key: item.id,
-      children: createExpandDataTable(item.bankAccounts, item.id, item.purpose, item.confirmed),
+      children: createExpandDataTable(item.bankAccounts),
       deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
       typeName: TYPE_NAME_DEPOSIT[item.type]
     })
