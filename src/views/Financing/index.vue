@@ -15,7 +15,7 @@
         :loading="isLoading"
         size="middle"
         :scroll="{ y: height - 214 }"
-        row-key="Id"
+        :row-key="(record) => record.date"
         @change="handleChange"
       >
         <template v-for="col in columnsHeaderList" #[col]="{ text, record }" :key="col">
@@ -36,7 +36,7 @@
               :class="parseInt(text) < 0 ? 'text--red' : ''"
               @click="handleNumber(text, record)"
             >
-              {{ text }}
+              {{ $filters.number_with_commas(record.balance, 2) }}
             </a>
           </span>
         </template>
@@ -194,6 +194,7 @@ export default defineComponent({
             dataTableRow.value,
             convertArrayToObject(data.balances[i].bankaccounts, 'bankAccountId', 'bank_balance_', 'balance')
           )
+
           dataTableRow.value['balance'] = data.balances[i].balance
           dataSource.value.push(Object.assign({}, dataTableRow.value))
         }
@@ -205,7 +206,7 @@ export default defineComponent({
         valueField = ''
       return array.reduce((obj, item) => {
         key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
-        value === '' ? (valueField = item) : (valueField = item[value])
+        value === '' ? (valueField = item) : (valueField = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
 
         return { ...obj, [keyField]: valueField }
       }, {})
