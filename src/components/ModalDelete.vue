@@ -29,6 +29,7 @@ export default defineComponent({
     },
     name: {
       type: String,
+      default: '',
       required: true
     }
   },
