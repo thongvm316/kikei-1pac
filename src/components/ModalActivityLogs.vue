@@ -2,7 +2,12 @@
   <div>
     <a-modal v-model:visible="isVisible" title="Detail" @cancel="handleCancel">
       <template #footer>
-        {{ dataLog }}
+        <template v-if="Object.keys(logs).length">
+          <a-textarea v-model:value="logs" placeholder="Basic usage" :rows="20" />
+        </template>
+        <template v-else>
+          <LoadingOutlined />
+        </template>
         <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
       </template>
     </a-modal>
@@ -11,17 +16,22 @@
 
 <script>
 import { ref, defineComponent, toRefs, watch } from 'vue'
+import { LoadingOutlined } from '@ant-design/icons-vue'
+import { pickBy, startsWith } from 'lodash-es'
 
 export default defineComponent({
   name: 'ModalActivityLogs',
+
+  components: { LoadingOutlined },
 
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    datalog: {
+    dataLog: {
       type: Object,
+      default: () => {},
       require: false
     }
   },
@@ -30,9 +40,10 @@ export default defineComponent({
 
   setup(props, context) {
     const { visible } = toRefs(props)
-    const { datalog } = toRefs(props)
+    const { dataLog } = toRefs(props)
+
     const isVisible = ref(props.visible)
-    const dataLog = ref(props.datalog)
+    const logs = ref(props.dataLog)
     const modalText = ref('Content of the modal')
     const confirmLoading = ref(false)
 
@@ -40,8 +51,11 @@ export default defineComponent({
       isVisible.value = val
     })
 
-    watch(datalog, (val) => {
-      dataLog.value = val
+    watch(dataLog, (val) => {
+      const result = pickBy(val.result.data, function (value, key) {
+        return startsWith(key, 'bodyOfRequest') || startsWith(key, 'bodyOfResponse')
+      })
+      logs.value = JSON.stringify(result, null, '\t')
     })
 
     const showModal = () => {
@@ -57,7 +71,7 @@ export default defineComponent({
       modalText,
       confirmLoading,
       isVisible,
-      dataLog,
+      logs,
       showModal,
       handleCancel
     }
@@ -65,4 +79,17 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.anticon-loading {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.ant-input {
+  margin-bottom: 20px;
+}
+
+.ant-modal {
+  width: 800px;
+}
+</style>
