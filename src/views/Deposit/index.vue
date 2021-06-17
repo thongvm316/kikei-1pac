@@ -91,12 +91,12 @@
 
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
-  <deposit-buttons-float
+  <modal-actions
     v-if="isVisibleDepositButtonsFloat"
     v-model:is-disable-delete="isDisableDelete"
-    @on-open-delete-deposit-modal="onOpenDeleteDepositModal"
-    @on-copy-record-deposit="onCopyRecordDeposit"
-    @on-edit-record-deposit="onEditRecordDeposit"
+    @on-go-to-edit="onEditRecordDeposit"
+    @on-go-to-copy="onCopyRecordDeposit"
+    @on-go-to-delete="onOpenDeleteDepositModal"
   />
 
   <delete-deposit-modal
@@ -130,9 +130,10 @@ import {
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import SearchDepositModal from './-components/SearchDepositModal'
-import DepositButtonsFloat from './-components/DepositButtonsFloat'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
+import ModalActions from '@/components/ModalActions'
+
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -144,9 +145,9 @@ export default defineComponent({
     LineAddIcon,
     DepositTable,
     SearchDepositModal,
-    DepositButtonsFloat,
     DeleteDepositModal,
-    ConfirmDepositModal
+    ConfirmDepositModal,
+    ModalActions
   },
 
   setup() {
@@ -181,7 +182,6 @@ export default defineComponent({
     const confirmedSelectedPurpose = ref()
     const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
-    const currentSort = ref({})
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
@@ -361,12 +361,10 @@ export default defineComponent({
 
     /* --------------------- handle edit/copy/delete deposit ------------------- */
     const onOpenDepositButtonsFloat = (record) => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
-      const recordId = record?.id || record?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
+      const recordId = record?.id || ''
 
-      console.log('record', record)
-
-      if (depositId === recordId) {
+      if (!recordId || depositId === recordId) {
         currentSelectedRecord.value = {}
         isDisableDelete.value = false
         isVisibleDepositButtonsFloat.value = false
@@ -384,7 +382,7 @@ export default defineComponent({
     }
 
     const onDeleteDepositRecord = async () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       isLoadingDataTable.value = true
@@ -396,6 +394,7 @@ export default defineComponent({
 
       // show notification
       const purpose = currentSelectedRecord.value?.purpose
+
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
@@ -406,7 +405,7 @@ export default defineComponent({
     }
 
     const onCopyRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       router.push({
@@ -416,7 +415,7 @@ export default defineComponent({
     }
 
     const onEditRecordDeposit = () => {
-      const depositId = currentSelectedRecord.value?.id || currentSelectedRecord.value?.parentId || ''
+      const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
@@ -533,7 +532,6 @@ export default defineComponent({
       tableKey,
       disabledCheckAllRowTable,
       currentSelectedRecord,
-
       confirmedSelectedDepositRecord,
       confirmedSelectedPurpose,
 

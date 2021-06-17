@@ -33,18 +33,17 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: true }"
+      :scroll="{ x: true, y: height - 236 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
         }
       "
       :custom-row="onCustomRow"
+      :locale="localeTable"
       @change="changeProjectTable"
     >
-      <template #projectNameTitle>
-        {{ $t('project.customer_name') }} / {{ $t('project.project_name') }}
-      </template>
+      <template #projectNameTitle> {{ $t('project.customer_name') }} / {{ $t('project.project_name') }} </template>
 
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
@@ -93,25 +92,21 @@
         $filters.moment_yyyy_mm(record.statisticsFromMonth)
       }}</template>
 
-      <template #renderGroupName="{ record }">{{
-        record.groupName
-      }}</template>
+      <template #renderGroupName="{ record }">{{ record.groupName }}</template>
 
-      <template #renderAccountName="{ record }">{{
-        record.accountName
-      }}</template>
+      <template #renderAccountName="{ record }">{{ record.accountName }}</template>
     </a-table>
   </div>
 
   <project-search-form @on-search="updateRequestData" />
 
-  <project-float-buttons
+  <modal-actions
     v-if="isOpenFloatButtons"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
-    @on-go-to-edit-project="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
-    @on-confirm-delete="isDeleteConfirmModalOpen = true"
-    @on-copy-project="cloneProject"
+    @on-go-to-edit="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
+    @on-go-to-copy="cloneProject"
     @on-go-to-deposit="goToDeposit"
+    @on-go-to-delete="isDeleteConfirmModalOpen = true"
   />
 
   <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
@@ -130,10 +125,12 @@ import { defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
 import { toOrderBy } from '@/helpers/table'
 import ProjectSearchForm from './-components/ProjectSearchForm'
-import ProjectFloatButtons from './-components/ProjectFloatButtons'
+import ModalActions from '@/components/ModalActions'
+
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
@@ -142,7 +139,7 @@ export default defineComponent({
 
   components: {
     ProjectSearchForm,
-    ProjectFloatButtons,
+    ModalActions,
     LineDownIcon,
     LineAddIcon
   },
@@ -157,6 +154,7 @@ export default defineComponent({
       pageSize: 10,
       pageNumber: 1
     })
+    const height = ref(0)
     const projectDatas = ref([])
     const columns = [
       {
@@ -258,6 +256,7 @@ export default defineComponent({
     const isOpenFloatButtons = ref(false)
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
+    const localeTable = { emptyText: t('project.project_table_empty') }
 
     // data and params request
     const requestData = ref({ params: pagination.value })
@@ -352,8 +351,16 @@ export default defineComponent({
       updateRequestData({ params: { orderBy: currentSortStr } })
     }
 
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
     onBeforeMount(() => {
       fetchProjectDatas()
+
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
     })
 
     watch(
@@ -380,6 +387,7 @@ export default defineComponent({
       isOpenFloatButtons,
       isDeleteConfirmModalOpen,
       targetProjectSelected,
+      height,
       onCustomRow,
       cloneProject,
       goToDeposit,
@@ -387,7 +395,9 @@ export default defineComponent({
       exportProjectAsCsvFile,
       deleteProjectCaller,
       updateRequestData,
-      changeProjectTable
+      changeProjectTable,
+      getInnerHeight,
+      localeTable
     }
   }
 })
@@ -425,6 +435,10 @@ export default defineComponent({
 
   &__list {
     white-space: nowrap;
+
+    .ant-table-placeholder {
+      padding-top: 48px;
+    }
   }
 
   table tbody > tr {
