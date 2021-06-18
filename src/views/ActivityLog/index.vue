@@ -53,8 +53,8 @@ import Search from '@/views/ActivityLog/Search'
 import ModalActivityLogs from '@/components/ModalActivityLogs'
 
 const state = {
-  from: moment().subtract(1, 'days').format(),
-  to: moment().format()
+  from: moment().startOf('days').format(),
+  to: moment().endOf('days').format()
 }
 
 export default defineComponent({
@@ -67,6 +67,7 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const { getLists } = useGetLogListService({ pageNumber: 1, pageSize: 30 }, state)
     const { result } = await getLists()
+    console.log('beforeRouteEnter', result)
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()

@@ -14,5 +14,6 @@ export default {
   add: '新規',
   edit: '編集',
   seen: '編集',
-  detail: '詳細'
+  detail: '詳細',
+  title_show: '編集'
 }

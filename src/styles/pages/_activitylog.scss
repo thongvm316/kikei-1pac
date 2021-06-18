@@ -11,7 +11,7 @@
 
 .search-activity-log {
   .ant-modal-footer {
-    padding: 16px 182px;
+    padding: 16px 140px;
 
     form {
       width: 100%;
@@ -25,12 +25,17 @@
     }
 
     .form-label {
-      width: 120px;
+      width: 70px;
       text-align: left;
     }
 
     .form-select {
       text-align: left;
+      flex: 1;
+      
+      .ant-calendar-picker {
+        display: unset;
+      }
     }
   }
 }

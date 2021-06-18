@@ -14,5 +14,6 @@ export default {
   add: 'Add',
   edit: 'Edit',
   seen: 'Detail',
-  detail: 'Show Detail'
+  detail: 'Show Detail',
+  title_show: 'Detail'
 }

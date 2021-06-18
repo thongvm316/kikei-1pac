@@ -1,17 +1,15 @@
 <template>
-  <div>
-    <a-modal v-model:visible="isVisible" title="Detail" @cancel="handleCancel">
-      <template #footer>
-        <template v-if="Object.keys(logs).length">
-          <a-textarea v-model:value="logs" placeholder="Basic usage" :rows="20" />
-        </template>
-        <template v-else>
-          <LoadingOutlined />
-        </template>
-        <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
+  <a-modal v-model:visible="isVisible" :title="$t('logs.title_show')" @cancel="handleCancel">
+    <template #footer>
+      <template v-if="Object.keys(logs).length">
+        <a-textarea v-model:value="logs" :rows="20" />
       </template>
-    </a-modal>
-  </div>
+      <template v-else>
+        <LoadingOutlined />
+      </template>
+      <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
+    </template>
+  </a-modal>
 </template>
 
 <script>
@@ -44,7 +42,6 @@ export default defineComponent({
 
     const isVisible = ref(props.visible)
     const logs = ref(props.dataLog)
-    const modalText = ref('Content of the modal')
     const confirmLoading = ref(false)
 
     watch(visible, (val) => {
@@ -68,7 +65,6 @@ export default defineComponent({
     }
 
     return {
-      modalText,
       confirmLoading,
       isVisible,
       logs,
