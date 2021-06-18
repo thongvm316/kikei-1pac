@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 <template>
   <a-form
     ref="depositNewRef"
@@ -617,7 +616,6 @@ export default defineComponent({
       try {
         const validateRes = await depositNewRef.value.validate()
         isRepeatedExpiredDateCorrect.value = checkRepeatedExpriedDate()
-        console.log('isRepeatedExpiredDateCorrect', isRepeatedExpiredDateCorrect.value)
 
         if (validateRes && isRepeatedExpiredDateCorrect.value) {
           const depositDataRequest = convertFormToDataRequest(params.value)

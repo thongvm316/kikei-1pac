@@ -294,6 +294,11 @@ export default defineComponent({
       const { name, code, groupId } = targetProjectSelected.value
       if (!name || !code || !groupId) return
 
+      // save purpose to deposit store
+      store.commit('deposit/STORE_DEPOSIT_FILTER', {
+        data: { groupId, purpose: `${name} ${code}` }
+      })
+
       router.push({ name: 'deposit', query: { purpose: `${name} ${code}`, tab: groupId } })
     }
 

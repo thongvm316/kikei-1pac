@@ -16,12 +16,14 @@
 
 <script>
 import { defineComponent, computed, watch, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+import { isEmpty } from 'lodash-es'
+
 import KBreadcrumb from '@/components/KBreadcrumb'
 import KProfile from '@/components/KProfile'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'AppHeader',
@@ -43,8 +45,14 @@ export default defineComponent({
     const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
     watch(
       () => route.name,
-      () => {
+      (routeName) => {
         store.commit('setIsShowSearchBadge', false)
+
+        // clear filters search deposit page
+        if (!['deposit', 'deposit-edit'].includes(routeName)) {
+          const filters = store.state.deposit?.filters || {}
+          !isEmpty(filters) && store.commit('deposit/CLEAR_DEPOSIT_FILTER')
+        }
       }
     )
 

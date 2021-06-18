@@ -55,7 +55,7 @@
 
               <div class="form-checkbox">
                 <a-checkbox-group
-                  v-model:value="state.checkedTypeDepositList"
+                  v-model:value="state.type"
                   :options="typeDepositList"
                   @change="handleCheckedTypeDepositList($event)"
                 />
@@ -69,7 +69,7 @@
 
               <div class="form-checkbox">
                 <a-checkbox-group
-                  v-model:value="state.checkedCategotyList"
+                  v-model:value="state.categoryId"
                   :options="categoryList"
                   @change="handleCheckedCategoryList($event)"
                 />
@@ -82,7 +82,7 @@
               <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
+                <a-checkbox-group v-model:value="state.subcategoryId" :options="subCategoryList" />
               </div>
             </div>
           </div>
@@ -92,7 +92,7 @@
               <label class="form-label">{{ $t('deposit.search_deposit.confirm_label') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedSubConfirmedList" :options="confirmedList" />
+                <a-checkbox-group v-model:value="state.confirmed" :options="confirmedList" />
               </div>
             </div>
           </div>
@@ -103,7 +103,7 @@
 
               <div class="form-checkbox">
                 <a-input
-                  v-model:value="state.valuePurpose"
+                  v-model:value="state.purpose"
                   :placeholder="$t('deposit.search_deposit.purpose_place_holder')"
                 />
               </div>
@@ -133,7 +133,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual } from 'lodash-es'
+import { isEqual, pick } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -176,11 +176,11 @@ export default defineComponent({
     const initState = {
       dateDepositValue: [],
       statisticsDateDepositValue: [],
-      checkedTypeDepositList: [],
-      checkedCategotyList: [],
-      checkedSubCategotyList: [],
-      checkedSubConfirmedList: [],
-      valuePurpose: ''
+      type: [],
+      categoryId: [],
+      subcategoryId: [],
+      confirmed: [],
+      purpose: ''
     }
 
     const state = ref(deepCopy(initState))
@@ -211,11 +211,11 @@ export default defineComponent({
         statisticsTo: state.value.statisticsDateDepositValue[1]
           ? moment(state.value.statisticsDateDepositValue[1]).format('YYYY-MM')
           : null,
-        type: state.value.checkedTypeDepositList,
-        confirmed: state.value.checkedSubConfirmedList,
-        categoryId: state.value.checkedCategotyList,
-        subcategoryId: state.value.checkedSubCategotyList,
-        purpose: state.value.valuePurpose
+        type: state.value.type,
+        confirmed: state.value.confirmed,
+        categoryId: state.value.categoryId,
+        subcategoryId: state.value.subcategoryId,
+        purpose: state.value.purpose
       }
 
       emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
@@ -231,8 +231,8 @@ export default defineComponent({
 
       if (event.division_type) {
         const dataCategory = await getCategory(event)
-        state.value.checkedCategotyList = []
-        state.value.checkedSubCategotyList = []
+        state.value.categoryId = []
+        state.value.subcategoryId = []
         subCategoryList.value = []
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       } else {
@@ -250,7 +250,7 @@ export default defineComponent({
     const handleCheckedCategoryList = async (event) => {
       event = { category_id: event.toString() }
       if (event.category_id) {
-        state.value.checkedSubCategotyList = []
+        state.value.subcategoryId = []
         subCategoryList.value = []
         const dataSubCategory = await getSubCategory(event)
         subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
@@ -271,8 +271,28 @@ export default defineComponent({
       isNeedSubmit.value && onSubmit()
     }
 
+    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
+
     onBeforeMount(async () => {
-      store.commit('setIsShowSearchBadge', false)
+      // get state from store
+      const dataFilterStore = store.state.deposit?.filters?.data || {}
+      const filterData = pick(dataFilterStore, ['type', 'confirmed', 'categoryId', 'subcategoryId', 'purpose'])
+      const stateStore = {
+        ...filterData,
+        dateDepositValue: dataFilterStore?.fromDate
+          ? [toDateFormat(dataFilterStore.fromDate, 'YYYY/MM/DD'), toDateFormat(dataFilterStore.toDate, 'YYYY/MM/DD')]
+          : [],
+        statisticsDateDepositValue: dataFilterStore?.statisticsFrom
+          ? [
+              toDateFormat(dataFilterStore.statisticsFrom, 'YYYY/MM/DD'),
+              toDateFormat(dataFilterStore.statisticsTo, 'YYYY/MM/DD')
+            ]
+          : []
+      }
+      state.value = { ...state.value, ...stateStore }
+
+      // set badge search
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     })
 
     return {

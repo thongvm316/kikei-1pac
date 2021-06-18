@@ -38,7 +38,7 @@
       </div>
 
       <a-select
-        v-model:value="searchKeyMultipleSelect"
+        v-model:value="bankAccountId"
         show-arrow
         :max-tag-count="1"
         option-label-prop="label"
@@ -49,7 +49,7 @@
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
-        <a-select-option v-for="option in bankAccountList" :id="option.id" :key="option.name" :label="option.name">
+        <a-select-option v-for="option in bankAccountList" :key="option.name" :value="option.id" :label="option.name">
           {{ option.name }}
         </a-select-option>
       </a-select>
@@ -117,8 +117,8 @@ import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { merge } from 'lodash-es'
 
-import DepositTable from './-components/DepositTable'
 import {
   getDeposit,
   getGroups,
@@ -129,6 +129,9 @@ import {
 } from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
+import { deepCopy } from '@/helpers/json-parser'
+
+import DepositTable from './-components/DepositTable'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
@@ -156,32 +159,40 @@ export default defineComponent({
     const { t } = useI18n()
     const store = useStore()
 
-    const activeKeyGroupTab = ref(1)
-    const isDisableDelete = ref()
-    const loadingExportCsvButton = ref()
-    const currentSelectedRecord = ref()
-    const isVisibleDepositButtonsFloat = ref()
-    const isVisibleDepositModal = ref()
-    const checkAllRowTable = ref()
-    const indeterminateCheckAllRows = ref()
-    const searchKeyMultipleSelect = ref([])
+    // pagination
     const currentPage = ref(1)
-    const currentSelectedRowKeys = ref([])
+    const totalRecords = ref()
+
+    // tabs
+    const activeKeyGroupTab = ref(1)
     const tabListGroup = ref([])
+    const currentActiveIdGroup = ref()
+
+    // select bank account
+    const bankAccountId = ref([])
     const bankAccountList = ref([])
+
+    // table
     const dataDeposit = ref([])
     const isLoadingDataTable = ref(true)
     const expandedRowKeys = ref([])
-    const currentActiveIdGroup = ref()
-    const currentBankAccountList = ref([])
-    const totalRecords = ref()
     const expandIconColumnIndex = ref(10)
-    const currentPageNumber = ref()
-    const isVisibleConfirmDepositModal = ref(false)
+    const currentSelectedRowKeys = ref([])
+    const currentSelectedRecord = ref()
     const confirmedSelectedDepositRecord = ref()
     const confirmedSelectedPurpose = ref()
-    const disabledCheckAllRowTable = ref()
     const tableKey = ref(0)
+
+    // check all row
+    const checkAllRowTable = ref()
+    const indeterminateCheckAllRows = ref()
+    const disabledCheckAllRowTable = ref()
+
+    const loadingExportCsvButton = ref()
+    const isDisableDelete = ref()
+    const isVisibleDepositButtonsFloat = ref()
+    const isVisibleDepositModal = ref()
+    const isVisibleConfirmDepositModal = ref(false)
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
@@ -219,24 +230,18 @@ export default defineComponent({
         totalRecords.value = data.result?.meta.totalRecords || 0
         currentPage.value = paramsRequest.pageNumber || 1
 
-        // select bank
+        // expand row table
         const COLLUMNS_COUNT = 9
         dataDeposit.value[0]?.bankAccounts?.length
           ? (expandIconColumnIndex.value = COLLUMNS_COUNT)
           : (expandIconColumnIndex.value = 10)
 
-        currentBankAccountList.value.length
+        bankAccountId.value.length
           ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
           : (expandedRowKeys.value = [])
       } finally {
         isLoadingDataTable.value = false
       }
-    }
-
-    const fetchBankAccounts = async () => {
-      bankAccountList.value = []
-      const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
-      bankAccountList.value = bankAccounts.result?.data || []
     }
 
     const getTabIndex = (tabList) => {
@@ -247,15 +252,9 @@ export default defineComponent({
       return groupId
     }
 
-    const onHandleChangeBankAcountSelect = debounce(async (_, options) => {
-      const bankAccountId = options.map((option) => option.id)
-
-      dataDeposit.value = []
-      currentBankAccountList.value = bankAccountId
-
+    const onHandleChangeBankAcountSelect = debounce(async (value) => {
       updateParamRequestDeposit({
-        data: { groupId: currentActiveIdGroup.value, bankAccountId },
-        params: { pageNumber: currentPageNumber.value }
+        data: { bankAccountId: value }
       })
     }, 1000)
 
@@ -264,32 +263,25 @@ export default defineComponent({
       currentActiveIdGroup.value = groupId
       router.push({ query: { ...route.query, tab: groupId } })
 
-      searchKeyMultipleSelect.value = []
-      currentBankAccountList.value = []
+      // reset params
+      bankAccountId.value = []
       currentPage.value = 1
       expandedRowKeys.value = []
-
-      await fetchBankAccounts()
-
       expandIconColumnIndex.value = 10
 
-      updateParamRequestDeposit({ data: { groupId, bankAccountId: [] }, params: { pageNumber: currentPage.value } })
+      // fetch bank accounts
+      const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
+      bankAccountList.value = bankAccounts.result?.data || []
+
+      updateParamRequestDeposit({ data: { groupId, bankAccountId: [] }, params: { pageNumber: 1 } })
       resetConfirmAllRecordButton()
     }
 
     const handleChangePage = async (pageNumber) => {
       updateParamRequestDeposit({
-        data: {
-          groupId: currentActiveIdGroup.value,
-          bankAccountId: currentBankAccountList.value
-        },
         params: { pageNumber }
       })
 
-      currentBankAccountList.value.length
-        ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
-        : (expandedRowKeys.value = [])
-      currentPageNumber.value = pageNumber
       resetConfirmAllRecordButton()
     }
 
@@ -331,7 +323,7 @@ export default defineComponent({
       }
       const dataRequest = {
         groupId: tabListGroup.value[0].id,
-        bankAccountId: currentBankAccountList.value
+        bankAccountId: bankAccountId.value
       }
 
       const { data } = await getDeposit(dataRequest, params)
@@ -418,6 +410,9 @@ export default defineComponent({
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
+      // save filters search to store
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+
       router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
@@ -492,12 +487,22 @@ export default defineComponent({
       activeKeyGroupTab.value = parseInt(groupId)
       currentActiveIdGroup.value = parseInt(groupId)
 
-      await fetchBankAccounts()
+      // await fetchBankAccounts()
+      const bankAccounts = await getBankAccounts({ groupId: currentActiveIdGroup.value })
+      bankAccountList.value = bankAccounts.result?.data || []
 
-      const { purpose } = route.query || null
-      updateParamRequestDeposit({ data: { groupId, purpose } })
+      // get filters deposit from store
+      const filtersDepositStore = store.state.deposit?.filters || {}
 
-      router.replace({ query: { tab: groupId, purpose: null } })
+      // set bank account value
+      const bankAccountSelected = filtersDepositStore?.data?.bankAccountId || []
+      if (bankAccountSelected.length > 0) {
+        bankAccountId.value = bankAccountSelected
+      }
+
+      updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
+
+      router.replace({ query: { tab: groupId } })
     })
 
     // watch to fetch data deposit
@@ -510,7 +515,7 @@ export default defineComponent({
 
     return {
       checkAllRowTable,
-      searchKeyMultipleSelect,
+      bankAccountId,
       currentPage,
       indeterminateCheckAllRows,
       currentSelectedRowKeys,
@@ -524,7 +529,6 @@ export default defineComponent({
       expandIconColumnIndex,
       isVisibleDepositButtonsFloat,
       isVisibleDepositModal,
-      currentPageNumber,
       isDisableDelete,
       loadingExportCsvButton,
       activeKeyGroupTab,
