@@ -128,6 +128,10 @@ export default defineComponent({
             label: 'breadcrumb.category'
           },
           {
+            name: 'account',
+            label: 'breadcrumb.account'
+          },
+          {
             name: 'setting-1',
             label: 'breadcrumb.setting'
           },

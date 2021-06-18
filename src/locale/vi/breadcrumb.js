@@ -8,5 +8,6 @@ export default {
   category: 'Danh mục đăng ký',
   setting: 'Cài đặt',
   edit: 'Chỉnh sửa',
-  new: 'New'
+  new: 'New',
+  account: 'Tài khoản'
 }

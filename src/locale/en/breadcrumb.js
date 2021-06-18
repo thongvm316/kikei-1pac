@@ -9,5 +9,6 @@ export default {
   setting: 'Setting',
   edit: 'Edit',
   new: 'New',
-  logs: 'Activity Log'
+  logs: 'Activity Log',
+  account: 'Account'
 }

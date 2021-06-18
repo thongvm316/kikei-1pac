@@ -9,5 +9,6 @@ export default {
   setting: '登録設定',
   edit: '登録',
   new: '登録',
-  logs: '活動記録'
+  logs: '活動記録',
+  account: '登録アカウント'
 }

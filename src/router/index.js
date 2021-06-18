@@ -143,6 +143,12 @@ const routes = [
             meta: { title: `Category | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.category' }
           },
           {
+            path: 'account',
+            name: 'account',
+            component: lazyLoadRoute('Account'),
+            meta: { title: `Account | ${APP_NAME}`, breadcrumbKey: 'breadcrumb.account' }
+          },
+          {
             path: '1',
             name: 'setting-1',
             component: lazyLoadRoute('Setting-1'),
