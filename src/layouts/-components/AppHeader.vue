@@ -41,7 +41,6 @@ export default defineComponent({
     }
 
     const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
-
     watch(
       () => route.name,
       () => {
