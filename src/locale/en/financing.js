@@ -13,5 +13,6 @@ export default {
   display_all: 'All',
   balance: 'Balance',
   please_select: 'Please select',
-  download_csv: 'Download CSV'
+  download_csv: 'Download CSV',
+  emptyData: 'No Data'
 }
