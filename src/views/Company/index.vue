@@ -61,7 +61,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30 })
+    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -80,7 +80,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({})
+    const params = ref({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
 
     const height = ref(0)
 
@@ -152,7 +152,7 @@ export default defineComponent({
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? 'code asc' : sorter.field + ' ' + sorter.order
       }
       await fetchList(params.value, filter.value)
     }
