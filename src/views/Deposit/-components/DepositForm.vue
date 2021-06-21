@@ -677,7 +677,7 @@ export default defineComponent({
       const { result: bankAccountResult = [] } = await getBankAccounts({ groupId: id })
       bankAccountList.value = bankAccountResult?.data || []
 
-      bankAccountList.value.forEach(bank => {
+      bankAccountList.value.forEach((bank) => {
         if (bank.id === params.value.withdrawalBankAccountId) withdrawalMoneyCurrency.value = bank.currencyCode
         if (bank.id === params.value.depositBankAccountId) depositMoneyCurrency.value = bank.currencyCode
       })

@@ -3,10 +3,7 @@
     <div class="u-flex u-justify-between u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
-        <a-radio-group
-          v-model:value="checkedListFilterMonth"
-          :options="filterMonthList"
-        />
+        <a-radio-group v-model:value="checkedListFilterMonth" :options="filterMonthList" />
       </div>
 
       <div>
@@ -207,15 +204,15 @@ export default defineComponent({
     // filter month
     const lastMonth = {
       fromDate: moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD'),
-      toDate: moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD'),
+      toDate: moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD')
     }
     const currentMonth = {
       fromDate: moment().startOf('month').format('YYYY-MM-DD'),
-      toDate: moment().endOf('month').format('YYYY-MM-DD'),
+      toDate: moment().endOf('month').format('YYYY-MM-DD')
     }
     const nextMonth = {
       fromDate: moment().add(1, 'months').startOf('month').format('YYYY-MM-DD'),
-      toDate: moment().add(1, 'months').endOf('month').format('YYYY-MM-DD'),
+      toDate: moment().add(1, 'months').endOf('month').format('YYYY-MM-DD')
     }
     const checkedListFilterMonth = ref()
     const filterMonthList = ref([
