@@ -26,7 +26,7 @@
       <!-- Classification -->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label required">{{ $t('company.classification') }}</label>
+          <label class="form-label">{{ $t('company.classification') }}</label>
 
           <div class="form-input">
             <a-radio-group v-model:value="form.division">

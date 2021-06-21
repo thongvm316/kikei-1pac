@@ -1,64 +1,68 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('company.title_search')" class="search" width="800px">
+  <a-modal v-model:visible="visible" :title="$t('category.title_search')" class="search" width="800px">
     <template #footer>
       <form @submit.prevent="onSearch">
-        <!-- Keyword -->
-        <div class="form-group">
-          <div class="form-content">
-            <label class="form-label">{{ $t('company.keyword') }}</label>
-            <div class="form-input">
-              <a-input v-model:value="filter.key_search" :placeholder="$t('common.please_enter')" />
-              <span class="note" v-text="`※` + $t('company.note')" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Classification -->
+        <!-- DIVISIONCATEGORY -->
         <div class="form-group">
           <div class="form-content">
             <label class="label-input">
-              {{ $t('company.classification') }}
+              {{ $t('category.category_division') }}
             </label>
-            <a-checkbox-group v-model:value="filter.division">
-              <a-checkbox v-for="item in DIVISION" :key="item.id" :value="item.id">{{
-                $t(`company.${item.value}`)
+            <a-checkbox-group v-model:value="filter.subcategory_kind">
+              <a-checkbox v-for="item in DIVISIONCATEGORY" :key="item.id" :value="item.id">{{
+                $t(`category.${item.value}`)
               }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
 
-        <!-- Country -->
+        <!-- DIVISIONSUBCATEGORY -->
         <div class="form-group">
           <div class="form-content">
             <label class="label-input">
-              {{ $t('company.country') }}
+              {{ $t('category.subcategory_division') }}
             </label>
-            <a-checkbox-group v-model:value="filter.country_id">
-              <a-checkbox v-for="item in COUNTRY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            <a-checkbox-group v-model:value="filter.division_type">
+              <a-checkbox v-for="item in DIVISIONSUBCATEGORY" :key="item.id" :value="item.id">{{
+                $t(`category.${item.value}`)
+              }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
 
-        <!-- Currency -->
+        <!-- INUSE -->
         <div class="form-group">
           <div class="form-content">
             <label class="label-input">
-              {{ $t('company.currency') }}
+              {{ $t('category.in_use') }}
             </label>
-            <a-checkbox-group v-model:value="filter.currency_id">
-              <a-checkbox v-for="item in CURRENCY" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
+            <a-checkbox-group v-model:value="filter.in_use">
+              <a-checkbox v-for="item in INUSE" :key="item.id" :value="item.id">{{
+                $t(`category.${item.value}`)
+              }}</a-checkbox>
             </a-checkbox-group>
           </div>
         </div>
 
-        <a-button key="back" @click="handleClear">{{ $t('company.clear') }}</a-button>
+        <!-- Keyword -->
+        <div class="form-group">
+          <div class="form-content">
+            <label class="form-label">{{ $t('category.keyword') }}</label>
+            <div class="form-input">
+              <a-input v-model:value="filter.key_search" :placeholder="$t('common.please_enter')" />
+              <span class="note" v-text="`※` + $t('category.note')" />
+            </div>
+          </div>
+        </div>
+
+        <a-button key="back" @click="handleClear">{{ $t('category.clear') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit">
           <template #icon>
             <span class="btn-icon">
               <search-icon />
             </span>
           </template>
-          {{ $t('company.search') }}
+          {{ $t('category.search') }}
         </a-button>
       </form>
     </template>
@@ -70,11 +74,11 @@ import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
+import { DIVISIONCATEGORY, DIVISIONSUBCATEGORY, INUSE } from '@/enums/category.enum'
 import { isEqual } from 'lodash-es'
 
 export default defineComponent({
-  name: 'CompanySearchForm',
+  name: 'CategorySearchForm',
 
   components: { SearchIcon },
 
@@ -86,9 +90,9 @@ export default defineComponent({
 
     const initialState = {
       key_search: '',
-      division: [],
-      country_id: [],
-      currency_id: []
+      subcategory_kind: [],
+      division_type: [],
+      in_use: []
     }
 
     const filter = reactive({ ...initialState })
@@ -105,14 +109,12 @@ export default defineComponent({
     }
 
     const onSearch = () => {
-      console.log(filter)
       const data = {
         key_search: filter.key_search,
         division: filter.division,
         country_id: filter.country_id,
         currency_id: filter.currency_id
       }
-      console.log(data)
       context.emit('filter-changed', data)
       visible.value = false
       store.commit('setIsShowSearchBadge', !isEqual(filter, initialState))
@@ -123,9 +125,9 @@ export default defineComponent({
       filter,
       handleClear,
       onSearch,
-      DIVISION,
-      COUNTRY,
-      CURRENCY
+      DIVISIONCATEGORY,
+      DIVISIONSUBCATEGORY,
+      INUSE
     }
   }
 })

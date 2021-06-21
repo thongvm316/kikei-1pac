@@ -138,9 +138,27 @@ const routes = [
           },
           {
             path: 'category',
-            name: 'category',
-            component: lazyLoadRoute('Category'),
-            meta: { title: `Category | ${APP_NAME}` }
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Category | ${APP_NAME}` },
+            children: [
+              {
+                path: '',
+                name: 'category',
+                component: lazyLoadRoute('Category')
+              },
+              {
+                path: 'new',
+                name: 'category-new',
+                component: lazyLoadRoute('Category/new'),
+                meta: { title: `New Category | ${APP_NAME}` }
+              },
+              {
+                path: ':id/edit',
+                name: 'category-edit',
+                component: lazyLoadRoute('Category/_id'),
+                meta: { title: `Edit Category | ${APP_NAME}` }
+              }
+            ]
           },
           {
             path: 'logs',
