@@ -299,7 +299,7 @@ export default defineComponent({
         data: { groupId, purpose: `${name} ${code}` }
       })
 
-      router.push({ name: 'deposit', query: { purpose: `${name} ${code}`, tab: groupId } })
+      router.push({ name: 'deposit', query: { tab: groupId } })
     }
 
     const fetchProjectDatas = async () => {
