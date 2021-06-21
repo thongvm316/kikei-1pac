@@ -34,10 +34,12 @@
 
               <div class="form-select">
                 <a-range-picker
-                  v-model:value="state.statisticsDateDepositValue"
+                  :value="state.statisticsDateDepositValue"
                   :style="{ width: '256px' }"
+                  :mode="['month', 'month']"
                   format="YYYY-MM"
                   :placeholder="['YYYY/MM', 'YYYY/MM']"
+                  @panelChange="handleChangeStatisticsDateValue"
                 >
                   <template #suffixIcon>
                     <calendar-outlined />
@@ -53,7 +55,7 @@
 
               <div class="form-checkbox">
                 <a-checkbox-group
-                  v-model:value="state.checkedTypeDepositList"
+                  v-model:value="state.type"
                   :options="typeDepositList"
                   @change="handleCheckedTypeDepositList($event)"
                 />
@@ -61,13 +63,13 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="categoryList.length > 0" class="form-group">
             <div class="form-content">
-              <label class="form-label">{{ $t('deposit.search_deposit.statistics_month') }}</label>
+              <label class="form-label">{{ $t('deposit.search_deposit.category') }}</label>
 
               <div class="form-checkbox">
                 <a-checkbox-group
-                  v-model:value="state.checkedCategotyList"
+                  v-model:value="state.categoryId"
                   :options="categoryList"
                   @change="handleCheckedCategoryList($event)"
                 />
@@ -75,12 +77,12 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div v-if="subCategoryList.length > 0" class="form-group">
             <div class="form-content">
               <label class="form-label">{{ $t('deposit.search_deposit.sub_category') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedSubCategotyList" :options="subCategoryList" />
+                <a-checkbox-group v-model:value="state.subcategoryId" :options="subCategoryList" />
               </div>
             </div>
           </div>
@@ -90,7 +92,7 @@
               <label class="form-label">{{ $t('deposit.search_deposit.confirm_label') }}</label>
 
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.checkedSubConfirmedList" :options="confirmedList" />
+                <a-checkbox-group v-model:value="state.confirmed" :options="confirmedList" />
               </div>
             </div>
           </div>
@@ -101,7 +103,7 @@
 
               <div class="form-checkbox">
                 <a-input
-                  v-model:value="state.valuePurpose"
+                  v-model:value="state.purpose"
                   :placeholder="$t('deposit.search_deposit.purpose_place_holder')"
                 />
               </div>
@@ -131,7 +133,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual } from 'lodash-es'
+import { isEqual, pick } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -139,7 +141,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
-import { TYPE_NAME_DEPOSIT_FOR_FILTER } from '@/enums/deposit.enum'
+import { TYPE_NAME_DEPOSIT_FOR_FILTER, TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
 import { getCategory, getSubCategory } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
@@ -156,9 +158,9 @@ export default defineComponent({
     const route = useRoute()
     const { t, locale } = useI18n()
 
-    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT_FOR_FILTER).map((item) => ({
+    const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
       value: parseInt(item),
-      label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT_FOR_FILTER[item]}`)
+      label: t(`deposit.deposit_list.${TYPE_NAME_DEPOSIT[item]}`)
     }))
 
     const locales = ref({ en: localeEn, ja: localeJa })
@@ -174,11 +176,11 @@ export default defineComponent({
     const initState = {
       dateDepositValue: [],
       statisticsDateDepositValue: [],
-      checkedTypeDepositList: [],
-      checkedCategotyList: [],
-      checkedSubCategotyList: [],
-      checkedSubConfirmedList: [],
-      valuePurpose: ''
+      type: [],
+      categoryId: [],
+      subcategoryId: [],
+      confirmed: [],
+      purpose: ''
     }
 
     const state = ref(deepCopy(initState))
@@ -189,6 +191,10 @@ export default defineComponent({
         store.commit('setCurrentRoute', val)
       }
     })
+
+    const handleChangeStatisticsDateValue = (val) => {
+      state.value.statisticsDateDepositValue = val
+    }
 
     const handleClearDepositFormSearch = () => {
       isNeedSubmit.value = !isEqual(state.value, initState)
@@ -205,11 +211,11 @@ export default defineComponent({
         statisticsTo: state.value.statisticsDateDepositValue[1]
           ? moment(state.value.statisticsDateDepositValue[1]).format('YYYY-MM')
           : null,
-        type: state.value.checkedTypeDepositList,
-        confirmed: state.value.checkedSubConfirmedList,
-        categoryId: state.value.checkedCategotyList,
-        subcategoryId: state.value.checkedSubCategotyList,
-        purpose: state.value.valuePurpose
+        type: state.value.type,
+        confirmed: state.value.confirmed,
+        categoryId: state.value.categoryId,
+        subcategoryId: state.value.subcategoryId,
+        purpose: state.value.purpose
       }
 
       emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
@@ -220,18 +226,17 @@ export default defineComponent({
     }
 
     const handleCheckedTypeDepositList = async (event) => {
-      event = { division_type: event.toString() }
+      const divisionTypes = event.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
+      event = { division_type: divisionTypes.toString() }
 
       if (event.division_type) {
         const dataCategory = await getCategory(event)
-        state.value.checkedCategotyList = []
-        state.value.checkedSubCategotyList = []
+        state.value.categoryId = []
+        state.value.subcategoryId = []
+        subCategoryList.value = []
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       } else {
-        state.value.checkedCategotyList = []
-        state.value.checkedSubCategotyList = []
         categoryList.value = []
-        subCategoryList.value = []
       }
     }
     const toCategoryOptions = (options) => {
@@ -245,7 +250,8 @@ export default defineComponent({
     const handleCheckedCategoryList = async (event) => {
       event = { category_id: event.toString() }
       if (event.category_id) {
-        state.value.checkedSubCategotyList = []
+        state.value.subcategoryId = []
+        subCategoryList.value = []
         const dataSubCategory = await getSubCategory(event)
         subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       } else {
@@ -265,8 +271,28 @@ export default defineComponent({
       isNeedSubmit.value && onSubmit()
     }
 
+    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
+
     onBeforeMount(async () => {
-      store.commit('setIsShowSearchBadge', false)
+      // get state from store
+      const dataFilterStore = store.state.deposit?.filters?.data || {}
+      const filterData = pick(dataFilterStore, ['type', 'confirmed', 'categoryId', 'subcategoryId', 'purpose'])
+      const stateStore = {
+        ...filterData,
+        dateDepositValue: dataFilterStore?.fromDate
+          ? [toDateFormat(dataFilterStore.fromDate, 'YYYY/MM/DD'), toDateFormat(dataFilterStore.toDate, 'YYYY/MM/DD')]
+          : [],
+        statisticsDateDepositValue: dataFilterStore?.statisticsFrom
+          ? [
+              toDateFormat(dataFilterStore.statisticsFrom, 'YYYY/MM/DD'),
+              toDateFormat(dataFilterStore.statisticsTo, 'YYYY/MM/DD')
+            ]
+          : []
+      }
+      state.value = { ...state.value, ...stateStore }
+
+      // set badge search
+      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     })
 
     return {
@@ -282,7 +308,8 @@ export default defineComponent({
       handleCheckedCategoryList,
       handleClearDepositFormSearch,
       handleModalCancel,
-      onSubmit
+      onSubmit,
+      handleChangeStatisticsDateValue
     }
   }
 })
@@ -291,9 +318,9 @@ export default defineComponent({
 <style lang="scss">
 .search-deposit {
   .ant-modal-footer {
-    padding: 16px 140px;
+    padding: 16px 127px;
     max-height: 650px;
-    overflow: auto;
+    overflow-y: scroll;
 
     form {
       width: 100%;
@@ -306,7 +333,7 @@ export default defineComponent({
     }
 
     .form-label {
-      width: 120px;
+      width: 110px;
       text-align: left;
     }
 

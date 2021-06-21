@@ -1,15 +1,17 @@
 .activity-log{
-  .ant-table-content{
-
-    .ant-dropdown-link{
-      color: #064780;
+  .ant-table-wrapper {
+    margin-top: 16px;
+    .ant-table-content{
+      .ant-dropdown-link{
+        color: #0070c0;
+      }
     }
   }
 }
 
 .search-activity-log {
   .ant-modal-footer {
-    padding: 16px 182px;
+    padding: 16px 140px;
 
     form {
       width: 100%;
@@ -23,12 +25,17 @@
     }
 
     .form-label {
-      width: 120px;
+      width: 70px;
       text-align: left;
     }
 
     .form-select {
       text-align: left;
+      flex: 1;
+      
+      .ant-calendar-picker {
+        display: unset;
+      }
     }
   }
 }

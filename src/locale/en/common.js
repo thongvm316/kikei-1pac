@@ -13,7 +13,9 @@ export default {
     conflict: 'Data was conflicted',
     invalid: 'Data was invalid',
     confirmed: 'Data was confirmed',
-    to_month_must_less_than_from_month: '”To month” must greater than ”From month”',
-    alphanum: 'Please input text or number'
+    to_month_must_less_than_from_month: '”To YYYY/MM” must greater than ”From YYYY/MM”',
+    alphanum: 'Please input text or number',
+    expired_must_less_than_deposit_date: '"Repeat end date" must be equal to or greater than "Deposit/Withdrawal date"',
+    invalidchar: 'Invalid character found'
   }
 }

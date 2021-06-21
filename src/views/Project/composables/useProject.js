@@ -32,9 +32,9 @@ export const exportProject = (items) => {
     fileTitle: 'project',
     labels: [
       { header: t('project.updated_date'), field: 'updatedAt', formatBy: 'moment_l' },
-      { header: 'Project Code', field: 'code' },
+      { header: t('project.project_code'), field: 'code' },
       { header: t('project.project_name'), field: 'name' },
-      { header: 'Company Name', field: 'companyName' },
+      { header: t('project.company_name'), field: 'companyName' },
       { header: t('project.type'), field: 'type', localeBy: 'project.type_' },
       { header: t('project.accuracy_name'), field: 'accuracyName' },
       { header: t('project.release_date'), field: 'releaseDate', formatBy: 'moment_l' },

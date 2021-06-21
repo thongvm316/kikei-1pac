@@ -10,6 +10,7 @@ import project from './project'
 import deposit from './deposit'
 import logs from './logs'
 import account from './account'
+import sidebar from './sidebar'
 
 export default {
   errors,
@@ -23,5 +24,6 @@ export default {
   project,
   deposit,
   logs,
-  account
+  account,
+  sidebar
 }

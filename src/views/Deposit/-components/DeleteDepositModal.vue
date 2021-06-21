@@ -1,7 +1,10 @@
 <template>
   <a-modal v-model:visible="visible" centered title="削除" width="380px">
     <template #footer>
-      <p>{{ $t('deposit.deposit_list.delete_deposit', { purpose: currentSelectedRecord?.purpose || '' }) }}</p>
+      <p v-if="currentSelectedRecord?.purpose">
+        {{ $t('deposit.deposit_list.delete_deposit', { purpose }) }}
+      </p>
+      <p v-else>{{ $t('deposit.deposit_list.delete_deposit_multiple') }}</p>
       <a-button @click="handleCancel">キャンセル</a-button>
       <a-button type="danger" @click="$emit('on-delete-deposit-record')">削除</a-button>
     </template>
@@ -9,7 +12,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 
 export default defineComponent({
   name: 'DeleteDepositModal',
@@ -18,15 +21,18 @@ export default defineComponent({
     currentSelectedRecord: Object
   },
 
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const visible = ref()
 
     const handleCancel = () => {
       emit('update:visible', false)
     }
 
+    const purpose = computed(() => props.currentSelectedRecord?.purpose)
+
     return {
       visible,
+      purpose,
       handleCancel
     }
   }

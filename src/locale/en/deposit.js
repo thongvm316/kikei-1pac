@@ -1,12 +1,14 @@
 export default {
   deposit_list: {
-    type_deposit_sales: 'Sales',
-    type_deposit_payment: 'Payments',
-    type_deposit_cash_transfer: 'Cash Transfer',
-    type_unclear_money: 'Unclear Money',
+    type_deposit_sales: '入金',
+    type_deposit_payment: '出金',
+    type_deposit_cash_transfer: '移動',
+    type_unclear_money: '不明',
     type_none: '-',
     delete_deposit: '{purpose}を削除してもよろしいですか？',
+    delete_deposit_multiple: '削除してもよろしいですか？',
     delete_success: '{purpose}を削除されました',
+    delete_success_multiple: '削除されました',
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',
     create_deposit: '新規入出金追加',
@@ -40,7 +42,7 @@ export default {
     type_unclear: '不明',
     category: '大分類',
     category_place_holder: '選択して下さい',
-    sub_category: '大分類',
+    sub_category: '中分類',
     sub_category_place_holder: '選択して下さい',
     company_selection: '選択',
     purpose: '項目名',
@@ -59,7 +61,7 @@ export default {
     deposit_money_place_holder: '入力してください',
     tag: 'タグ',
     tag_place_holder: 'タグを入力してください',
-    tag_caption: 'Please input Tag and press Enter',
+    tag_caption: '※タグを入力して「Enter」を押してください',
     memo: 'メモ',
     memo_place_holder: '入力してください',
     repeat: '繰返し',
@@ -73,29 +75,29 @@ export default {
     confirmed: '確定',
     cancel: 'キャンセル',
     registration: '登録',
-    create_success: '{purpose} successfully added',
-    update_success: '{purpose} successfully updated'
+    create_success: '{purpose} が追加されました',
+    update_success: '{purpose} が更新されました'
   },
 
   csv: {
     header: {
       confirmed: 'Confirmed',
-      date: 'Date',
-      statictis_month: 'Statictis Month',
-      deposit_money: 'Deposit money',
+      date: '入出金日',
+      statictis_month: '計上月',
+      deposit_money: '入出金額',
       withdraw_money: 'Withdraw money',
-      balance: 'Balance',
-      type_name: 'Type name',
-      category: 'Category',
-      sub_category: 'Sub category',
-      purpose: 'Purpose'
+      balance: '残高',
+      type_name: '区分',
+      category: '大分類',
+      sub_category: '中分類',
+      purpose: '項目名'
     }
   },
 
   division: {
-    customer: 'Customer',
-    partner: 'Partner',
-    both: 'Both'
+    customer: '顧客',
+    partner: 'パートナー',
+    both: '顧客及、パートナー'
   },
 
   country: {
@@ -109,25 +111,28 @@ export default {
   },
 
   error_message: {
-    date: 'Please select date',
-    type: 'Please select type',
-    category: 'Please select category',
-    sub_category: 'Please select sub category',
-    purpose: 'Please input item name',
-    statistics_month: 'Please select accounting month',
-    group: 'Please select month',
-    bank_account: 'Please select bank account',
-    money: 'Please input amount',
-    tags: 'Please input tag',
-    repeated: 'Please select repeat type'
+    date: '日付を選択して下さい',
+    type: 'タイプを選択して下さい',
+    category: '大分類を選択して下さい',
+    sub_category: '中分類を選択して下さい',
+    purpose: '項目名を入力して下さい',
+    statistics_month: '月を選択して下さい',
+    group: 'グループを選択して下さい',
+    bank_account: '銀行口座を選択して下さい',
+    money: '金額を入力して下さい',
+    tags: 'タグを入力して下さい',
+    repeated: 'リピートタイプを選択して下さい',
+    repeated_expired_date: '"Repeat end date" must greater than "Deposit/Withdrawal date"'
   },
 
   confirm_modal: {
     title: '確定',
     message: '{purpose}を確定してもよろしいですか？',
-    cancel_btn: 'Cancel',
-    confirm_btn: 'OK',
-    confirm_success: '{purpose} を確定されました'
+    message_multiple: '確定してもよろしいですか？',
+    cancel_btn: 'キャンセル',
+    confirm_btn: '確定',
+    confirm_success: '{purpose}を確定されました',
+    confirm_success_multiple: '確定されました'
   },
 
   search_deposit: {
@@ -138,8 +143,8 @@ export default {
     category: '大分類',
     sub_category: '中分類',
     confirm_label: '確定',
-    confirm_yes: 'Yes',
-    confirm_no: 'No',
+    confirm_yes: '確定',
+    confirm_no: '未確定',
     purpose: '項目名',
     purpose_place_holder: '入力してください',
     clear_search: 'クリア',

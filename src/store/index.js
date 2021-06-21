@@ -1,6 +1,7 @@
 import { createStore, createLogger } from 'vuex'
 import flash from './flash'
 import auth from './auth'
+import deposit from './deposit'
 
 const state = {
   currentRoute: null,
@@ -26,7 +27,8 @@ const debug = process.env.VUE_APP_ENV !== 'production'
 const store = createStore({
   modules: {
     flash,
-    auth
+    auth,
+    deposit
   },
   state,
   getters,

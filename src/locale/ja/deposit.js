@@ -5,8 +5,10 @@ export default {
     type_deposit_cash_transfer: '移動',
     type_unclear_money: '不明',
     type_none: '-',
-    delete_deposit: '{purpose}項目名を削除してもよろしいですか？',
+    delete_deposit: '{purpose}を削除してもよろしいですか？',
+    delete_deposit_multiple: '削除してもよろしいですか？',
     delete_success: '{purpose}を削除されました',
+    delete_success_multiple: '削除されました',
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',
     create_deposit: '新規入出金追加',
@@ -79,11 +81,11 @@ export default {
 
   csv: {
     header: {
-      confirmed: 'Confirmed',
-      date: '入出金日',
+      confirmed: '確定',
+      date: '日付',
       statictis_month: '計上月',
-      deposit_money: '入出金額',
-      withdraw_money: 'Withdraw money',
+      deposit_money: '入金',
+      withdraw_money: '出金',
       balance: '残高',
       type_name: '区分',
       category: '大分類',
@@ -119,16 +121,18 @@ export default {
     bank_account: '銀行口座を選択して下さい',
     money: '金額を入力して下さい',
     tags: 'タグを入力して下さい',
-    repeated: 'リピートタイプを選択して下さい'
+    repeated: 'リピートタイプを選択して下さい',
+    repeated_expired_date: '「繰返し終了日」は「入出金日」より大きく入力してください'
   },
 
   confirm_modal: {
     title: '確定',
-    message: '{purpose}を確定してもよろしですか？',
-    message_multiple: '確定してもよろしいですか?',
+    message: '{purpose}を確定してもよろしいですか？',
+    message_multiple: '確定してもよろしいですか？',
     cancel_btn: 'キャンセル',
     confirm_btn: '確定',
-    confirm_success: '{purpose}を確定されました'
+    confirm_success: '{purpose}を確定されました',
+    confirm_success_multiple: '確定されました'
   },
 
   search_deposit: {

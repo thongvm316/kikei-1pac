@@ -21,7 +21,15 @@
   }
 
   .ant-table-content {
+    .ant-table-thead{
+      th:not(:first-child) {
+        text-align: right;
+      }
+    }
     .ant-table-row {
+      td:not(:first-child) {
+        text-align: right;
+      }
       .ant-dropdown-link{
         color: #000;
         &:hover{

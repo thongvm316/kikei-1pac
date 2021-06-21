@@ -13,5 +13,6 @@ export default {
   display_all: 'すべて',
   balance: '残高',
   please_select: '選択して下さい',
-  download_csv: 'CSVダウンロード'
+  download_csv: 'CSVファイルダウンロード',
+  emptyData: '該当する資金繰りが見つかりませんでした。'
 }

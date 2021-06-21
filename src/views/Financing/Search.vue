@@ -1,5 +1,11 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('financing.title_search')" class="search-financing" width="800px">
+  <a-modal
+    v-model:visible="visible"
+    :title="$t('financing.title_search')"
+    class="search-financing"
+    width="800px"
+    @cancel="handleModalCancel"
+  >
     <template #footer>
       <form @submit.prevent="onSearch">
         <!-- Group -->
@@ -52,8 +58,8 @@
             <div class="form-select">
               <a-range-picker
                 v-model:value="filter.date_from_to"
-                style="width: 300px"
-                format="YYYY/MM/DD"
+                :style="{ width: '300px' }"
+                format="YYYY-MM-DD"
                 :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
                 :disabled="isDisabledDate"
                 @change="onChangeDate"
@@ -82,7 +88,7 @@
         </div>
         <!-- ./Display -->
 
-        <a-button key="back" @click="handleCancel">{{ $t('financing.handle_cancel') }}</a-button>
+        <a-button key="back" @click="handleClear">{{ $t('financing.handle_cancel') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit" :loading="loading">
           <template #icon>
             <span class="btn-icon">
@@ -97,11 +103,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, computed, onMounted } from 'vue'
+import { defineComponent, ref, reactive, computed, onMounted, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { remove } from 'lodash-es'
+import { isEqual, remove } from 'lodash-es'
 
 import { SHOW_BY } from '@/enums/financing.enum'
 import SearchIcon from '@/assets/icons/ico_search.svg'
@@ -123,6 +129,7 @@ export default defineComponent({
     const isDisabledStages = ref(true)
     const isDisabledDate = ref(true)
     let periodList = ref([])
+    const isNeedSubmit = ref(false)
 
     const initialStateFilter = {
       group_id: null,
@@ -130,6 +137,7 @@ export default defineComponent({
       date_from_to: [],
       show_by: 0
     }
+
     const filter = reactive({ ...initialStateFilter })
 
     onMounted(async () => {
@@ -143,8 +151,9 @@ export default defineComponent({
       }
     })
 
-    const handleCancel = () => {
-      visible.value = false
+    const handleClear = () => {
+      isNeedSubmit.value = !isEqual(filter, initialStateFilter)
+      Object.assign(filter, initialStateFilter)
     }
 
     const handleChangeGroups = async (event) => {
@@ -170,25 +179,42 @@ export default defineComponent({
     }
 
     const onSearch = () => {
-      context.emit('filter-changed', filter)
-      handleCancel()
+      const data = {
+        group_id: filter.group_id,
+        period_id: filter.period_id,
+        date_from_to: filter.date_from_to,
+        show_by: filter.show_by
+      }
+
+      context.emit('filter-changed', data)
+      visible.value = false
+      isNeedSubmit.value = false
     }
+
+    const handleModalCancel = () => {
+      isNeedSubmit.value && onSearch()
+    }
+
+    onBeforeMount(async () => {
+      store.commit('setIsShowSearchBadge', true)
+    })
 
     return {
       loading,
       visible,
       t,
-      handleCancel,
-      handleChangeGroups,
-      handleChangePeriod,
-      onChangeDate,
-      onSearch,
       groupList,
       periodList,
       filter,
       SHOW_BY,
       isDisabledStages,
-      isDisabledDate
+      isDisabledDate,
+      handleClear,
+      handleChangeGroups,
+      handleChangePeriod,
+      onChangeDate,
+      onSearch,
+      handleModalCancel
     }
   }
 })

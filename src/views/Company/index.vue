@@ -21,7 +21,7 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 211 }"
+      :scroll="{ y: height - 219 }"
       size="middle"
       @change="handleChange"
     >
@@ -256,9 +256,7 @@ export default defineComponent({
 
   .btn-modal {
     width: auto;
-    height: 24px;
     border-radius: 2px;
-    padding: 1px 8px;
     text-align: center;
     display: flex;
     align-items: center;

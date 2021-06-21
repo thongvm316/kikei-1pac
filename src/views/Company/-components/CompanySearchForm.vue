@@ -71,6 +71,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
+import { isEqual } from 'lodash-es'
 
 export default defineComponent({
   name: 'CompanySearchForm',
@@ -100,12 +101,21 @@ export default defineComponent({
     })
 
     const handleClear = () => {
-      Object.assign(filter, initialState)
+      Object.assign(filter, initialState) && onSearch()
     }
 
     const onSearch = () => {
-      context.emit('filter-changed', filter)
+      console.log(filter)
+      const data = {
+        key_search: filter.key_search,
+        division: filter.division,
+        country_id: filter.country_id,
+        currency_id: filter.currency_id
+      }
+      console.log(data)
+      context.emit('filter-changed', data)
       visible.value = false
+      store.commit('setIsShowSearchBadge', !isEqual(filter, initialState))
     }
 
     return {

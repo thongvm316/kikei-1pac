@@ -11,11 +11,12 @@
       <a-table
         :columns="columns"
         :data-source="dataSource"
+        :locale="emptyTextHTML"
         :pagination="{ ...pagination, showTotal: showTotal }"
         :loading="isLoading"
         size="middle"
-        :scroll="{ y: height - 211 }"
-        row-key="Id"
+        :scroll="{ y: height - 214 }"
+        :row-key="(record) => record.date"
         @change="handleChange"
       >
         <template v-for="col in columnsHeaderList" #[col]="{ text, record }" :key="col">
@@ -23,7 +24,7 @@
             <a
               class="ant-dropdown-link"
               :class="parseInt(text) < 0 ? 'text--red' : ''"
-              @click="handleNumber(text, record)"
+              @click="handlePageRedirect(text, record)"
             >
               {{ text }}
             </a>
@@ -34,9 +35,9 @@
             <a
               class="ant-dropdown-link"
               :class="parseInt(text) < 0 ? 'text--red' : ''"
-              @click="handleNumber(text, record)"
+              @click="handlePageRedirect(text, record)"
             >
-              {{ text }}
+              {{ $filters.number_with_commas(record.balance, 2) }}
             </a>
           </span>
         </template>
@@ -84,6 +85,7 @@ export default defineComponent({
     const loadingExportCsvButton = ref()
     const dataSource = ref([])
     const columns = ref([])
+    const emptyTextHTML = ref({})
     const columnsHeaderList = ref([])
     const pagination = ref({})
     const filter = ref({})
@@ -92,6 +94,10 @@ export default defineComponent({
 
     let dataTableRow = ref({})
     let initialListColumns = ref({})
+
+    emptyTextHTML.value = {
+      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description">{t('financing.emptyData')}</div>
+    }
 
     const initialDataTableColumn = ref([
       { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: true },
@@ -194,6 +200,7 @@ export default defineComponent({
             dataTableRow.value,
             convertArrayToObject(data.balances[i].bankaccounts, 'bankAccountId', 'bank_balance_', 'balance')
           )
+
           dataTableRow.value['balance'] = data.balances[i].balance
           dataSource.value.push(Object.assign({}, dataTableRow.value))
         }
@@ -205,7 +212,7 @@ export default defineComponent({
         valueField = ''
       return array.reduce((obj, item) => {
         key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
-        value === '' ? (valueField = item) : (valueField = item[value])
+        value === '' ? (valueField = item) : (valueField = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
 
         return { ...obj, [keyField]: valueField }
       }, {})
@@ -235,7 +242,7 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    const handleNumber = (balance, data) => {
+    const handlePageRedirect = (balance, data) => {
       console.log(balance)
       console.log(data)
       router.push({ name: 'deposit' })
@@ -264,13 +271,14 @@ export default defineComponent({
       initialStateFilter,
       columnsHeaderList,
       loadingExportCsvButton,
+      emptyTextHTML,
       getInnerHeight,
       convertDataTableHeader,
       convertDataTableRows,
       convertArrayToObject,
       exportFinancingAsCsvFile,
       handleChange,
-      handleNumber,
+      handlePageRedirect,
       onFilterChange,
       fetchList
     }
