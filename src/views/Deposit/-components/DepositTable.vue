@@ -157,10 +157,18 @@ export default defineComponent({
     }
 
     const onSelectChangeRow = (selectedRowKeys) => {
-      emit(
-        'update:indeterminateCheckAllRows',
-        selectedRowKeys.length < props.dataDeposit.filter((item) => !item.confirmed).length
-      )
+      if (selectedRowKeys.length < props.dataDeposit.filter((item) => !item.confirmed).length && selectedRowKeys.length > 0) {
+        emit(
+          'update:indeterminateCheckAllRows',
+          true
+        )
+      } else {
+        emit(
+          'update:indeterminateCheckAllRows',
+          false
+        )
+      }
+
       emit(
         'update:checkAllRowTable',
         selectedRowKeys.length === props.dataDeposit.filter((item) => !item.confirmed).length
