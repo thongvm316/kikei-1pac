@@ -156,6 +156,7 @@
         :precision="2"
         style="width: 300px"
       />
+      <span class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
       <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
     </a-form-item>
     <!-- money -->
@@ -330,6 +331,7 @@ export default defineComponent({
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
     const localProjectOrders = ref([])
+    const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
     const dataAccounts = ref([])
@@ -575,6 +577,11 @@ export default defineComponent({
       // groups
       const { data: groups } = await useGroupList()
       dataGroups.value = groups
+
+      dataGroups.value.forEach(group => {
+        if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
+      })
+
       // statuses
       const { data: statuses } = await getProjectStatuses()
       dataStatuses.value = statuses
@@ -609,6 +616,7 @@ export default defineComponent({
       companyOwnerData,
       localProjectOrders,
       totalMoneyOutsourcing,
+      depositCurrencyCode,
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,

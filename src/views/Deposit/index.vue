@@ -1,19 +1,29 @@
 <template>
   <div class="u-mx-32">
-    <div class="u-flex u-justify-end u-mt-24 u-mb-16">
-      <a-button :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
-        <template #icon>
-          <span class="btn-icon"><line-down-icon /></span>
-        </template>
-        {{ $t('deposit.deposit_list.export_csv') }}
-      </a-button>
+    <div class="u-flex u-justify-between u-mt-24 u-mb-16">
+      <div>
+        <span class="u-mr-16 u-text-grey-15">表示:</span>
+        <a-radio-group
+          v-model:value="checkedListFilterMonth"
+          :options="filterMonthList"
+        />
+      </div>
 
-      <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
-        <template #icon>
-          <span class="btn-icon"><line-add-icon /></span>
-        </template>
-        {{ $t('deposit.deposit_list.create_deposit') }}
-      </a-button>
+      <div>
+        <a-button :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
+          <template #icon>
+            <span class="btn-icon"><line-down-icon /></span>
+          </template>
+          {{ $t('deposit.deposit_list.export_csv') }}
+        </a-button>
+
+        <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
+          <template #icon>
+            <span class="btn-icon"><line-add-icon /></span>
+          </template>
+          {{ $t('deposit.deposit_list.create_deposit') }}
+        </a-button>
+      </div>
     </div>
 
     <div class="u-flex u-justify-between u-mb-24">
@@ -118,6 +128,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { merge } from 'lodash-es'
+import moment from 'moment'
 
 import {
   getDeposit,
@@ -192,6 +203,27 @@ export default defineComponent({
     const isVisibleDepositButtonsFloat = ref(false)
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
+
+    // filter month
+    const lastMonth = {
+      fromDate: moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD'),
+      toDate: moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD'),
+    }
+    const currentMonth = {
+      fromDate: moment().startOf('month').format('YYYY-MM-DD'),
+      toDate: moment().endOf('month').format('YYYY-MM-DD'),
+    }
+    const nextMonth = {
+      fromDate: moment().add(1, 'months').startOf('month').format('YYYY-MM-DD'),
+      toDate: moment().add(1, 'months').endOf('month').format('YYYY-MM-DD'),
+    }
+    const checkedListFilterMonth = ref()
+    const filterMonthList = ref([
+      { label: 'すべて', value: { fromDate: null, toDate: null } },
+      { label: '先月', value: lastMonth },
+      { label: '当月', value: currentMonth },
+      { label: '来月', value: nextMonth }
+    ])
 
     // data for request deposit
     const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
@@ -289,8 +321,8 @@ export default defineComponent({
         { header: t('deposit.csv.header.confirmed'), field: 'confirmed', formatBy: 'format_bolean_confirmed_text' },
         { header: t('deposit.csv.header.date'), field: 'date', formatBy: 'moment_l' },
         { header: t('deposit.csv.header.statictis_month'), field: 'statisticsMonth', formatBy: 'moment_yyyy_mm' },
-        { header: t('deposit.csv.header.deposit_money'), field: 'depositMoney' },
-        { header: t('deposit.csv.header.withdraw_money'), field: 'withdrawalMoney' },
+        { header: t('deposit.csv.header.deposit'), field: 'depositMoney' },
+        { header: t('deposit.csv.header.withdrawal'), field: 'withdrawalMoney' },
         { header: t('deposit.csv.header.balance'), field: 'balance' },
         { header: t('deposit.csv.header.type_name'), field: 'type', formatBy: 'format_deposit_type_name_text' },
         { header: t('deposit.csv.header.category'), field: 'categoryName' },
@@ -314,16 +346,17 @@ export default defineComponent({
 
     const exportDepositAsCsvFile = async () => {
       isLoadingExportCsv.value = true
+
       const params = {
+        ...paramRequestDataDeposit.value.params,
         pageNumber: 1,
         pageSize: totalRecords.value + 100
       }
-      const dataRequest = {
-        groupId: tabListGroup.value[0].id,
-        bankAccountId: bankAccountId.value
-      }
+
+      const dataRequest = paramRequestDataDeposit.value.data
 
       const { data } = await getDeposit(dataRequest, params)
+
       isLoadingExportCsv.value = false
       const depositItems = data.result.data
 
@@ -375,7 +408,7 @@ export default defineComponent({
       if (!depositId) return
 
       isLoadingDataTable.value = true
-      await deleteDeposit(depositId)
+      await deleteDeposit(depositId, { applyForRoot: currentSelectedRecord.value?.isRoot || false })
       dataDeposit.value = dataDeposit.value.filter((item) => item.id !== depositId)
       isVisibleDeleteModal.value = false
       isLoadingDataTable.value = false
@@ -504,6 +537,13 @@ export default defineComponent({
       router.replace({ query: { tab: groupId } })
     })
 
+    watch(
+      () => checkedListFilterMonth.value,
+      () => {
+        updateParamRequestDeposit({ data: checkedListFilterMonth.value })
+      }
+    )
+
     // watch to fetch data deposit
     watch(
       () => paramRequestDataDeposit.value,
@@ -536,6 +576,8 @@ export default defineComponent({
       currentSelectedRecord,
       confirmedSelectedDepositRecord,
       confirmedSelectedPurpose,
+      checkedListFilterMonth,
+      filterMonthList,
 
       updateParamRequestDeposit,
       onSelectAllRows,
