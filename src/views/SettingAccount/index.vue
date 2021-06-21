@@ -1,6 +1,6 @@
 <template>
-  <section>
-    <company-search-form @filter-changed="onFilterChange($event)" />
+  <section class="account-wrap">
+    <account-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
       <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
@@ -39,27 +39,30 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import useGetCompanyListService from '@/views/Company/composables/useGetCompanyListService'
 import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
-import CompanySearchForm from '@/views/Company/-components/CompanySearchForm'
+import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
-import useGetAccountDetailService from '@/views/Account/composables/useGetAccountDetailService'
+import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
+
+const defaultParam = {
+  type: []
+}
 
 export default defineComponent({
-  name: 'Account',
+  name: 'SettingAccount',
 
-  components: { ModalAction, CompanySearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete },
 
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getAccounts } = useGetAccountDetailService({ pageNumber: 1, pageSize: 30 })
+    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 3 }, defaultParam)
     const { result } = await getAccounts()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -79,7 +82,6 @@ export default defineComponent({
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
-
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -103,14 +105,20 @@ export default defineComponent({
         },
         {
           title: t('account.full_name'),
-          dataIndex: 'full_name',
-          key: 'full_name',
+          dataIndex: 'fullname',
+          key: 'fullname',
+          sorter: true
+        },
+        {
+          title: t('account.email'),
+          dataIndex: 'email',
+          key: 'email',
           sorter: true
         },
         {
           title: t('account.status'),
-          dataIndex: 'status',
-          key: 'status'
+          dataIndex: 'accountGroupName',
+          key: 'accountGroupName'
         }
       ]
     })
@@ -146,6 +154,10 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
+
+      Object.assign(filter.value, defaultParam)
+
+      debugger
       await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
@@ -170,7 +182,7 @@ export default defineComponent({
 
     const handleEditRecord = () => {
       router.push({
-        name: 'company-edit',
+        name: 'account-edit',
         params: {
           id: recordVisible.value.id
         }
@@ -180,9 +192,8 @@ export default defineComponent({
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
-        const { getLists } = useGetAccountDetailService({ ...params }, data)
-        debugger
-        const { result } = await getLists()
+        const { getAccounts } = useGetAccountListService({ ...params }, data)
+        const { result } = await getAccounts()
 
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)

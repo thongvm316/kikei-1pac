@@ -212,7 +212,7 @@
           >{{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
-          {{ $route.name === 'company-edit' ? $t('common.edit') : $t('common.new') }}
+          {{ $route.name === 'account-edit' ? $t('account.edit') : $t('account.new') }}
         </a-button>
       </div>
     </form>
@@ -229,8 +229,8 @@ import { useI18n } from 'vue-i18n'
 import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
-import useUpdateCompanyService from '@/views/Company/composables/useUpdateCompanyService'
-import useCreateCompanyService from '@/views/Company/composables/useCreateCompanyService'
+import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
+import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
 
 export default defineComponent({
   name: 'AccountForm',
@@ -254,45 +254,46 @@ export default defineComponent({
     const { t, locale } = useI18n()
 
     onMounted(() => {
-      if ('id' in route.params && route.name === 'company-edit') {
+      if ('id' in route.params && route.name === 'account-edit') {
+        debugger
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
 
     const handleCancel = () => {
-      router.push({ name: 'company' })
+      router.push({ name: 'account' })
     }
 
     const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
       data = { ...deleteEmptyValue(data) }
 
-      if (route.name === 'company-edit') {
-        updateCompany(data)
+      if (route.name === 'account-edit') {
+        updateAccount(data)
       } else {
-        createCompany(data)
+        createAccount(data)
       }
     })
 
-    const updateCompany = async (data) => {
+    const updateAccount = async (data) => {
       const id = route.params.id
       // eslint-disable-next-line no-useless-catch
       try {
-        const { updateCompany } = useUpdateCompanyService(id, data)
-        await updateCompany()
+        const { updateAccount } = useUpdateAccountService(id, data)
+        await updateAccount()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({ name: 'company' }).catch((err) => err)
+        await router.push({ name: 'account' }).catch((err) => err)
       } catch (err) {
         throw err
       }
     }
 
-    const createCompany = async (data) => {
+    const createAccount = async (data) => {
       // eslint-disable-next-line no-useless-catch
       try {
-        const { createCompany } = useCreateCompanyService(data)
-        await createCompany()
-        await router.push({ name: 'company' })
+        const { createAccount } = useCreateAccountService(data)
+        await createAccount()
+        await router.push({ name: 'account' })
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -309,7 +310,7 @@ export default defineComponent({
     }
 
     const replaceField = (text, field) => {
-      return text.replace(field, t(`company.${field}`))
+      return text.replace(field, t(`account.${field}`))
     }
 
     return {
@@ -320,8 +321,8 @@ export default defineComponent({
       PAYMENT,
       handleCancel,
       onSubmit,
-      updateCompany,
-      createCompany,
+      updateAccount,
+      createAccount,
       replaceField
     }
   }

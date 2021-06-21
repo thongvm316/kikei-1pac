@@ -5,8 +5,8 @@
 <script>
 import { defineComponent } from 'vue'
 
-import AccountForm from '@/views/Account/-components/AccountForm'
-import useGetAccountDetailService from '@/views/Account/composables/useGetAccountDetailService'
+import AccountForm from '@/views/SettingAccount/-components/AccountForm'
+import useGetAccountDetailService from '@/views/SettingAccount/composables/useGetAccountDetailService'
 
 export default defineComponent({
   name: 'AccountEditPage',
@@ -14,7 +14,7 @@ export default defineComponent({
   components: { AccountForm },
 
   async beforeRouteEnter(to, from, next) {
-    const { accountDetail } = useGetAccountDetailService(top.params.id)
+    const { accountDetail } = useGetAccountDetailService(to.params.id)
     const res = await accountDetail()
 
     to.meta['detail'] = res.result.data
