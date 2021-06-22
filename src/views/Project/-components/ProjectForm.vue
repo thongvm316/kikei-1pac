@@ -578,7 +578,7 @@ export default defineComponent({
       const { data: groups } = await useGroupList()
       dataGroups.value = groups
 
-      dataGroups.value.forEach(group => {
+      dataGroups.value.forEach((group) => {
         if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
       })
 
