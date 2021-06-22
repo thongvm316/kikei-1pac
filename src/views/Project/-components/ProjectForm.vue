@@ -21,8 +21,9 @@
     <!-- companyID -->
 
     <!-- code -->
-    <a-form-item name="code" :label="`プロジェクトコード ${!edit ? '(入力しないとき、自動採番です。)' : ''}`">
+    <a-form-item name="code" label="プロジェクトコード">
       <a-input v-model:value="projectParams.code" style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+      <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
     </a-form-item>
     <!-- code -->
 
@@ -718,6 +719,12 @@ export default defineComponent({
         color: $color-grey-15;
       }
     }
+  }
+
+  .form-caption {
+    color: $color-grey-75;
+    font-size: 12px;
+    line-height: 18px;
   }
 }
 </style>
