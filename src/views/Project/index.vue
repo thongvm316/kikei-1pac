@@ -152,8 +152,7 @@ export default defineComponent({
     const currentPage = ref(1)
     let pagination = ref({
       pageSize: 10,
-      pageNumber: 1,
-      orderBy: 'code asc'
+      pageNumber: 1
     })
     const height = ref(0)
     const projectDatas = ref([])
