@@ -5,6 +5,10 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
+  getCategory(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.category}`, params })
+  },
+
   getLists(params = {}, data) {
     return apiCaller({
       method: 'POST',
