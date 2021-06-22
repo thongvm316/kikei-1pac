@@ -72,11 +72,9 @@ export default defineComponent({
     }
 
     const onSearch = () => {
-      console.log(filter)
       const data = {
         key_search: filter.key_search
       }
-      debugger
       context.emit('filter-changed', data)
       visible.value = false
       isNeedSubmit.value = false

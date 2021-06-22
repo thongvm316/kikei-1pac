@@ -2,11 +2,55 @@
   <div class="card-common">
     <!-- Form -->
     <form @submit="onSubmit">
-      <!-- Company name -->
+      <!-- ID username-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="companyName" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.username" name="login_id" rules="required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.companyName') }}</label>
+            <label class="form-label required">{{ $t('account.login_id') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                maxlength="20"
+                class="w-300"
+                :disabled="isDisableEditField"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="login_id" class="errors">
+                {{ replaceField(message, 'login_id') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+      <!-- Password -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('account.password') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                :disabled="isDisableEditField"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                {{ replaceField(message, 'password') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+
+      <!-- Full name -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.fullname" name="filename" rules="required">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('account.full_name') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
@@ -15,195 +59,77 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="companyName" class="errors">
-                {{ replaceField(message, 'companyName') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="fullname" class="errors">
+                {{ replaceField(message, 'full_name') }}
               </ErrorMessage>
             </div>
           </div>
         </Field>
       </div>
 
-      <!-- Classification -->
+      <!-- Email -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="required">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('account.email') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
+                {{ replaceField(message, 'email') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+      <!-- Sales -->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label required">{{ $t('company.classification') }}</label>
+          <label class="form-label">{{ $t('account.sales') }}</label>
 
           <div class="form-input">
-            <a-radio-group v-model:value="form.division">
-              <a-radio v-for="item in DIVISION" :key="item.id" :value="item.id">{{
-                $t(`company.${item.value}`)
+            <a-checkbox-group v-model:value="form.types">
+              <a-checkbox v-for="item in TYPE" :key="item.id" :value="item.id">
+                {{ $t(`account.${item.value}`) }}
+              </a-checkbox>
+            </a-checkbox-group>
+          </div>
+        </div>
+      </div>
+      <!-- Memo -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
+          <div class="form-content">
+            <label class="form-label">{{ $t('account.memo') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                @change="handleChange"
+              />
+            </div>
+          </div>
+        </Field>
+      </div>
+      <!-- Status -->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('account.sales') }}</label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.active">
+              <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">{{
+                $t(`account.${item.value}`)
               }}</a-radio>
             </a-radio-group>
           </div>
         </div>
-      </div>
-
-      <!-- Company code -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.code" name="companyCode" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.companyCode') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                @change="handleChange"
-              />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="companyCode" class="errors">
-                {{ replaceField(message, 'companyCode') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Slack code -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.slack_code" name="companySlackCode" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.companySlackCode') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                @change="handleChange"
-              />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="companySlackCode" class="errors">
-                {{ replaceField(message, 'companySlackCode') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Country -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.country_id" name="country" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.country') }}</label>
-            <div class="form-input">
-              <a-select
-                v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
-                style="width: 200px"
-                @change="handleChange"
-              >
-                <a-select-option v-for="country in COUNTRY" :key="country.id" :value="country.id">
-                  {{ country.value }}
-                </a-select-option>
-              </a-select>
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="country" class="errors">
-                {{ replaceField(message, 'country') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Currency -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="trading_currency" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.trading_currency') }}</label>
-            <div class="form-input">
-              <a-select
-                v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
-                style="width: 200px"
-                @change="handleChange"
-              >
-                <a-select-option v-for="currency in CURRENCY" :key="currency.id" :value="currency.id">
-                  {{ currency.value }}
-                </a-select-option>
-              </a-select>
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="trading_currency" class="errors">
-                {{ replaceField(message, 'trading_currency') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Payment Site -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.payment_term" name="payment_site" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('company.payment_site') }}</label>
-            <div class="form-input">
-              <a-select
-                v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
-                style="width: 200px"
-                @change="handleChange"
-              >
-                <a-select-option v-for="payment in PAYMENT" :key="payment.id" :value="payment.id">
-                  {{ $t(`company.${payment.value}`) }}
-                </a-select-option>
-              </a-select>
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="payment_site" class="errors">
-                {{ replaceField(message, 'payment_site') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Street Address -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.address" :name="$t('company.street_address')">
-          <div class="form-content">
-            <label class="form-label">{{ $t('company.street_address') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                @change="handleChange"
-              />
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- Contact Phone -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.contact_phone_number" :name="$t('company.contact_phone')">
-          <div class="form-content">
-            <label class="form-label">{{ $t('company.contact_phone') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                @change="handleChange"
-              />
-            </div>
-          </div>
-        </Field>
-      </div>
-
-      <!-- description -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.description" :name="$t('company.description')">
-          <div class="form-content">
-            <label class="form-label">{{ $t('company.description') }}</label>
-            <div class="form-input">
-              <a-textarea
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300 textarea-120"
-                @change="handleChange"
-              />
-            </div>
-          </div>
-        </Field>
       </div>
 
       <!-- Action Section Submit & Cancel -->
@@ -212,7 +138,7 @@
           >{{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
-          {{ $route.name === 'account-edit' ? $t('account.edit') : $t('account.new') }}
+          {{ $route.name === 'account-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
     </form>
@@ -226,7 +152,7 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
-import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
+import { TYPE, ACTIVE } from '@/enums/account.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
@@ -237,25 +163,25 @@ export default defineComponent({
 
   setup() {
     let form = ref({
-      code: '',
-      name: '',
-      division: 0,
-      slack_code: '',
-      country_id: undefined,
-      currency_id: undefined,
-      payment_term: undefined,
-      address: '',
-      contact_phone_number: '',
-      description: ''
+      account_group_id: 1,
+      username: '',
+      password: '',
+      email: '',
+      fullname: '',
+      types: [],
+      memo: '',
+      active: true
     })
     const router = useRouter()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
 
+    const isDisableEditField = ref(false)
+
     onMounted(() => {
       if ('id' in route.params && route.name === 'account-edit') {
-        debugger
+        isDisableEditField.value = true
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
@@ -315,12 +241,11 @@ export default defineComponent({
 
     return {
       form,
-      DIVISION,
-      COUNTRY,
-      CURRENCY,
-      PAYMENT,
-      handleCancel,
+      TYPE,
+      ACTIVE,
+      isDisableEditField,
       onSubmit,
+      handleCancel,
       updateAccount,
       createAccount,
       replaceField

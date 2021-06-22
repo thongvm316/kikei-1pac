@@ -139,6 +139,36 @@ export default defineComponent({
         }
       ],
 
+      // setting account
+      account: [
+        {
+          path: '/setting/account',
+          breadcrumbName: t('breadcrumb.account')
+        }
+      ],
+
+      'account-new': [
+        {
+          path: '/setting/account',
+          breadcrumbName: t('breadcrumb.account')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'account-edit': [
+        {
+          path: '/setting/account',
+          breadcrumbName: t('breadcrumb.account')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
       // category
       category: [
         {

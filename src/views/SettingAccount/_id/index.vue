@@ -16,7 +16,6 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const { accountDetail } = useGetAccountDetailService(to.params.id)
     const res = await accountDetail()
-
     to.meta['detail'] = res.result.data
 
     next()

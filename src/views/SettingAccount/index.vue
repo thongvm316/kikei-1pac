@@ -3,7 +3,7 @@
     <account-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new' })">
         <add-icon class="add-icon" />
         {{ $t('account.add_account') }}
       </a-button>
@@ -39,23 +39,23 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
+import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
+import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
-import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
-import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
 
 const defaultParam = {
   type: []
 }
 
 export default defineComponent({
-  name: 'SettingAccount',
+  name: 'Index',
 
   components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete },
 
@@ -104,15 +104,21 @@ export default defineComponent({
           sorter: true
         },
         {
-          title: t('account.full_name'),
-          dataIndex: 'fullname',
-          key: 'fullname',
+          title: t('account.username'),
+          dataIndex: 'username',
+          key: 'username',
           sorter: true
         },
         {
           title: t('account.email'),
           dataIndex: 'email',
           key: 'email',
+          sorter: true
+        },
+        {
+          title: t('account.full_name'),
+          dataIndex: 'fullname',
+          key: 'fullname',
           sorter: true
         },
         {
@@ -157,14 +163,13 @@ export default defineComponent({
 
       Object.assign(filter.value, defaultParam)
 
-      debugger
       await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
     const handleDeleteRecord = async () => {
       try {
-        const { deleteCompany } = useDeleteCompanyService(recordVisible.value.id)
-        await deleteCompany()
+        const { deleteAccount } = useDeleteAccountService(recordVisible.value.id)
+        await deleteAccount()
       } catch (error) {
         console.log(error)
       }
@@ -176,7 +181,7 @@ export default defineComponent({
         variant: 'success',
         duration: 5,
         message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
+          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.username + ' を削除しました'
       })
     }
 
