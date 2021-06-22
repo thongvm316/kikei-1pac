@@ -37,7 +37,7 @@
               :class="parseInt(text) < 0 ? 'text--red' : ''"
               @click="handlePageRedirect(text, record)"
             >
-              {{ $filters.number_with_commas(record.balance, 2) }}
+              {{ $filters.number_with_commas(record.balance) }}
             </a>
           </span>
         </template>

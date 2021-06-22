@@ -118,7 +118,7 @@
     <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
-        <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
+        <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id" @click="onSelectGroup(group.depositCurrencyCode)">
           {{ group.name }}
         </a-select-option>
       </a-select>
@@ -153,10 +153,10 @@
         v-model:value="projectParams.money"
         placeholder="入力してください"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :precision="2"
+        :precision="0"
         style="width: 300px"
       />
-      <span class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
+      <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
       <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
     </a-form-item>
     <!-- money -->
@@ -182,7 +182,7 @@
                     v-model:value="order.money"
                     placeholder="入力してください"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :precision="2"
+                    :precision="0"
                     style="width: 164px"
                   />
                 </td>
@@ -570,6 +570,10 @@ export default defineComponent({
     }
     /* ------------------- api intergration --------------------------- */
 
+    const onSelectGroup = (currency) => {
+      depositCurrencyCode.value = currency
+    }
+
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
@@ -624,7 +628,8 @@ export default defineComponent({
       onSubmit,
       createTag,
       removeTag,
-      handleChangeStatisticsDateValue
+      handleChangeStatisticsDateValue,
+      onSelectGroup
     }
   }
 })

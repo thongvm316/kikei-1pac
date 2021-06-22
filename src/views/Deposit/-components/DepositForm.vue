@@ -41,8 +41,15 @@
         :disabled="isSubCategoryDisabled"
         class="has-max-width"
       >
-        <template v-for="subCategory in subCategoryList" :key="subCategory.id">
-          <a-select-option :value="subCategory.id">{{ subCategory.name }}</a-select-option>
+        <template v-if="[30].indexOf(currentCategory.subcategoryKind) < 0">
+          <a-select-option
+            v-for="subCategory in subCategoryList"
+            :key="subCategory.id"
+            :value="subCategory.id">{{ subCategory.name }}</a-select-option>
+        </template>
+
+        <template v-else>
+          <a-select-option v-for="subCategory in groupList" :key="subCategory.id" :value="subCategory.id">{{ subCategory.name }}</a-select-option>
         </template>
       </a-select>
 
@@ -106,7 +113,7 @@
         class="has-max-width"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-        :precision="2"
+        :precision="0"
         :min="isAllowNegativeMoney ? undefined : 0"
       />
       <span v-if="withdrawalMoneyCurrency" class="deposit-form__currency-unit">
@@ -139,7 +146,7 @@
           class="has-max-width"
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-          :precision="2"
+          :precision="0"
           :min="isAllowNegativeMoney ? undefined : 0"
         />
         <span v-if="depositMoneyCurrency" class="deposit-form__currency-unit">{{ `(${depositMoneyCurrency})` }}</span>
@@ -278,6 +285,7 @@ export default defineComponent({
     const subCategoryList = ref([])
     const bankAccountList = ref([])
     const groupList = ref([])
+    const currentCategory = ref({})
 
     // modal select company name
     const isCompanySelection = ref(false)
@@ -416,9 +424,9 @@ export default defineComponent({
       const indexCurrentCategory = categoryList.value?.findIndex((item) => item.id === params.value.categoryId)
 
       if (indexCurrentCategory !== -1) {
-        const currentCategory = categoryList.value[indexCurrentCategory]
-        isSubCategoryDisabled.value = [0].indexOf(currentCategory.subcategoryKind) !== -1 // select options
-        isCompanySelection.value = [20, 30].indexOf(currentCategory.subcategoryKind) !== -1 // open modal company
+        currentCategory.value = categoryList.value[indexCurrentCategory]
+        isSubCategoryDisabled.value = [0].indexOf(currentCategory.value.subcategoryKind) !== -1 // select options
+        isCompanySelection.value = [20].indexOf(currentCategory.value.subcategoryKind) !== -1 // open modal company
       }
     }
 
@@ -477,7 +485,6 @@ export default defineComponent({
 
           // open modal company
           case 20:
-          case 30:
             isCompanySelection.value = true
             companyNameSelected.value = subcategory?.name || ''
             break
@@ -822,6 +829,7 @@ export default defineComponent({
       isAllowNegativeMoney,
       isDisableEditField,
       isRepeatedExpiredDateCorrect,
+      currentCategory,
 
       onSelectWithdrawalMoney,
       onSelectDepositMoney,
