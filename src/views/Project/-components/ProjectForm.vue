@@ -21,8 +21,8 @@
     <!-- companyID -->
 
     <!-- code -->
-    <a-form-item name="code" label="プロジェクトコード">
-      <a-input :value="projectParams.code" disabled style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+    <a-form-item name="code" :label="`プロジェクトコード ${!edit ? '(入力しないとき、自動採番です。)' : ''}`">
+      <a-input v-model:value="projectParams.code" style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
     </a-form-item>
     <!-- code -->
 
