@@ -22,7 +22,7 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input v-model:value="projectParams.code" style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
     </a-form-item>
     <!-- code -->
@@ -319,7 +319,7 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: '',
+      money: 0,
       tags: [],
       memo: '',
       adProjectOrders: []
