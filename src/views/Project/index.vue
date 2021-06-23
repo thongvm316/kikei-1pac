@@ -204,7 +204,6 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectReleaseDate'
         },
-        minWidth: '100px',
         sorter: true
       },
       {
@@ -252,7 +251,7 @@ export default defineComponent({
     const localeTable = { emptyText: t('project.project_table_empty') }
 
     // status code
-    const STATUS_CODE = []
+    const STATUS_CODE = ['detailed', 'received', 'process', 'estimate']
 
     // data and params request
     const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })
