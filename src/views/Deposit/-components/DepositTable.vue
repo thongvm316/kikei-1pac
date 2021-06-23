@@ -60,6 +60,15 @@
       </a-button>
     </template>
 
+    <template #purpose="{ record }">
+      <div v-if="record.adProject?.code">
+        <p class="u-mb-8">{{ record.adProject?.code }}</p>
+        <p class="mb-0">{{ record.adProject?.name }}</p>
+      </div>
+
+      <p v-else class="mb-0">{{ record.purpose }}</p>
+    </template>
+
     <template #customTitleDeposit> 入出金額<br />(JPY) </template>
 
     <template #customTitleBalance> 残高<br />(JPY) </template>
@@ -284,14 +293,11 @@ export default defineComponent({
     }
 
     tr td:last-child {
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: center;
-      justify-content: center;
+      position: relative;
 
       .ant-table-row-expand-icon {
-        margin-right: 0;
-        margin-left: 16px;
+        @include y-centered;
+        right: 0;
       }
 
       .ant-table-row-collapsed,

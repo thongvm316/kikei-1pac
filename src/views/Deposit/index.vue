@@ -511,12 +511,12 @@ export default defineComponent({
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
 
-      // fetch bank accounts
-      const bankAccounts = await getBankAccounts({ groupId: activeKeyGroupTab.value })
-      bankAccountList.value = bankAccounts.result?.data || []
-
       // get filters deposit from store
       const filtersDepositStore = store.state.deposit?.filters || {}
+
+      // fetch bank accounts
+      const bankAccounts = await getBankAccounts({ groupId: filtersDepositStore.data?.groupId || activeKeyGroupTab.value })
+      bankAccountList.value = bankAccounts.result?.data || []
 
       // set bank account value
       const bankAccountSelected = filtersDepositStore?.data?.bankAccountId || []
