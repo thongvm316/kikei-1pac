@@ -11,7 +11,7 @@
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                maxlength="20"
+                maxLength="20"
                 class="w-300"
                 :disabled="isDisableEditField"
                 @change="handleChange"
@@ -25,8 +25,8 @@
         </Field>
       </div>
       <!-- Password -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password">
+      <div v-if="isHiddenField" class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.password') }}</label>
             <div class="form-input">
@@ -48,7 +48,7 @@
 
       <!-- Full name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.fullname" name="filename" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.fullname" name="full_name" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.full_name') }}</label>
             <div class="form-input">
@@ -59,7 +59,7 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="fullname" class="errors">
+              <ErrorMessage v-slot="{ message }" as="span" name="full_name" class="errors">
                 {{ replaceField(message, 'full_name') }}
               </ErrorMessage>
             </div>
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Email -->
-      <div class="form-group">
+      <!--<div class="form-group">
         <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.email') }}</label>
@@ -79,14 +79,13 @@
                 class="w-300"
                 @change="handleChange"
               />
-              <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
                 {{ replaceField(message, 'email') }}
               </ErrorMessage>
             </div>
           </div>
         </Field>
-      </div>
+      </div>-->
       <!-- Sales -->
       <div class="form-group">
         <div class="form-content">
@@ -177,12 +176,15 @@ export default defineComponent({
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
 
+    const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
+      } else {
+        isHiddenField.value = true
       }
     })
 
@@ -243,6 +245,7 @@ export default defineComponent({
       form,
       TYPE,
       ACTIVE,
+      isHiddenField,
       isDisableEditField,
       onSubmit,
       handleCancel,

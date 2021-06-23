@@ -25,6 +25,9 @@
       size="middle"
       @change="handleChange"
     >
+      <template #active="{ text: active }">
+        {{ active === true ? $t('account.in_use') : $t('account.retired') }}
+      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
@@ -62,7 +65,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 3 }, defaultParam)
+    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 30 }, defaultParam)
     const { result } = await getAccounts()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -99,20 +102,8 @@ export default defineComponent({
       return [
         {
           title: t('account.login_id'),
-          dataIndex: 'id',
-          key: 'id',
-          sorter: true
-        },
-        {
-          title: t('account.username'),
           dataIndex: 'username',
           key: 'username',
-          sorter: true
-        },
-        {
-          title: t('account.email'),
-          dataIndex: 'email',
-          key: 'email',
           sorter: true
         },
         {
@@ -123,8 +114,9 @@ export default defineComponent({
         },
         {
           title: t('account.status'),
-          dataIndex: 'accountGroupName',
-          key: 'accountGroupName'
+          dataIndex: 'active',
+          key: 'active',
+          slots: { customRender: 'active' }
         }
       ]
     })
@@ -181,7 +173,9 @@ export default defineComponent({
         variant: 'success',
         duration: 5,
         message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.username + ' を削除しました'
+          locale.value === 'en'
+            ? 'Deleted' + recordVisible.value.name
+            : recordVisible.value.username + ' を削除しました'
       })
     }
 

@@ -3,7 +3,7 @@ export default {
   login_id: 'ID',
   username: 'Username',
   password: 'Password',
-  full_name: 'Full Name',
+  full_name: 'FullName',
   email: 'Email',
   sales: 'Sales staff',
   type_sales: 'Business',
