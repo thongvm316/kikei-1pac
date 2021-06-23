@@ -53,6 +53,12 @@ export default defineComponent({
           const filters = store.state.deposit?.filters || {}
           !isEmpty(filters) && store.commit('deposit/CLEAR_DEPOSIT_FILTER')
         }
+
+        // clear filters search project page
+        if (!['project', 'project-edit'].includes(routeName)) {
+          const filters = store.state.project?.filters || {}
+          !isEmpty(filters) && store.commit('project/CLEAR_PROJECT_FILTER')
+        }
       }
     )
 
