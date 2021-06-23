@@ -45,11 +45,33 @@
 
           <div class="form-input">
             <a-radio-group v-model:value="form.subcategory_kind">
-              <a-radio v-for="item in DIVISIONMEDIUM" :key="item.id" :value="item.id">{{
-                $t(`category.${item.value}`)
-              }}</a-radio>
+              <a-radio
+                v-for="item in DIVISIONMEDIUM"
+                :key="item.id"
+                :value="item.id"
+                @change="item.id === 0 ? (isOpen = true) : (isOpen = false)"
+                >{{ $t(`category.${item.value}`) }}</a-radio
+              >
             </a-radio-group>
           </div>
+
+          <template v-if="isOpen">
+            <div class="form-group form-other">
+              <Field v-slot="{ field, handleChange }" v-model="form.subcategory_other" name="categoryOther">
+                <div class="form-content">
+                  <label class="form-label">{{ $t('category.categoryOther') }}</label>
+                  <div class="form-input">
+                    <a-input
+                      :value="field.value"
+                      :placeholder="$t('common.please_enter')"
+                      class="w-300"
+                      @change="handleChange"
+                    />
+                  </div>
+                </div>
+              </Field>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -60,7 +82,7 @@
 
           <div class="form-input">
             <a-radio-group v-model:value="form.in_use">
-              <a-radio v-for="item in INUSE" :key="item.id" :value="item.id">{{
+              <a-radio v-for="item in INUSE" :key="item.id" :value="item.boolean">{{
                 $t(`category.${item.value}`)
               }}</a-radio>
             </a-radio-group>
@@ -100,10 +122,13 @@ export default defineComponent({
   setup() {
     let form = ref({
       name: '',
-      subcategory_kind: 0,
+      subcategory_kind: 10,
       division_type: 0,
-      in_use: 0
+      in_use: true,
+      subcategory_other: '',
+      description: ''
     })
+    const isOpen = ref(false)
     const router = useRouter()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
@@ -171,6 +196,7 @@ export default defineComponent({
     return {
       form,
       onSubmit,
+      isOpen,
       handleCancel,
       updateCategory,
       createCategory,
@@ -182,3 +208,10 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped lang="scss">
+.form-other {
+  margin-top: 12px;
+  margin-left: 24px;
+}
+</style>

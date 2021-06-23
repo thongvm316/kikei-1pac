@@ -119,7 +119,12 @@
     <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
-        <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id" @click="onSelectGroup(group.depositCurrencyCode)">
+        <a-select-option
+          v-for="group in dataGroups"
+          :key="group.id"
+          :value="group.id"
+          @click="onSelectGroup(group.depositCurrencyCode)"
+        >
           {{ group.name }}
         </a-select-option>
       </a-select>
