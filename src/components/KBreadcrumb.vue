@@ -177,6 +177,28 @@ export default defineComponent({
         }
       ],
 
+      'category-new': [
+        {
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'category-edit': [
+        {
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
       // logs
       logs: [
         {

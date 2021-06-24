@@ -21,8 +21,8 @@ export default {
     return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}` })
   },
 
-  deleteDeposit(depositId) {
-    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/${depositId}` })
+  deleteDeposit(depositId, params) {
+    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/${depositId}`, params })
   },
 
   confirmDeposit(data) {

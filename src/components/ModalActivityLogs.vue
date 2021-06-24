@@ -2,7 +2,7 @@
   <a-modal v-model:visible="isVisible" :title="$t('logs.title_show')" @cancel="handleCancel">
     <template #footer>
       <template v-if="Object.keys(logs).length">
-        <a-textarea v-model:value="logs" :rows="20" />
+        <a-textarea v-model:value="logs" class="textarea" :rows="20" />
       </template>
       <template v-else>
         <LoadingOutlined />
@@ -81,7 +81,7 @@ export default defineComponent({
   margin-bottom: 20px;
 }
 
-.ant-input {
+.textarea {
   margin-bottom: 20px;
 }
 

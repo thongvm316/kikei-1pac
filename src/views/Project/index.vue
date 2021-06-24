@@ -48,14 +48,12 @@
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
         <p class="mb-0 text-grey-55">{{ record.companyName }}</p>
-        <p class="mb-0 font-bold">{{ record.name }}</p>
+        <p class="mb-0 font-bold u-whitespace-normal">{{ record.name }}</p>
       </template>
 
       <template #renderProjectCombineTypeAStatus="{ record }">
-        <div class="d-flex">
-          <p class="mb-0 text-grey-55">{{ $t(`project.type_${record.type}`) }}</p>
-          <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
-        </div>
+        <span class="mb-0 text-grey-55">{{ $t(`project.type_${record.type}`) }}</span>
+        <span class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</span>
       </template>
 
       <template #projectMoneyTitle>
@@ -68,7 +66,7 @@
       </template>
 
       <template #renderProjectMoney="{ record }">
-        {{ $filters.number_with_commas(record.money, 2) }}
+        {{ $filters.number_with_commas(record.money) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">
@@ -103,7 +101,7 @@
   <modal-actions
     v-if="isOpenFloatButtons"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
-    @on-go-to-edit="$router.push({ name: 'project-edit', params: { id: targetProjectSelected.id } })"
+    @on-go-to-edit="goToEditProject"
     @on-go-to-copy="cloneProject"
     @on-go-to-deposit="goToDeposit"
     @on-go-to-delete="isDeleteConfirmModalOpen = true"
@@ -125,9 +123,11 @@ import { defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { merge } from 'lodash-es'
 
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
 import { toOrderBy } from '@/helpers/table'
+import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ModalActions from '@/components/ModalActions'
 
@@ -164,7 +164,6 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt'
         },
-        ellipsis: true,
         sorter: true
       },
       {
@@ -176,7 +175,7 @@ export default defineComponent({
           title: 'projectNameTitle',
           customRender: 'renderProjectName'
         },
-        ellipsis: true,
+        width: 350,
         sorter: true
       },
       {
@@ -186,8 +185,7 @@ export default defineComponent({
         colSpan: 0,
         slots: {
           customRender: 'renderProjectCombineTypeAStatus'
-        },
-        ellipsis: true
+        }
       },
       {
         title: t('project.accuracy_name'),
@@ -197,7 +195,6 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectAccuracy'
         },
-        ellipsis: true,
         sorter: true
       },
       {
@@ -207,36 +204,32 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectReleaseDate'
         },
-        ellipsis: true,
         sorter: true
       },
       {
         dataIndex: 'money',
         key: 'money',
-        align: 'right',
+        align: 'left',
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
         },
-        ellipsis: true,
         sorter: true
       },
       {
         title: t('project.statistics_from_month'),
         dataIndex: 'statistics_from_month',
         key: 'statistics_from_month',
-        align: 'center',
+        align: 'left',
         slots: {
           customRender: 'renderProjectStatisticsDate'
         },
-        ellipsis: true,
         sorter: true
       },
       {
         title: t('project.group_name'),
         dataIndex: 'ADGroup.name',
         key: 'ADGroup.name',
-        ellipsis: true,
         slots: {
           customRender: 'renderGroupName'
         },
@@ -246,7 +239,6 @@ export default defineComponent({
         title: t('project.account_name'),
         dataIndex: 'SEAccount.fullname',
         key: 'SEAccount.fullname',
-        ellipsis: true,
         slots: {
           customRender: 'renderAccountName'
         },
@@ -258,8 +250,11 @@ export default defineComponent({
     const targetProjectSelected = ref({})
     const localeTable = { emptyText: t('project.project_table_empty') }
 
+    // status code
+    const STATUS_CODE = ['detailed', 'received', 'process', 'estimate']
+
     // data and params request
-    const requestData = ref({ params: pagination.value })
+    const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })
 
     const updateRequestData = ({ data = {}, params = {} }) => {
       requestData.value = {
@@ -290,13 +285,20 @@ export default defineComponent({
       router.push({ name: 'project-new', query: { selectedId: targetProjectSelected.value.id } })
     }
 
+    const goToEditProject = () => {
+      // save filters search to store
+      store.commit('project/STORE_PROJECT_FILTER', requestData.value)
+
+      router.push({ name: 'project-edit', params: { id: targetProjectSelected.value.id } })
+    }
+
     const goToDeposit = () => {
-      const { name, code, groupId } = targetProjectSelected.value
-      if (!name || !code || !groupId) return
+      const { id, groupId } = targetProjectSelected.value
+      if (!id || !groupId) return
 
       // save purpose to deposit store
       store.commit('deposit/STORE_DEPOSIT_FILTER', {
-        data: { groupId, purpose: `${name} ${code}` }
+        data: { groupId, projectId: id }
       })
 
       router.push({ name: 'deposit', query: { tab: groupId } })
@@ -361,7 +363,12 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      fetchProjectDatas()
+      // get filters deposit from store
+      const filtersProjectStore = store.state.project?.filters || {}
+
+      updateRequestData(merge(deepCopy(filtersProjectStore)))
+
+      // fetchProjectDatas()
 
       // get inner height
       getInnerHeight()
@@ -402,7 +409,8 @@ export default defineComponent({
       updateRequestData,
       changeProjectTable,
       getInnerHeight,
-      localeTable
+      localeTable,
+      goToEditProject
     }
   }
 })

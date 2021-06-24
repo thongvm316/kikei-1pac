@@ -24,6 +24,7 @@ export default {
   add_company: 'Add',
   next_month_end: 'Next month-end payment',
   end_of_month_after_next: 'Payment end of month after next',
+  other: 'Other',
   clear: 'Clear',
   customer: 'Customer',
   partner: 'Partner',

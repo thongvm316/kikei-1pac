@@ -22,7 +22,8 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input :value="projectParams.code" disabled style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
+      <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
     </a-form-item>
     <!-- code -->
 
@@ -118,7 +119,12 @@
     <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
-        <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
+        <a-select-option
+          v-for="group in dataGroups"
+          :key="group.id"
+          :value="group.id"
+          @click="onSelectGroup(group.depositCurrencyCode)"
+        >
           {{ group.name }}
         </a-select-option>
       </a-select>
@@ -153,9 +159,10 @@
         v-model:value="projectParams.money"
         placeholder="入力してください"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :precision="2"
+        :precision="0"
         style="width: 300px"
       />
+      <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
       <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
     </a-form-item>
     <!-- money -->
@@ -181,7 +188,7 @@
                     v-model:value="order.money"
                     placeholder="入力してください"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :precision="2"
+                    :precision="0"
                     style="width: 164px"
                   />
                 </td>
@@ -317,7 +324,7 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: '',
+      money: 0,
       tags: [],
       memo: '',
       adProjectOrders: []
@@ -330,6 +337,7 @@ export default defineComponent({
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
     const localProjectOrders = ref([])
+    const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
     const dataAccounts = ref([])
@@ -568,6 +576,10 @@ export default defineComponent({
     }
     /* ------------------- api intergration --------------------------- */
 
+    const onSelectGroup = (currency) => {
+      depositCurrencyCode.value = currency
+    }
+
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
@@ -575,6 +587,11 @@ export default defineComponent({
       // groups
       const { data: groups } = await useGroupList()
       dataGroups.value = groups
+
+      dataGroups.value.forEach((group) => {
+        if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
+      })
+
       // statuses
       const { data: statuses } = await getProjectStatuses()
       dataStatuses.value = statuses
@@ -609,6 +626,7 @@ export default defineComponent({
       companyOwnerData,
       localProjectOrders,
       totalMoneyOutsourcing,
+      depositCurrencyCode,
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,
@@ -616,7 +634,8 @@ export default defineComponent({
       onSubmit,
       createTag,
       removeTag,
-      handleChangeStatisticsDateValue
+      handleChangeStatisticsDateValue,
+      onSelectGroup
     }
   }
 })
@@ -705,6 +724,12 @@ export default defineComponent({
         color: $color-grey-15;
       }
     }
+  }
+
+  .form-caption {
+    color: $color-grey-75;
+    font-size: 12px;
+    line-height: 18px;
   }
 }
 </style>

@@ -39,13 +39,13 @@
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit, 2) }}</span
+        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
       >
     </template>
 
     <template #balance="{ record }">
       <span :class="record.balance < 0 ? 'type-20' : ''">
-        {{ $filters.number_with_commas(record.balance, 2) }}
+        {{ $filters.number_with_commas(record.balance) }}
       </span>
     </template>
 
@@ -58,6 +58,15 @@
       >
         確定
       </a-button>
+    </template>
+
+    <template #purpose="{ record }">
+      <div v-if="record.adProject?.code">
+        <p class="u-mb-8">{{ record.adProject?.code }}</p>
+        <p class="mb-0">{{ record.adProject?.name }}</p>
+      </div>
+
+      <p v-else class="mb-0">{{ record.purpose }}</p>
     </template>
 
     <template #customTitleDeposit> 入出金額<br />(JPY) </template>
@@ -157,10 +166,15 @@ export default defineComponent({
     }
 
     const onSelectChangeRow = (selectedRowKeys) => {
-      emit(
-        'update:indeterminateCheckAllRows',
-        selectedRowKeys.length < props.dataDeposit.filter((item) => !item.confirmed).length
-      )
+      if (
+        selectedRowKeys.length < props.dataDeposit.filter((item) => !item.confirmed).length &&
+        selectedRowKeys.length > 0
+      ) {
+        emit('update:indeterminateCheckAllRows', true)
+      } else {
+        emit('update:indeterminateCheckAllRows', false)
+      }
+
       emit(
         'update:checkAllRowTable',
         selectedRowKeys.length === props.dataDeposit.filter((item) => !item.confirmed).length
@@ -279,14 +293,11 @@ export default defineComponent({
     }
 
     tr td:last-child {
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: center;
-      justify-content: center;
+      position: relative;
 
       .ant-table-row-expand-icon {
-        margin-right: 0;
-        margin-left: 16px;
+        @include y-centered;
+        right: 0;
       }
 
       .ant-table-row-collapsed,

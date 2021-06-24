@@ -133,7 +133,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const dataSource = ref([])
-    const pagination = ref({ pageNumber: 1, pageSize: 30 })
+    const pagination = ref({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
     const selected = ref({})
     const filters = ref({})
     const tmpCompany = ref({})
@@ -199,13 +199,14 @@ export default defineComponent({
 
     const handleClear = async () => {
       Object.assign(filter, initialState)
-      await fetchList({ pageNumber: 1, pageSize: 30 })
+      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
     }
 
     const handleChange = async (pagination) => {
       const params = {
         pageNumber: pagination.current,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        orderBy: 'code asc'
       }
 
       await fetchList(params, filter)
@@ -213,7 +214,7 @@ export default defineComponent({
 
     const onSearch = async () => {
       filters.value = { ...deleteEmptyValue(filter) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filters.value)
+      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' }, filters.value)
     }
 
     const customRow = (record) => {
@@ -249,7 +250,7 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      fetchList({ pageNumber: 1, pageSize: 30 })
+      fetchList(pagination.value)
     })
 
     return {

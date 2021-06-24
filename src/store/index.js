@@ -2,6 +2,7 @@ import { createStore, createLogger } from 'vuex'
 import flash from './flash'
 import auth from './auth'
 import deposit from './deposit'
+import project from './project'
 
 const state = {
   currentRoute: null,
@@ -28,7 +29,8 @@ const store = createStore({
   modules: {
     flash,
     auth,
-    deposit
+    deposit,
+    project
   },
   state,
   getters,

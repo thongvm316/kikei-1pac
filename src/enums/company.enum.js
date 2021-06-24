@@ -43,5 +43,9 @@ export const PAYMENT = [
   {
     id: 1,
     value: 'end_of_month_after_next'
+  },
+  {
+    id: 2,
+    value: 'other'
   }
 ]

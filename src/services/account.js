@@ -6,10 +6,6 @@ const RESOURCES = Object.freeze({
 
 export default {
   getAccounts() {
-    return apiCaller({ method: 'POST', url: `${RESOURCES.account}/search`, data: {} })
-  },
-
-  accountDetail(id) {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.account}/${id}` })
+    return apiCaller({ method: 'POST', url: `${RESOURCES.account}/search`, data: { type: [0] } })
   }
 }
