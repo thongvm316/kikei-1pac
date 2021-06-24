@@ -130,6 +130,7 @@ import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ModalActions from '@/components/ModalActions'
+import { STATUS_CODE } from '@/enums/project.enum'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -249,9 +250,6 @@ export default defineComponent({
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
     const localeTable = { emptyText: t('project.project_table_empty') }
-
-    // status code
-    const STATUS_CODE = ['detailed', 'received', 'process', 'estimate']
 
     // data and params request
     const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })

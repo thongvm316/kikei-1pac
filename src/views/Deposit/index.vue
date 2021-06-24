@@ -539,7 +539,7 @@ export default defineComponent({
     watch(
       () => checkedListFilterMonth.value,
       () => {
-        updateParamRequestDeposit({ params: { pageNumber: 1 } }, { data: checkedListFilterMonth.value })
+        updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
       }
     )
 
