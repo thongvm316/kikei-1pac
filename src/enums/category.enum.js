@@ -11,38 +11,38 @@ export const DIVISIONCATEGORY = [
 
 export const DIVISIONSUBCATEGORY = [
   {
-    id: 0,
-    value: 'company'
-  },
-  {
-    id: 1,
-    value: 'request_group'
-  },
-  {
-    id: 2,
+    id: 10,
     value: 'text_input'
   },
   {
-    id: 3,
+    id: 20,
+    value: 'company'
+  },
+  {
+    id: 30,
+    value: 'request_group'
+  },
+  {
+    id: 0,
     value: 'no'
   }
 ]
 
 export const DIVISIONMEDIUM = [
   {
-    id: 0,
+    id: 10,
     value: 'input'
   },
   {
-    id: 1,
+    id: 20,
     value: 'company'
   },
   {
-    id: 2,
+    id: 30,
     value: 'group'
   },
   {
-    id: 3,
+    id: 0,
     value: 'no'
   }
 ]
@@ -50,10 +50,12 @@ export const DIVISIONMEDIUM = [
 export const INUSE = [
   {
     id: 0,
+    boolean: true,
     value: 'in_use'
   },
   {
     id: 1,
+    boolean: false,
     value: 'prohibited'
   }
 ]

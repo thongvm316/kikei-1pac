@@ -1,0 +1,128 @@
+.search-account {
+  .form-group {
+    margin-bottom: 24px;
+
+    .form-content {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+
+      .form-input {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .note {
+          color: $color-grey-75;
+          font-weight: 400;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .ant-modal-footer {
+    padding: 16px 171px;
+
+    .form-content {
+      text-align: left;
+    }
+
+    .form-label,
+    .label-input {
+      width: 34%;
+    }
+
+    .form-input,
+    .ant-checkbox-group {
+      width: 100%;
+    }
+  }
+}
+
+.modal-company {
+  top: 50px;
+
+  .ant-modal-content {
+    height: calc(100vh - 150px);
+
+    .ant-modal-footer {
+      display: flex;
+      padding: 0;
+      height: calc(100% - 53px);
+
+      .form-company__search {
+        text-align: left;
+        padding: 24px;
+        border-right: 1px solid $color-grey-55;
+        background-color: $color-grey-94;
+        overflow-y: auto;
+
+        .form-left {
+          position: relative;
+          height: 100%;
+
+          .form-group,
+          .checkbox__input {
+            margin-bottom: 16px;
+
+            .ant-checkbox-group {
+              display: flex;
+              flex-direction: column;
+
+              .ant-checkbox-wrapper {
+                margin: 0 0 8px;
+              }
+            }
+          }
+
+          .box-action {
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            @media only screen and (max-height: 680px) {
+              position: unset;
+              padding-bottom: 24px;
+            }
+          }
+        }
+      }
+
+      .ant-table-wrapper {
+        flex: 1;
+        padding: 24px;
+
+        .ant-spin-nested-loading {
+          .ant-spin-container {
+            .ant-btn {
+              padding: 1px 6px;
+            }
+
+            .ant-pagination {
+              float: none;
+              margin: 16px 0 0;
+            }
+
+            .ant-table-tbody {
+              tr {
+                td {
+                  padding: 6px 8px;
+
+                  .ant-btn {
+                    width: auto;
+                    height: auto;
+                    font-size: 12px;
+                  }
+                }
+              }
+            }
+
+            .ant-table-placeholder {
+              height: calc(100vh - 294px);
+            }
+          }
+        }
+      }
+    }
+  }
+}

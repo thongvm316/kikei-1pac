@@ -265,10 +265,10 @@ export default defineComponent({
         statusId: state.value.statusValue,
         accuracyId: state.value.accuracyValue,
         updatedFrom: state.value.updatedDateValue[0]
-          ? moment(state.value.updatedDateValue[0]).format('YYYY-MM-DD')
+          ? moment(state.value.updatedDateValue[0]).startOf('day').format('YYYY-MM-DD LTS')
           : null,
         updatedTo: state.value.updatedDateValue[1]
-          ? moment(state.value.updatedDateValue[1]).format('YYYY-MM-DD')
+          ? moment(state.value.updatedDateValue[1]).endOf('day').format('YYYY-MM-DD LTS')
           : null,
         statisticsFrom: state.value.statisticsDateValue[0]
           ? moment(state.value.statisticsDateValue[0]).format('YYYY-MM')

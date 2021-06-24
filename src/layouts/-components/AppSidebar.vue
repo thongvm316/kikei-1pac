@@ -135,6 +135,10 @@ export default defineComponent({
             label: t('sidebar.subcategory')
           },
           {
+            name: 'account',
+            label: t('sidebar.account')
+          },
+          {
             name: 'logs',
             label: t('sidebar.logs')
           }

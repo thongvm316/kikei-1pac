@@ -5,6 +5,7 @@ export default {
   subcategory: '中分類',
   note: '大分類名より検索します',
   categoryName: '大分類',
+  categoryOther: '項目記入例',
   category_division: '区分',
   key_word: '項目名',
   search: '検索',

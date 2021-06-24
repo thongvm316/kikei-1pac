@@ -1,11 +1,11 @@
 <template>
-  <section>
-    <CategorySearchForm @filter-changed="onFilterChange($event)" />
+  <section class="account-wrap">
+    <account-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'category-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new' })">
         <add-icon class="add-icon" />
-        {{ $t('category.add_category') }}
+        {{ $t('account.add_account') }}
       </a-button>
     </div>
 
@@ -21,32 +21,12 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 217 }"
+      :scroll="{ y: height - 211 }"
       size="middle"
       @change="handleChange"
     >
-      <template #divisionTypeName="{ text: divisionTypeName }">
-        {{ divisionTypeName === 'Sales' ? $t('category.sales') : $t('category.expense') }}
-      </template>
-
-      <template #subcategoryKindName="{ text: subcategoryKindName }">
-        {{
-          subcategoryKindName === 'Company'
-            ? $t('category.company')
-            : subcategoryKindName === 'Group'
-            ? $t('category.request_group')
-            : subcategoryKindName === 'Text Input'
-            ? $t('category.text_input')
-            : $t('category.no')
-        }}
-      </template>
-
-      <template #action="{ text: action, record }">
-        <a @click="handleSelectNumber(record)">{{ action }}</a>
-      </template>
-
-      <template #inUse="{ text: inUse }">
-        {{ inUse ? $t('category.in_use') : $t('category.prohibited') }}
+      <template #active="{ text: active }">
+        {{ active === true ? $t('account.in_use') : $t('account.retired') }}
       </template>
     </a-table>
 
@@ -62,33 +42,37 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import useGetCategoryListService from '@/views/Category/composables/useGetCategoryListService'
-import useDeleteCategoryService from '@/views/Category/composables/useDeleteCategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
+import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
+import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
-import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 
+const defaultParam = {
+  type: []
+}
+
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, CategorySearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete },
 
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCategoryListService({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
-    const { result } = await getLists()
+    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 30 }, defaultParam)
+    const { result } = await getAccounts()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()
   },
 
-  setup(_, context) {
+  setup() {
     const route = useRoute()
     const router = useRouter()
     const { t, locale } = useI18n()
@@ -100,8 +84,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
-
+    const params = ref({})
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -118,34 +101,22 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('category.categoryName'),
-          dataIndex: 'name',
-          key: 'name',
+          title: t('account.login_id'),
+          dataIndex: 'username',
+          key: 'username',
           sorter: true
         },
         {
-          title: t('category.category_division'),
-          dataIndex: 'divisionTypeName',
-          key: 'divisionTypeName',
-          slots: { customRender: 'divisionTypeName' }
+          title: t('account.full_name'),
+          dataIndex: 'fullname',
+          key: 'fullname',
+          sorter: true
         },
         {
-          title: t('category.subcategory_division'),
-          dataIndex: 'subcategoryKindName',
-          key: 'subcategoryKindName',
-          slots: { customRender: 'subcategoryKindName' }
-        },
-        {
-          title: t('category.subcategory'),
-          dataIndex: 'subcategoryNumber',
-          key: 'subcategoryNumber',
-          slots: { customRender: 'action' }
-        },
-        {
-          title: t('category.status'),
-          dataIndex: 'inUse',
-          key: 'inUse',
-          slots: { customRender: 'inUse' }
+          title: t('account.status'),
+          dataIndex: 'active',
+          key: 'active',
+          slots: { customRender: 'active' }
         }
       ]
     })
@@ -174,20 +145,23 @@ export default defineComponent({
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
       }
       await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
+
+      Object.assign(filter.value, defaultParam)
+
       await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
     const handleDeleteRecord = async () => {
       try {
-        const { deleteCategory } = useDeleteCategoryService(recordVisible.value.id)
-        await deleteCategory()
+        const { deleteAccount } = useDeleteAccountService(recordVisible.value.id)
+        await deleteAccount()
       } catch (error) {
         console.log(error)
       }
@@ -199,30 +173,26 @@ export default defineComponent({
         variant: 'success',
         duration: 5,
         message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
+          locale.value === 'en'
+            ? 'Deleted' + recordVisible.value.name
+            : recordVisible.value.username + ' を削除しました'
       })
     }
 
     const handleEditRecord = () => {
       router.push({
-        name: 'category-edit',
+        name: 'account-edit',
         params: {
           id: recordVisible.value.id
         }
       })
     }
 
-    const handleSelectNumber = (record) => {
-      console.log(record)
-      // context.emit('select-number-category', record)
-      // router.push({ name: 'company' })
-    }
-
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
-        const { getLists } = useGetCategoryListService({ ...params }, data)
-        const { result } = await getLists()
+        const { getAccounts } = useGetAccountListService({ ...params }, data)
+        const { result } = await getAccounts()
 
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
@@ -270,8 +240,7 @@ export default defineComponent({
       customRow,
       handleChange,
       onFilterChange,
-      fetchList,
-      handleSelectNumber
+      fetchList
     }
   }
 })
@@ -285,7 +254,9 @@ export default defineComponent({
 
   .btn-modal {
     width: auto;
+    height: 24px;
     border-radius: 2px;
+    padding: 1px 8px;
     text-align: center;
     display: flex;
     align-items: center;

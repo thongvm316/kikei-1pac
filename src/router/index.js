@@ -173,6 +173,30 @@ const routes = [
             ]
           },
           {
+            path: 'account',
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Account | ${APP_NAME}` },
+            children: [
+              {
+                path: '',
+                name: 'account',
+                component: lazyLoadRoute('SettingAccount')
+              },
+              {
+                path: 'new',
+                name: 'account-new',
+                component: lazyLoadRoute('SettingAccount/new'),
+                meta: { title: `New Account | ${APP_NAME}` }
+              },
+              {
+                path: ':id/edit',
+                name: 'account-edit',
+                component: lazyLoadRoute('SettingAccount/_id'),
+                meta: { title: `Edit Account | ${APP_NAME}` }
+              }
+            ]
+          },
+          {
             path: 'logs',
             name: 'logs',
             component: lazyLoadRoute('ActivityLog'),

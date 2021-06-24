@@ -22,7 +22,7 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input v-model:value="projectParams.code" style="width: 116px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
     </a-form-item>
     <!-- code -->
@@ -119,7 +119,12 @@
     <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
       <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
-        <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id" @click="onSelectGroup(group.depositCurrencyCode)">
+        <a-select-option
+          v-for="group in dataGroups"
+          :key="group.id"
+          :value="group.id"
+          @click="onSelectGroup(group.depositCurrencyCode)"
+        >
           {{ group.name }}
         </a-select-option>
       </a-select>
@@ -319,7 +324,7 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: '',
+      money: 0,
       tags: [],
       memo: '',
       adProjectOrders: []

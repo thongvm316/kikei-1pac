@@ -1,6 +1,6 @@
 <template>
   <section class="activity-log">
-    <Search @filter-changed="onFilterChange($event)" />
+    <activity-log-search-form @filter-changed="onFilterChange($event)" />
 
     <a-table
       id="list-table"
@@ -49,7 +49,7 @@ import useGetLogDetailService from '@/views/ActivityLog/composables/useGetLogDet
 import { convertPagination } from '@/helpers/convert-pagination'
 
 import Table from '@/mixins/table.mixin'
-import Search from '@/views/ActivityLog/Search'
+import ActivityLogSearchForm from '@/views/ActivityLog/_components/ActivityLogSearchForm'
 import ModalActivityLogs from '@/components/ModalActivityLogs'
 
 const state = {
@@ -60,7 +60,7 @@ const state = {
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalActivityLogs, Search },
+  components: { ModalActivityLogs, ActivityLogSearchForm },
 
   mixins: [Table],
 
