@@ -244,9 +244,16 @@
     </a-form-item>
 
     <div v-if="projectParams.tags.length > 0" class="tags-container u-mb-12">
-      <a-tag v-for="(tag, index) in projectParams.tags" :key="index" closable @close="removeTag($event, index)">
-        {{ tag }}
-      </a-tag>
+      <a-tooltip
+        v-for="(tag, index) in projectParams.tags"
+        :key="index"
+        :title="tag"
+        overlay-class-name="project-form-tags__tooltip"
+      >
+        <a-tag closable @close="removeTag($event, index)">
+          {{ tag }}
+        </a-tag>
+      </a-tooltip>
     </div>
     <!-- tag  -->
 
@@ -355,22 +362,22 @@ export default defineComponent({
       name: [{ required: true, message: t('project.error_message.name'), trigger: 'change' }],
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
-      statisticsMonth: [
-        {
-          type: 'object',
-          required: true,
-          message: t('project.error_message.statistics_month'),
-          trigger: ['blur', 'change']
-        }
-      ],
-      statisticsMonths: [
-        {
-          type: 'array',
-          required: true,
-          message: t('project.error_message.statistics_months'),
-          trigger: ['blur', 'change']
-        }
-      ],
+      // statisticsMonth: [
+      //   {
+      //     type: 'object',
+      //     required: true,
+      //     message: t('project.error_message.statistics_month'),
+      //     trigger: ['blur', 'change']
+      //   }
+      // ],
+      // statisticsMonths: [
+      //   {
+      //     type: 'array',
+      //     required: true,
+      //     message: t('project.error_message.statistics_months'),
+      //     trigger: ['blur', 'change']
+      //   }
+      // ],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
       accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
       money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
@@ -511,6 +518,9 @@ export default defineComponent({
         adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
       }
 
+      dataRequest.statisticsFromMonth = dataRequest.statisticsFromMonth ? dataRequest.statisticsFromMonth : null
+      dataRequest.statisticsToMonth = dataRequest.statisticsToMonth ? dataRequest.statisticsToMonth : null
+
       delete dataRequest.statisticsMonth
       delete dataRequest.statisticsMonths
 
@@ -641,47 +651,47 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-.modal-link {
-  color: $color-additional-blue-6;
-  margin-bottom: 0;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.outsource {
-  p {
+.project-add-form {
+  .modal-link {
+    color: $color-additional-blue-6;
     margin-bottom: 0;
+    display: inline-block;
+    cursor: pointer;
   }
 
-  &__item td {
-    padding-bottom: 8px;
-  }
+  .outsource {
+    p {
+      margin-bottom: 0;
+    }
 
-  &__total {
-    width: 340px;
-    margin-top: 12px;
-    padding-top: 12px;
-    margin-bottom: 0;
-    color: $color-grey-55;
-    border-top: 1px dashed $color-grey-55;
-    text-align: right;
-  }
+    &__item td {
+      padding-bottom: 8px;
+    }
 
-  &__company-info {
-    @include flexbox(flex-start, center);
+    &__total {
+      width: 340px;
+      margin-top: 12px;
+      padding-top: 12px;
+      margin-bottom: 0;
+      color: $color-grey-55;
+      border-top: 1px dashed $color-grey-55;
+      text-align: right;
+    }
 
-    p + p {
-      margin-left: 12px;
-      cursor: pointer;
+    &__company-info {
+      @include flexbox(flex-start, center);
+
+      p + p {
+        margin-left: 12px;
+        cursor: pointer;
+      }
     }
   }
-}
 
-.project-add-form {
   .ant-form-item {
     margin-bottom: 16px;
   }
@@ -705,7 +715,7 @@ export default defineComponent({
 
   .tags-container {
     width: 300px;
-    padding: 12px 12px 0 12px;
+    padding: 12px 12px 0;
     background-color: $color-grey-100;
     border: 1px solid $color-grey-85;
     border-radius: 2px;
@@ -713,12 +723,20 @@ export default defineComponent({
     .ant-tag {
       background-color: $color-grey-85;
       color: $color-grey-15;
-      margin-bottom: 12px;
       font-size: 12px;
       line-height: 18px;
       font-weight: normal;
-      padding-top: 3px;
-      padding-bottom: 3px;
+      padding: 2px 28px 2px 7px;
+      max-width: calc(100% - 10px);
+      text-overflow: ellipsis;
+      overflow: hidden;
+      position: relative;
+
+      .ant-tag-close-icon {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+      }
 
       svg {
         color: $color-grey-15;
@@ -730,6 +748,13 @@ export default defineComponent({
     color: $color-grey-75;
     font-size: 12px;
     line-height: 18px;
+  }
+}
+
+.project-form-tags__tooltip {
+  .ant-tooltip-inner {
+    color: $color-grey-100;
+    background-color: $color-grey-35;
   }
 }
 </style>
