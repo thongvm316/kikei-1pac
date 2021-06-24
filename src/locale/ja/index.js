@@ -26,6 +26,6 @@ export default {
   deposit,
   logs,
   account,
-  sidebar
+  sidebar,
   category
 }
