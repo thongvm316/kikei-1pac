@@ -266,6 +266,8 @@ import {
   updateDeposit
 } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
+
 const ModalSelectCompany = defineAsyncComponent(() => import('@/containers/ModalSelectCompany'))
 
 export default defineComponent({
@@ -462,8 +464,6 @@ export default defineComponent({
       return true
     }
 
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
-
     const convertDataToForm = (data = {}) => {
       const {
         type,
@@ -547,9 +547,9 @@ export default defineComponent({
         type,
         categoryId: type === 40 ? undefined : category?.id,
         subcategoryId,
-        date: date ? toDateFormat(date, 'YYYY/MM/DD') : null,
-        statisticsMonth: statisticsMonth ? toDateFormat(statisticsMonth, 'YYYY/MM/DD') : null,
-        repeatedExpiredDate: repeatedExpiredDate ? toDateFormat(repeatedExpiredDate, 'YYYY/MM/DD') : null,
+        date: fromStringToDateTimeFormatPicker(date, 'YYYY/MM/DD'),
+        statisticsMonth: fromStringToDateTimeFormatPicker(statisticsMonth, 'YYYY/MM/DD'),
+        repeatedExpiredDate: fromStringToDateTimeFormatPicker(repeatedExpiredDate, 'YYYY/MM/DD'),
         tags: tags.filter(Boolean),
         withdrawalBankAccountId: _withdrawalBankAccountId,
         withdrawalMoney: _withdrawalMoney,
@@ -898,7 +898,7 @@ $field-max-width: 500px;
 
     &--list {
       padding: 4px 12px;
-      max-width: 100%;
+      width: 100%;
     }
   }
 
