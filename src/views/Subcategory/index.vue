@@ -1,6 +1,6 @@
 <template>
   <section>
-    <SubcategorySearchForm @filter-changed="onFilterChange($event)" />
+    <subcategory-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
       <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new' })">
@@ -10,7 +10,7 @@
     </div>
 
     <a-table
-      id="list-table"
+       id="list-table"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -21,14 +21,16 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 219 }"
+      :scroll="{ y: height - 217 }"
       size="middle"
       @change="handleChange"
     >
+     <template #inUse="{ text: inUse }">
+        {{ inUse ? $t('subcategory.in_use') : $t('subcategory.prohibited') }}
+      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
-
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
 </template>
@@ -39,8 +41,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import useGetSubcategoryListService from '@/views/Subcategory/composables/useGetSubcategoryListService'
-import useDeleteSubcategoryService from '@/views/Subcategory/composables/useDeleteSubcategoryService'
+import useGetSubCategoryListService from '@/views/Subcategory/composables/useGetSubcategoryListService'
+import useDeleteSubCategoryService from '@/views/Subcategory/composables/useDeleteSubcategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
@@ -58,7 +60,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubcategoryListService({ pageNumber: 1, pageSize: 30 })
+    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -103,7 +105,8 @@ export default defineComponent({
         {
           title: t('subcategory.status'),
           dataIndex: 'inUse',
-          key: 'inUse'
+          key: 'inUse',
+          slots: { customRender: 'inUse' }
         }
       ]
     })
@@ -130,10 +133,10 @@ export default defineComponent({
         sorter.order = ''
       }
 
-      params.value = {
+     params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
       await fetchList(params.value, filter.value)
     }
@@ -145,7 +148,7 @@ export default defineComponent({
 
     const handleDeleteRecord = async () => {
       try {
-        const { deleteSubCategory } = useDeleteSubcategoryService(recordVisible.value.id)
+        const { deleteSubCategory } = useDeleteSubCategoryService(recordVisible.value.id)
         await deleteSubCategory()
       } catch (error) {
         console.log(error)
@@ -171,12 +174,17 @@ export default defineComponent({
       })
     }
 
+    const handleSelectNumber = (record) => {
+      console.log(record)
+      // context.emit('select-number-category', record)
+      // router.push({ name: 'company' })
+    }
+
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
-        const { getLists } = useGetCategoryListService({ ...params }, data)
+        const { getLists } = useGetSubCategoryListService({ ...params }, data)
         const { result } = await getLists()
-
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
         isLoading.value = false
@@ -223,7 +231,8 @@ export default defineComponent({
       customRow,
       handleChange,
       onFilterChange,
-      fetchList
+      fetchList,
+      handleSelectNumber
     }
   }
 })

@@ -1,29 +1,80 @@
 <template>
-  <div class="card-common">
+<div class="card-common">
     <!-- Form -->
     <form @submit="onSubmit">
-      <!-- DIVISIONCATEGORY -->
+      <!-- category Name-->
       <div class="form-group">
-        <div class="form-content">
-          <label class="form-label">{{ $t('category.category_division') }}</label>
-
-          <div class="form-input">
-            <a-radio-group v-model:value="form.division_type">
-              <a-radio v-for="item in DIVISIONCATEGORY" :key="item.id" :value="item.id">{{
-                $t(`category.${item.value}`)
-              }}</a-radio>
-            </a-radio-group>
+        <Field v-slot="{ field, handleChange }" v-model="form.category_id" name="category">
+          <div class="form-content">
+            <label class="form-label">{{ $t('subcategory.category') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                maxLength="20"
+                class="w-300"
+                :disabled=true
+                @change="handleChange"
+              >{{form.category_name}}</a-input>
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="category" class="errors">
+                {{ replaceField(message, 'category') }}
+              </ErrorMessage>
+            </div>
           </div>
-        </div>
+        </Field>
       </div>
+
+      <!-- subcategory name -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.name" name="name" rules="required">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('subcategory.subcategoryName') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="name" class="errors">
+                {{ replaceField(message, 'name') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+
+      <!-- subcategory example -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.example" name="example">
+          <div class="form-content">
+            <label class="form-label">{{ $t('subcategory.example') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="example" class="errors">
+                {{ replaceField(message, 'example') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+
       <!-- INUSE -->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('category.use_distinction') }}</label>
+          <label class="form-label">{{ $t('subcategory.use_distinction') }}</label>
 
           <div class="form-input">
             <a-radio-group v-model:value="form.in_use">
-              <a-radio v-for="item in INUSE" :key="item.id" :value="item.id">{{
+              <a-radio v-for="item in INUSE" :key="item.id" :value="item.boolean">{{
                 $t(`category.${item.value}`)
               }}</a-radio>
             </a-radio-group>
@@ -37,11 +88,12 @@
           >{{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
-          {{ $route.name === 'category-edit' ? $t('common.edit') : $t('common.new') }}
+          {{ $route.name === 'subcategory-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
+
     </form>
-  </div>
+</div>
 </template>
 
 <script>
@@ -52,18 +104,19 @@ import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
-import useUpdateSubcategoryService from '@/views/Subcategory/composables/useUpdateSubcategoryService'
-import useCreateSubcategoryService from '@/views/Subcategory/composables/useCreateSubcategoryService'
+import useUpdateSubCategoryService from '@/views/Subcategory/composables/useUpdateSubcategoryService'
+import useCreateSubCategoryService from '@/views/Subcategory/composables/useCreateSubcategoryService'
+import {INUSE} from '@/enums/subcategory.enum'
 
 export default defineComponent({
-  name: 'SubcategoryForm',
+  name: 'SubCategoryForm',
 
   setup() {
     let form = ref({
+      category_id: 5,
       name: '',
-      subcategory_kind: 0,
-      division_type: 0,
-      in_use: 0
+      example:'',
+      in_use: 0,
     })
     const router = useRouter()
     const route = useRoute()
@@ -95,7 +148,7 @@ export default defineComponent({
       const id = route.params.id
       // eslint-disable-next-line no-useless-catch
       try {
-        const { updateSubCategory } = useUpdateSubcategoryService(id, data)
+        const { updateSubCategory } = useUpdateSubCategoryService(id, data)
         await updateSubCategory()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
         await router.push({ name: 'subcategory' }).catch((err) => err)
@@ -107,7 +160,7 @@ export default defineComponent({
     const createSubCategory = async (data) => {
       // eslint-disable-next-line no-useless-catch
       try {
-        const { createSubCategory } = useCreateSubcategoryService(data)
+        const { createSubCategory } = useCreateSubCategoryService(data)
         await createSubCategory()
         await router.push({ name: 'subcategory' })
       } catch (err) {
@@ -133,9 +186,10 @@ export default defineComponent({
       form,
       onSubmit,
       handleCancel,
-      updateSubcategory,
+      updateSubCategory,
       createSubCategory,
       replaceField,
+      INUSE,
     }
   }
 })

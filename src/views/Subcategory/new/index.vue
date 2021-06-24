@@ -7,7 +7,7 @@ import { defineComponent } from 'vue'
 import SubcategoryForm from '@/views/Subcategory/-components/SubcategoryForm'
 
 export default defineComponent({
-  name: 'SubcategoryNewPage',
+  name: 'SubCategoryNewPage',
 
   components: { SubcategoryForm }
 })

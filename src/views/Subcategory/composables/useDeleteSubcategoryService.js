@@ -1,16 +1,16 @@
 import services from '@/services'
 const SubCategoryService = services.get('SubCategoryService')
 
-export default function useDeleteSubcategoryService(id, params) {
-  const deleteSubcategory = async () => {
+export default function useDeleteSubCategoryService(id, params) {
+  const deleteSubCategory = async () => {
     // eslint-disable-next-line no-useless-catch
     try {
-      const response = await SubCategoryService.deleteSubcategory(id, params)
+      const response = await SubCategoryService.deleteSubCategory(id, params)
       return response.data
     } catch (e) {
       throw e
     }
   }
 
-  return { deleteSubcategory }
+  return { deleteSubCategory }
 }

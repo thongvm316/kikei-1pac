@@ -199,6 +199,36 @@ export default defineComponent({
         }
       ],
 
+      // subcategory
+      subcategory: [
+        {
+          path: '/setting/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        }
+      ],
+
+      'subcategory-new': [
+        {
+          path: '/setting/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'subcategory-edit': [
+        {
+          path: '/setting/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
+
       // logs
       logs: [
         {

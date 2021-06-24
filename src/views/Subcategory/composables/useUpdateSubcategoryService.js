@@ -1,16 +1,17 @@
 import services from '@/services'
 const SubCategoryService = services.get('SubCategoryService')
 
-export default function useUpdateSubcategoryService(id, data) {
-  const updateSubcategory = async () => {
+export default function useUpdateSubCategoryService(id, data) {
+  const updateSubCategory = async () => {
     // eslint-disable-next-line no-useless-catch
     try {
-      const response = await SubCategoryService.updateSubcategory(id, data)
+      const response = await SubCategoryService.updateSubCategory(id, data)
+      console.log(data,"update")
       return response.data
     } catch (e) {
       throw e
     }
   }
 
-  return { updateSubcategory }
+  return { updateSubCategory }
 }

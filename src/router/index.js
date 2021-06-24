@@ -169,6 +169,18 @@ const routes = [
                 path: '',
                 name: 'subcategory',
                 component: lazyLoadRoute('Subcategory')
+              },
+              {
+                path: 'new',
+                name: 'subcategory-new',
+                component: lazyLoadRoute('Subcategory/new'),
+                meta: { title: `New SubCategory | ${APP_NAME}` }
+              },
+              {
+                path: ':id/edit',
+                name: 'subcategory-edit',
+                component: lazyLoadRoute('Subcategory/_id'),
+                meta: { title: `Edit SubCategory | ${APP_NAME}` }
               }
             ]
           },
