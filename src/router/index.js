@@ -161,6 +161,18 @@ const routes = [
             ]
           },
           {
+            path: 'subcategory',
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Subcategory | ${APP_NAME}` },
+            children: [
+              {
+                path: '',
+                name: 'subcategory',
+                component: lazyLoadRoute('Subcategory')
+              }
+            ]
+          },
+          {
             path: 'logs',
             name: 'logs',
             component: lazyLoadRoute('ActivityLog'),
