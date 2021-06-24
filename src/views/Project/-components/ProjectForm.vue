@@ -85,7 +85,12 @@
     <!-- release date -->
 
     <!-- statistics month -->
-    <a-form-item v-if="projectParams.type === 0" name="statisticsMonth" label="計上予定月">
+    <a-form-item
+      v-if="projectParams.type === 0"
+      name="statisticsMonth"
+      label="計上予定月"
+      :class="{ 'has-error': localErrors['statisticFromMonth'] }"
+    >
       <a-month-picker
         v-model:value="projectParams.statisticsMonth"
         style="width: 164px"
@@ -96,22 +101,33 @@
           <calendar-outlined />
         </template>
       </a-month-picker>
+
+      <p v-if="localErrors['statisticFromMonth']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
+      </p>
     </a-form-item>
-    <a-form-item v-else name="statisticsMonths" label="計上予定月">
+
+    <a-form-item
+      v-else
+      name="statisticsMonths"
+      label="計上予定月"
+      :class="{ 'has-error': localErrors['statisticFromMonth'] }"
+    >
       <a-range-picker
         :value="projectParams.statisticsMonths"
         style="width: 300px"
         format="YYYY/MM"
         :mode="['month', 'month']"
         :placeholder="['YYYY/MM', 'YYYY/MM']"
-        @panelChange="handleChangeStatisticsDateValue"
+        @change="handleChangeStatisticsDateValue"
       >
         <template #suffixIcon>
           <calendar-outlined />
         </template>
       </a-range-picker>
-      <p v-if="localErrors['statisticToMonth']" class="u-text-additional-red-6">
-        {{ $t(`common.local_error.${localErrors['statisticToMonth']}`) }}
+
+      <p v-if="localErrors['statisticFromMonth']" class="u-text-additional-red-6">
+        {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
       </p>
     </a-form-item>
     <!-- statistics month -->

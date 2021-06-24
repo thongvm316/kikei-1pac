@@ -898,7 +898,7 @@ $field-max-width: 500px;
 
     &--list {
       padding: 4px 12px;
-      max-width: 100%;
+      width: 100%;
     }
   }
 
