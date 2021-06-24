@@ -324,7 +324,7 @@ export default defineComponent({
 
     // params deposit form
     const params = ref({
-      date: null,
+      date: moment(),
       type: '',
       categoryId: undefined,
       subcategoryId: undefined,

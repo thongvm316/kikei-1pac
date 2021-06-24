@@ -362,22 +362,22 @@ export default defineComponent({
       name: [{ required: true, message: t('project.error_message.name'), trigger: 'change' }],
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
-      statisticsMonth: [
-        {
-          type: 'object',
-          required: true,
-          message: t('project.error_message.statistics_month'),
-          trigger: ['blur', 'change']
-        }
-      ],
-      statisticsMonths: [
-        {
-          type: 'array',
-          required: true,
-          message: t('project.error_message.statistics_months'),
-          trigger: ['blur', 'change']
-        }
-      ],
+      // statisticsMonth: [
+      //   {
+      //     type: 'object',
+      //     required: true,
+      //     message: t('project.error_message.statistics_month'),
+      //     trigger: ['blur', 'change']
+      //   }
+      // ],
+      // statisticsMonths: [
+      //   {
+      //     type: 'array',
+      //     required: true,
+      //     message: t('project.error_message.statistics_months'),
+      //     trigger: ['blur', 'change']
+      //   }
+      // ],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
       accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
       money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
@@ -517,6 +517,9 @@ export default defineComponent({
             : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
         adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
       }
+
+      dataRequest.statisticsFromMonth = dataRequest.statisticsFromMonth ? dataRequest.statisticsFromMonth : null
+      dataRequest.statisticsToMonth = dataRequest.statisticsToMonth ? dataRequest.statisticsToMonth : null
 
       delete dataRequest.statisticsMonth
       delete dataRequest.statisticsMonths

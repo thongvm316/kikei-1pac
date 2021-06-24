@@ -193,6 +193,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import { useAccountList } from '../composables/useAccountList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 import { useGroupList } from '../composables/useGroupList'
+import { STATUS_CODE } from '@/enums/project.enum'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
@@ -257,6 +258,8 @@ export default defineComponent({
     }
 
     const onSubmit = () => {
+      const isEqualState = isEqual(state.value, initState)
+
       // parse to search data
       const searchData = {
         groupId: state.value.groupValue,
@@ -276,14 +279,15 @@ export default defineComponent({
         statisticsTo: state.value.statisticsDateValue[1]
           ? moment(state.value.statisticsDateValue[1]).format('YYYY-MM')
           : null,
-        name: state.value.nameValue
+        name: state.value.nameValue,
+        statusCode: isEqualState ? STATUS_CODE : [] // reset status code
       }
       emit('on-search', { data: searchData, params: { pageNumber: 1 } })
 
       // close modal
       visible.value = false
       isNeedSubmit.value = false
-      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
+      store.commit('setIsShowSearchBadge', !isEqualState)
     }
 
     const handleModalCancel = () => {
