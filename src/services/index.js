@@ -6,6 +6,7 @@ import SubCategoryService from './sub-category'
 import GroupService from './group'
 import DepositService from './deposit'
 import AccountService from './account'
+import SettingAccountService from './setting-account'
 import CompanyService from './company'
 import ProjectService from './project'
 import LogService from './logs'
@@ -15,6 +16,7 @@ import PeriodService from './period'
 const repositories = {
   StorageService,
   AccountService,
+  SettingAccountService,
   AuthService,
   BankAccountsService,
   CategoryService,

@@ -1,0 +1,20 @@
+export default {
+  title_search: '検索',
+  login_id: 'ログインID',
+  username: 'ユーザー名',
+  password: 'パスワード',
+  full_name: '氏名',
+  email: 'Email',
+  sales: '営業',
+  type_sales: '営業',
+  type_accounting: '会計',
+  memo: 'メモ',
+  status: 'ステータス',
+  in_use: '使用中',
+  retired: '停止中 (退職)',
+  add_account: '新規アカウント追加',
+  note: 'ログインID、氏名より検索します',
+  keyword: 'キーワード',
+  clear: 'クリア',
+  search: '検索'
+}

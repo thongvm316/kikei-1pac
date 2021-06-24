@@ -1,0 +1,20 @@
+export default {
+  title_search: 'Tìm kiếm',
+  login_id: 'ID',
+  username: 'Tên',
+  password: 'Mật khẩu',
+  full_name: 'Họ và tên',
+  email: 'Email',
+  sales: 'Doanh nghiệp',
+  type_sales: 'Doanh nghiệp',
+  type_accounting: 'Kế toán',
+  memo: 'Memo',
+  status: 'Trạng thái',
+  in_use: 'Đang sử dụng',
+  retired: 'Tạm ngừng（Nghỉ việc）',
+  add_account: 'Thêm tài khoản',
+  note: 'Tìm kiếm theo tên đăng nhập',
+  keyword: 'Từ khóa',
+  clear: 'Xóa',
+  search: 'Tìm kiếm'
+}
