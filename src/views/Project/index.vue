@@ -290,7 +290,7 @@ export default defineComponent({
       // save filters search to store
       store.commit('project/STORE_PROJECT_FILTER', requestData.value)
 
-      router.push({ name: 'project-edit', params: { id: 17 } })
+      router.push({ name: 'project-edit', params: { id: projectId } })
     }
 
     const goToDeposit = () => {
