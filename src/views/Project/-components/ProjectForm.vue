@@ -293,7 +293,6 @@ import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import moment from 'moment'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../composables/useAccountList'
@@ -305,7 +304,7 @@ import {
   addProjectOrder
 } from '../composables/useProjectOrders'
 import { deepCopy } from '@/helpers/json-parser'
-import { fromDateObjectToDateTimeFormat } from '@/helpers/date-time-format'
+import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
@@ -343,7 +342,7 @@ export default defineComponent({
       accuracyId: null,
       releaseDate: null,
       statisticsMonth: null,
-      statisticsMonths: [],
+      statisticsMonths: [null, null],
       groupId: null,
       accountId: null,
       director: '',
@@ -496,13 +495,14 @@ export default defineComponent({
       }
 
       // init date month value
-      projectParams.value.releaseDate = projectPropValue.releaseDate
-        ? moment(new Date(projectPropValue.releaseDate))
-        : null
-      projectParams.value.statisticsMonth = moment(new Date(projectPropValue.statisticsFromMonth))
+      projectParams.value.releaseDate = fromStringToDateTimeFormatPicker(projectPropValue.releaseDate, 'YYYY/MM/DD')
+      projectParams.value.statisticsMonth = fromStringToDateTimeFormatPicker(
+        projectPropValue.statisticsFromMonth,
+        'YYYY/MM'
+      )
       projectParams.value.statisticsMonths = [
-        moment(new Date(projectPropValue.statisticsFromMonth)),
-        moment(new Date(projectPropValue.statisticsToMonth))
+        fromStringToDateTimeFormatPicker(projectPropValue.statisticsFromMonth, 'YYYY/MM'),
+        fromStringToDateTimeFormatPicker(projectPropValue.statisticsToMonth, 'YYYY/MM')
       ]
 
       // Force tags ['']

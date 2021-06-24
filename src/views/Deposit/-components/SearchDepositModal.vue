@@ -145,6 +145,7 @@ import { TYPE_NAME_DEPOSIT_FOR_FILTER, TYPE_NAME_DEPOSIT } from '@/enums/deposit
 
 import { getCategory, getSubCategory } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
 export default defineComponent({
   name: 'SearchDepositModal',
@@ -174,8 +175,8 @@ export default defineComponent({
     const isNeedSubmit = ref(false)
 
     const initState = {
-      dateDepositValue: [],
-      statisticsDateDepositValue: [],
+      dateDepositValue: [null, null],
+      statisticsDateDepositValue: [null, null],
       type: [],
       categoryId: [],
       subcategoryId: [],
@@ -271,23 +272,20 @@ export default defineComponent({
       isNeedSubmit.value && onSubmit()
     }
 
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
-
     onBeforeMount(async () => {
       // get state from store
       const dataFilterStore = store.state.deposit?.filters?.data || {}
       const filterData = pick(dataFilterStore, ['type', 'confirmed', 'categoryId', 'subcategoryId', 'purpose'])
       const stateStore = {
         ...filterData,
-        dateDepositValue: dataFilterStore?.fromDate
-          ? [toDateFormat(dataFilterStore.fromDate, 'YYYY/MM/DD'), toDateFormat(dataFilterStore.toDate, 'YYYY/MM/DD')]
-          : [],
-        statisticsDateDepositValue: dataFilterStore?.statisticsFrom
-          ? [
-              toDateFormat(dataFilterStore.statisticsFrom, 'YYYY/MM/DD'),
-              toDateFormat(dataFilterStore.statisticsTo, 'YYYY/MM/DD')
-            ]
-          : []
+        dateDepositValue: [
+          fromStringToDateTimeFormatPicker(dataFilterStore.fromDate, 'YYYY/MM/DD'),
+          fromStringToDateTimeFormatPicker(dataFilterStore.toDate, 'YYYY/MM/DD')
+        ],
+        statisticsDateDepositValue: [
+          fromStringToDateTimeFormatPicker(dataFilterStore.statisticsFrom, 'YYYY/MM/DD'),
+          fromStringToDateTimeFormatPicker(dataFilterStore.statisticsTo, 'YYYY/MM/DD')
+        ]
       }
       state.value = { ...state.value, ...stateStore }
 

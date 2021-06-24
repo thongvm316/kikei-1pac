@@ -267,7 +267,7 @@ export default defineComponent({
           const targetId = targetProjectSelected.value?.id || ''
           const recordId = record?.id || ''
 
-          if (targetId === recordId) {
+          if (!recordId || targetId === recordId) {
             targetProjectSelected.value = {}
             isOpenFloatButtons.value = false
           } else {
@@ -284,10 +284,13 @@ export default defineComponent({
     }
 
     const goToEditProject = () => {
+      const projectId = targetProjectSelected.value?.id
+      if (!projectId) return
+
       // save filters search to store
       store.commit('project/STORE_PROJECT_FILTER', requestData.value)
 
-      router.push({ name: 'project-edit', params: { id: targetProjectSelected.value.id } })
+      router.push({ name: 'project-edit', params: { id: 17 } })
     }
 
     const goToDeposit = () => {
