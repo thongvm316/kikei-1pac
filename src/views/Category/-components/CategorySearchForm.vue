@@ -8,7 +8,7 @@
             <label class="label-input">
               {{ $t('category.category_division') }}
             </label>
-            <a-checkbox-group v-model:value="filter.subcategory_kind">
+            <a-checkbox-group v-model:value="filter.division_type">
               <a-checkbox v-for="item in DIVISIONCATEGORY" :key="item.id" :value="item.id">{{
                 $t(`category.${item.value}`)
               }}</a-checkbox>
@@ -22,7 +22,7 @@
             <label class="label-input">
               {{ $t('category.subcategory_division') }}
             </label>
-            <a-checkbox-group v-model:value="filter.division_type">
+            <a-checkbox-group v-model:value="filter.subcategory_kind">
               <a-checkbox v-for="item in DIVISIONSUBCATEGORY" :key="item.id" :value="item.id">{{
                 $t(`category.${item.value}`)
               }}</a-checkbox>
@@ -37,7 +37,7 @@
               {{ $t('category.in_use') }}
             </label>
             <a-checkbox-group v-model:value="filter.in_use">
-              <a-checkbox v-for="item in INUSE" :key="item.id" :value="item.id">{{
+              <a-checkbox v-for="item in INUSE" :key="item.id" :value="item.boolean">{{
                 $t(`category.${item.value}`)
               }}</a-checkbox>
             </a-checkbox-group>
@@ -90,8 +90,8 @@ export default defineComponent({
 
     const initialState = {
       key_search: '',
-      subcategory_kind: [],
       division_type: [],
+      subcategory_kind: [],
       in_use: []
     }
 
@@ -111,9 +111,9 @@ export default defineComponent({
     const onSearch = () => {
       const data = {
         key_search: filter.key_search,
-        division: filter.division,
-        country_id: filter.country_id,
-        currency_id: filter.currency_id
+        division_type: filter.division_type,
+        subcategory_kind: filter.subcategory_kind,
+        in_use: filter.in_use
       }
       context.emit('filter-changed', data)
       visible.value = false

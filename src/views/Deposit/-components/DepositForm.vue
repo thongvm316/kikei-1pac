@@ -42,14 +42,15 @@
         class="has-max-width"
       >
         <template v-if="[30].indexOf(currentCategory.subcategoryKind) < 0">
-          <a-select-option
-            v-for="subCategory in subCategoryList"
-            :key="subCategory.id"
-            :value="subCategory.id">{{ subCategory.name }}</a-select-option>
+          <a-select-option v-for="subCategory in subCategoryList" :key="subCategory.id" :value="subCategory.id">{{
+            subCategory.name
+          }}</a-select-option>
         </template>
 
         <template v-else>
-          <a-select-option v-for="subCategory in groupList" :key="subCategory.id" :value="subCategory.id">{{ subCategory.name }}</a-select-option>
+          <a-select-option v-for="subCategory in groupList" :key="subCategory.id" :value="subCategory.id">{{
+            subCategory.name
+          }}</a-select-option>
         </template>
       </a-select>
 

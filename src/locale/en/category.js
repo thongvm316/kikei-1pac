@@ -5,6 +5,7 @@ export default {
   subcategory: 'Subcategory',
   note: 'Search by company name and company code',
   categoryName: 'Category',
+  categoryOther: 'Other',
   category_division: 'Division',
   key_word: 'Item Name',
   search: 'Search',

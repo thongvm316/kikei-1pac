@@ -515,7 +515,9 @@ export default defineComponent({
       const filtersDepositStore = store.state.deposit?.filters || {}
 
       // fetch bank accounts
-      const bankAccounts = await getBankAccounts({ groupId: filtersDepositStore.data?.groupId || activeKeyGroupTab.value })
+      const bankAccounts = await getBankAccounts({
+        groupId: filtersDepositStore.data?.groupId || activeKeyGroupTab.value
+      })
       bankAccountList.value = bankAccounts.result?.data || []
 
       // set bank account value

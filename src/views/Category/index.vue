@@ -21,10 +21,33 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 219 }"
+      :scroll="{ y: height - 217 }"
       size="middle"
       @change="handleChange"
     >
+      <template #divisionTypeName="{ text: divisionTypeName }">
+        {{ divisionTypeName === 'Sales' ? $t('category.sales') : $t('category.expense') }}
+      </template>
+
+      <template #subcategoryKindName="{ text: subcategoryKindName }">
+        {{
+          subcategoryKindName === 'Company'
+            ? $t('category.company')
+            : subcategoryKindName === 'Group'
+            ? $t('category.request_group')
+            : subcategoryKindName === 'Text Input'
+            ? $t('category.text_input')
+            : $t('category.no')
+        }}
+      </template>
+
+      <template #action="{ text: action, record }">
+        <a @click="handleSelectNumber(record)">{{ action }}</a>
+      </template>
+
+      <template #inUse="{ text: inUse }">
+        {{ inUse ? $t('category.in_use') : $t('category.prohibited') }}
+      </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
@@ -58,14 +81,14 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCategoryListService({ pageNumber: 1, pageSize: 30 })
+    const { getLists } = useGetCategoryListService({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()
   },
 
-  setup() {
+  setup(_, context) {
     const route = useRoute()
     const router = useRouter()
     const { t, locale } = useI18n()
@@ -77,7 +100,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30 })
+    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
 
     const height = ref(0)
 
@@ -103,22 +126,26 @@ export default defineComponent({
         {
           title: t('category.category_division'),
           dataIndex: 'divisionTypeName',
-          key: 'divisionTypeName'
+          key: 'divisionTypeName',
+          slots: { customRender: 'divisionTypeName' }
         },
         {
           title: t('category.subcategory_division'),
           dataIndex: 'subcategoryKindName',
-          key: 'subcategoryKindName'
+          key: 'subcategoryKindName',
+          slots: { customRender: 'subcategoryKindName' }
         },
         {
           title: t('category.subcategory'),
           dataIndex: 'subcategoryNumber',
-          key: 'subcategoryNumber'
+          key: 'subcategoryNumber',
+          slots: { customRender: 'action' }
         },
         {
           title: t('category.status'),
           dataIndex: 'inUse',
-          key: 'inUse'
+          key: 'inUse',
+          slots: { customRender: 'inUse' }
         }
       ]
     })
@@ -147,7 +174,7 @@ export default defineComponent({
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
       await fetchList(params.value, filter.value)
     }
@@ -183,6 +210,12 @@ export default defineComponent({
           id: recordVisible.value.id
         }
       })
+    }
+
+    const handleSelectNumber = (record) => {
+      console.log(record)
+      // context.emit('select-number-category', record)
+      // router.push({ name: 'company' })
     }
 
     const fetchList = async (params = {}, data) => {
@@ -237,7 +270,8 @@ export default defineComponent({
       customRow,
       handleChange,
       onFilterChange,
-      fetchList
+      fetchList,
+      handleSelectNumber
     }
   }
 })
