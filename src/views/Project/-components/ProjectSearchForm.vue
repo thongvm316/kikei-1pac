@@ -271,7 +271,7 @@ export default defineComponent({
           ? moment(state.value.statisticsDateValue[1]).format('YYYY-MM')
           : null,
         name: state.value.name,
-        statusCode: isEqualState ? STATUS_CODE : [] // reset status code
+        statusCode: [] // clear on second search
       }
       emit('on-search', { data: searchData, params: { pageNumber: 1 } })
 
@@ -320,7 +320,7 @@ export default defineComponent({
 
       // check status code
       const isEqualState = isEqual(state.value, initState)
-      state.value.statusCode = isEqualState ? STATUS_CODE : []
+      state.value.statusCode = isEqualState ? STATUS_CODE : [] // default in the first load page
 
       store.commit('setIsShowSearchBadge', !isEqualState)
     })

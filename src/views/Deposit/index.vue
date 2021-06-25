@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -200,6 +200,8 @@ export default defineComponent({
     const isVisibleDepositButtonsFloat = ref(false)
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
+
+    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
 
     // filter month
     const lastMonth = {
@@ -548,6 +550,15 @@ export default defineComponent({
       () => paramRequestDataDeposit.value,
       () => {
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+      }
+    )
+
+    watch(
+      () => isShowSearchBadge.value,
+      (val) => {
+        if (val) {
+          checkedListFilterMonth.value = ''
+        }
       }
     )
 
