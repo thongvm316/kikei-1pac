@@ -198,7 +198,9 @@ export default defineComponent({
     }
 
     const handleClearDepositFormSearch = () => {
-      isNeedSubmit.value = !isEqual(state.value, initState)
+      const projectId = store.state.deposit?.filters?.data?.projectId
+
+      isNeedSubmit.value = !(isEqual(state.value, initState) && !projectId)
       state.value = deepCopy(initState)
     }
 
@@ -216,7 +218,8 @@ export default defineComponent({
         confirmed: state.value.confirmed,
         categoryId: state.value.categoryId,
         subcategoryId: state.value.subcategoryId,
-        purpose: state.value.purpose
+        purpose: state.value.purpose,
+        projectId: null
       }
 
       emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
@@ -290,7 +293,8 @@ export default defineComponent({
       state.value = { ...state.value, ...stateStore }
 
       // set badge search
-      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
+      const projectId = store.state.deposit?.filters?.data?.projectId
+      store.commit('setIsShowSearchBadge', !(isEqual(state.value, initState) && !projectId))
     })
 
     return {

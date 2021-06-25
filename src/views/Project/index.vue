@@ -211,7 +211,7 @@ export default defineComponent({
       {
         dataIndex: 'money',
         key: 'money',
-        align: 'left',
+        align: 'right',
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
