@@ -119,7 +119,7 @@
         format="YYYY/MM"
         :mode="['month', 'month']"
         :placeholder="['YYYY/MM', 'YYYY/MM']"
-        @change="handleChangeStatisticsDateValue"
+        @panelChange="handleChangeStatisticsDateValue"
       >
         <template #suffixIcon>
           <calendar-outlined />
@@ -609,7 +609,7 @@ export default defineComponent({
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
-      dataAccounts.value = await useAccountList()
+      dataAccounts.value = await useAccountList({ type: [0], active: true })
       // groups
       const { data: groups } = await useGroupList()
       dataGroups.value = groups
