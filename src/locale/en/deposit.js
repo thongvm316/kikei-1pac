@@ -73,6 +73,7 @@ export default {
     repeated_end_month: '月末',
     repeated_expired_date: '終了日',
     confirmed: '確定',
+    unconfirmed: '取消',
     cancel: 'キャンセル',
     registration: '登録',
     create_success: '{purpose} が追加されました',
@@ -149,5 +150,15 @@ export default {
     purpose_place_holder: '入力してください',
     clear_search: 'クリア',
     submit_search: '検索'
+  },
+
+  unconfirm_modal: {
+    title: '確定取消',
+    message: '{purpose}を確定取消してもよろしいですか？',
+    message_multiple: '確定取消してもよろしいですか？',
+    cancel_btn: 'キャンセル',
+    unconfirm_btn: '取消',
+    unconfirm_success: '{purpose}が確定取り消しされました',
+    unconfirm_success_multiple: 'が確定取り消しされました'
   }
 }
