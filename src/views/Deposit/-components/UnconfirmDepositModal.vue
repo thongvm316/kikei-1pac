@@ -6,9 +6,9 @@
       </p>
       <p v-else>{{ $t('deposit.unconfirm_modal.message_multiple') }}</p>
 
-      <a-button @click="handleCancel">キャンセル</a-button>
+      <a-button @click="handleCancel">{{ $t('deposit.unconfirm_modal.cancel_btn') }}</a-button>
       <a-button type="danger" :loading="isLoadingUnconfirmRequest" @click="$emit('on-unconfirm-deposit')">
-        削除
+        {{ $t('deposit.unconfirm_modal.unconfirm_btn') }}
       </a-button>
     </template>
   </a-modal>

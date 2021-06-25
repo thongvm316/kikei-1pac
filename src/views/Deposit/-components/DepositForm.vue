@@ -91,7 +91,7 @@
         v-model:value="params.groupId"
         :placeholder="$t('deposit.new.group_place_holder')"
         class="has-max-width"
-        :disabled="isDisableEditField"
+        :disabled="isDisableEditField && params.adProject === null"
       >
         <template v-for="group in groupList" :key="group.id">
           <a-select-option :value="group.id">{{ group.name }}</a-select-option>
@@ -822,8 +822,17 @@ export default defineComponent({
 
     watch(
       () => params.value.groupId,
-      (groupId) => {
+      (groupId, oldGroupId) => {
         fetchBankAccounts(groupId)
+
+        if (oldGroupId && oldGroupId !== groupId) {
+          params.value.withdrawalBankAccountId = undefined
+          params.value.depositBankAccountId = undefined
+          params.value.withdrawalMoney = 0
+          params.value.depositMoney = 0
+          withdrawalMoneyCurrency.value = ''
+          depositMoneyCurrency.value = ''
+        }
       }
     )
 
