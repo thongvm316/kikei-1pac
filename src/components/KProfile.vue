@@ -22,7 +22,7 @@
           </template>
         </a-sub-menu>
 
-        <a-menu-item>
+        <a-menu-item @click="handleLogout">
           <logout-icon />
           ログアウト
         </a-menu-item>
@@ -33,6 +33,7 @@
 
 <script>
 import { defineComponent, onMounted, ref, watch } from 'vue'
+import useLogoutService from '@/views/Auth/Login/composables/useLogoutService'
 
 import UserIcon from '@/assets/icons/ico_user.svg'
 import UsdCurrencyIcon from '@/assets/icons/ico_currency_usd.svg'
@@ -57,6 +58,7 @@ export default defineComponent({
     const visible = ref(false)
     const selectedKeys = ref([])
     const openKeys = ref([])
+    const loading = ref(false)
 
     // currency list
     const currencyActive = ref('jpy')
@@ -90,6 +92,12 @@ export default defineComponent({
       }
     }
 
+    const handleLogout = () => {
+      const { logout } = useLogoutService(loading)
+      logout()
+      window.location.href = window.location.origin + '/login'
+    }
+
     onMounted(() => {
       swapCurrencyList()
     })
@@ -104,6 +112,7 @@ export default defineComponent({
       openKeys,
       currencyList,
       currencyActive,
+      handleLogout,
       changeCurrencyActive
     }
   }

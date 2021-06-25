@@ -11,7 +11,7 @@
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                maxLength="20"
+                max-length="20"
                 class="w-300"
                 :disabled="isDisableEditField"
                 @change="handleChange"
