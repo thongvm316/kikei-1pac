@@ -62,11 +62,11 @@
 
     <template #purpose="{ record }">
       <div v-if="record.adProject?.code">
-        <p class="u-mb-8">{{ record.adProject?.code }}</p>
-        <p class="mb-0">{{ record.adProject?.name }}</p>
+        <p class="u-mb-8 text-grey-55">{{ record.adProject?.code }}</p>
+        <p class="mb-0 font-bold u-whitespace-normal">{{ record.adProject?.name }}</p>
       </div>
 
-      <p v-else class="mb-0">{{ record.purpose }}</p>
+      <p v-else class="mb-0 u-whitespace-normal">{{ record.purpose }}</p>
     </template>
 
     <template #customTitleDeposit> 入出金額<br />(JPY) </template>
@@ -89,7 +89,8 @@ const columnsDeposit = [
       customRender: 'renderDepositUpdatedAt'
     },
     ellipsis: true,
-    sorter: true
+    sorter: true,
+    width: 100
   },
   {
     title: '計上月',
@@ -99,7 +100,8 @@ const columnsDeposit = [
       customRender: 'renderDepositStatictis'
     },
     ellipsis: true,
-    sorter: true
+    sorter: true,
+    width: 90
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true },
@@ -108,6 +110,7 @@ const columnsDeposit = [
     dataIndex: 'purpose',
     key: 'purpose',
     ellipsis: true,
+    width: 350,
     slots: { customRender: 'purpose' }
   },
   {

@@ -16,7 +16,7 @@
 
               <div class="form-select">
                 <a-select
-                  v-model:value="state.groupValue"
+                  v-model:value="state.groupId"
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
@@ -25,9 +25,6 @@
                   :placeholder="$t('project.group_placeholder')"
                   style="width: 152px"
                 >
-                  <template #menuItemSelectedIcon>
-                    <a-checkbox :checked="true" />
-                  </template>
                   <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
                     {{ group.name }}
                   </a-select-option>
@@ -44,7 +41,7 @@
 
               <div class="form-select">
                 <a-select
-                  v-model:value="state.accountValue"
+                  v-model:value="state.accountId"
                   show-arrow
                   :max-tag-count="0"
                   option-label-prop="label"
@@ -53,9 +50,6 @@
                   :placeholder="$t('project.accounts_placeholder')"
                   style="width: 152px"
                 >
-                  <template #menuItemSelectedIcon>
-                    <a-checkbox :checked="true" />
-                  </template>
                   <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
                     {{ account.fullname }}
                   </a-select-option>
@@ -114,7 +108,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.type') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.typeValue" name="projectType" :options="dataTypes" />
+                <a-checkbox-group v-model:value="state.type" name="projectType" :options="dataTypes" />
               </div>
             </div>
           </div>
@@ -125,7 +119,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.status') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group v-model:value="state.statusValue" name="projectStatuses" :options="dataStatuses" />
+                <a-checkbox-group v-model:value="state.statusId" name="projectStatuses" :options="dataStatuses" />
               </div>
             </div>
           </div>
@@ -136,11 +130,7 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.accuracy_name') }}</label>
               <div class="form-checkbox">
-                <a-checkbox-group
-                  v-model:value="state.accuracyValue"
-                  name="projectAccuracies"
-                  :options="dataAccuracies"
-                />
+                <a-checkbox-group v-model:value="state.accuracyId" name="projectAccuracies" :options="dataAccuracies" />
               </div>
             </div>
           </div>
@@ -152,7 +142,7 @@
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
                 <a-input
-                  v-model:value="state.nameValue"
+                  v-model:value="state.name"
                   style="width: 340px"
                   name="projectName"
                   :placeholder="$t('project.purpose_placeholder')"
@@ -183,9 +173,10 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual } from 'lodash-es'
+import { isEqual, pick } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
+import { STATUS_CODE } from '@/enums/project.enum'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -193,10 +184,11 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import { useAccountList } from '../composables/useAccountList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 import { useGroupList } from '../composables/useGroupList'
+import { deepCopy } from '@/helpers/json-parser'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'ProjectSearchForm',
@@ -212,14 +204,14 @@ export default defineComponent({
     const loading = ref(false)
 
     const initState = {
-      groupValue: [],
-      accountValue: [],
-      updatedDateValue: [],
-      typeValue: [],
-      statusValue: [],
+      groupId: [],
+      accountId: [],
+      updatedDateValue: [null, null],
+      type: [],
+      statusId: [],
       statisticsDateValue: [null, null],
-      accuracyValue: [],
-      nameValue: ''
+      accuracyId: [],
+      name: ''
     }
     const state = ref(deepCopy(initState))
 
@@ -257,13 +249,15 @@ export default defineComponent({
     }
 
     const onSubmit = () => {
+      const isEqualState = isEqual(state.value, initState)
+
       // parse to search data
       const searchData = {
-        groupId: state.value.groupValue,
-        accountId: state.value.accountValue,
-        type: state.value.typeValue,
-        statusId: state.value.statusValue,
-        accuracyId: state.value.accuracyValue,
+        groupId: state.value.groupId,
+        accountId: state.value.accountId,
+        type: state.value.type,
+        statusId: state.value.statusId,
+        accuracyId: state.value.accuracyId,
         updatedFrom: state.value.updatedDateValue[0]
           ? moment(state.value.updatedDateValue[0]).startOf('day').format('YYYY-MM-DD LTS')
           : null,
@@ -276,14 +270,15 @@ export default defineComponent({
         statisticsTo: state.value.statisticsDateValue[1]
           ? moment(state.value.statisticsDateValue[1]).format('YYYY-MM')
           : null,
-        name: state.value.nameValue
+        name: state.value.name,
+        statusCode: isEqualState ? STATUS_CODE : [] // reset status code
       }
       emit('on-search', { data: searchData, params: { pageNumber: 1 } })
 
       // close modal
       visible.value = false
       isNeedSubmit.value = false
-      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
+      store.commit('setIsShowSearchBadge', !isEqualState)
     }
 
     const handleModalCancel = () => {
@@ -307,7 +302,27 @@ export default defineComponent({
         label: t(`project.${type.label}`)
       }))
 
-      store.commit('setIsShowSearchBadge', false)
+      // get state from store
+      const dataFilterStore = store.state.project?.filters?.data || {}
+      const filterData = pick(dataFilterStore, ['groupId', 'accountId', 'type', 'statusId', 'accuracyId', 'name'])
+      const stateStore = {
+        ...filterData,
+        updatedDateValue: [
+          fromStringToDateTimeFormatPicker(dataFilterStore.updatedFrom, 'YYYY/MM/DD'),
+          fromStringToDateTimeFormatPicker(dataFilterStore.updatedTo, 'YYYY/MM/DD')
+        ],
+        statisticsDateValue: [
+          fromStringToDateTimeFormatPicker(dataFilterStore.statisticsFrom, 'YYYY/MM/DD'),
+          fromStringToDateTimeFormatPicker(dataFilterStore.statisticsTo, 'YYYY/MM/DD')
+        ]
+      }
+      state.value = { ...state.value, ...stateStore }
+
+      // check status code
+      const isEqualState = isEqual(state.value, initState)
+      state.value.statusCode = isEqualState ? STATUS_CODE : []
+
+      store.commit('setIsShowSearchBadge', !isEqualState)
     })
 
     return {

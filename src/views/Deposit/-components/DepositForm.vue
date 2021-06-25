@@ -14,9 +14,15 @@
     <a-form-item name="type" :label="$t('deposit.new.type')">
       <a-radio-group v-model:value="params.type">
         <a-radio :value="10">{{ $t('deposit.new.type_deposit') }}</a-radio>
-        <a-radio :value="20">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
-        <a-radio :value="30">{{ $t('deposit.new.type_transfer') }}</a-radio>
-        <a-radio :value="40">{{ $t('deposit.new.type_unclear') }}</a-radio>
+        <a-radio :value="20" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_withdrawal') }}
+        </a-radio>
+        <a-radio :value="30" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_transfer') }}
+        </a-radio>
+        <a-radio :value="40" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_unclear') }}
+        </a-radio>
       </a-radio-group>
     </a-form-item>
 
@@ -164,7 +170,14 @@
           @keyup.enter="handleInputTagConfirm"
         />
         <div v-if="isShowTagList" class="deposit-form__tags--list">
-          <a-tag v-for="tag in params.tags" :key="tag" closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
+          <a-tooltip
+            v-for="tag in params.tags"
+            :key="tag"
+            :title="tag"
+            overlay-class-name="deposit-form__tags--tooltip"
+          >
+            <a-tag closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
+          </a-tooltip>
         </div>
       </div>
       <p class="deposit-form__field-cation">
@@ -253,6 +266,8 @@ import {
   updateDeposit
 } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
+
 const ModalSelectCompany = defineAsyncComponent(() => import('@/containers/ModalSelectCompany'))
 
 export default defineComponent({
@@ -311,7 +326,7 @@ export default defineComponent({
 
     // params deposit form
     const params = ref({
-      date: null,
+      date: moment(),
       type: '',
       categoryId: undefined,
       subcategoryId: undefined,
@@ -449,8 +464,6 @@ export default defineComponent({
       return true
     }
 
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
-
     const convertDataToForm = (data = {}) => {
       const {
         type,
@@ -534,9 +547,9 @@ export default defineComponent({
         type,
         categoryId: type === 40 ? undefined : category?.id,
         subcategoryId,
-        date: date ? toDateFormat(date, 'YYYY/MM/DD') : null,
-        statisticsMonth: statisticsMonth ? toDateFormat(statisticsMonth, 'YYYY/MM/DD') : null,
-        repeatedExpiredDate: repeatedExpiredDate ? toDateFormat(repeatedExpiredDate, 'YYYY/MM/DD') : null,
+        date: fromStringToDateTimeFormatPicker(date, 'YYYY/MM/DD'),
+        statisticsMonth: fromStringToDateTimeFormatPicker(statisticsMonth, 'YYYY/MM/DD'),
+        repeatedExpiredDate: fromStringToDateTimeFormatPicker(repeatedExpiredDate, 'YYYY/MM/DD'),
         tags: tags.filter(Boolean),
         withdrawalBankAccountId: _withdrawalBankAccountId,
         withdrawalMoney: _withdrawalMoney,
@@ -885,6 +898,7 @@ $field-max-width: 500px;
 
     &--list {
       padding: 4px 12px;
+      width: 100%;
     }
   }
 
@@ -937,11 +951,28 @@ $field-max-width: 500px;
 
   .ant-tag {
     background: $color-grey-85;
-    padding: 2px 7px;
+    padding: 2px 28px 2px 7px;
+    max-width: calc(100% - 10px);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+
+    .ant-tag-close-icon {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+    }
   }
 
   .ant-btn[disabled] {
     background-color: transparent;
+  }
+}
+
+.deposit-form__tags--tooltip {
+  .ant-tooltip-inner {
+    color: $color-grey-100;
+    background-color: $color-grey-35;
   }
 }
 </style>

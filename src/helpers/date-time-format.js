@@ -11,3 +11,9 @@ export const fromDateObjectToDateTimeFormat = (dateValue, formatter = 'YYYY-MM-D
 
   return moment(dateValue).format(formatter)
 }
+
+export const fromStringToDateTimeFormatPicker = (dateValue, formatter = 'YYYY/MM') => {
+  if (!dateValue) return null // default value empty of datepicker
+
+  return moment(new Date(dateValue), formatter)
+}

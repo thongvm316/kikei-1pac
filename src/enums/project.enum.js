@@ -8,3 +8,5 @@ export const PROJECT_TYPES = Object.freeze([
     label: 'type_1'
   }
 ])
+
+export const STATUS_CODE = ['detailed', 'received', 'process', 'estimate']

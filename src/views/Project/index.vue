@@ -130,6 +130,7 @@ import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ModalActions from '@/components/ModalActions'
+import { STATUS_CODE } from '@/enums/project.enum'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -250,9 +251,6 @@ export default defineComponent({
     const targetProjectSelected = ref({})
     const localeTable = { emptyText: t('project.project_table_empty') }
 
-    // status code
-    const STATUS_CODE = ['detailed', 'received', 'process', 'estimate']
-
     // data and params request
     const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })
 
@@ -269,7 +267,7 @@ export default defineComponent({
           const targetId = targetProjectSelected.value?.id || ''
           const recordId = record?.id || ''
 
-          if (targetId === recordId) {
+          if (!recordId || targetId === recordId) {
             targetProjectSelected.value = {}
             isOpenFloatButtons.value = false
           } else {
@@ -286,10 +284,13 @@ export default defineComponent({
     }
 
     const goToEditProject = () => {
+      const projectId = targetProjectSelected.value?.id
+      if (!projectId) return
+
       // save filters search to store
       store.commit('project/STORE_PROJECT_FILTER', requestData.value)
 
-      router.push({ name: 'project-edit', params: { id: targetProjectSelected.value.id } })
+      router.push({ name: 'project-edit', params: { id: projectId } })
     }
 
     const goToDeposit = () => {
