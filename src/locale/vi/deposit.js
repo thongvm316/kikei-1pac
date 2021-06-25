@@ -33,7 +33,7 @@ export default {
   },
   new: {
     date: '入出金日',
-    type: '入出金',
+    type: '区分',
     type_deposit: '入金',
     type_withdrawal: '出金',
     type_transfer: '移動',
