@@ -114,7 +114,7 @@
       :class="{ 'has-error': localErrors['statisticFromMonth'] }"
     >
       <a-range-picker
-        :value="projectParams.statisticsMonths"
+        v-model:value="projectParams.statisticsMonths"
         style="width: 300px"
         format="YYYY/MM"
         :mode="['month', 'month']"
