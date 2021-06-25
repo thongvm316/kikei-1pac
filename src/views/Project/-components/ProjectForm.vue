@@ -293,6 +293,7 @@ import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { find } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../composables/useAccountList'
@@ -377,22 +378,6 @@ export default defineComponent({
       name: [{ required: true, message: t('project.error_message.name'), trigger: 'change' }],
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
-      // statisticsMonth: [
-      //   {
-      //     type: 'object',
-      //     required: true,
-      //     message: t('project.error_message.statistics_month'),
-      //     trigger: ['blur', 'change']
-      //   }
-      // ],
-      // statisticsMonths: [
-      //   {
-      //     type: 'array',
-      //     required: true,
-      //     message: t('project.error_message.statistics_months'),
-      //     trigger: ['blur', 'change']
-      //   }
-      // ],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
       accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
       money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
@@ -477,6 +462,46 @@ export default defineComponent({
       return false
     }
     /* --------------------- ./handle project tags --------------------- */
+
+    /* --------------------- /handle check require statistic month --------------------- */
+    const checkRequireStatisticMonth = () => {
+      const statusId = projectParams.value.statusId
+      const accuracyId = projectParams.value.accuracyId
+
+      const statusRequire = ['billed', 'process', 'received']
+      const accuracyRequire = ['S']
+
+      const statusObj = find(dataStatuses.value, { id: statusId })
+      const accuracyObj = find(dataAccuracies.value, { id: accuracyId })
+
+      if (
+        statusObj &&
+        accuracyObj &&
+        (statusRequire.findIndex((item) => item === statusObj.code) !== -1 ||
+          accuracyRequire.findIndex((item) => item === accuracyObj.code) !== -1)
+      ) {
+        projectFormRules.value.statisticsMonth = [
+          {
+            type: 'object',
+            required: true,
+            message: t('project.error_message.statistics_month'),
+            trigger: ['blur', 'change']
+          }
+        ]
+        projectFormRules.value.statisticsMonths = [
+          {
+            type: 'array',
+            required: true,
+            message: t('project.error_message.statistics_months'),
+            trigger: ['blur', 'change']
+          }
+        ]
+      } else {
+        projectFormRules.value.statisticsMonth = []
+        projectFormRules.value.statisticsMonths = []
+      }
+    }
+    /* --------------------- ./handle check require statistic month --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
     const initProjectPropData = () => {
@@ -607,6 +632,22 @@ export default defineComponent({
     }
 
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
+
+    // check require statistic month
+    watch(
+      () => projectParams.value.statusId,
+      () => {
+        checkRequireStatisticMonth()
+      }
+    )
+
+    watch(
+      () => projectParams.value.accuracyId,
+      () => {
+        checkRequireStatisticMonth()
+      }
+    )
+
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
       dataAccounts.value = await useAccountList({ type: [0], active: true })
