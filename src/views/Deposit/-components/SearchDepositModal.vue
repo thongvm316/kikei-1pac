@@ -258,7 +258,7 @@ export default defineComponent({
       })
     }
 
-    const handleCheckedCategoryList = async (event) => {
+    const handleCheckedCategoryList = debounce(async (event) => {
       event = { category_id: event.toString() }
       if (event.category_id) {
         state.value.subcategoryId = []
@@ -268,7 +268,7 @@ export default defineComponent({
       } else {
         subCategoryList.value = []
       }
-    }
+    }, 500)
 
     const toSubCategoryOptions = (options) => {
       if (!options) return
@@ -300,14 +300,14 @@ export default defineComponent({
       state.value = { ...state.value, ...stateStore }
 
       // get category list
-      if (dataFilterStore.type) {
+      if (dataFilterStore.type.length > 0) {
         const divisionTypes = dataFilterStore.type.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
         const dataCategory = await getCategory({ divisionType: divisionTypes.toString() })
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       }
 
       // get subCategory list
-      if (dataFilterStore.categoryId) {
+      if (dataFilterStore.categoryId.length > 0) {
         const dataSubCategory = await getSubCategory({ categoryId: dataFilterStore.categoryId.toString() })
         subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       }
