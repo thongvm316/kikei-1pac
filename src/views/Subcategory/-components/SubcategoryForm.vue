@@ -4,7 +4,7 @@
     <form @submit="onSubmit">
       <!-- category Name-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.category_id" name="category">
+        <Field v-slot="{ field, handleChange }" v-model="form.category_name" name="category_id">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.category') }}</label>
             <div class="form-input">
@@ -15,7 +15,7 @@
                 class="w-300"
                 :disabled=true
                 @change="handleChange"
-              >{{form.category_name}}</a-input>
+              ></a-input>
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="category" class="errors">
                 {{ replaceField(message, 'category') }}

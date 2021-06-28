@@ -60,7 +60,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 })
+    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 }, { key_search: '', category_id:[5] })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -114,7 +114,6 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
-      console.log(dataSource.value)
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -174,12 +173,6 @@ export default defineComponent({
       })
     }
 
-    const handleSelectNumber = (record) => {
-      console.log(record)
-      // context.emit('select-number-category', record)
-      // router.push({ name: 'company' })
-    }
-
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
@@ -231,8 +224,7 @@ export default defineComponent({
       customRow,
       handleChange,
       onFilterChange,
-      fetchList,
-      handleSelectNumber
+      fetchList
     }
   }
 })

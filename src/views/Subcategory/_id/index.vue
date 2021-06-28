@@ -5,7 +5,7 @@
 <script>
 import { defineComponent } from 'vue'
 import useGetSubCategoryDetailService from '@/views/Subcategory/composables/useGetSubcategoryDetaillService'
-import SubcategoryForm from '../-components/SubcategoryForm.vue'
+import SubcategoryForm from '../-components/SubcategoryForm'
 
 export default defineComponent({
   name: 'SubcategoryEditPage',
@@ -17,8 +17,6 @@ export default defineComponent({
     const resp = await subCategoryDetail()
 
     to.meta['detail'] = resp.result.data
-    console.log(resp.result.data)
-
     next()
   }
 })
