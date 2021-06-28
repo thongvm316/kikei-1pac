@@ -87,7 +87,9 @@
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
 
       <template #renderProjectStatisticsDate="{ record }">
-        <p :class="record.type === 0 ? 'mb-0' : ''">{{ $filters.moment_yyyy_mm(record.statisticsFromMonth) }}<span v-if="record.type === 1"> -</span></p>
+        <p :class="record.type === 0 ? 'mb-0' : ''">
+          {{ $filters.moment_yyyy_mm(record.statisticsFromMonth) }}<span v-if="record.type === 1"> -</span>
+        </p>
         <p v-if="record.type === 1" class="u-mb-0">{{ $filters.moment_yyyy_mm(record.statisticsToMonth) }}</p>
       </template>
 
