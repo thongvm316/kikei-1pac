@@ -300,14 +300,14 @@ export default defineComponent({
       state.value = { ...state.value, ...stateStore }
 
       // get category list
-      if (dataFilterStore.type.length > 0) {
+      if (dataFilterStore.type && dataFilterStore.type.length > 0) {
         const divisionTypes = dataFilterStore.type.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
         const dataCategory = await getCategory({ divisionType: divisionTypes.toString() })
         categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
       }
 
       // get subCategory list
-      if (dataFilterStore.categoryId.length > 0) {
+      if (dataFilterStore.categoryId && dataFilterStore.categoryId.length > 0) {
         const dataSubCategory = await getSubCategory({ categoryId: dataFilterStore.categoryId.toString() })
         subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
       }
