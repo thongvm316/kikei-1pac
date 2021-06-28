@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="company">
     <company-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">

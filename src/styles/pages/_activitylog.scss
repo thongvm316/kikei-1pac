@@ -1,9 +1,13 @@
-.activity-log{
+.activity-log {
   .ant-table-wrapper {
-    margin-top: 16px;
-    .ant-table-content{
-      .ant-dropdown-link{
-        color: #0070c0;
+    .ant-pagination {
+      margin-top: 16px;
+    }
+    .ant-table-content {
+      .ant-table-scroll {
+        .ant-table-placeholder {
+          height: calc(100vh - 104px);
+        }
       }
     }
   }

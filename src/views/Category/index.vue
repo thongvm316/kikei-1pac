@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="category">
     <CategorySearchForm @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
@@ -88,7 +88,7 @@ export default defineComponent({
     next()
   },
 
-  setup(_, context) {
+  setup() {
     const route = useRoute()
     const router = useRouter()
     const { t, locale } = useI18n()
@@ -213,9 +213,12 @@ export default defineComponent({
     }
 
     const handleSelectNumber = (record) => {
-      console.log(record)
-      // context.emit('select-number-category', record)
-      // router.push({ name: 'company' })
+      // router.push({
+      //   name: 'sub-category',
+      //   params: {
+      //     id: record.id
+      //   }
+      // })
     }
 
     const fetchList = async (params = {}, data) => {
