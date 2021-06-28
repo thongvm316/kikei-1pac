@@ -222,7 +222,7 @@ export default defineComponent({
         title: t('project.statistics_from_month'),
         dataIndex: 'statistics_from_month',
         key: 'statistics_from_month',
-        align: 'left',
+        align: 'center',
         slots: {
           customRender: 'renderProjectStatisticsDate'
         },

@@ -475,10 +475,8 @@ export default defineComponent({
       const accuracyObj = find(dataAccuracies.value, { id: accuracyId })
 
       if (
-        statusObj &&
-        accuracyObj &&
-        (statusRequire.findIndex((item) => item === statusObj.code) !== -1 ||
-          accuracyRequire.findIndex((item) => item === accuracyObj.code) !== -1)
+        (statusObj && statusRequire.findIndex((item) => item === statusObj.code) !== -1) ||
+        (accuracyObj && accuracyRequire.findIndex((item) => item === accuracyObj.code) !== -1)
       ) {
         projectFormRules.value.statisticsMonth = [
           {
