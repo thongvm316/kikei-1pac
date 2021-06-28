@@ -133,7 +133,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual, pick } from 'lodash-es'
+import { isEqual, pick, debounce } from 'lodash-es'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -204,6 +204,10 @@ export default defineComponent({
 
       isNeedSubmit.value = !(isEqual(state.value, initState) && !projectId)
       state.value = deepCopy(initState)
+
+      // reset lists
+      categoryList.value = []
+      subCategoryList.value = []
     }
 
     const onSubmit = () => {
@@ -231,7 +235,7 @@ export default defineComponent({
       store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
     }
 
-    const handleCheckedTypeDepositList = async (event) => {
+    const handleCheckedTypeDepositList = debounce(async (event) => {
       const divisionTypes = event.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
       event = { division_type: divisionTypes.toString() }
 
@@ -244,7 +248,8 @@ export default defineComponent({
       } else {
         categoryList.value = []
       }
-    }
+    }, 500)
+
     const toCategoryOptions = (options) => {
       if (!options) return
 
@@ -277,7 +282,7 @@ export default defineComponent({
       isNeedSubmit.value && onSubmit()
     }
 
-    const applyFiltersStoreToState = () => {
+    const applyFiltersStoreToState = async () => {
       // get state from store
       const dataFilterStore = store.state.deposit?.filters?.data || {}
       const filterData = pick(dataFilterStore, ['type', 'confirmed', 'categoryId', 'subcategoryId', 'purpose'])
@@ -293,6 +298,19 @@ export default defineComponent({
         ]
       }
       state.value = { ...state.value, ...stateStore }
+
+      // get category list
+      if (dataFilterStore.type) {
+        const divisionTypes = dataFilterStore.type.map((divisionType) => TYPE_NAME_DEPOSIT_FOR_FILTER[divisionType])
+        const dataCategory = await getCategory({ divisionType: divisionTypes.toString() })
+        categoryList.value = toCategoryOptions(dataCategory.result?.data || [])
+      }
+
+      // get subCategory list
+      if (dataFilterStore.categoryId) {
+        const dataSubCategory = await getSubCategory({ categoryId: dataFilterStore.categoryId.toString() })
+        subCategoryList.value = toSubCategoryOptions(dataSubCategory.result?.data || [])
+      }
 
       // set badge search
       const projectId = store.state.deposit?.filters?.data?.projectId

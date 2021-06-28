@@ -127,11 +127,11 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch, computed, defineAsyncComponent } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge } from 'lodash-es'
+import { merge, find } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -577,6 +577,13 @@ export default defineComponent({
       const groupId = groupIdStore ? groupIdStore : getTabIndex(tabListGroup.value)
       activeKeyGroupTab.value = parseInt(groupId)
 
+      // set checkedListFilterMonth
+      const { fromDate, toDate } = filtersDepositStore?.data || {}
+      if (fromDate && toDate && !checkedListFilterMonth.value) {
+        const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
+        objFound && (checkedListFilterMonth.value = objFound.value)
+      }
+
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
 
       router.replace({ query: { tab: groupId } })
@@ -598,7 +605,7 @@ export default defineComponent({
     watch(
       () => paramRequestDataDeposit.value,
       () => {
-        // uncheck date quick select
+        // uncheck quick select date
         const { fromDate, toDate } = paramRequestDataDeposit.value.data
         const { fromDate: fromDateQuick, toDate: toDateQuick } = checkedListFilterMonth.value || {}
 
