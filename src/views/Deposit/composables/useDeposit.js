@@ -170,3 +170,12 @@ export const updateDeposit = async (depositId, data) => {
     throw error
   }
 }
+
+export const unconfirmDeposit = async (depositId) => {
+  try {
+    const response = await DepositService.unconfirmDeposit({ id: [depositId] })
+    return response
+  } catch (error) {
+    throw error
+  }
+}

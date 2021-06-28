@@ -23,9 +23,9 @@ const routes = [
     children: [
       {
         path: '',
+        name: 'login',
         component: lazyLoadRoute('Auth/Login'),
-        meta: { title: `Login | ${APP_NAME}` },
-        name: 'login'
+        meta: { title: `Login | ${APP_NAME}` }
       }
     ]
   },

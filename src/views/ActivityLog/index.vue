@@ -67,7 +67,6 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const { getLists } = useGetLogListService({ pageNumber: 1, pageSize: 30 }, state)
     const { result } = await getLists()
-    console.log('beforeRouteEnter', result)
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()

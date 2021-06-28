@@ -39,8 +39,9 @@
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
       >
+        {{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}
+      </span>
     </template>
 
     <template #balance="{ record }">
@@ -50,23 +51,32 @@
     </template>
 
     <template #action="{ record }">
-      <a-button
-        v-if="record.children"
-        :disabled="record.confirmed"
-        type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', record)"
-      >
-        確定
-      </a-button>
+      <template v-if="record.children">
+        <a-button
+          v-if="record.confirmed && isAdmin"
+          type="danger"
+          @click="$emit('handle-open-unconfirm-modal', record)"
+        >
+          取消
+        </a-button>
+        <a-button
+          v-else
+          :disabled="record.confirmed"
+          type="primary"
+          @click="$emit('on-open-confirm-deposit-record-modal', record)"
+        >
+          確定
+        </a-button>
+      </template>
     </template>
 
     <template #purpose="{ record }">
       <div v-if="record.adProject?.code">
-        <p class="u-mb-8">{{ record.adProject?.code }}</p>
-        <p class="mb-0">{{ record.adProject?.name }}</p>
+        <p class="u-mb-8 text-grey-55">{{ record.adProject?.code }}</p>
+        <p class="mb-0 font-bold u-whitespace-normal">{{ record.adProject?.name }}</p>
       </div>
 
-      <p v-else class="mb-0">{{ record.purpose }}</p>
+      <p v-else class="mb-0 u-whitespace-normal">{{ record.purpose }}</p>
     </template>
 
     <template #customTitleDeposit> 入出金額<br />(JPY) </template>
@@ -74,9 +84,12 @@
     <template #customTitleBalance> 残高<br />(JPY) </template>
   </a-table>
 </template>
+
 <script>
-import { defineComponent, onBeforeMount, ref } from 'vue'
+import { defineComponent, onBeforeMount, ref, onUnmounted } from 'vue'
 import humps from 'humps'
+import { useStore } from 'vuex'
+
 import { toOrderBy } from '@/helpers/table'
 
 const columnsDeposit = [
@@ -89,7 +102,8 @@ const columnsDeposit = [
       customRender: 'renderDepositUpdatedAt'
     },
     ellipsis: true,
-    sorter: true
+    sorter: true,
+    width: 100
   },
   {
     title: '計上月',
@@ -99,7 +113,8 @@ const columnsDeposit = [
       customRender: 'renderDepositStatictis'
     },
     ellipsis: true,
-    sorter: true
+    sorter: true,
+    width: 90
   },
   { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true },
   { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true },
@@ -108,6 +123,7 @@ const columnsDeposit = [
     dataIndex: 'purpose',
     key: 'purpose',
     ellipsis: true,
+    width: 350,
     slots: { customRender: 'purpose' }
   },
   {
@@ -123,14 +139,16 @@ const columnsDeposit = [
     key: 'deposit',
     align: 'right',
     slots: { title: 'customTitleDeposit', customRender: 'deposit' },
-    ellipsis: true
+    ellipsis: true,
+    width: 130
   },
   {
     dataIndex: 'balance',
     key: 'balance',
     align: 'right',
     slots: { title: 'customTitleBalance', customRender: 'balance' },
-    ellipsis: true
+    ellipsis: true,
+    width: 130
   },
   {
     title: '確定',
@@ -158,8 +176,12 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+    const store = useStore()
+
     const currentRowClick = ref()
     const height = ref(0)
+
+    const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
@@ -237,7 +259,12 @@ export default defineComponent({
       window.addEventListener('resize', getInnerHeight)
     })
 
+    onUnmounted(() => {
+      window.removeEventListener('resize', getInnerHeight)
+    })
+
     return {
+      isAdmin,
       columnsDeposit,
       localeTable,
       height,

@@ -14,9 +14,15 @@
     <a-form-item name="type" :label="$t('deposit.new.type')">
       <a-radio-group v-model:value="params.type">
         <a-radio :value="10">{{ $t('deposit.new.type_deposit') }}</a-radio>
-        <a-radio :value="20">{{ $t('deposit.new.type_withdrawal') }}</a-radio>
-        <a-radio :value="30">{{ $t('deposit.new.type_transfer') }}</a-radio>
-        <a-radio :value="40">{{ $t('deposit.new.type_unclear') }}</a-radio>
+        <a-radio :value="20" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_withdrawal') }}
+        </a-radio>
+        <a-radio :value="30" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_transfer') }}
+        </a-radio>
+        <a-radio :value="40" :disabled="params.adProject !== null && isEditDeposit">
+          {{ $t('deposit.new.type_unclear') }}
+        </a-radio>
       </a-radio-group>
     </a-form-item>
 
@@ -85,7 +91,7 @@
         v-model:value="params.groupId"
         :placeholder="$t('deposit.new.group_place_holder')"
         class="has-max-width"
-        :disabled="isDisableEditField"
+        :disabled="isDisableEditField && params.adProject === null"
       >
         <template v-for="group in groupList" :key="group.id">
           <a-select-option :value="group.id">{{ group.name }}</a-select-option>
@@ -164,7 +170,14 @@
           @keyup.enter="handleInputTagConfirm"
         />
         <div v-if="isShowTagList" class="deposit-form__tags--list">
-          <a-tag v-for="tag in params.tags" :key="tag" closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
+          <a-tooltip
+            v-for="tag in params.tags"
+            :key="tag"
+            :title="tag"
+            overlay-class-name="deposit-form__tags--tooltip"
+          >
+            <a-tag closable @close="handleCloseTag(tag)">{{ tag }}</a-tag>
+          </a-tooltip>
         </div>
       </div>
       <p class="deposit-form__field-cation">
@@ -213,8 +226,17 @@
 
     <a-form-item name="confirmed" :label="$t('deposit.new.confirmed')">
       <a-checkbox v-model:checked="params.confirmed" :disabled="isDisabledSubmit">
-        {{ $t('deposit.new.confirmed') }}</a-checkbox
+        {{ $t('deposit.new.confirmed') }}
+      </a-checkbox>
+      <button
+        v-if="isAdmin && isDisabledSubmit"
+        type="danger"
+        ghost
+        class="deposit-form__unconfirm-btn"
+        @click="handleOpenUnconfirmModal"
       >
+        {{ $t('deposit.new.unconfirmed') }}
+      </button>
     </a-form-item>
 
     <a-form-item>
@@ -234,6 +256,13 @@
   </a-form>
 
   <modal-select-company v-model:visible="isOpenModalCompany" @select-company="handleSelectCompanyModal" />
+
+  <modal-unconfirm
+    v-model:visible="isVisibleUnconfirmModal"
+    :purpose="params.purpose"
+    :is-loading-unconfirm-request="isLoadingUnconfirmRequest"
+    @on-unconfirm-deposit="onUnconfirmDeposit"
+  />
 </template>
 
 <script>
@@ -250,16 +279,21 @@ import {
   getSubCategory,
   createDeposit,
   getDepositDetail,
-  updateDeposit
+  updateDeposit,
+  unconfirmDeposit
 } from '../composables/useDeposit'
 import { deepCopy } from '@/helpers/json-parser'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
+
 const ModalSelectCompany = defineAsyncComponent(() => import('@/containers/ModalSelectCompany'))
+const ModalUnconfirm = defineAsyncComponent(() => import('./UnconfirmDepositModal'))
 
 export default defineComponent({
   name: 'DepositForm',
 
   components: {
-    ModalSelectCompany
+    ModalSelectCompany,
+    ModalUnconfirm
   },
 
   props: {
@@ -271,6 +305,8 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const { t } = useI18n()
+
+    const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     // form
     const depositNewRef = ref()
@@ -291,6 +327,7 @@ export default defineComponent({
     // modal select company name
     const isCompanySelection = ref(false)
     const isOpenModalCompany = ref(false)
+    const isVisibleUnconfirmModal = ref(false)
     const companyNameSelected = ref('')
 
     // disabled fields
@@ -300,6 +337,7 @@ export default defineComponent({
     const isShowCaptionCurrency = ref(false)
     const isDisabledSubmit = ref(false)
     const isDisableEditField = ref(false)
+    const isLoadingUnconfirmRequest = ref(false)
 
     // tags
     const inputTagVal = ref('')
@@ -311,7 +349,7 @@ export default defineComponent({
 
     // params deposit form
     const params = ref({
-      date: null,
+      date: moment(),
       type: '',
       categoryId: undefined,
       subcategoryId: undefined,
@@ -417,6 +455,10 @@ export default defineComponent({
       handleValidateSubCategory()
     }
 
+    const handleOpenUnconfirmModal = () => {
+      isVisibleUnconfirmModal.value = true
+    }
+
     const handleValidateSubCategory = () => {
       depositNewRef.value.validateField('subcategoryId')
     }
@@ -448,8 +490,6 @@ export default defineComponent({
 
       return true
     }
-
-    const toDateFormat = (dateValue, formatter = 'YYYY/MM') => moment(new Date(dateValue), formatter)
 
     const convertDataToForm = (data = {}) => {
       const {
@@ -534,9 +574,9 @@ export default defineComponent({
         type,
         categoryId: type === 40 ? undefined : category?.id,
         subcategoryId,
-        date: date ? toDateFormat(date, 'YYYY/MM/DD') : null,
-        statisticsMonth: statisticsMonth ? toDateFormat(statisticsMonth, 'YYYY/MM/DD') : null,
-        repeatedExpiredDate: repeatedExpiredDate ? toDateFormat(repeatedExpiredDate, 'YYYY/MM/DD') : null,
+        date: fromStringToDateTimeFormatPicker(date, 'YYYY/MM/DD'),
+        statisticsMonth: fromStringToDateTimeFormatPicker(statisticsMonth, 'YYYY/MM/DD'),
+        repeatedExpiredDate: fromStringToDateTimeFormatPicker(repeatedExpiredDate, 'YYYY/MM/DD'),
         tags: tags.filter(Boolean),
         withdrawalBankAccountId: _withdrawalBankAccountId,
         withdrawalMoney: _withdrawalMoney,
@@ -670,6 +710,30 @@ export default defineComponent({
       }
     }
 
+    // unconfirm
+    const onUnconfirmDeposit = async () => {
+      isLoadingUnconfirmRequest.value = true
+
+      const depositId = parseInt(route.params.id)
+      const response = await unconfirmDeposit(depositId)
+      if (response.status === 200) {
+        const purpose = params.value.purpose
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('deposit.unconfirm_modal.unconfirm_success', { purpose })
+        })
+        router.push({ name: 'deposit' })
+        return
+      }
+
+      if (response.data?.errors) {
+        localErrors.value = response.data.errors
+      }
+
+      isLoadingUnconfirmRequest.value = false
+    }
+
     /* --------------------- request function ------------------- */
     const fetchCategoryList = async (type) => {
       const { result: categoryResult = [] } = await getCategory({ divisionType: type })
@@ -758,8 +822,17 @@ export default defineComponent({
 
     watch(
       () => params.value.groupId,
-      (groupId) => {
+      (groupId, oldGroupId) => {
         fetchBankAccounts(groupId)
+
+        if (oldGroupId && oldGroupId !== groupId) {
+          params.value.withdrawalBankAccountId = undefined
+          params.value.depositBankAccountId = undefined
+          params.value.withdrawalMoney = 0
+          params.value.depositMoney = 0
+          withdrawalMoneyCurrency.value = ''
+          depositMoneyCurrency.value = ''
+        }
       }
     )
 
@@ -816,7 +889,9 @@ export default defineComponent({
       withdrawalMoneyCurrency,
       depositMoneyCurrency,
       companyNameSelected,
+      currentCategory,
 
+      isAdmin,
       isLoading,
       isCategoryDisabled,
       isSubCategoryDisabled,
@@ -830,7 +905,8 @@ export default defineComponent({
       isAllowNegativeMoney,
       isDisableEditField,
       isRepeatedExpiredDateCorrect,
-      currentCategory,
+      isVisibleUnconfirmModal,
+      isLoadingUnconfirmRequest,
 
       onSelectWithdrawalMoney,
       onSelectDepositMoney,
@@ -840,7 +916,9 @@ export default defineComponent({
       handleSelectCompanyModal,
       handleValidateSubCategory,
       onSubmitForm,
-      onCancelForm
+      onCancelForm,
+      onUnconfirmDeposit,
+      handleOpenUnconfirmModal
     }
   }
 })
@@ -885,6 +963,7 @@ $field-max-width: 500px;
 
     &--list {
       padding: 4px 12px;
+      width: 100%;
     }
   }
 
@@ -903,6 +982,14 @@ $field-max-width: 500px;
 
   &__submit-btn {
     min-width: 105px;
+  }
+
+  &__unconfirm-btn {
+    margin-left: 12px;
+    color: $color-additional-red-6;
+    border: 1px solid $color-additional-red-6;
+    border-radius: 2px;
+    cursor: pointer;
   }
 
   .has-max-width {
@@ -937,11 +1024,28 @@ $field-max-width: 500px;
 
   .ant-tag {
     background: $color-grey-85;
-    padding: 2px 7px;
+    padding: 2px 28px 2px 7px;
+    max-width: calc(100% - 10px);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+
+    .ant-tag-close-icon {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+    }
   }
 
   .ant-btn[disabled] {
     background-color: transparent;
+  }
+}
+
+.deposit-form__tags--tooltip {
+  .ant-tooltip-inner {
+    color: $color-grey-100;
+    background-color: $color-grey-35;
   }
 }
 </style>

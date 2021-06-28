@@ -27,5 +27,9 @@ export default {
 
   confirmDeposit(data) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/confirm`, data })
+  },
+
+  unconfirmDeposit(data) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/unconfirm`, data })
   }
 }

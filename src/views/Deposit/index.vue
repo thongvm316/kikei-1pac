@@ -1,6 +1,6 @@
 <template>
   <div class="u-mx-32">
-    <div class="u-flex u-justify-between u-mt-24 u-mb-16">
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
         <a-radio-group v-model:value="checkedListFilterMonth" :options="filterMonthList" />
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="u-flex u-justify-between u-mb-24">
+    <div class="u-flex u-justify-between u-items-center u-mb-24">
       <div>
         <a-checkbox
           v-model:checked="checkAllRowTable"
@@ -52,7 +52,7 @@
         dropdown-class-name="multiple-select-custom"
         mode="multiple"
         :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
-        :style="{ width: '200px' }"
+        :style="{ width: '350px' }"
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
@@ -90,6 +90,7 @@
           v-model:expand-icon-column-index="expandIconColumnIndex"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
           @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
+          @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
           @on-sort="onSortTable"
         />
       </a-tab-pane>
@@ -117,14 +118,20 @@
     :confirmed-selected-purpose="confirmedSelectedPurpose"
     @on-confirm-deposit-record="onConfirmDepositRecord"
   />
+
+  <modal-unconfirm
+    v-model:visible="isVisibleUnconfirmModal"
+    :purpose="unconfirmRecordSeleted?.purpose || ''"
+    @on-unconfirm-deposit="onUnconfirmDeposit"
+  />
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge } from 'lodash-es'
+import { merge, find } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -133,7 +140,8 @@ import {
   getBankAccounts,
   deleteDeposit,
   createDataTableFormat,
-  confirmDeposit
+  confirmDeposit,
+  unconfirmDeposit
 } from './composables/useDeposit'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
@@ -148,6 +156,8 @@ import ModalActions from '@/components/ModalActions'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
+const ModalUnconfirm = defineAsyncComponent(() => import('./-components/UnconfirmDepositModal'))
+
 export default defineComponent({
   name: 'DepositPage',
 
@@ -158,7 +168,8 @@ export default defineComponent({
     SearchDepositModal,
     DeleteDepositModal,
     ConfirmDepositModal,
-    ModalActions
+    ModalActions,
+    ModalUnconfirm
   },
 
   setup() {
@@ -189,6 +200,7 @@ export default defineComponent({
     const confirmedSelectedDepositRecord = ref()
     const confirmedSelectedPurpose = ref()
     const tableKey = ref(0)
+    const unconfirmRecordSeleted = ref()
 
     // check all row
     const checkAllRowTable = ref()
@@ -200,6 +212,7 @@ export default defineComponent({
     const isVisibleDepositButtonsFloat = ref(false)
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
+    const isVisibleUnconfirmModal = ref(false)
 
     // filter month
     const lastMonth = {
@@ -493,6 +506,39 @@ export default defineComponent({
     }
     /* --------------------- ./handle confirm deposit ------------------- */
 
+    /* --------------------- handle unconfirm deposit ------------------- */
+    const handleOpenUnconfirmModal = (record) => {
+      isVisibleUnconfirmModal.value = true
+      unconfirmRecordSeleted.value = record
+    }
+
+    const onUnconfirmDeposit = async () => {
+      const depositId = unconfirmRecordSeleted.value.id
+      const response = await unconfirmDeposit(depositId)
+
+      if (response.status === 200) {
+        const purpose = unconfirmRecordSeleted.value.purpose
+
+        // reset unconfirm
+        isVisibleUnconfirmModal.value = false
+        unconfirmRecordSeleted.value = {}
+
+        // update confirmed record
+        const indexConfirmedRecord = dataDeposit.value.findIndex((record) => record.id === depositId)
+        if (indexConfirmedRecord !== -1) {
+          dataDeposit.value[indexConfirmedRecord].confirmed = false
+        }
+
+        // noti
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          message: t('deposit.unconfirm_modal.unconfirm_success', { purpose })
+        })
+      }
+    }
+
+    /* --------------------- ./handle unconfirm deposit ------------------- */
+
     const onSortTable = (emitData) => {
       let currentSortStr = ''
 
@@ -531,6 +577,13 @@ export default defineComponent({
       const groupId = groupIdStore ? groupIdStore : getTabIndex(tabListGroup.value)
       activeKeyGroupTab.value = parseInt(groupId)
 
+      // set checkedListFilterMonth
+      const { fromDate, toDate } = filtersDepositStore?.data || {}
+      if (fromDate && toDate && !checkedListFilterMonth.value) {
+        const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
+        objFound && (checkedListFilterMonth.value = objFound.value)
+      }
+
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
 
       router.replace({ query: { tab: groupId } })
@@ -538,8 +591,13 @@ export default defineComponent({
 
     watch(
       () => checkedListFilterMonth.value,
-      () => {
-        updateParamRequestDeposit({ params: { pageNumber: 1 } }, { data: checkedListFilterMonth.value })
+      (val) => {
+        if (val) {
+          updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+
+          // update modal search deposit
+          store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+        }
       }
     )
 
@@ -547,6 +605,20 @@ export default defineComponent({
     watch(
       () => paramRequestDataDeposit.value,
       () => {
+        // uncheck quick select date
+        const { fromDate, toDate } = paramRequestDataDeposit.value.data
+        const { fromDate: fromDateQuick, toDate: toDateQuick } = checkedListFilterMonth.value || {}
+
+        if (
+          (fromDate && toDate && !fromDateQuick && !toDateQuick) ||
+          (fromDateQuick &&
+            toDateQuick &&
+            (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
+        ) {
+          checkedListFilterMonth.value = ''
+        }
+
+        // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
       }
     )
@@ -560,16 +632,10 @@ export default defineComponent({
       bankAccountList,
       tabListGroup,
       dataDeposit,
-      isLoadingDataTable,
       expandedRowKeys,
       totalRecords,
       expandIconColumnIndex,
-      isVisibleDepositButtonsFloat,
-      isVisibleDeleteModal,
-      isDisableDelete,
-      isLoadingExportCsv,
       activeKeyGroupTab,
-      isVisibleConfirmDepositModal,
       tableKey,
       isDisabledSelectAllRows,
       currentSelectedRecord,
@@ -577,6 +643,15 @@ export default defineComponent({
       confirmedSelectedPurpose,
       checkedListFilterMonth,
       filterMonthList,
+      unconfirmRecordSeleted,
+
+      isLoadingDataTable,
+      isVisibleDepositButtonsFloat,
+      isVisibleDeleteModal,
+      isDisableDelete,
+      isLoadingExportCsv,
+      isVisibleConfirmDepositModal,
+      isVisibleUnconfirmModal,
 
       updateParamRequestDeposit,
       onSelectAllRows,
@@ -591,7 +666,9 @@ export default defineComponent({
       exportDepositAsCsvFile,
       onOpenConfirmDepositRecordModal,
       onConfirmDepositRecord,
-      onSortTable
+      onSortTable,
+      onUnconfirmDeposit,
+      handleOpenUnconfirmModal
     }
   }
 })
