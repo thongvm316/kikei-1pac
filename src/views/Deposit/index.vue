@@ -214,8 +214,6 @@ export default defineComponent({
     const isVisibleConfirmDepositModal = ref(false)
     const isVisibleUnconfirmModal = ref(false)
 
-    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
-
     // filter month
     const lastMonth = {
       fromDate: moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD'),
@@ -587,7 +585,12 @@ export default defineComponent({
     watch(
       () => checkedListFilterMonth.value,
       (val) => {
-        val && updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+        if (val) {
+          updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+
+          // update modal search deposit
+          store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+        }
       }
     )
 
@@ -595,16 +598,21 @@ export default defineComponent({
     watch(
       () => paramRequestDataDeposit.value,
       () => {
-        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
-      }
-    )
+        // uncheck date quick select
+        const { fromDate, toDate } = paramRequestDataDeposit.value.data
+        const { fromDate: fromDateQuick, toDate: toDateQuick } = checkedListFilterMonth.value || {}
 
-    watch(
-      () => isShowSearchBadge.value,
-      (val) => {
-        if (val) {
+        if (
+          (fromDate && toDate && !fromDateQuick && !toDateQuick) ||
+          (fromDateQuick &&
+            toDateQuick &&
+            (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
+        ) {
           checkedListFilterMonth.value = ''
         }
+
+        // fetch data table
+        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
       }
     )
 

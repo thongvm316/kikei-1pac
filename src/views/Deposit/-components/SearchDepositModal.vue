@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeMount, ref } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -158,6 +158,8 @@ export default defineComponent({
     const store = useStore()
     const route = useRoute()
     const { t, locale } = useI18n()
+
+    const dataFilterStore = computed(() => store.state?.deposit?.filters || {})
 
     const typeDepositList = Object.keys(TYPE_NAME_DEPOSIT).map((item) => ({
       value: parseInt(item),
@@ -275,7 +277,7 @@ export default defineComponent({
       isNeedSubmit.value && onSubmit()
     }
 
-    onBeforeMount(async () => {
+    const applyFiltersStoreToState = () => {
       // get state from store
       const dataFilterStore = store.state.deposit?.filters?.data || {}
       const filterData = pick(dataFilterStore, ['type', 'confirmed', 'categoryId', 'subcategoryId', 'purpose'])
@@ -295,6 +297,14 @@ export default defineComponent({
       // set badge search
       const projectId = store.state.deposit?.filters?.data?.projectId
       store.commit('setIsShowSearchBadge', !(isEqual(state.value, initState) && !projectId))
+    }
+
+    onBeforeMount(() => {
+      applyFiltersStoreToState()
+    })
+
+    watch(dataFilterStore, () => {
+      applyFiltersStoreToState()
     })
 
     return {
