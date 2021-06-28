@@ -11,7 +11,7 @@
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                maxLength="20"
+                :maxlength="20"
                 class="w-300"
                 :disabled="isDisableEditField"
                 @change="handleChange"
@@ -119,13 +119,27 @@
       <!-- Status -->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('account.sales') }}</label>
+          <label class="form-label">{{ $t('account.status') }}</label>
 
           <div class="form-input">
             <a-radio-group v-model:value="form.active">
               <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">{{
                 $t(`account.${item.value}`)
               }}</a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+      </div>
+      <!-- Authority-->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('account.authority') }}</label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.is_admin">
+              <a-radio v-for="item in AUTHORITY" :key="item.id" :value="item.id"
+                >{{ $t(`account.${item.value}`) }}
+              </a-radio>
             </a-radio-group>
           </div>
         </div>
@@ -151,7 +165,7 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
-import { TYPE, ACTIVE } from '@/enums/account.enum'
+import { TYPE, ACTIVE, AUTHORITY } from '@/enums/account.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
@@ -169,7 +183,8 @@ export default defineComponent({
       fullname: '',
       types: [],
       memo: '',
-      active: true
+      active: true,
+      is_admin: false
     })
     const router = useRouter()
     const route = useRoute()
@@ -245,6 +260,7 @@ export default defineComponent({
       form,
       TYPE,
       ACTIVE,
+      AUTHORITY,
       isHiddenField,
       isDisableEditField,
       onSubmit,
