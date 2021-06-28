@@ -178,6 +178,7 @@ export default defineComponent({
           key: 'currencyCode'
         },
         {
+          title: t('company.division'),
           dataIndex: 'divisions',
           key: 'divisions',
           slots: { customRender: 'divisions' }
@@ -257,7 +258,6 @@ export default defineComponent({
       isLoading,
       filter,
       filters,
-      t,
       columns,
       dataSource,
       pagination,
