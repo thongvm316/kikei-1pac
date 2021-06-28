@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, ref } from 'vue'
+import { defineComponent, onBeforeMount, ref, onUnmounted } from 'vue'
 import humps from 'humps'
 import { useStore } from 'vuex'
 
@@ -139,14 +139,16 @@ const columnsDeposit = [
     key: 'deposit',
     align: 'right',
     slots: { title: 'customTitleDeposit', customRender: 'deposit' },
-    ellipsis: true
+    ellipsis: true,
+    width: 130
   },
   {
     dataIndex: 'balance',
     key: 'balance',
     align: 'right',
     slots: { title: 'customTitleBalance', customRender: 'balance' },
-    ellipsis: true
+    ellipsis: true,
+    width: 130
   },
   {
     title: '確定',
@@ -255,6 +257,10 @@ export default defineComponent({
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', getInnerHeight)
     })
 
     return {
