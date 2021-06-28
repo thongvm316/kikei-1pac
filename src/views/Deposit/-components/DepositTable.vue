@@ -39,8 +39,9 @@
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}</span
       >
+        {{ record.deposit === '-' ? '-' : $filters.number_with_commas(record.deposit) }}
+      </span>
     </template>
 
     <template #balance="{ record }">
@@ -50,14 +51,23 @@
     </template>
 
     <template #action="{ record }">
-      <a-button
-        v-if="record.children"
-        :disabled="record.confirmed"
-        type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', record)"
-      >
-        確定
-      </a-button>
+      <template v-if="record.children">
+        <a-button
+          v-if="record.confirmed && isAdmin"
+          type="danger"
+          @click="$emit('handle-open-unconfirm-modal', record)"
+        >
+          取消
+        </a-button>
+        <a-button
+          v-else
+          :disabled="record.confirmed"
+          type="primary"
+          @click="$emit('on-open-confirm-deposit-record-modal', record)"
+        >
+          確定
+        </a-button>
+      </template>
     </template>
 
     <template #purpose="{ record }">
@@ -74,9 +84,12 @@
     <template #customTitleBalance> 残高<br />(JPY) </template>
   </a-table>
 </template>
+
 <script>
 import { defineComponent, onBeforeMount, ref } from 'vue'
 import humps from 'humps'
+import { useStore } from 'vuex'
+
 import { toOrderBy } from '@/helpers/table'
 
 const columnsDeposit = [
@@ -161,8 +174,12 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+    const store = useStore()
+
     const currentRowClick = ref()
     const height = ref(0)
+
+    const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
@@ -241,6 +258,7 @@ export default defineComponent({
     })
 
     return {
+      isAdmin,
       columnsDeposit,
       localeTable,
       height,

@@ -86,9 +86,10 @@
 
       <template #renderProjectReleaseDate="{ record }">{{ $filters.moment_l(record.releaseDate) }}</template>
 
-      <template #renderProjectStatisticsDate="{ record }">{{
-        $filters.moment_yyyy_mm(record.statisticsFromMonth)
-      }}</template>
+      <template #renderProjectStatisticsDate="{ record }">
+        <p :class="record.type === 0 ? 'mb-0' : ''">{{ $filters.moment_yyyy_mm(record.statisticsFromMonth) }}<span v-if="record.type === 1"> -</span></p>
+        <p v-if="record.type === 1" class="u-mb-0">{{ $filters.moment_yyyy_mm(record.statisticsToMonth) }}</p>
+      </template>
 
       <template #renderGroupName="{ record }">{{ record.groupName }}</template>
 
@@ -210,7 +211,7 @@ export default defineComponent({
       {
         dataIndex: 'money',
         key: 'money',
-        align: 'left',
+        align: 'right',
         slots: {
           title: 'projectMoneyTitle',
           customRender: 'renderProjectMoney'
@@ -267,7 +268,7 @@ export default defineComponent({
           const targetId = targetProjectSelected.value?.id || ''
           const recordId = record?.id || ''
 
-          if (targetId === recordId) {
+          if (!recordId || targetId === recordId) {
             targetProjectSelected.value = {}
             isOpenFloatButtons.value = false
           } else {
@@ -284,10 +285,13 @@ export default defineComponent({
     }
 
     const goToEditProject = () => {
+      const projectId = targetProjectSelected.value?.id
+      if (!projectId) return
+
       // save filters search to store
       store.commit('project/STORE_PROJECT_FILTER', requestData.value)
 
-      router.push({ name: 'project-edit', params: { id: targetProjectSelected.value.id } })
+      router.push({ name: 'project-edit', params: { id: projectId } })
     }
 
     const goToDeposit = () => {
