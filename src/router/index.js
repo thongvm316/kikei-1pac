@@ -17,14 +17,15 @@ const lazyLoadLayout = (pageName) => {
 const routes = [
   {
     path: '/login',
+    name: 'login',
     meta: { title: `Login | ${APP_NAME}` },
     component: lazyLoadLayout('AuthLayout'),
     children: [
       {
         path: '',
+        name: 'login',
         component: lazyLoadRoute('Auth/Login'),
-        meta: { title: `Login | ${APP_NAME}` },
-        name: 'login'
+        meta: { title: `Login | ${APP_NAME}` }
       }
     ]
   },
