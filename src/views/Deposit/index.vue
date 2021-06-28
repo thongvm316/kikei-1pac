@@ -1,6 +1,6 @@
 <template>
   <div class="u-mx-32">
-    <div class="u-flex u-justify-between u-mt-24 u-mb-16">
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
         <a-radio-group v-model:value="checkedListFilterMonth" :options="filterMonthList" />
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="u-flex u-justify-between u-mb-24">
+    <div class="u-flex u-justify-between u-items-center u-mb-24">
       <div>
         <a-checkbox
           v-model:checked="checkAllRowTable"
@@ -52,7 +52,7 @@
         dropdown-class-name="multiple-select-custom"
         mode="multiple"
         :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
-        :style="{ width: '200px' }"
+        :style="{ width: '350px' }"
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
