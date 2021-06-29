@@ -20,5 +20,5 @@ export default {
   text_input: 'テキスト入力',
   use_distinction: '使用区分',
   input: '通常(テキスト入力)',
-  group: 'グループ'
+  back: '戻る'
 }

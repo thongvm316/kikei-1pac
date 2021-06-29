@@ -1,12 +1,19 @@
 <template>
   <section>
     <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
-
-    <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
+      <div>
+        <a-button class="u-mr-16 bnt-back" type="default" @click="$router.push({ name: 'category'})">
+        <arrow-icon class="arrow-icon" />
+        {{ $t('subcategory.back') }}
+      </a-button>
+      </div>
+      <div>
+        <a-button class="u-ml-12 btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
         <add-icon class="add-icon" />
         {{ $t('subcategory.add_subcategory') }}
       </a-button>
+      </div>
     </div>
 
     <a-table
@@ -48,6 +55,7 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
 import SubcategorySearchForm from '@/views/Subcategory/-components/SubcategorySearchForm'
+import ArrowIcon from '@/assets/icons/ico_arrow_up.svg'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
@@ -55,12 +63,12 @@ import ModalDelete from '@/components/ModalDelete'
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, SubcategorySearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, SubcategorySearchForm, ArrowIcon, AddIcon, ModalDelete },
 
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 }, { key_search: '', category_id: [ parseInt(to.params.id)] })
+    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 ,order_by: 'name asc'}, { key_search: '', category_id: [ parseInt(to.params.id)] })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -78,12 +86,10 @@ export default defineComponent({
     const filter = ref({ key_search: '', category_id: [ parseInt(route.params.id)], category_name: route.params.name})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30 })
+    const params = ref({ pageNumber: 1, pageSize: 30 ,order_by: 'name asc'})
     const height = ref(0)
-
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
-
     const rowSelection = computed(() => {
       return {
         selectedRowKeys: state.selectedRowKeys,
@@ -231,7 +237,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .box-create {
-  padding: 24px 32px 0;
+  padding: 0px 32px 0;
   text-align: right;
   text-align: -webkit-right;
 
@@ -241,10 +247,35 @@ export default defineComponent({
     text-align: center;
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
-
     .add-icon {
       margin-right: 10.33px;
+    }
+  }
+
+  .bnt-back {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: grey;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
+    }
+  }
+  .bnt-back:hover {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: #1890ff;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
     }
   }
 }
