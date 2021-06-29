@@ -214,11 +214,11 @@ export default defineComponent({
 
     const handleSelectNumber = (record) => {
       router.push({
-          name: 'subcategory',
-          params: {
-            id: record.id,
-            name: record.name
-          }
+        name: 'subcategory',
+        params: {
+          id: record.id,
+          name: record.name
+        }
       })
     }
 

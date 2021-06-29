@@ -1,16 +1,25 @@
 <template>
   <section>
-    <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
+    <subcategory-search-form :filter="filter" @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
+      <a-button
+        class="btn-modal"
+        type="primary"
+        @click="
+          $router.push({
+            name: 'subcategory-new',
+            params: { category_id: filter.category_id, category_name: filter.category_name }
+          })
+        "
+      >
         <add-icon class="add-icon" />
         {{ $t('subcategory.add_subcategory') }}
       </a-button>
     </div>
 
     <a-table
-       id="list-table"
+      id="list-table"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -25,7 +34,7 @@
       size="middle"
       @change="handleChange"
     >
-     <template #inUse="{ text: inUse }">
+      <template #inUse="{ text: inUse }">
         {{ inUse ? $t('subcategory.in_use') : $t('subcategory.prohibited') }}
       </template>
     </a-table>
@@ -60,7 +69,10 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 }, { key_search: '', category_id: [ parseInt(to.params.id)] })
+    const { getLists } = useGetSubCategoryListService(
+      { pageNumber: 1, pageSize: 30 },
+      { key_search: '', category_id: [parseInt(to.params.id)] }
+    )
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -75,7 +87,7 @@ export default defineComponent({
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({ key_search: '', category_id: [ parseInt(route.params.id)], category_name: route.params.name})
+    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({ pageNumber: 1, pageSize: 30 })
@@ -130,7 +142,7 @@ export default defineComponent({
         sorter.order = ''
       }
 
-     params.value = {
+      params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
@@ -166,12 +178,13 @@ export default defineComponent({
       router.push({
         name: 'subcategory-edit',
         params: {
-          id: recordVisible.value.id
+          id: recordVisible.value.id,
+          idCategory: route.params.id
         }
       })
     }
 
-    const fetchList = async (params = {}, data) => {
+    const fetchList = async (params = {}) => {
       isLoading.value = true
       try {
         const { getLists } = useGetSubCategoryListService({ ...params }, filter.value)
