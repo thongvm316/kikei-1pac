@@ -176,7 +176,8 @@ export default defineComponent({
         name: 'subcategory-edit',
         params: {
           id: recordVisible.value.id,
-          idCategory: route.params.id
+          idCategory: route.params.id,
+          nameCategory: route.params.name
         }
       })
     }
