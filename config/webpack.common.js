@@ -145,7 +145,8 @@ module.exports = function (webpackEnv) {
           test: /\.(woff(2)?|eot|ttf|otf|)$/,
           loader: require.resolve('file-loader'),
           options: {
-            name: 'assets/fonts/[name].[ext]'
+            name: 'assets/fonts/[name].[ext]',
+            publicPath: paths.publicUrlOrPath
           }
         },
 
