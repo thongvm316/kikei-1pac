@@ -103,7 +103,7 @@
 
   <modal-actions
     v-if="isOpenFloatButtons"
-    :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S'"
+    :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
     @on-go-to-edit="goToEditProject"
     @on-go-to-copy="cloneProject"
     @on-go-to-deposit="goToDeposit"

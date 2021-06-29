@@ -127,11 +127,11 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch, computed, defineAsyncComponent } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge } from 'lodash-es'
+import { merge, find } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -213,8 +213,6 @@ export default defineComponent({
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
     const isVisibleUnconfirmModal = ref(false)
-
-    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
 
     // filter month
     const lastMonth = {
@@ -579,6 +577,13 @@ export default defineComponent({
       const groupId = groupIdStore ? groupIdStore : getTabIndex(tabListGroup.value)
       activeKeyGroupTab.value = parseInt(groupId)
 
+      // set checkedListFilterMonth
+      const { fromDate, toDate } = filtersDepositStore?.data || {}
+      if (fromDate && toDate && !checkedListFilterMonth.value) {
+        const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
+        objFound && (checkedListFilterMonth.value = objFound.value)
+      }
+
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
 
       router.replace({ query: { tab: groupId } })
@@ -587,7 +592,12 @@ export default defineComponent({
     watch(
       () => checkedListFilterMonth.value,
       (val) => {
-        val && updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+        if (val) {
+          updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+
+          // update modal search deposit
+          store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+        }
       }
     )
 
@@ -595,16 +605,21 @@ export default defineComponent({
     watch(
       () => paramRequestDataDeposit.value,
       () => {
-        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
-      }
-    )
+        // uncheck quick select date
+        const { fromDate, toDate } = paramRequestDataDeposit.value.data
+        const { fromDate: fromDateQuick, toDate: toDateQuick } = checkedListFilterMonth.value || {}
 
-    watch(
-      () => isShowSearchBadge.value,
-      (val) => {
-        if (val) {
+        if (
+          (fromDate && toDate && !fromDateQuick && !toDateQuick) ||
+          (fromDateQuick &&
+            toDateQuick &&
+            (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
+        ) {
           checkedListFilterMonth.value = ''
         }
+
+        // fetch data table
+        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
       }
     )
 

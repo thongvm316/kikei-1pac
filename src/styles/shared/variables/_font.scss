@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 'Avenir';
+  // font-weight: 400;
+  src: url('@/assets/fonts/Avenir-Roman-12.ttf') format('opentype');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 800;
+  src: url('@/assets/fonts/Avenir-Heavy-05.ttf') format('opentype');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 900;
+  src: url('@/assets/fonts/Avenir-Black-03.ttf') format('opentype');
+  font-display: block;
+}

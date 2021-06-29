@@ -19,3 +19,14 @@ export const ACTIVE = [
     value: 'retired'
   }
 ]
+
+export const AUTHORITY = [
+  {
+    id: true,
+    value: 'is_admin'
+  },
+  {
+    id: false,
+    value: 'is_user'
+  }
+]
