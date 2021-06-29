@@ -136,7 +136,8 @@ export default defineComponent({
       router.push({
         name: 'subcategory',
         params: {
-          id: route.name === 'subcategory-edit' ? route.params.idCategory : route.params.category_id
+          id: route.name === 'subcategory-edit' ? route.params.idCategory : route.params.category_id,
+          name: route.params.category_name
         }
       })
     }
@@ -162,7 +163,8 @@ export default defineComponent({
         await router.push({
           name: 'subcategory',
           params: {
-            id: route.params.idCategory
+            id: route.params.idCategory,
+            name: route.params.category_name
           }
         })
       } catch (err) {
@@ -178,7 +180,8 @@ export default defineComponent({
         await router.push({
           name: 'subcategory',
           params: {
-            id: route.params.category_id
+            id: route.params.category_id,
+            name: route.params.category_name
           }
         })
       } catch (err) {
