@@ -13,7 +13,7 @@ export default {
   add_subcategory: '新規中分類追加',
   clear: 'クリア',
   sales: '売上',
-  example:'項目記入例',
+  example: '項目記入例',
   in_use: '使用中',
   prohibited: '使用不可',
   no: '(なし)',
@@ -22,4 +22,3 @@ export default {
   input: '通常(テキスト入力)',
   back: '戻る'
 }
-

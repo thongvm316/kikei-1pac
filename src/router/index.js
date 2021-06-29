@@ -181,7 +181,7 @@ const routes = [
                     meta: { title: `Edit SubCategory | ${APP_NAME}` }
                   }
                 ]
-              },
+              }
             ]
           },
           {

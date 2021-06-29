@@ -6,7 +6,7 @@
         <div class="form-group">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.category') }}</label>
-            <label class="form-input">{{filter.category_name}}</label>
+            <label class="form-input">{{ filter.category_name }}</label>
           </div>
         </div>
 
@@ -45,11 +45,11 @@ import { filter, isEqual } from 'lodash-es'
 export default defineComponent({
   name: 'SubcategorySearchForm',
 
+  components: { SearchIcon },
+
   props: {
     filter: Object
   },
-
-  components: { SearchIcon },
 
   emits: ['filter-changed'],
 
@@ -91,7 +91,7 @@ export default defineComponent({
       visible,
       filter,
       handleClear,
-      onSearch,
+      onSearch
     }
   }
 })

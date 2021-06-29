@@ -10,7 +10,7 @@ import SubcategoryForm from '../-components/SubcategoryForm'
 export default defineComponent({
   name: 'SubcategoryEditPage',
 
-  components: {SubcategoryForm },
+  components: { SubcategoryForm },
 
   async beforeRouteEnter(to, from, next) {
     const { subCategoryDetail } = useGetSubCategoryDetailService(to.params.id)
@@ -18,6 +18,6 @@ export default defineComponent({
 
     to.meta['detail'] = resp.result.data
     next()
-  },
+  }
 })
 </script>

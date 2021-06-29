@@ -144,7 +144,7 @@ export default defineComponent({
         {
           path: '/setting/account',
           breadcrumbName: t('breadcrumb.account')
-        },
+        }
       ],
 
       'account-new': [
@@ -198,7 +198,7 @@ export default defineComponent({
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
-      'subcategory': [
+      subcategory: [
         {
           path: '/setting/category',
           breadcrumbName: t('breadcrumb.category')

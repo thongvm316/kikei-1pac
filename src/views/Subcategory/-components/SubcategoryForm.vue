@@ -1,5 +1,5 @@
 <template>
-<div class="card-common">
+  <div class="card-common">
     <!-- Form -->
     <form @submit="onSubmit">
       <!-- category Name-->
@@ -11,9 +11,9 @@
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                maxLength="20"
+                max-length="20"
                 class="w-300"
-                :disabled=true
+                :disabled="true"
                 @change="handleChange"
               ></a-input>
               <!-- Error message -->
@@ -91,9 +91,8 @@
           {{ $route.name === 'subcategory-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
-
     </form>
-</div>
+  </div>
 </template>
 
 <script>
@@ -106,7 +105,7 @@ import { useI18n } from 'vue-i18n'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateSubCategoryService from '@/views/Subcategory/composables/useUpdateSubcategoryService'
 import useCreateSubCategoryService from '@/views/Subcategory/composables/useCreateSubcategoryService'
-import {INUSE} from '@/enums/subcategory.enum'
+import { INUSE } from '@/enums/subcategory.enum'
 
 export default defineComponent({
   name: 'SubCategoryForm',
@@ -115,13 +114,15 @@ export default defineComponent({
     let form = ref({
       category_id: 0,
       name: '',
-      example:'',
-      in_use: 0,
+      example: '',
+      in_use: 0
     })
+
     const router = useRouter()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
+
     onMounted(() => {
       if ('id' in route.params && route.name === 'subcategory-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
@@ -130,14 +131,14 @@ export default defineComponent({
         form.value.category_name = route.params.category_name
       }
     })
+
     const handleCancel = () => {
       router.push({
         name: 'subcategory',
         params: {
-            id: route.params.category_id,
-            name: route.params.category_name
-          }}
-        )
+          id: route.name === 'subcategory-edit' ? route.params.idCategory : route.params.category_id
+        }
+      })
     }
 
     const onSubmit = handleSubmit(() => {
@@ -158,13 +159,12 @@ export default defineComponent({
         const { updateSubCategory } = useUpdateSubCategoryService(id, data)
         await updateSubCategory()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await  router.push({
-        name: 'subcategory',
-        params: {
-            id: route.params.category_id,
-            name: route.params.category_name
-          }}
-        ).catch((err) => err)
+        await router.push({
+          name: 'subcategory',
+          params: {
+            id: route.params.idCategory
+          }
+        })
       } catch (err) {
         throw err
       }
@@ -175,13 +175,12 @@ export default defineComponent({
       try {
         const { createSubCategory } = useCreateSubCategoryService(data)
         await createSubCategory()
-        await  router.push({
-        name: 'subcategory',
-        params: {
-            id: route.params.category_id,
-            name: route.params.category_name
-          }}
-        )
+        await router.push({
+          name: 'subcategory',
+          params: {
+            id: route.params.category_id
+          }
+        })
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -208,7 +207,7 @@ export default defineComponent({
       updateSubCategory,
       createSubCategory,
       replaceField,
-      INUSE,
+      INUSE
     }
   }
 })

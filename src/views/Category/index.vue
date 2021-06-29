@@ -215,12 +215,11 @@ export default defineComponent({
     const handleSelectNumber = (record) => {
       console.log(filter.value)
       router.push({
-          name: 'subcategory',
-          params: {
-            id: record.id,
-            name: record.name,
-            filter:filter.value
-          }
+        name: 'subcategory',
+        params: {
+          id: record.id,
+          name: record.name
+        }
       })
     }
 

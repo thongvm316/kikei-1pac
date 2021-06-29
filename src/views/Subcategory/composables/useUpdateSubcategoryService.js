@@ -6,7 +6,6 @@ export default function useUpdateSubCategoryService(id, data) {
     // eslint-disable-next-line no-useless-catch
     try {
       const response = await SubCategoryService.updateSubCategory(id, data)
-      console.log(data,"update")
       return response.data
     } catch (e) {
       throw e
