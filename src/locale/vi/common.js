@@ -16,6 +16,11 @@ export default {
     to_month_must_less_than_from_month: '”To YYYY/MM” phải lớn hơn ”From YYYY/MM”',
     alphanum: 'Thông tin nhập vào phải có định dạng là chữ hoặc số',
     expired_must_less_than_deposit_date: '"Ngày kết thúc lặp lại" phải bằng hoặc lớn hơn "Ngày nhận/chi tiền"',
-    invalidchar: 'Ký tự nhập không hợp lệ'
+    invalidchar: 'Ký tự nhập không hợp lệ',
+    expired_must_greater_than_deposit_date: '"Ngày kết thúc lặp lại" phải lớn hơn "Ngày nhận/chi tiền"',
+    code_format_invalid: 'Vui lòng nhập đúng định dạng Mã dự án',
+    code_invalid_period: 'Kỳ tài chính không hợp lệ',
+    code_invalid_company: 'Mã công ty không hợp lệ',
+    code_invalid_type: 'Loại hợp đồng trong hợp lệ '
   }
 }

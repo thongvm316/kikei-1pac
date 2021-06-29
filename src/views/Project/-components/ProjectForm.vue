@@ -1,6 +1,6 @@
 <template>
   <a-form
-    ref="prjectFormRef"
+    ref="projectFormRef"
     class="project-add-form"
     :rules="projectFormRules"
     :model="projectParams"
@@ -328,7 +328,7 @@ export default defineComponent({
   setup(props) {
     const projectProp = props.project
     const edit = props.edit
-    const prjectFormRef = ref()
+    const projectFormRef = ref()
     const store = useStore()
     const router = useRouter()
     const { t } = useI18n()
@@ -495,8 +495,23 @@ export default defineComponent({
           }
         ]
       } else {
-        projectFormRules.value.statisticsMonth = []
-        projectFormRules.value.statisticsMonths = []
+        // disable rules
+        projectFormRules.value.statisticsMonth = [
+          {
+            type: 'object',
+            required: false,
+            trigger: ['blur', 'change']
+          }
+        ]
+        projectFormRules.value.statisticsMonths = [
+          {
+            type: 'array',
+            required: false,
+            trigger: ['blur', 'change']
+          }
+        ]
+
+        projectFormRef.value.validateFields(['statisticsMonth', 'statisticsMonths'])
       }
     }
     /* --------------------- ./handle check require statistic month --------------------- */
@@ -568,7 +583,7 @@ export default defineComponent({
 
     const onSubmit = async () => {
       try {
-        const validateRes = await prjectFormRef.value.validate()
+        const validateRes = await projectFormRef.value.validate()
         if (validateRes) {
           edit ? callEditProject() : callAddProject()
         }
@@ -633,14 +648,7 @@ export default defineComponent({
 
     // check require statistic month
     watch(
-      () => projectParams.value.statusId,
-      () => {
-        checkRequireStatisticMonth()
-      }
-    )
-
-    watch(
-      () => projectParams.value.accuracyId,
+      () => [projectParams.value.statusId, projectParams.value.accuracyId],
       () => {
         checkRequireStatisticMonth()
       }
@@ -675,7 +683,7 @@ export default defineComponent({
     })
 
     return {
-      prjectFormRef,
+      projectFormRef,
       projectParams,
       localErrors,
       projectFormRules,
