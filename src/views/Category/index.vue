@@ -213,12 +213,13 @@ export default defineComponent({
     }
 
     const handleSelectNumber = (record) => {
-      // router.push({
-      //   name: 'sub-category',
-      //   params: {
-      //     id: record.id
-      //   }
-      // })
+      router.push({
+          name: 'subcategory',
+          params: {
+            id: record.id,
+            name: record.name
+          }
+      })
     }
 
     const fetchList = async (params = {}, data) => {

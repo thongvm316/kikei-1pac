@@ -6,7 +6,7 @@
         <div class="form-group">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.category') }}</label>
-            <label class="form-input">{{filter.category_id}}</label>
+            <label class="form-input">{{filter.category_name}}</label>
           </div>
         </div>
 
@@ -40,10 +40,14 @@ import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { isEqual } from 'lodash-es'
+import { filter, isEqual } from 'lodash-es'
 
 export default defineComponent({
   name: 'SubcategorySearchForm',
+
+  props: {
+    filter: Object
+  },
 
   components: { SearchIcon },
 
@@ -55,7 +59,8 @@ export default defineComponent({
 
     const initialState = {
       key_search: '',
-      category_id:[5]
+      category_id: props.filter.category_id,
+      category_name: props.filter.category_name
     }
 
     const filter = reactive({ ...initialState })

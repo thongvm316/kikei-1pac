@@ -1,9 +1,9 @@
 <template>
   <section>
-    <subcategory-search-form @filter-changed="onFilterChange($event)" />
+    <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
         <add-icon class="add-icon" />
         {{ $t('subcategory.add_subcategory') }}
       </a-button>
@@ -60,7 +60,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 }, { key_search: '', category_id:[5] })
+    const { getLists } = useGetSubCategoryListService({ pageNumber: 1, pageSize: 30 }, { key_search: '', category_id: [ parseInt(to.params.id)] })
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -72,15 +72,13 @@ export default defineComponent({
     const router = useRouter()
     const { t, locale } = useI18n()
     const store = useStore()
-
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({})
+    const filter = ref({ key_search: '', category_id: [ parseInt(route.params.id)], category_name: route.params.name})
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({ pageNumber: 1, pageSize: 30 })
-
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -176,7 +174,7 @@ export default defineComponent({
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
-        const { getLists } = useGetSubCategoryListService({ ...params }, data)
+        const { getLists } = useGetSubCategoryListService({ ...params }, filter.value)
         const { result } = await getLists()
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
@@ -219,6 +217,7 @@ export default defineComponent({
       recordVisible,
       height,
       params,
+      filter,
       handleDeleteRecord,
       handleEditRecord,
       customRow,

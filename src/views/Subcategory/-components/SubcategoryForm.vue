@@ -113,7 +113,7 @@ export default defineComponent({
 
   setup() {
     let form = ref({
-      category_id: 5,
+      category_id: 0,
       name: '',
       example:'',
       in_use: 0,
@@ -122,15 +122,22 @@ export default defineComponent({
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
-
     onMounted(() => {
       if ('id' in route.params && route.name === 'subcategory-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
+      } else {
+        form.value.category_id = parseInt(route.params.category_id[0])
+        form.value.category_name = route.params.category_name
       }
     })
-
     const handleCancel = () => {
-      router.push({ name: 'subcategory' })
+      router.push({
+        name: 'subcategory',
+        params: {
+            id: route.params.category_id,
+            name: route.params.category_name
+          }}
+        )
     }
 
     const onSubmit = handleSubmit(() => {
@@ -151,7 +158,13 @@ export default defineComponent({
         const { updateSubCategory } = useUpdateSubCategoryService(id, data)
         await updateSubCategory()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({ name: 'subcategory' }).catch((err) => err)
+        await  router.push({
+        name: 'subcategory',
+        params: {
+            id: route.params.category_id,
+            name: route.params.category_name
+          }}
+        ).catch((err) => err)
       } catch (err) {
         throw err
       }
@@ -162,7 +175,13 @@ export default defineComponent({
       try {
         const { createSubCategory } = useCreateSubCategoryService(data)
         await createSubCategory()
-        await router.push({ name: 'subcategory' })
+        await  router.push({
+        name: 'subcategory',
+        params: {
+            id: route.params.category_id,
+            name: route.params.category_name
+          }}
+        )
       } catch (err) {
         checkErrorsApi(err)
         throw err

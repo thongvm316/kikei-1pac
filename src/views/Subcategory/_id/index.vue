@@ -18,6 +18,6 @@ export default defineComponent({
 
     to.meta['detail'] = resp.result.data
     next()
-  }
+  },
 })
 </script>

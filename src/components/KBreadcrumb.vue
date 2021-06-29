@@ -144,7 +144,7 @@ export default defineComponent({
         {
           path: '/setting/account',
           breadcrumbName: t('breadcrumb.account')
-        }
+        },
       ],
 
       'account-new': [
@@ -198,18 +198,23 @@ export default defineComponent({
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
-
-      // subcategory
-      subcategory: [
+      'subcategory': [
         {
-          path: '/setting/subcategory',
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
           breadcrumbName: t('breadcrumb.subcategory')
         }
       ],
-
       'subcategory-new': [
         {
-          path: '/setting/subcategory',
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
           breadcrumbName: t('breadcrumb.subcategory')
         },
         {
@@ -220,7 +225,11 @@ export default defineComponent({
 
       'subcategory-edit': [
         {
-          path: '/setting/subcategory',
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
           breadcrumbName: t('breadcrumb.subcategory')
         },
         {
