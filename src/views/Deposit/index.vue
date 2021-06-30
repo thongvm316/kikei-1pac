@@ -134,7 +134,7 @@ import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncCompon
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge, find } from 'lodash-es'
+import { merge, find, isEmpty } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -219,6 +219,7 @@ export default defineComponent({
     const isVisibleUnconfirmModal = ref(false)
 
     // filter month
+    const allMonth = { fromDate: null, toDate: null }
     const lastMonth = {
       fromDate: moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD'),
       toDate: moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD')
@@ -233,7 +234,7 @@ export default defineComponent({
     }
     const checkedListFilterMonth = ref()
     const filterMonthList = ref([
-      { label: 'すべて', value: { fromDate: null, toDate: null } },
+      { label: 'すべて', value: allMonth },
       { label: '先月', value: lastMonth },
       { label: '当月', value: currentMonth },
       { label: '来月', value: nextMonth }
@@ -602,8 +603,10 @@ export default defineComponent({
       if (fromDate && toDate) {
         const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
         objFound && (checkedListFilterMonth.value = objFound.value)
-      } else if (!checkedListFilterMonth.value) {
+      } else if (!checkedListFilterMonth.value && isEmpty(filtersDepositStore)) {
         checkedListFilterMonth.value = currentMonth
+      } else {
+        checkedListFilterMonth.value = allMonth
       }
 
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
@@ -637,7 +640,7 @@ export default defineComponent({
             toDateQuick &&
             (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
         ) {
-          checkedListFilterMonth.value = ''
+          checkedListFilterMonth.value = allMonth
         }
 
         // fetch data table
