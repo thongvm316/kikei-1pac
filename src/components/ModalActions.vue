@@ -35,15 +35,25 @@
       </template>
       {{ $t('project.float_modal.delete') }}
     </a-button>
+
+    <a-button type="link" ghost class="modal-actions__close-btn" @click="$emit('on-close-modal')">
+      <template #icon>
+        <span class="btn-icon">
+          <close-icon />
+        </span>
+      </template>
+    </a-button>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
+
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
+import CloseIcon from '@/assets/icons/ico_close.svg'
 
 export default defineComponent({
   name: 'ProjectFloatButtons',
@@ -52,7 +62,8 @@ export default defineComponent({
     DeleteIcon,
     EditIcon,
     CopyIcon,
-    ToDepositIcon
+    ToDepositIcon,
+    CloseIcon
   },
 
   props: {
@@ -65,19 +76,33 @@ export default defineComponent({
       type: Boolean,
       default: false
     }
-  },
-
-  setup() {
-    const visible = ref()
-    return { visible }
   }
 })
 </script>
 
 <style lang="scss">
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
 .modal-actions {
+  @include flexbox(center, center);
+
   button + button {
     margin-left: 16px;
+  }
+
+  &__close-btn {
+    width: 16px;
+
+    &:hover {
+      svg {
+        color: $color-primary-6;
+      }
+    }
+
+    svg {
+      color: $color-grey-75;
+    }
   }
 }
 

@@ -88,6 +88,7 @@
           v-model:check-all-row-table="checkAllRowTable"
           v-model:current-selected-row-keys="currentSelectedRowKeys"
           v-model:expand-icon-column-index="expandIconColumnIndex"
+          v-click-outside="handleClickOutdideTable"
           @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
           @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
           @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
@@ -101,10 +102,12 @@
 
   <modal-actions
     v-if="isVisibleDepositButtonsFloat"
+    ref="modalActionRef"
     v-model:is-disable-delete="isDisableDelete"
     @on-go-to-edit="onEditRecordDeposit"
     @on-go-to-copy="onCopyRecordDeposit"
     @on-go-to-delete="onOpenDeleteDepositModal"
+    @on-close-modal="onCloseModalAction"
   />
 
   <delete-deposit-modal
@@ -201,6 +204,7 @@ export default defineComponent({
     const confirmedSelectedPurpose = ref()
     const tableKey = ref(0)
     const unconfirmRecordSeleted = ref()
+    const modalActionRef = ref()
 
     // check all row
     const checkAllRowTable = ref()
@@ -322,6 +326,17 @@ export default defineComponent({
       })
 
       resetConfirmAllRecord()
+    }
+
+    // close action bar
+    const handleClickOutdideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        isVisibleDepositButtonsFloat.value = false
+        currentSelectedRecord.value = {}
+      }
     }
 
     /* --------------------- handle export CSV ------------------- */
@@ -455,6 +470,11 @@ export default defineComponent({
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
     }
+
+    const onCloseModalAction = () => {
+      isVisibleDepositButtonsFloat.value = false
+      currentSelectedRecord.value = {}
+    }
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
     /* --------------------- handle confirm deposit ------------------- */
@@ -579,9 +599,11 @@ export default defineComponent({
 
       // set checkedListFilterMonth
       const { fromDate, toDate } = filtersDepositStore?.data || {}
-      if (fromDate && toDate && !checkedListFilterMonth.value) {
+      if (fromDate && toDate) {
         const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
         objFound && (checkedListFilterMonth.value = objFound.value)
+      } else if (!checkedListFilterMonth.value) {
+        checkedListFilterMonth.value = currentMonth
       }
 
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
@@ -644,6 +666,7 @@ export default defineComponent({
       checkedListFilterMonth,
       filterMonthList,
       unconfirmRecordSeleted,
+      modalActionRef,
 
       isLoadingDataTable,
       isVisibleDepositButtonsFloat,
@@ -668,7 +691,9 @@ export default defineComponent({
       onConfirmDepositRecord,
       onSortTable,
       onUnconfirmDeposit,
-      handleOpenUnconfirmModal
+      handleOpenUnconfirmModal,
+      handleClickOutdideTable,
+      onCloseModalAction
     }
   }
 })
