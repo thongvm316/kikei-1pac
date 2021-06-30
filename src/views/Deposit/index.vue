@@ -78,30 +78,32 @@
       :animated="false"
       @change="onHandleChangeTabGroup"
     >
-      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
-        <deposit-table
-          :key="tableKey"
-          v-model:expanded-row-keys="expandedRowKeys"
-          v-model:is-loading-data-table="isLoadingDataTable"
-          v-model:data-deposit="dataDeposit"
-          v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
-          v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys"
-          v-model:expand-icon-column-index="expandIconColumnIndex"
-          v-click-outside="handleClickOutdideTable"
-          @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
-          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
-          @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
-          @on-sort="onSortTable"
-        />
-      </a-tab-pane>
+      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name"></a-tab-pane>
     </a-tabs>
+
+    <deposit-table
+      :key="tableKey"
+      v-model:expanded-row-keys="expandedRowKeys"
+      v-model:is-loading-data-table="isLoadingDataTable"
+      v-model:data-deposit="dataDeposit"
+      v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
+      v-model:check-all-row-table="checkAllRowTable"
+      v-model:current-selected-row-keys="currentSelectedRowKeys"
+      v-model:expand-icon-column-index="expandIconColumnIndex"
+      v-click-outside="handleClickOutdideTable"
+      :is-visible-modal-action-bar="isVisibleModalActionBar"
+      class="-mx-32"
+      @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
+      @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
+      @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
+      @on-sort="onSortTable"
+    />
   </div>
 
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
   <modal-actions
-    v-if="isVisibleDepositButtonsFloat"
+    v-if="isVisibleModalActionBar"
     ref="modalActionRef"
     v-model:is-disable-delete="isDisableDelete"
     @on-go-to-edit="onEditRecordDeposit"
@@ -213,7 +215,7 @@ export default defineComponent({
 
     const isLoadingExportCsv = ref()
     const isDisableDelete = ref(false)
-    const isVisibleDepositButtonsFloat = ref(false)
+    const isVisibleModalActionBar = ref(false)
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
     const isVisibleUnconfirmModal = ref(false)
@@ -335,7 +337,7 @@ export default defineComponent({
       if (!el) return
 
       if (!(el == event.target || el.contains(event.target))) {
-        isVisibleDepositButtonsFloat.value = false
+        isVisibleModalActionBar.value = false
         currentSelectedRecord.value = {}
       }
     }
@@ -415,11 +417,11 @@ export default defineComponent({
       if (!recordId || depositId === recordId) {
         currentSelectedRecord.value = {}
         isDisableDelete.value = false
-        isVisibleDepositButtonsFloat.value = false
+        isVisibleModalActionBar.value = false
       } else {
         currentSelectedRecord.value = record
         isDisableDelete.value = record.confirmed
-        isVisibleDepositButtonsFloat.value = true
+        isVisibleModalActionBar.value = true
       }
     }
 
@@ -438,7 +440,7 @@ export default defineComponent({
       dataDeposit.value = dataDeposit.value.filter((item) => item.id !== depositId)
       isVisibleDeleteModal.value = false
       isLoadingDataTable.value = false
-      isVisibleDepositButtonsFloat.value = false
+      isVisibleModalActionBar.value = false
 
       // show notification
       const purpose = currentSelectedRecord.value?.purpose
@@ -473,7 +475,7 @@ export default defineComponent({
     }
 
     const onCloseModalAction = () => {
-      isVisibleDepositButtonsFloat.value = false
+      isVisibleModalActionBar.value = false
       currentSelectedRecord.value = {}
     }
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
@@ -672,7 +674,7 @@ export default defineComponent({
       modalActionRef,
 
       isLoadingDataTable,
-      isVisibleDepositButtonsFloat,
+      isVisibleModalActionBar,
       isVisibleDeleteModal,
       isDisableDelete,
       isLoadingExportCsv,
