@@ -1,6 +1,6 @@
 const clickOutside = (app) => {
   app.directive('click-outside', {
-    beforeMount(el, binding, vnode) {
+    beforeMount(el, binding) {
       el.eventSetDrag = function () {
         el.setAttribute('data-dragging', 'yes')
       }
