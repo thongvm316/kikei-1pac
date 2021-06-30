@@ -37,23 +37,27 @@
     .btn-edit {
       margin-right: 12px;
     }
+
+    .btn-reset {
+      margin-left: 12px;
+    }
   }
 }
 
 .search {
   .form-group {
     margin-bottom: 24px;
-    
+
     .form-content {
       display: flex;
       align-items: baseline;
       justify-content: center;
-      
+
       .form-input {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        
+
         .note {
           color: $color-grey-75;
           font-weight: 400;
@@ -62,20 +66,20 @@
       }
     }
   }
-  
+
   .ant-modal-footer {
     form {
       margin: 0 160px;
-      
+
       .form-content {
         text-align: left;
       }
-      
+
       .form-label,
       .label-input {
         width: 26%;
       }
-      
+
       .form-input,
       .ant-checkbox-group {
         width: 100%;

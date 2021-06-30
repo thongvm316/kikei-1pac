@@ -8,20 +8,30 @@
       <template #icon><DeleteOutlined /></template>
       {{ t('action.delete') }}
     </a-button>
+    <a-button v-show="isShowResetPassword" class="btn-reset" @click="$emit('reset', $event)">
+      <template #icon><ReloadOutlined /></template>
+      {{ t('action.reset_password') }}
+    </a-button>
   </div>
 </template>
-
 <script>
 import { defineComponent } from 'vue'
-import { FormOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { FormOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'ModalAction',
 
-  components: { FormOutlined, DeleteOutlined },
+  components: { FormOutlined, DeleteOutlined, ReloadOutlined },
 
-  emits: ['edit', 'delete'],
+  props: {
+    isShowResetPassword: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  emits: ['edit', 'delete', 'reset'],
 
   setup() {
     const { t } = useI18n()
