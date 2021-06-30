@@ -246,7 +246,7 @@ export default defineComponent({
 
   span:last-child .ant-breadcrumb-link {
     color: $color-grey-15;
-    font-weight: 800;
+    font-weight: 700;
   }
 }
 </style>
