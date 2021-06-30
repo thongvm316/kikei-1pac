@@ -28,6 +28,7 @@
 
   <div class="project">
     <a-table
+      v-click-outside="handleClickOutdideTable"
       class="project__list"
       :columns="columns"
       :data-source="projectDatas"
@@ -103,17 +104,19 @@
 
   <modal-actions
     v-if="isOpenFloatButtons"
+    ref="modalActionRef"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
     @on-go-to-edit="goToEditProject"
     @on-go-to-copy="cloneProject"
     @on-go-to-deposit="goToDeposit"
     @on-go-to-delete="isDeleteConfirmModalOpen = true"
+    @on-close-modal="onCloseModalAction"
   />
 
   <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
     <template #footer>
       <p>
-        {{ t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
+        {{ $t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
       </p>
       <a-button @click="isDeleteConfirmModalOpen = false">{{ $t('project.delete_modal.cancel_btn') }}</a-button>
       <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
@@ -152,6 +155,7 @@ export default defineComponent({
     const { t } = useI18n()
     const store = useStore()
     const router = useRouter()
+
     const loading = ref(false)
     const currentPage = ref(1)
     let pagination = ref({
@@ -253,6 +257,8 @@ export default defineComponent({
     const isDeleteConfirmModalOpen = ref(false)
     const targetProjectSelected = ref({})
     const localeTable = { emptyText: t('project.project_table_empty') }
+
+    const modalActionRef = ref()
 
     // data and params request
     const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })
@@ -366,6 +372,22 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    // close action bar
+    const handleClickOutdideTable = () => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        isOpenFloatButtons.value = false
+        targetProjectSelected.value = {}
+      }
+    }
+
+    const onCloseModalAction = () => {
+      isOpenFloatButtons.value = false
+      targetProjectSelected.value = {}
+    }
+
     onBeforeMount(() => {
       // get filters deposit from store
       const filtersProjectStore = store.state.project?.filters || {}
@@ -395,7 +417,6 @@ export default defineComponent({
     })
 
     return {
-      t,
       currentPage,
       loading,
       pagination,
@@ -404,17 +425,21 @@ export default defineComponent({
       isDeleteConfirmModalOpen,
       targetProjectSelected,
       height,
+      projectDatas,
+      localeTable,
+      modalActionRef,
+
       onCustomRow,
       cloneProject,
       goToDeposit,
-      projectDatas,
       exportProjectAsCsvFile,
       deleteProjectCaller,
       updateRequestData,
       changeProjectTable,
       getInnerHeight,
-      localeTable,
-      goToEditProject
+      goToEditProject,
+      handleClickOutdideTable,
+      onCloseModalAction
     }
   }
 })
