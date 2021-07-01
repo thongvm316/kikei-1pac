@@ -634,16 +634,8 @@ export default defineComponent({
       () => {
         // uncheck quick select date
         const { fromDate, toDate } = paramRequestDataDeposit.value.data
-        const { fromDate: fromDateQuick, toDate: toDateQuick } = checkedListFilterMonth.value || {}
-
-        if (
-          (fromDate && toDate && !fromDateQuick && !toDateQuick) ||
-          (fromDateQuick &&
-            toDateQuick &&
-            (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
-        ) {
-          checkedListFilterMonth.value = allMonth
-        }
+        const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
+        checkedListFilterMonth.value = objFound ? objFound.value : ''
 
         // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
