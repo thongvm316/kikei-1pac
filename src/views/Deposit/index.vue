@@ -78,33 +78,38 @@
       :animated="false"
       @change="onHandleChangeTabGroup"
     >
-      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name">
-        <deposit-table
-          :key="tableKey"
-          v-model:expanded-row-keys="expandedRowKeys"
-          v-model:is-loading-data-table="isLoadingDataTable"
-          v-model:data-deposit="dataDeposit"
-          v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
-          v-model:check-all-row-table="checkAllRowTable"
-          v-model:current-selected-row-keys="currentSelectedRowKeys"
-          v-model:expand-icon-column-index="expandIconColumnIndex"
-          @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
-          @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
-          @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
-          @on-sort="onSortTable"
-        />
-      </a-tab-pane>
+      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name"></a-tab-pane>
     </a-tabs>
+
+    <deposit-table
+      :key="tableKey"
+      v-model:expanded-row-keys="expandedRowKeys"
+      v-model:is-loading-data-table="isLoadingDataTable"
+      v-model:data-deposit="dataDeposit"
+      v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
+      v-model:check-all-row-table="checkAllRowTable"
+      v-model:current-selected-row-keys="currentSelectedRowKeys"
+      v-model:expand-icon-column-index="expandIconColumnIndex"
+      v-click-outside="handleClickOutdideTable"
+      :is-visible-modal-action-bar="isVisibleModalActionBar"
+      class="-mx-32"
+      @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
+      @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
+      @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
+      @on-sort="onSortTable"
+    />
   </div>
 
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
   <modal-actions
-    v-if="isVisibleDepositButtonsFloat"
+    v-if="isVisibleModalActionBar"
+    ref="modalActionRef"
     v-model:is-disable-delete="isDisableDelete"
     @on-go-to-edit="onEditRecordDeposit"
     @on-go-to-copy="onCopyRecordDeposit"
     @on-go-to-delete="onOpenDeleteDepositModal"
+    @on-close-modal="onCloseModalAction"
   />
 
   <delete-deposit-modal
@@ -131,7 +136,7 @@ import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncCompon
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge, find } from 'lodash-es'
+import { merge, find, isEmpty } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -201,6 +206,7 @@ export default defineComponent({
     const confirmedSelectedPurpose = ref()
     const tableKey = ref(0)
     const unconfirmRecordSeleted = ref()
+    const modalActionRef = ref()
 
     // check all row
     const checkAllRowTable = ref()
@@ -209,12 +215,13 @@ export default defineComponent({
 
     const isLoadingExportCsv = ref()
     const isDisableDelete = ref(false)
-    const isVisibleDepositButtonsFloat = ref(false)
+    const isVisibleModalActionBar = ref(false)
     const isVisibleDeleteModal = ref(false)
     const isVisibleConfirmDepositModal = ref(false)
     const isVisibleUnconfirmModal = ref(false)
 
     // filter month
+    const allMonth = { fromDate: null, toDate: null }
     const lastMonth = {
       fromDate: moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD'),
       toDate: moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD')
@@ -229,7 +236,7 @@ export default defineComponent({
     }
     const checkedListFilterMonth = ref()
     const filterMonthList = ref([
-      { label: 'すべて', value: { fromDate: null, toDate: null } },
+      { label: 'すべて', value: allMonth },
       { label: '先月', value: lastMonth },
       { label: '当月', value: currentMonth },
       { label: '来月', value: nextMonth }
@@ -324,6 +331,17 @@ export default defineComponent({
       resetConfirmAllRecord()
     }
 
+    // close action bar
+    const handleClickOutdideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        isVisibleModalActionBar.value = false
+        currentSelectedRecord.value = {}
+      }
+    }
+
     /* --------------------- handle export CSV ------------------- */
     const exportObj = reactive({
       fileTitle: 'Deposit',
@@ -399,11 +417,11 @@ export default defineComponent({
       if (!recordId || depositId === recordId) {
         currentSelectedRecord.value = {}
         isDisableDelete.value = false
-        isVisibleDepositButtonsFloat.value = false
+        isVisibleModalActionBar.value = false
       } else {
         currentSelectedRecord.value = record
         isDisableDelete.value = record.confirmed
-        isVisibleDepositButtonsFloat.value = true
+        isVisibleModalActionBar.value = true
       }
     }
 
@@ -422,7 +440,7 @@ export default defineComponent({
       dataDeposit.value = dataDeposit.value.filter((item) => item.id !== depositId)
       isVisibleDeleteModal.value = false
       isLoadingDataTable.value = false
-      isVisibleDepositButtonsFloat.value = false
+      isVisibleModalActionBar.value = false
 
       // show notification
       const purpose = currentSelectedRecord.value?.purpose
@@ -454,6 +472,11 @@ export default defineComponent({
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       router.push({ name: 'deposit-edit', params: { id: depositId } })
+    }
+
+    const onCloseModalAction = () => {
+      isVisibleModalActionBar.value = false
+      currentSelectedRecord.value = {}
     }
     /* --------------------- ./handle edit/copy/delete  deposit ------------------- */
 
@@ -579,9 +602,13 @@ export default defineComponent({
 
       // set checkedListFilterMonth
       const { fromDate, toDate } = filtersDepositStore?.data || {}
-      if (fromDate && toDate && !checkedListFilterMonth.value) {
+      if (fromDate && toDate) {
         const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
         objFound && (checkedListFilterMonth.value = objFound.value)
+      } else if (!checkedListFilterMonth.value && isEmpty(filtersDepositStore)) {
+        checkedListFilterMonth.value = currentMonth
+      } else {
+        checkedListFilterMonth.value = allMonth
       }
 
       updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
@@ -615,7 +642,7 @@ export default defineComponent({
             toDateQuick &&
             (!moment(fromDate).isSame(fromDateQuick, 'day') || !moment(toDate).isSame(toDateQuick, 'day')))
         ) {
-          checkedListFilterMonth.value = ''
+          checkedListFilterMonth.value = allMonth
         }
 
         // fetch data table
@@ -644,9 +671,10 @@ export default defineComponent({
       checkedListFilterMonth,
       filterMonthList,
       unconfirmRecordSeleted,
+      modalActionRef,
 
       isLoadingDataTable,
-      isVisibleDepositButtonsFloat,
+      isVisibleModalActionBar,
       isVisibleDeleteModal,
       isDisableDelete,
       isLoadingExportCsv,
@@ -668,7 +696,9 @@ export default defineComponent({
       onConfirmDepositRecord,
       onSortTable,
       onUnconfirmDeposit,
-      handleOpenUnconfirmModal
+      handleOpenUnconfirmModal,
+      handleClickOutdideTable,
+      onCloseModalAction
     }
   }
 })

@@ -172,7 +172,7 @@ export default defineComponent({
     isLoadingDataTable: Boolean,
     expandedRowKeys: Array,
     expandIconColumnIndex: Number,
-    isVisibleDepositButtonsFloat: Boolean
+    isVisibleModalActionBar: Boolean
   },
 
   setup(props, { emit }) {
@@ -215,7 +215,7 @@ export default defineComponent({
       return {
         onClick: (event) => {
           if (event.target.type === 'button') return
-          currentRowClick.value !== record.key ? (currentRowClick.value = record.key) : (currentRowClick.value = null)
+          currentRowClick.value = record.key
           emit('on-open-deposit-buttons-float', record)
         }
       }
@@ -234,7 +234,7 @@ export default defineComponent({
 
     const onAddRowClass = (record) => {
       let classes = ''
-      if (record.key === currentRowClick.value) classes += 'is-clicked-row'
+      if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
       if (props.expandedRowKeys.includes(record.key)) classes += ' is-expand-row'
 
       return classes
