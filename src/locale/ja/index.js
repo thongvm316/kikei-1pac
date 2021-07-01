@@ -12,6 +12,7 @@ import logs from './logs'
 import account from './account'
 import sidebar from './sidebar'
 import category from './category'
+import subcategory from './subcategory'
 
 export default {
   errors,
@@ -27,5 +28,6 @@ export default {
   logs,
   account,
   sidebar,
-  category
+  category,
+  subcategory
 }
