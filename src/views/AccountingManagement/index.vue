@@ -1,14 +1,14 @@
 <template>
-  <div class="u-mx-32">
+  <div class="accounting u-mx-32">
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
-        <span class="u-mr-16 u-text-grey-15">期間:</span>
-        <a-select v-model:value="yearAccounting" :style="{ width: '120px' }" @change="handleChangeYearAccouting">
+        <span class="u-mr-16 u-text-grey-15">{{ $t('accounting.financing_period_label') }}:</span>
+        <a-select v-model:value="financingPeriod" :style="{ width: '120px' }" @change="handleChangeFinancingPeriod">
           <a-select-option value="g1">G1</a-select-option>
           <a-select-option value="g2">G2</a-select-option>
           <a-select-option value="g3">G3</a-select-option>
         </a-select>
-        <span class="u-mr-16 u-text-grey-15">期</span>
+        <span class="u-ml-8 u-text-grey-75">{{ $t('accounting.period') }}</span>
       </div>
 
       <a-button>
@@ -19,35 +19,43 @@
       </a-button>
     </div>
 
-    <div class="-mx-32">
-      <a-tabs
-        v-model:active-key="activeKeyGroupTab"
-        default-active-key="1"
-        :animated="false"
-        @change="onHandleChangeTabGroup"
-      >
-        <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name" />
-      </a-tabs>
+    <a-tabs
+      v-model:active-key="activeKeyGroup"
+      default-active-key="1"
+      class="-mx-32"
+      :animated="false"
+      @change="onHandleChangeGroup"
+    >
+      <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name" />
+    </a-tabs>
 
-      <accounting-table
-        :table-index="0"
-        :table-index-disable-scroll="tableIndexDisableScroll"
-        :pixels-scrolled="pixelsScrolled"
-        @getPixelsScrolled="getPixelsScrolled"
-      />
-      <accounting-table
-        :table-index="1"
-        :table-index-disable-scroll="tableIndexDisableScroll"
-        :pixels-scrolled="pixelsScrolled"
-        @getPixelsScrolled="getPixelsScrolled"
-      />
-      <accounting-table
-        :table-index="2"
-        :table-index-disable-scroll="tableIndexDisableScroll"
-        :pixels-scrolled="pixelsScrolled"
-        @getPixelsScrolled="getPixelsScrolled"
-      />
-    </div>
+    <p class="u-mt-24">売上</p>
+    <accounting-table
+      :table-index="0"
+      :table-index-disable-scroll="tableIndexDisableScroll"
+      :pixels-scrolled="pixelsScrolled"
+      :is-loading-table="isLoadingTable"
+      :group-id="activeKeyGroup"
+      @getPixelsScrolled="getPixelsScrolled"
+    />
+
+    <p class="u-mt-24">支出</p>
+    <accounting-table
+      :table-index="1"
+      :table-index-disable-scroll="tableIndexDisableScroll"
+      :pixels-scrolled="pixelsScrolled"
+      :is-loading-table="isLoadingTable"
+      @getPixelsScrolled="getPixelsScrolled"
+    />
+
+    <p class="u-mt-24">合計</p>
+    <accounting-table
+      :table-index="2"
+      :table-index-disable-scroll="tableIndexDisableScroll"
+      :pixels-scrolled="pixelsScrolled"
+      :is-loading-table="isLoadingTable"
+      @getPixelsScrolled="getPixelsScrolled"
+    />
   </div>
 </template>
 
@@ -70,10 +78,11 @@ export default defineComponent({
   setup() {
     const pixelsScrolled = ref(0)
     const tableIndexDisableScroll = ref()
-    const yearAccounting = ref()
+    const financingPeriod = ref()
+    const isLoadingTable = ref(false)
 
     // group tabs
-    const activeKeyGroupTab = ref(1)
+    const activeKeyGroup = ref(1)
     const tabListGroup = ref([])
 
     const getPixelsScrolled = ({ tableIndex, pixel }) => {
@@ -81,8 +90,23 @@ export default defineComponent({
       pixelsScrolled.value = pixel
     }
 
-    const handleChangeYearAccouting = () => {
-      // fetch data list
+    const fetchDataTables = () => {
+      // request data
+      isLoadingTable.value = true
+
+      try {
+        //...
+      } finally {
+        isLoadingTable.value = false
+      }
+    }
+
+    const handleChangeFinancingPeriod = () => {
+      fetchDataTables()
+    }
+
+    const onHandleChangeGroup = () => {
+      fetchDataTables()
     }
 
     onBeforeMount(async () => {
@@ -94,12 +118,15 @@ export default defineComponent({
     return {
       pixelsScrolled,
       tableIndexDisableScroll,
-      yearAccounting,
-      activeKeyGroupTab,
+      financingPeriod,
+      activeKeyGroup,
       tabListGroup,
 
+      isLoadingTable,
+
       getPixelsScrolled,
-      handleChangeYearAccouting
+      handleChangeFinancingPeriod,
+      onHandleChangeGroup
     }
   }
 })
