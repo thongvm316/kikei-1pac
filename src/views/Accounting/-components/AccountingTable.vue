@@ -7,7 +7,7 @@
     :data-source="dataTable"
     :pagination="false"
     :locale="localeTable"
-    :scroll="{ x: 1500, y: 200 }"
+    :scroll="{ x: 1500 }"
   >
     <template #month="{ record, index, text, column }">
       <router-link
@@ -20,11 +20,6 @@
       </router-link>
       <p v-else :class="moneyColor">{{ $filters.number_with_commas(text) }}</p>
     </template>
-
-    <template #expandIcon="{ expanded }">
-      <ArrowDownIcon v-if="expanded" />
-      <ArrowUpIcon v-else />
-    </template>
   </a-table>
 </template>
 
@@ -35,16 +30,8 @@ import moment from 'moment'
 import { debounce } from 'lodash-es'
 // import { useI18n } from 'vue-i18n'
 
-import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
-import ArrowUpIcon from '@/assets/icons/ico_arrow_up.svg'
-
 export default defineComponent({
   name: 'AccountingTable',
-
-  components: {
-    ArrowDownIcon,
-    ArrowUpIcon
-  },
 
   props: {
     isLoadingTable: Boolean,
@@ -150,7 +137,7 @@ export default defineComponent({
 
           subcategories.map((item) => {
             const childrenItem = {
-              key: item.subcategoryId,
+              key: `${category?.categoryId} + ${item.subcategoryId}`,
               categoryName: item?.subcategoryName,
               categoryId: [category?.categoryId],
               subcategoryId: [item.subcategoryId]
@@ -171,7 +158,7 @@ export default defineComponent({
       // add total row
       const totalRow = {
         key: 'total',
-        categoryName: 'total'
+        categoryName: '合計'
       }
       total.map((item) => {
         const monthStr = monthStrFormat(item.month)
@@ -261,6 +248,75 @@ export default defineComponent({
   .ant-table-placeholder {
     height: 200px;
     padding-top: 48px;
+  }
+
+  .ant-table-fixed-left {
+    border-top: 1px solid #bfbfbf;
+
+    .ant-table-row-cell-break-word:first-child {
+      padding-left: 32px;
+    }
+  }
+
+  .ant-table-row-cell-break-word {
+    position: relative;
+
+    .ant-table-row-expand-icon {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      margin-top: auto;
+      margin-bottom: auto;
+      height: 24px;
+      width: 24px;
+      background-color: transparent;
+      border: 0;
+
+      &:hover {
+        border-color: none;
+      }
+
+      &:before,
+      &:after {
+        content: '';
+        display: block;
+        width: 10px;
+        height: 1px;
+        background: $color-grey-0;
+        position: absolute;
+        top: 10px;
+        transition: transform 0.5s;
+      }
+
+      &:before {
+        right: 9px;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        transform: rotate(45deg);
+      }
+
+      &:after {
+        right: 3px;
+        transform: rotate(-45deg);
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+    }
+
+    .ant-table-row-expanded {
+      &:before {
+        transform: rotate(-45deg);
+      }
+
+      &:after {
+        transform: rotate(45deg);
+      }
+    }
+  }
+
+  .ant-table-empty .ant-table-body {
+    overflow-x: hidden !important;
   }
 }
 </style>

@@ -67,6 +67,7 @@
 
 <script>
 import { defineComponent, ref, onBeforeMount } from 'vue'
+import { debounce } from 'lodash-es'
 
 import AccountingTable from './-components/AccountingTable.vue'
 import { getGroups, getPeriods, getDeposit, getWithdrawal, getFinancingTotal } from './composables/useAccounting'
@@ -97,10 +98,17 @@ export default defineComponent({
     const activeKeyGroup = ref(1)
     const tabListGroup = ref([])
 
-    const getPixelsScrolled = ({ tableIndex, pixel }) => {
-      tableIndexDisableScroll.value = tableIndex
-      pixelsScrolled.value = pixel
-    }
+    const getPixelsScrolled = debounce(
+      ({ tableIndex, pixel }) => {
+        tableIndexDisableScroll.value = tableIndex
+        pixelsScrolled.value = pixel
+      },
+      100, // need equal time delay of scroll event
+      {
+        leading: true,
+        trailing: false
+      }
+    )
 
     const fetchPeriodList = async () => {
       const groupId = activeKeyGroup.value
