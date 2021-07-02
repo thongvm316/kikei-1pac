@@ -1,12 +1,17 @@
 <template>
   <a-popover v-model:visible="visible" trigger="click" placement="bottomRight" overlay-class-name="k-profile">
-    <a-button :class="['k-profile__btn-user', visible && 'is-active']"><user-icon /></a-button>
+    <a-button :class="['k-profile__btn-user', visible && 'is-active']">
+      <user-icon />
+    </a-button>
 
     <template #content>
       <a-menu mode="inline">
         <a-menu-item>
-          <user-setting-icon />
-          個人設定
+          <router-link to="/user">
+            <user-setting-icon />
+            {{ $t('user.personal_settings') }}
+          </router-link>
+          <!--           -->
         </a-menu-item>
 
         <a-sub-menu v-if="currencyList.length > 0" key="sub1">
@@ -41,6 +46,7 @@ import VndCurrencyIcon from '@/assets/icons/ico_currency_vnd.svg'
 import YenCurrencyIcon from '@/assets/icons/ico_currency_yen.svg'
 import LogoutIcon from '@/assets/icons/ico_logout.svg'
 import UserSettingIcon from '@/assets/icons/ico_user_setting.svg'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'KProfile',
@@ -59,7 +65,7 @@ export default defineComponent({
     const selectedKeys = ref([])
     const openKeys = ref([])
     const loading = ref(false)
-
+    const { t } = useI18n()
     // currency list
     const currencyActive = ref('jpy')
     const currencyList = ref([
@@ -107,6 +113,7 @@ export default defineComponent({
     })
 
     return {
+      t,
       visible,
       selectedKeys,
       openKeys,

@@ -205,6 +205,14 @@ export default defineComponent({
           path: '/setting/logs',
           breadcrumbName: t('breadcrumb.logs')
         }
+      ],
+
+      // user
+      user: [
+        {
+          path: '/user',
+          breadcrumbName: t('breadcrumb.personal_setting')
+        }
       ]
     }
 
