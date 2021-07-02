@@ -4,9 +4,9 @@
       <div>
         <span class="u-mr-16 u-text-grey-15">{{ $t('accounting.financing_period_label') }}:</span>
         <a-select v-model:value="financingPeriod" :style="{ width: '120px' }" @change="handleChangeFinancingPeriod">
-          <a-select-option value="g1">G1</a-select-option>
-          <a-select-option value="g2">G2</a-select-option>
-          <a-select-option value="g3">G3</a-select-option>
+          <a-select-option v-for="period in periodList" :key="period.id" :value="period.id">
+            {{ period.name }}
+          </a-select-option>
         </a-select>
         <span class="u-ml-8 u-text-grey-75">{{ $t('accounting.period') }}</span>
       </div>
@@ -36,6 +36,7 @@
       :pixels-scrolled="pixelsScrolled"
       :is-loading-table="isLoadingTable"
       :group-id="activeKeyGroup"
+      :data-source="depositList"
       @getPixelsScrolled="getPixelsScrolled"
     />
 
@@ -45,6 +46,9 @@
       :table-index-disable-scroll="tableIndexDisableScroll"
       :pixels-scrolled="pixelsScrolled"
       :is-loading-table="isLoadingTable"
+      :group-id="activeKeyGroup"
+      :data-source="withdrawalList"
+      :money-color="'text-color-red'"
       @getPixelsScrolled="getPixelsScrolled"
     />
 
@@ -54,6 +58,8 @@
       :table-index-disable-scroll="tableIndexDisableScroll"
       :pixels-scrolled="pixelsScrolled"
       :is-loading-table="isLoadingTable"
+      :group-id="activeKeyGroup"
+      :data-source="financingTotalList"
       @getPixelsScrolled="getPixelsScrolled"
     />
   </div>
@@ -63,7 +69,7 @@
 import { defineComponent, ref, onBeforeMount } from 'vue'
 
 import AccountingTable from './-components/AccountingTable.vue'
-import { getGroups } from './composables/useAccounting'
+import { getGroups, getPeriods, getDeposit, getWithdrawal, getFinancingTotal } from './composables/useAccounting'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 
@@ -78,8 +84,14 @@ export default defineComponent({
   setup() {
     const pixelsScrolled = ref(0)
     const tableIndexDisableScroll = ref()
-    const financingPeriod = ref()
     const isLoadingTable = ref(false)
+    const depositList = ref([])
+    const withdrawalList = ref([])
+    const financingTotalList = ref([])
+
+    // period
+    const financingPeriod = ref()
+    const periodList = ref([])
 
     // group tabs
     const activeKeyGroup = ref(1)
@@ -90,15 +102,37 @@ export default defineComponent({
       pixelsScrolled.value = pixel
     }
 
-    const fetchDataTables = () => {
+    const fetchPeriodList = async () => {
+      const groupId = activeKeyGroup.value
+      const periodResponse = await getPeriods(groupId)
+      periodList.value = periodResponse.result?.data || []
+
+      // FIXME: default peiod selected
+      periodList.value.length > 0 && (financingPeriod.value = periodList.value[1])
+    }
+
+    const fetchDataTables = async () => {
       // request data
       isLoadingTable.value = true
 
-      try {
-        //...
-      } finally {
-        isLoadingTable.value = false
-      }
+      const dataRequest = { groupId: activeKeyGroup.value, periodId: financingPeriod.value }
+
+      // FIXME: use when getFinancingTotal aready
+      // Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest), getFinancingTotal(dataRequest)]).then(
+      //   ([depositReponse, withdrawalReponse, financingTotalReponse]) => {
+      //     depositList.value = depositReponse?.result?.data || []
+      //     withdrawalList.value = withdrawalReponse?.result?.data || []
+      //     financingTotalList.value = financingTotalReponse?.result?.data || []
+      //   }
+      // )
+      // .finally((isLoadingTable.value = false))
+
+      Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest)])
+        .then(([depositReponse, withdrawalReponse]) => {
+          depositList.value = depositReponse?.result?.data || []
+          withdrawalList.value = withdrawalReponse?.result?.data || []
+        })
+        .finally((isLoadingTable.value = false))
     }
 
     const handleChangeFinancingPeriod = () => {
@@ -106,13 +140,15 @@ export default defineComponent({
     }
 
     const onHandleChangeGroup = () => {
-      fetchDataTables()
+      fetchPeriodList()
     }
 
     onBeforeMount(async () => {
       // fetch group list
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
+
+      fetchPeriodList()
     })
 
     return {
@@ -121,6 +157,10 @@ export default defineComponent({
       financingPeriod,
       activeKeyGroup,
       tabListGroup,
+      periodList,
+      depositList,
+      withdrawalList,
+      financingTotalList,
 
       isLoadingTable,
 
@@ -133,7 +173,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.-mx-32 {
-  margin: 0 -32px;
+.accounting {
+  .-mx-32 {
+    margin: 0 -32px;
+  }
 }
 </style>
