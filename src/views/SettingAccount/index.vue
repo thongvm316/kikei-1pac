@@ -59,10 +59,13 @@ import Table from '@/mixins/table.mixin'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import Services from '@/services'
+import storageKeys from '@/enums/storage-keys'
 
 const defaultParam = {
   type: []
 }
+const StorageService = Services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -135,6 +138,10 @@ export default defineComponent({
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
+
+      StorageService.get(storageKeys.authProfile).isAdmin
+        ? (isShowResetPass.value = true)
+        : (isShowResetPass.value = false)
     })
 
     const getInnerHeight = () => {
@@ -243,8 +250,6 @@ export default defineComponent({
         tempRow = [record.id]
         recordVisible.value.visible = true
       }
-
-      recordVisible.value.isAdmin ? (isShowResetPass.value = true) : (isShowResetPass.value = false)
     }
 
     const customRow = (record) => {
