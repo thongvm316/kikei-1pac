@@ -30,9 +30,6 @@ export default {
   account,
   sidebar,
   category,
-<<<<<<< HEAD
-  user
-=======
+  user,
   subcategory
->>>>>>> d31a757dfd89a0e300b2974bb339ea8e5108ae5d
 }
