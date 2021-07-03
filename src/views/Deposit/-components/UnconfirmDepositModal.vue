@@ -1,11 +1,9 @@
 <template>
   <a-modal v-model:visible="visible" centered :title="$t('deposit.unconfirm_modal.title')" width="380px">
     <template #footer>
-      <p v-if="purpose">
+      <p>
         {{ $t('deposit.unconfirm_modal.message', { purpose }) }}
       </p>
-      <p v-else>{{ $t('deposit.unconfirm_modal.message_multiple') }}</p>
-
       <a-button @click="handleCancel">{{ $t('deposit.unconfirm_modal.cancel_btn') }}</a-button>
       <a-button type="danger" :loading="isLoadingUnconfirmRequest" @click="$emit('on-unconfirm-deposit')">
         {{ $t('deposit.unconfirm_modal.unconfirm_btn') }}

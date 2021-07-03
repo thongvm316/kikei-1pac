@@ -1,12 +1,19 @@
 <template>
-  <section class="account-wrap">
-    <account-search-form @filter-changed="onFilterChange($event)" />
-
-    <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new' })">
-        <add-icon class="add-icon" />
-        {{ $t('account.add_account') }}
+  <section>
+    <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
+      <div>
+        <a-button class="u-mr-16 bnt-back" type="default" @click="$router.push({ name: 'category'})">
+        <arrow-icon class="arrow-icon" />
+        {{ $t('subcategory.back') }}
       </a-button>
+      </div>
+      <div>
+        <a-button class="u-ml-12 btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
+        <add-icon class="add-icon" />
+        {{ $t('subcategory.add_subcategory') }}
+      </a-button>
+      </div>
     </div>
 
     <a-table
@@ -21,23 +28,16 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 211 }"
+      :scroll="{ y: height - 217 }"
       size="middle"
       @change="handleChange"
     >
-      <template #active="{ text: active }">
-        {{ active === true ? $t('account.in_use') : $t('account.retired') }}
+      <template #inUse="{ text: inUse }">
+        {{ inUse ? $t('subcategory.in_use') : $t('subcategory.prohibited') }}
       </template>
     </a-table>
 
-    <ModalAction
-      v-if="recordVisible.visible"
-      v-model:is-show-reset-password="isShowResetPass"
-      @edit="handleEditRecord"
-      @delete="openDelete = true"
-      @reset="handleResetPassword"
-    />
-
+    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
 </template>
@@ -48,32 +48,31 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import useGetSubCategoryListService from '@/views/Subcategory/composables/useGetSubcategoryListService'
+import useDeleteSubCategoryService from '@/views/Subcategory/composables/useDeleteSubcategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
-import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
-import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
-import useResetPasswordAccountService from '@/views/SettingAccount/composables/useResetPasswordAccountService'
-import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
+import SubcategorySearchForm from '@/views/Subcategory/-components/SubcategorySearchForm'
+import ArrowIcon from '@/assets/icons/ico_arrow_up.svg'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 
-const defaultParam = {
-  type: []
-}
-
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, SubcategorySearchForm, ArrowIcon, AddIcon, ModalDelete },
 
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 30 }, defaultParam)
-    const { result } = await getAccounts()
+    const { getLists } = useGetSubCategoryListService(
+      { pageNumber: 1, pageSize: 30 },
+      { key_search: '', category_id: [parseInt(to.params.id)] }
+    )
+    const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
     next()
@@ -84,20 +83,16 @@ export default defineComponent({
     const router = useRouter()
     const { t, locale } = useI18n()
     const store = useStore()
-
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({})
+    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const isShowResetPass = ref(false)
-    const params = ref({})
+    const params = ref({ pageNumber: 1, pageSize: 30 ,order_by: 'name asc'})
     const height = ref(0)
-
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
-
     const rowSelection = computed(() => {
       return {
         selectedRowKeys: state.selectedRowKeys,
@@ -109,22 +104,16 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('account.login_id'),
-          dataIndex: 'username',
-          key: 'username',
+          title: t('subcategory.subcategoryName'),
+          dataIndex: 'name',
+          key: 'name',
           sorter: true
         },
         {
-          title: t('account.full_name'),
-          dataIndex: 'fullname',
-          key: 'fullname',
-          sorter: true
-        },
-        {
-          title: t('account.status'),
-          dataIndex: 'active',
-          key: 'active',
-          slots: { customRender: 'active' }
+          title: t('subcategory.status'),
+          dataIndex: 'inUse',
+          key: 'inUse',
+          slots: { customRender: 'inUse' }
         }
       ]
     })
@@ -153,23 +142,20 @@ export default defineComponent({
       params.value = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
       await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-
-      Object.assign(filter.value, defaultParam)
-
       await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
     }
 
     const handleDeleteRecord = async () => {
       try {
-        const { deleteAccount } = useDeleteAccountService(recordVisible.value.id)
-        await deleteAccount()
+        const { deleteSubCategory } = useDeleteSubCategoryService(recordVisible.value.id)
+        await deleteSubCategory()
       } catch (error) {
         console.log(error)
       }
@@ -181,47 +167,26 @@ export default defineComponent({
         variant: 'success',
         duration: 5,
         message:
-          locale.value === 'en'
-            ? 'Deleted' + recordVisible.value.name
-            : recordVisible.value.username + ' を削除しました'
+          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
       })
     }
 
     const handleEditRecord = () => {
       router.push({
-        name: 'account-edit',
+        name: 'subcategory-edit',
         params: {
-          id: recordVisible.value.id
+          id: recordVisible.value.id,
+          idCategory: route.params.id,
+          nameCategory: route.params.name
         }
       })
     }
 
-    const handleResetPassword = async () => {
-      try {
-        const { resetPasswordAccount } = useResetPasswordAccountService(recordVisible.value.id)
-        await resetPasswordAccount()
-      } catch (error) {
-        console.log(error)
-      }
-
-      await fetchList(params.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en'
-            ? 'Password reset' + recordVisible.value.name + ' was successful'
-            : 'パスワードをリセット' + recordVisible.value.username + '成功しました'
-      })
-    }
-
-    const fetchList = async (params = {}, data) => {
+    const fetchList = async (params = {}) => {
       isLoading.value = true
       try {
-        const { getAccounts } = useGetAccountListService({ ...params }, data)
-        const { result } = await getAccounts()
-
+        const { getLists } = useGetSubCategoryListService({ ...params }, filter.value)
+        const { result } = await getLists()
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
         isLoading.value = false
@@ -232,7 +197,6 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
@@ -242,8 +206,6 @@ export default defineComponent({
         tempRow = [record.id]
         recordVisible.value.visible = true
       }
-
-      recordVisible.value.isAdmin ? (isShowResetPass.value = true) : (isShowResetPass.value = false)
     }
 
     const customRow = (record) => {
@@ -264,12 +226,11 @@ export default defineComponent({
       state,
       rowSelection,
       recordVisible,
-      isShowResetPass,
       height,
       params,
+      filter,
       handleDeleteRecord,
       handleEditRecord,
-      handleResetPassword,
       customRow,
       handleChange,
       onFilterChange,
@@ -281,22 +242,45 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .box-create {
-  padding: 24px 32px 0;
+  padding: 0px 32px 0;
   text-align: right;
   text-align: -webkit-right;
 
   .btn-modal {
     width: auto;
-    height: 24px;
     border-radius: 2px;
-    padding: 1px 8px;
     text-align: center;
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
-
     .add-icon {
       margin-right: 10.33px;
+    }
+  }
+
+  .bnt-back {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: grey;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
+    }
+  }
+  .bnt-back:hover {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: #1890ff;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
     }
   }
 }
