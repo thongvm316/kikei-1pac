@@ -14,6 +14,7 @@
             <label class="form-label required">{{ $t('user.current_password') }}</label>
             <div class="form-input">
               <a-input
+                type="password"
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
@@ -35,6 +36,7 @@
             <label class="form-label required">{{ $t('user.new_password') }}</label>
             <div class="form-input">
               <a-input
+                type="password"
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
@@ -43,6 +45,33 @@
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="new_password" class="errors">
                 {{ replaceField(message, 'new_password') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+      </div>
+
+      <!--Confirm  Password -->
+      <div class="form-group">
+        <Field
+          v-slot="{ field, handleChange }"
+          v-model="form.confirm_password"
+          name="confirm_password"
+          rules="confirmed:@new_password"
+        >
+          <div class="form-content">
+            <label class="form-label required">{{ $t('user.confirm_password') }}</label>
+            <div class="form-input">
+              <a-input
+                type="password"
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="confirm_password" class="errors">
+                {{ replaceField(message, 'confirm_password') }}
               </ErrorMessage>
             </div>
           </div>
@@ -77,7 +106,8 @@ export default defineComponent({
   setup() {
     let form = ref({
       current_password: '',
-      new_password: ''
+      new_password: '',
+      confirm_password: ''
     })
     const router = useRouter()
     const { handleSubmit, setFieldError } = useForm()
