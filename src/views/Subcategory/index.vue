@@ -1,12 +1,19 @@
 <template>
-  <section class="category">
-    <CategorySearchForm @filter-changed="onFilterChange($event)" />
-
-    <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'category-new' })">
-        <add-icon class="add-icon" />
-        {{ $t('category.add_category') }}
+  <section>
+    <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
+      <div>
+        <a-button class="u-mr-16 bnt-back" type="default" @click="$router.push({ name: 'category'})">
+        <arrow-icon class="arrow-icon" />
+        {{ $t('subcategory.back') }}
       </a-button>
+      </div>
+      <div>
+        <a-button class="u-ml-12 btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
+        <add-icon class="add-icon" />
+        {{ $t('subcategory.add_subcategory') }}
+      </a-button>
+      </div>
     </div>
 
     <a-table
@@ -25,33 +32,12 @@
       size="middle"
       @change="handleChange"
     >
-      <template #divisionTypeName="{ text: divisionTypeName }">
-        {{ divisionTypeName === 'Sales' ? $t('category.sales') : $t('category.expense') }}
-      </template>
-
-      <template #subcategoryKindName="{ text: subcategoryKindName }">
-        {{
-          subcategoryKindName === 'Company'
-            ? $t('category.company')
-            : subcategoryKindName === 'Group'
-            ? $t('category.request_group')
-            : subcategoryKindName === 'Text Input'
-            ? $t('category.text_input')
-            : $t('category.no')
-        }}
-      </template>
-
-      <template #action="{ text: action, record }">
-        <a @click="handleSelectNumber(record)">{{ action }}</a>
-      </template>
-
       <template #inUse="{ text: inUse }">
-        {{ inUse ? $t('category.in_use') : $t('category.prohibited') }}
+        {{ inUse ? $t('subcategory.in_use') : $t('subcategory.prohibited') }}
       </template>
     </a-table>
 
     <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
-
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
 </template>
@@ -62,13 +48,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import useGetCategoryListService from '@/views/Category/composables/useGetCategoryListService'
-import useDeleteCategoryService from '@/views/Category/composables/useDeleteCategoryService'
+import useGetSubCategoryListService from '@/views/Subcategory/composables/useGetSubcategoryListService'
+import useDeleteSubCategoryService from '@/views/Subcategory/composables/useDeleteSubcategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
-import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
+import SubcategorySearchForm from '@/views/Subcategory/-components/SubcategorySearchForm'
+import ArrowIcon from '@/assets/icons/ico_arrow_up.svg'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
@@ -76,12 +63,15 @@ import ModalDelete from '@/components/ModalDelete'
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, CategorySearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, SubcategorySearchForm, ArrowIcon, AddIcon, ModalDelete },
 
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCategoryListService({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
+    const { getLists } = useGetSubCategoryListService(
+      { pageNumber: 1, pageSize: 30 },
+      { key_search: '', category_id: [parseInt(to.params.id)] }
+    )
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -93,20 +83,16 @@ export default defineComponent({
     const router = useRouter()
     const { t, locale } = useI18n()
     const store = useStore()
-
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({})
+    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
-
+    const params = ref({ pageNumber: 1, pageSize: 30 ,order_by: 'name asc'})
     const height = ref(0)
-
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
-
     const rowSelection = computed(() => {
       return {
         selectedRowKeys: state.selectedRowKeys,
@@ -118,31 +104,13 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('category.categoryName'),
+          title: t('subcategory.subcategoryName'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
         },
         {
-          title: t('category.category_division'),
-          dataIndex: 'divisionTypeName',
-          key: 'divisionTypeName',
-          slots: { customRender: 'divisionTypeName' }
-        },
-        {
-          title: t('category.subcategory_division'),
-          dataIndex: 'subcategoryKindName',
-          key: 'subcategoryKindName',
-          slots: { customRender: 'subcategoryKindName' }
-        },
-        {
-          title: t('category.subcategory'),
-          dataIndex: 'subcategoryNumber',
-          key: 'subcategoryNumber',
-          slots: { customRender: 'action' }
-        },
-        {
-          title: t('category.status'),
+          title: t('subcategory.status'),
           dataIndex: 'inUse',
           key: 'inUse',
           slots: { customRender: 'inUse' }
@@ -186,8 +154,8 @@ export default defineComponent({
 
     const handleDeleteRecord = async () => {
       try {
-        const { deleteCategory } = useDeleteCategoryService(recordVisible.value.id)
-        await deleteCategory()
+        const { deleteSubCategory } = useDeleteSubCategoryService(recordVisible.value.id)
+        await deleteSubCategory()
       } catch (error) {
         console.log(error)
       }
@@ -205,30 +173,20 @@ export default defineComponent({
 
     const handleEditRecord = () => {
       router.push({
-        name: 'category-edit',
+        name: 'subcategory-edit',
         params: {
-          id: recordVisible.value.id
+          id: recordVisible.value.id,
+          idCategory: route.params.id,
+          nameCategory: route.params.name
         }
       })
     }
 
-    const handleSelectNumber = (record) => {
-      console.log(filter.value)
-      router.push({
-        name: 'subcategory',
-        params: {
-          id: record.id,
-          name: record.name
-        }
-      })
-    }
-
-    const fetchList = async (params = {}, data) => {
+    const fetchList = async (params = {}) => {
       isLoading.value = true
       try {
-        const { getLists } = useGetCategoryListService({ ...params }, data)
+        const { getLists } = useGetSubCategoryListService({ ...params }, filter.value)
         const { result } = await getLists()
-
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
         isLoading.value = false
@@ -270,13 +228,13 @@ export default defineComponent({
       recordVisible,
       height,
       params,
+      filter,
       handleDeleteRecord,
       handleEditRecord,
       customRow,
       handleChange,
       onFilterChange,
-      fetchList,
-      handleSelectNumber
+      fetchList
     }
   }
 })
@@ -284,7 +242,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .box-create {
-  padding: 24px 32px 0;
+  padding: 0px 32px 0;
   text-align: right;
   text-align: -webkit-right;
 
@@ -294,10 +252,35 @@ export default defineComponent({
     text-align: center;
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
-
     .add-icon {
       margin-right: 10.33px;
+    }
+  }
+
+  .bnt-back {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: grey;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
+    }
+  }
+  .bnt-back:hover {
+    width: auto;
+    border-radius: 2px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    border: 0px;
+    color: #1890ff;
+    background-color: transparent;
+    .arrow-icon {
+      transform: rotate(270deg);
     }
   }
 }
