@@ -28,7 +28,7 @@ import { defineComponent, ref, watch, onMounted, onUnmounted, computed } from 'v
 import { useStore } from 'vuex'
 import moment from 'moment'
 import { debounce } from 'lodash-es'
-// import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'AccountingTable',
@@ -65,13 +65,13 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const store = useStore()
-    // const { t } = useI18n()
+    const { t } = useI18n()
 
     const accountingTableRef = ref()
     const tableBodyRef = ref()
 
     const localeTable = {
-      emptyText: '該当するデータが見つかりませんでした。'
+      emptyText: t('accounting.empty_text_table')
     }
 
     const monthStrFormat = (val) => moment(val).format('YYYY-MM')

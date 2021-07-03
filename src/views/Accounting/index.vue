@@ -11,7 +11,7 @@
         <span class="u-ml-8 u-text-grey-75">{{ $t('accounting.period') }}</span>
       </div>
 
-      <a-button>
+      <a-button :loading="isLoadingExportCsv" @click="handleExportCsv">
         <template #icon>
           <span class="btn-icon"><line-down-icon /></span>
         </template>
@@ -68,9 +68,13 @@
 <script>
 import { defineComponent, ref, onBeforeMount } from 'vue'
 import { debounce } from 'lodash-es'
+import { useI18n } from 'vue-i18n'
+import moment from 'moment'
+import { find } from 'lodash-es'
 
 import AccountingTable from './-components/AccountingTable.vue'
 import { getGroups, getPeriods, getDeposit, getWithdrawal, getFinancingTotal } from './composables/useAccounting'
+import { exportCSVFile } from '@/helpers/export-csv-file'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 
@@ -83,12 +87,17 @@ export default defineComponent({
   },
 
   setup() {
+    const { t } = useI18n()
+
     const pixelsScrolled = ref(0)
     const tableIndexDisableScroll = ref()
     const isLoadingTable = ref(false)
     const depositList = ref([])
     const withdrawalList = ref([])
     const financingTotalList = ref([])
+
+    // csv
+    const isLoadingExportCsv = ref()
 
     // period
     const financingPeriod = ref()
@@ -116,7 +125,8 @@ export default defineComponent({
       periodList.value = periodResponse.result?.data || []
 
       // FIXME: default peiod selected
-      periodList.value.length > 0 && (financingPeriod.value = periodList.value[1])
+      periodList.value.length > 0 && (financingPeriod.value = periodList.value[0].id)
+      fetchDataTables()
     }
 
     const fetchDataTables = async () => {
@@ -151,6 +161,109 @@ export default defineComponent({
       fetchPeriodList()
     }
 
+    /* --------------------- handle export CSV ------------------- */
+    const monthStrFormat = (val) => moment(val).format('YYYY-MM')
+
+    const getHeaderCsv = () => {
+      const labels = [
+        { header: t('accounting.period'), field: 'period' },
+        { header: t('accounting.group'), field: 'group' },
+        { header: t('accounting.type'), field: 'type' },
+        { header: t('accounting.category'), field: 'category' },
+        { header: t('accounting.subcategory'), field: 'subcategory' }
+      ]
+
+      // FIXME: get from period selected
+      const monthFrom = '2020-07'
+      const monthTo = '2021-06'
+
+      if (!monthFrom || !monthTo) return labels
+
+      const startTime = moment(monthFrom)
+      const endTime = moment(monthTo)
+      let month = startTime.clone()
+
+      while (month <= endTime && labels.length < 9999) {
+        const monthStr = monthStrFormat(month)
+        labels.push({
+          header: monthStr,
+          field: monthStr
+        })
+
+        month = month.clone().add(1, 'M')
+      }
+
+      return labels
+    }
+
+    const getDataCsv = (tableList) => {
+      const items = []
+
+      const { detail = [] } = tableList
+      if (detail.length === 0) return items
+
+      const periodFound = find(periodList.value, { id: financingPeriod.value })
+      const periodName = periodFound ? periodFound.name : ''
+
+      const groupFound = find(tabListGroup.value, { id: activeKeyGroup.value })
+      const groupName = groupFound ? groupFound.name : ''
+
+      detail.map((category) => {
+        // add category
+        const rowCategory = {
+          period: periodName,
+          group: groupName,
+          type: '',
+          category: category?.categoryName || '',
+          subcategory: ''
+        }
+
+        // add month data
+        ;(category?.data || []).map((categoryMonth) => {
+          const monthStr = monthStrFormat(categoryMonth.month)
+          rowCategory[monthStr] = categoryMonth.money
+        })
+
+        items.push(rowCategory)
+
+        // add subcategory
+        const subcategories = category?.subcategories || []
+        if (subcategories.length > 0) {
+          subcategories.map((subItem) => {
+            const rowSubcategory = {
+              period: periodName,
+              group: groupName,
+              type: '',
+              category: '',
+              subcategory: subItem?.subcategoryName || ''
+            }
+
+            ;(subItem?.data || []).map((subData) => {
+              const monthStr = monthStrFormat(subData.month)
+              rowSubcategory[monthStr] = subData.money
+            })
+
+            items.push(rowSubcategory)
+          })
+        }
+      })
+
+      return items
+    }
+
+    const handleExportCsv = () => {
+      const depositItems = getDataCsv(depositList.value)
+      const withdrawalItems = getDataCsv(withdrawalList.value)
+
+      const exportObj = {
+        fileTitle: 'accounting',
+        labels: getHeaderCsv(),
+        items: [...depositItems, ...withdrawalItems]
+      }
+      exportCSVFile(exportObj)
+    }
+    /* --------------------- ./handle export CSV ------------------- */
+
     onBeforeMount(async () => {
       // fetch group list
       const groupList = await getGroups()
@@ -171,10 +284,12 @@ export default defineComponent({
       financingTotalList,
 
       isLoadingTable,
+      isLoadingExportCsv,
 
       getPixelsScrolled,
       handleChangeFinancingPeriod,
-      onHandleChangeGroup
+      onHandleChangeGroup,
+      handleExportCsv
     }
   }
 })
