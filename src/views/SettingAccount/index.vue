@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutsideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -32,6 +33,7 @@
 
     <ModalAction
       v-if="recordVisible.visible"
+      ref="modalActionRef"
       v-model:is-show-reset-password="isShowResetPass"
       @edit="handleEditRecord"
       @delete="openDelete = true"
@@ -94,6 +96,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
+    const modalActionRef = ref()
     const isShowResetPass = ref(false)
     const params = ref({})
     const height = ref(0)
@@ -260,6 +263,16 @@ export default defineComponent({
       }
     }
 
+    // close action bar
+    const handleClickOutsideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+      }
+    }
     return {
       dataSource,
       pagination,
@@ -270,12 +283,14 @@ export default defineComponent({
       state,
       rowSelection,
       recordVisible,
+      modalActionRef,
       isShowResetPass,
       height,
       params,
       handleDeleteRecord,
       handleEditRecord,
       handleResetPassword,
+      handleClickOutsideTable,
       customRow,
       handleChange,
       onFilterChange,
