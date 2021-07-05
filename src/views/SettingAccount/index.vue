@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutsideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -30,7 +31,15 @@
       </template>
     </a-table>
 
-    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
+    <ModalAction
+      v-if="recordVisible.visible"
+      ref="modalActionRef"
+      v-model:is-show-reset-password="isShowResetPass"
+      @edit="handleEditRecord"
+      @delete="openDelete = true"
+      @reset="handleResetPassword"
+      @on-close-modal="onCloseModalAction"
+    />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
@@ -46,16 +55,20 @@ import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
 import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
+import useResetPasswordAccountService from '@/views/SettingAccount/composables/useResetPasswordAccountService'
 import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import Services from '@/services'
+import storageKeys from '@/enums/storage-keys'
 
 const defaultParam = {
   type: []
 }
+const StorageService = Services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -84,6 +97,8 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
+    const modalActionRef = ref()
+    const isShowResetPass = ref(false)
     const params = ref({})
     const height = ref(0)
 
@@ -127,6 +142,10 @@ export default defineComponent({
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
+
+      StorageService.get(storageKeys.authProfile).isAdmin
+        ? (isShowResetPass.value = true)
+        : (isShowResetPass.value = false)
     })
 
     const getInnerHeight = () => {
@@ -188,6 +207,26 @@ export default defineComponent({
       })
     }
 
+    const handleResetPassword = async () => {
+      try {
+        const { resetPasswordAccount } = useResetPasswordAccountService(recordVisible.value.id)
+        await resetPasswordAccount()
+      } catch (error) {
+        console.log(error)
+      }
+
+      await fetchList(params.value)
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message:
+          locale.value === 'en'
+            ? 'Password reset' + recordVisible.value.name + ' was successful'
+            : 'パスワードをリセット' + recordVisible.value.username + '成功しました'
+      })
+    }
+
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
       try {
@@ -204,6 +243,7 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
+
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
@@ -223,6 +263,21 @@ export default defineComponent({
       }
     }
 
+    // close action bar
+    const handleClickOutsideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+      }
+    }
+
+    const onCloseModalAction = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+    }
     return {
       dataSource,
       pagination,
@@ -233,10 +288,15 @@ export default defineComponent({
       state,
       rowSelection,
       recordVisible,
+      modalActionRef,
+      isShowResetPass,
       height,
       params,
       handleDeleteRecord,
       handleEditRecord,
+      handleResetPassword,
+      handleClickOutsideTable,
+      onCloseModalAction,
       customRow,
       handleChange,
       onFilterChange,

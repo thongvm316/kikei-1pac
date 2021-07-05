@@ -1,4 +1,5 @@
 export default {
   edit: 'Edit',
-  delete: 'Delete'
+  delete: 'Delete',
+  reset_password: 'Reset Password'
 }

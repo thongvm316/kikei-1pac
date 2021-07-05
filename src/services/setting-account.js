@@ -23,5 +23,9 @@ export default {
 
   deleteAccount(id) {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.account}/${id}` })
+  },
+
+  resetPasswordAccount(id) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.account}/resetpassword/${id}` })
   }
 }
