@@ -215,6 +215,12 @@ const routes = [
             meta: { title: `Activity Log | ${APP_NAME}` }
           }
         ]
+      },
+      {
+        path: '/user',
+        name: 'user',
+        component: lazyLoadRoute('User'),
+        meta: { title: `Personal Setting | ${APP_NAME}` }
       }
     ]
   },
