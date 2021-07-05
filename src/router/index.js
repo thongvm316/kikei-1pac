@@ -101,8 +101,8 @@ const routes = [
       {
         path: '/accounting',
         name: 'accounting',
-        component: lazyLoadRoute('AccountingManagement'),
-        meta: { title: `Accounting Management Report | ${APP_NAME}` }
+        component: lazyLoadRoute('Accounting'),
+        meta: { title: `Accounting Report | ${APP_NAME}` }
       },
 
       {

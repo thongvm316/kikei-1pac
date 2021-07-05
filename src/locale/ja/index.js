@@ -12,6 +12,7 @@ import logs from './logs'
 import account from './account'
 import sidebar from './sidebar'
 import category from './category'
+import accounting from './accounting'
 import user from './user'
 import subcategory from './subcategory'
 
@@ -30,6 +31,7 @@ export default {
   account,
   sidebar,
   category,
+  accounting,
   user,
   subcategory
 }
