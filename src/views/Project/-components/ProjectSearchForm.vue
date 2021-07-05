@@ -237,9 +237,9 @@ export default defineComponent({
     }
 
     const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
+      get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
-        store.commit('setCurrentRoute', val)
+        store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
     })
 
@@ -278,7 +278,7 @@ export default defineComponent({
       // close modal
       visible.value = false
       isNeedSubmit.value = false
-      store.commit('setIsShowSearchBadge', !isEqualState)
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqualState)
     }
 
     const handleModalCancel = () => {
@@ -322,7 +322,7 @@ export default defineComponent({
       const isEqualState = isEqual(state.value, initState)
       state.value.statusCode = isEqualState ? STATUS_CODE : [] // default in the first load page
 
-      store.commit('setIsShowSearchBadge', !isEqualState)
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqualState)
     })
 
     return {

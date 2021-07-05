@@ -152,9 +152,9 @@ export default defineComponent({
     const filter = reactive({ ...initialState })
 
     const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
+      get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
-        store.commit('setCurrentRoute', val)
+        store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
     })
 

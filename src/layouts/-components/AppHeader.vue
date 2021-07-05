@@ -5,7 +5,11 @@
         <k-breadcrumb />
       </div>
       <div class="header__content--right">
-        <a-button :class="['header__search', isShowSearchBadge && 'is-badge']" @click="openModalSearch">
+        <a-button
+          v-if="isVisibleSearch"
+          :class="['header__search', isShowSearchBadge && 'is-badge']"
+          @click="openModalSearch"
+        >
           <search-icon />
         </a-button>
         <k-profile />
@@ -38,15 +42,34 @@ export default defineComponent({
     const store = useStore()
     const route = useRoute()
 
+    // route name list to visible search button
+    // eslint-disable-next-line prettier/prettier
+    const visibleSearchList = [
+      'dashboard',
+      'deposit',
+      'project',
+      'financing',
+      'company',
+      'category',
+      'account',
+      'logs'
+    ]
+
     const openModalSearch = () => {
-      store.commit('setCurrentRoute', route.name)
+      store.commit('search/STORE_SEARCH_CURRENT_ROUTE', route.name)
     }
 
-    const isShowSearchBadge = computed(() => store.getters?.isShowSearchBadge || false)
+    const isShowSearchBadge = computed(() => store.state?.search?.isShowBadge || false)
+    const isVisibleSearch = computed(() => store.state?.search?.isVisible || false)
+
     watch(
       () => route.name,
       (routeName) => {
-        store.commit('setIsShowSearchBadge', false)
+        // default search badge
+        store.commit('search/STORE_SEARCH_SHOW_BADGE', false)
+
+        // visible search button
+        store.commit('search/STORE_SEARCH_VISIBLE', visibleSearchList.includes(routeName))
 
         // clear filters search deposit page
         if (!['deposit', 'deposit-edit'].includes(routeName)) {
@@ -77,7 +100,7 @@ export default defineComponent({
       }
     )
 
-    return { route, isShowSearchBadge, openModalSearch }
+    return { route, isShowSearchBadge, isVisibleSearch, openModalSearch }
   }
 })
 </script>

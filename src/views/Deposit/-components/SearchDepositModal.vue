@@ -189,9 +189,9 @@ export default defineComponent({
     const state = ref(deepCopy(initState))
 
     const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
+      get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
-        store.commit('setCurrentRoute', val)
+        store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
     })
 
@@ -232,7 +232,7 @@ export default defineComponent({
 
       visible.value = false
       isNeedSubmit.value = false
-      store.commit('setIsShowSearchBadge', !isEqual(state.value, initState))
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(state.value, initState))
     }
 
     const handleCheckedTypeDepositList = debounce(async (event) => {
@@ -314,7 +314,7 @@ export default defineComponent({
 
       // set badge search
       const projectId = store.state.deposit?.filters?.data?.projectId
-      store.commit('setIsShowSearchBadge', !(isEqual(state.value, initState) && !projectId))
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !(isEqual(state.value, initState) && !projectId))
     }
 
     onBeforeMount(() => {
