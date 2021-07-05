@@ -13,8 +13,7 @@ export default {
     return apiCaller({ method: 'POST', url: `${RESOURCES.account}/withdrawal`, data })
   },
 
-  // TODO: modify when has api
-  getFinancingTotal(data) {
-    return apiCaller({ method: 'POST', url: `${RESOURCES.account}/...`, data })
+  getTotal(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.account}/total`, data })
   }
 }

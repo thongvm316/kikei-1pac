@@ -45,9 +45,9 @@ export const getWithdrawal = async (dataRequest) => {
   }
 }
 
-export const getFinancingTotal = async (dataRequest) => {
+export const getTotal = async (dataRequest) => {
   try {
-    const { data = {} } = await AccountingManagementService.getFinancingTotal(dataRequest)
+    const { data = {} } = await AccountingManagementService.getTotal(dataRequest)
 
     return data
   } catch (e) {

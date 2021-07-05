@@ -29,6 +29,7 @@
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name" />
     </a-tabs>
 
+    <!-- deposit table -->
     <p class="u-mt-24">売上</p>
     <accounting-table
       :table-index="0"
@@ -40,6 +41,7 @@
       @getPixelsScrolled="getPixelsScrolled"
     />
 
+    <!-- withdrawal table -->
     <p class="u-mt-24">支出</p>
     <accounting-table
       :table-index="1"
@@ -52,6 +54,7 @@
       @getPixelsScrolled="getPixelsScrolled"
     />
 
+    <!-- financing total table -->
     <p class="u-mt-24">合計</p>
     <accounting-table
       :table-index="2"
@@ -60,6 +63,7 @@
       :is-loading-table="isLoadingTable"
       :group-id="activeKeyGroup"
       :data-source="financingTotalList"
+      :disable-go-to-deposit="true"
       @getPixelsScrolled="getPixelsScrolled"
     />
   </div>
@@ -72,8 +76,8 @@ import { useI18n } from 'vue-i18n'
 import moment from 'moment'
 import { find } from 'lodash-es'
 
-import AccountingTable from './-components/AccountingTable.vue'
-import { getGroups, getPeriods, getDeposit, getWithdrawal, getFinancingTotal } from './composables/useAccounting'
+import AccountingTable from './-components/AccountingTable'
+import { getGroups, getPeriods, getDeposit, getWithdrawal, getTotal } from './composables/useAccounting'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -112,7 +116,9 @@ export default defineComponent({
         tableIndexDisableScroll.value = tableIndex
         pixelsScrolled.value = pixel
       },
-      100, // need equal time delay of scroll event
+      // time to disble update pixel scrolled after that
+      100,
+      // Invoke `getPixelsScrolled` when table scroll, debouncing subsequent calls.
       {
         leading: true,
         trailing: false
@@ -124,9 +130,21 @@ export default defineComponent({
       const periodResponse = await getPeriods(groupId)
       periodList.value = periodResponse.result?.data || []
 
-      // FIXME: default peiod selected
-      periodList.value.length > 0 && (financingPeriod.value = periodList.value[0].id)
-      fetchDataTables()
+      // set period current
+      const periodCurrentFound = find(periodList.value, (periodItem) => {
+        const currentTime = moment()
+        const startedDate = periodItem?.startedDate
+        const finishedDate = periodItem?.finishedDate
+
+        if (!startedDate || !finishedDate) return false
+
+        return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+      })
+
+      if (periodCurrentFound) {
+        financingPeriod.value = periodCurrentFound.id
+        fetchDataTables()
+      }
     }
 
     const fetchDataTables = async () => {
@@ -135,20 +153,11 @@ export default defineComponent({
 
       const dataRequest = { groupId: activeKeyGroup.value, periodId: financingPeriod.value }
 
-      // FIXME: use when getFinancingTotal aready
-      // Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest), getFinancingTotal(dataRequest)]).then(
-      //   ([depositReponse, withdrawalReponse, financingTotalReponse]) => {
-      //     depositList.value = depositReponse?.result?.data || []
-      //     withdrawalList.value = withdrawalReponse?.result?.data || []
-      //     financingTotalList.value = financingTotalReponse?.result?.data || []
-      //   }
-      // )
-      // .finally((isLoadingTable.value = false))
-
-      Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest)])
-        .then(([depositReponse, withdrawalReponse]) => {
+      Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest), getTotal(dataRequest)])
+        .then(([depositReponse, withdrawalReponse, financingTotalReponse]) => {
           depositList.value = depositReponse?.result?.data || []
           withdrawalList.value = withdrawalReponse?.result?.data || []
+          financingTotalList.value = financingTotalReponse?.result?.data || []
         })
         .finally((isLoadingTable.value = false))
     }
@@ -166,16 +175,16 @@ export default defineComponent({
 
     const getHeaderCsv = () => {
       const labels = [
-        { header: t('accounting.period'), field: 'period' },
+        { header: t('accounting.financing_period_label'), field: 'period' },
         { header: t('accounting.group'), field: 'group' },
         { header: t('accounting.type'), field: 'type' },
         { header: t('accounting.category'), field: 'category' },
         { header: t('accounting.subcategory'), field: 'subcategory' }
       ]
 
-      // FIXME: get from period selected
-      const monthFrom = '2020-07'
-      const monthTo = '2021-06'
+      const periodFound = find(periodList.value, { id: financingPeriod.value })
+      const monthFrom = periodFound?.startedDate
+      const monthTo = periodFound?.finishedDate
 
       if (!monthFrom || !monthTo) return labels
 
@@ -186,7 +195,7 @@ export default defineComponent({
       while (month <= endTime && labels.length < 9999) {
         const monthStr = monthStrFormat(month)
         labels.push({
-          header: monthStr,
+          header: moment(monthStr).format('MMMM'),
           field: monthStr
         })
 
@@ -196,7 +205,7 @@ export default defineComponent({
       return labels
     }
 
-    const getDataCsv = (tableList) => {
+    const getDataCsv = (tableList = [], tableName = '') => {
       const items = []
 
       const { detail = [] } = tableList
@@ -213,7 +222,7 @@ export default defineComponent({
         const rowCategory = {
           period: periodName,
           group: groupName,
-          type: '',
+          type: tableName,
           category: category?.categoryName || '',
           subcategory: ''
         }
@@ -233,7 +242,7 @@ export default defineComponent({
             const rowSubcategory = {
               period: periodName,
               group: groupName,
-              type: '',
+              type: tableName,
               category: '',
               subcategory: subItem?.subcategoryName || ''
             }
@@ -252,13 +261,14 @@ export default defineComponent({
     }
 
     const handleExportCsv = () => {
-      const depositItems = getDataCsv(depositList.value)
-      const withdrawalItems = getDataCsv(withdrawalList.value)
+      const depositItems = getDataCsv(depositList.value, t('accounting.table_deposit'))
+      const withdrawalItems = getDataCsv(withdrawalList.value, t('accounting.table_withdrawal'))
+      const financingTotalItems = getDataCsv(financingTotalList.value, t('accounting.table_total'))
 
       const exportObj = {
-        fileTitle: 'accounting',
+        fileTitle: 'AD1200',
         labels: getHeaderCsv(),
-        items: [...depositItems, ...withdrawalItems]
+        items: [...depositItems, ...withdrawalItems, ...financingTotalItems]
       }
       exportCSVFile(exportObj)
     }

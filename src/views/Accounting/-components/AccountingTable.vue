@@ -11,7 +11,7 @@
   >
     <template #month="{ record, index, text, column }">
       <router-link
-        v-if="index + 1 !== dataTable.length"
+        v-if="index + 1 !== dataTable.length && !disableGoToDeposit"
         :to="{ name: 'deposit', query: { tab: groupId } }"
         :class="['accounting-table__link', moneyColor]"
         @click="handleSelectDeposit(record, column)"
@@ -58,6 +58,10 @@ export default defineComponent({
     moneyColor: {
       type: String,
       default: ''
+    },
+    disableGoToDeposit: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -98,7 +102,7 @@ export default defineComponent({
       while (month <= endTime && arr.length < 9999) {
         const monthStr = monthStrFormat(month)
         arr.push({
-          title: monthStr,
+          title: moment(month).format('MMMM'),
           dataIndex: monthStr,
           key: monthStr,
           width: 150,
@@ -117,10 +121,12 @@ export default defineComponent({
       const { detail = [], total = [] } = props.dataSource
       if (detail.length === 0) return arr
 
-      detail.map((category) => {
+      detail.map((category, categoryIndex) => {
+        const categoryName = category?.name ? t(`accounting.${category?.name}`) : category?.categoryName || ''
+
         const row = {
-          key: category?.categoryId,
-          categoryName: category?.categoryName || '',
+          key: category?.categoryId || categoryIndex,
+          categoryName,
           categoryId: [category?.categoryId],
           subcategoryId: []
         }
@@ -156,6 +162,7 @@ export default defineComponent({
       })
 
       // add total row
+      if (total.length === 0) return arr
       const totalRow = {
         key: 'total',
         categoryName: '合計'
