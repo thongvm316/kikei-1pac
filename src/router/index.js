@@ -157,6 +157,30 @@ const routes = [
                 name: 'category-edit',
                 component: lazyLoadRoute('Category/_id'),
                 meta: { title: `Edit Category | ${APP_NAME}` }
+              },
+              {
+                path: 'subcategory',
+                component: lazyLoadRoute('Base'),
+                meta: { title: `Subcategory | ${APP_NAME}` },
+                children: [
+                  {
+                    path: '',
+                    name: 'subcategory',
+                    component: lazyLoadRoute('Subcategory')
+                  },
+                  {
+                    path: 'new',
+                    name: 'subcategory-new',
+                    component: lazyLoadRoute('Subcategory/new'),
+                    meta: { title: `New SubCategory | ${APP_NAME}` }
+                  },
+                  {
+                    path: ':id/edit',
+                    name: 'subcategory-edit',
+                    component: lazyLoadRoute('Subcategory/_id'),
+                    meta: { title: `Edit SubCategory | ${APP_NAME}` }
+                  }
+                ]
               }
             ]
           },
@@ -191,6 +215,12 @@ const routes = [
             meta: { title: `Activity Log | ${APP_NAME}` }
           }
         ]
+      },
+      {
+        path: '/user',
+        name: 'user',
+        component: lazyLoadRoute('User'),
+        meta: { title: `Personal Setting | ${APP_NAME}` }
       }
     ]
   },

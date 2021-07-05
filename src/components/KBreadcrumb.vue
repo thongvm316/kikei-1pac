@@ -198,12 +198,59 @@ export default defineComponent({
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
+      subcategory: [
+        {
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        }
+      ],
+      'subcategory-new': [
+        {
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        },
+        {
+          path: 'new',
+          breadcrumbName: t('breadcrumb.new')
+        }
+      ],
+
+      'subcategory-edit': [
+        {
+          path: '/setting/category',
+          breadcrumbName: t('breadcrumb.category')
+        },
+        {
+          path: '/setting/category/subcategory',
+          breadcrumbName: t('breadcrumb.subcategory')
+        },
+        {
+          path: ':id/edit',
+          breadcrumbName: t('breadcrumb.edit')
+        }
+      ],
 
       // logs
       logs: [
         {
           path: '/setting/logs',
           breadcrumbName: t('breadcrumb.logs')
+        }
+      ],
+
+      // user
+      user: [
+        {
+          path: '/user',
+          breadcrumbName: t('breadcrumb.personal_setting')
         }
       ]
     }

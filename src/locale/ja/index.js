@@ -13,6 +13,8 @@ import account from './account'
 import sidebar from './sidebar'
 import category from './category'
 import accounting from './accounting'
+import user from './user'
+import subcategory from './subcategory'
 
 export default {
   errors,
@@ -29,5 +31,7 @@ export default {
   account,
   sidebar,
   category,
-  accounting
+  accounting,
+  user,
+  subcategory
 }

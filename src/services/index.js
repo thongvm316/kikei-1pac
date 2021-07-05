@@ -13,6 +13,7 @@ import LogService from './logs'
 import FinancingService from './financing'
 import PeriodService from './period'
 import AccountingManagementService from './accounting-management'
+import UserService from './user'
 
 const repositories = {
   StorageService,
@@ -29,7 +30,8 @@ const repositories = {
   FinancingService,
   PeriodService,
   LogService,
-  AccountingManagementService
+  AccountingManagementService,
+  UserService
 }
 
 export default {

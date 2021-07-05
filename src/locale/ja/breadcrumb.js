@@ -11,5 +11,7 @@ export default {
   edit: '登録',
   new: '登録',
   logs: '活動記録',
-  account: '登録アカウント'
+  account: '登録アカウント',
+  personal_setting: '个人设定',
+  subcategory: '中分類一覧'
 }
