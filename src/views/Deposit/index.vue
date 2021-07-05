@@ -3,7 +3,7 @@
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
-        <a-radio-group v-model:value="checkedListFilterMonth" :options="filterMonthList" />
+        <a-radio-group @change="handleChangeFilterMonth" v-model:value="checkedListFilterMonth" :options="filterMonthList" />
       </div>
 
       <div>
@@ -611,22 +611,21 @@ export default defineComponent({
         checkedListFilterMonth.value = allMonth
       }
 
-      updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
+      const { fromDate: currentFromDate, toDate: currentToDate } = checkedListFilterMonth.value
+
+      updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId, fromDate: currentFromDate, toDate: currentToDate } }))
+      // update modal search deposit
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       router.replace({ query: { tab: groupId } })
     })
 
-    watch(
-      () => checkedListFilterMonth.value,
-      (val) => {
-        if (val) {
-          updateParamRequestDeposit({ params: { pageNumber: 1 }, data: checkedListFilterMonth.value })
+    const handleChangeFilterMonth = (val) => {
+      updateParamRequestDeposit({ params: { pageNumber: 1 }, data: val.target.value })
 
-          // update modal search deposit
-          store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-        }
-      }
-    )
+      // update modal search deposit
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+    }
 
     // watch to fetch data deposit
     watch(
@@ -690,7 +689,8 @@ export default defineComponent({
       onUnconfirmDeposit,
       handleOpenUnconfirmModal,
       handleClickOutdideTable,
-      onCloseModalAction
+      onCloseModalAction,
+      handleChangeFilterMonth
     }
   }
 })
