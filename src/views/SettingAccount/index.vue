@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutsideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -32,10 +33,12 @@
 
     <ModalAction
       v-if="recordVisible.visible"
+      ref="modalActionRef"
       v-model:is-show-reset-password="isShowResetPass"
       @edit="handleEditRecord"
       @delete="openDelete = true"
       @reset="handleResetPassword"
+      @on-close-modal="onCloseModalAction"
     />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
@@ -59,10 +62,13 @@ import Table from '@/mixins/table.mixin'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import Services from '@/services'
+import storageKeys from '@/enums/storage-keys'
 
 const defaultParam = {
   type: []
 }
+const StorageService = Services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -91,6 +97,7 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
+    const modalActionRef = ref()
     const isShowResetPass = ref(false)
     const params = ref({})
     const height = ref(0)
@@ -135,6 +142,10 @@ export default defineComponent({
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
+
+      StorageService.get(storageKeys.authProfile).isAdmin
+        ? (isShowResetPass.value = true)
+        : (isShowResetPass.value = false)
     })
 
     const getInnerHeight = () => {
@@ -242,8 +253,6 @@ export default defineComponent({
         tempRow = [record.id]
         recordVisible.value.visible = true
       }
-
-      recordVisible.value.isAdmin ? (isShowResetPass.value = true) : (isShowResetPass.value = false)
     }
 
     const customRow = (record) => {
@@ -254,6 +263,21 @@ export default defineComponent({
       }
     }
 
+    // close action bar
+    const handleClickOutsideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+      }
+    }
+
+    const onCloseModalAction = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+    }
     return {
       dataSource,
       pagination,
@@ -264,12 +288,15 @@ export default defineComponent({
       state,
       rowSelection,
       recordVisible,
+      modalActionRef,
       isShowResetPass,
       height,
       params,
       handleDeleteRecord,
       handleEditRecord,
       handleResetPassword,
+      handleClickOutsideTable,
+      onCloseModalAction,
       customRow,
       handleChange,
       onFilterChange,
