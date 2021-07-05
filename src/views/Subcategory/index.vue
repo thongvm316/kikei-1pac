@@ -1,18 +1,31 @@
 <template>
   <section>
-    <subcategory-search-form v-bind:filter="filter" @filter-changed="onFilterChange($event)" />
+    <subcategory-search-form :filter="filter" @filter-changed="onFilterChange($event)" />
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
       <div>
-        <a-button class="u-mr-16 bnt-back" type="default" @click="$router.push({ name: 'category'})">
-        <arrow-icon class="arrow-icon" />
-        {{ $t('subcategory.back') }}
-      </a-button>
+        <a-button
+          class="u-mr-16 bnt-back"
+          type="default"
+          @click="$router.push({ name: 'category', query: $route.query })"
+        >
+          <arrow-icon class="arrow-icon" />
+          {{ $t('subcategory.back') }}
+        </a-button>
       </div>
       <div>
-        <a-button class="u-ml-12 btn-modal" type="primary" @click="$router.push({ name: 'subcategory-new', params: {category_id:filter.category_id, category_name: filter.category_name}})">
-        <add-icon class="add-icon" />
-        {{ $t('subcategory.add_subcategory') }}
-      </a-button>
+        <a-button
+          class="u-ml-12 btn-modal"
+          type="primary"
+          @click="
+            $router.push({
+              name: 'subcategory-new',
+              params: { category_id: filter.category_id, category_name: filter.category_name }
+            })
+          "
+        >
+          <add-icon class="add-icon" />
+          {{ $t('subcategory.add_subcategory') }}
+        </a-button>
       </div>
     </div>
 
@@ -89,7 +102,7 @@ export default defineComponent({
     const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30 ,order_by: 'name asc'})
+    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
     const height = ref(0)
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -242,7 +255,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .box-create {
-  padding: 0px 32px 0;
+  padding: 0 32px;
   text-align: right;
   text-align: -webkit-right;
 
@@ -252,6 +265,7 @@ export default defineComponent({
     text-align: center;
     display: flex;
     align-items: center;
+
     .add-icon {
       margin-right: 10.33px;
     }
@@ -263,22 +277,25 @@ export default defineComponent({
     text-align: center;
     display: flex;
     align-items: center;
-    border: 0px;
-    color: grey;
+    border: 0;
+    color: #808080;
     background-color: transparent;
+
     .arrow-icon {
       transform: rotate(270deg);
     }
   }
+
   .bnt-back:hover {
     width: auto;
     border-radius: 2px;
     text-align: center;
     display: flex;
     align-items: center;
-    border: 0px;
+    border: 0;
     color: #1890ff;
     background-color: transparent;
+
     .arrow-icon {
       transform: rotate(270deg);
     }

@@ -3,7 +3,7 @@
     <company-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new', query: $route.query })">
         <add-icon class="add-icon" />
         {{ $t('company.add_company') }}
       </a-button>
@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutdideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -30,7 +31,13 @@
       </template>
     </a-table>
 
-    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
+    <ModalAction
+      v-if="recordVisible.visible"
+      ref="modalActionRef"
+      @edit="handleEditRecord"
+      @delete="openDelete = true"
+      @close="handleCloseRecord"
+    />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
@@ -61,7 +68,14 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+    const data = {
+      key_search: '',
+      division: to.query.division ? [parseInt(to.query.division)] : [],
+      currency_id: to.query.currency_id ? [parseInt(to.query.currency_id)] : [],
+      country_id: to.query.country_id ? [parseInt(to.query.country_id)] : []
+    }
+
+    const { getLists } = await useGetCompanyListService({ pageNumber: 1, pageSize: 30 }, data)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -80,7 +94,8 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+    const params = ref({ ...route.query })
+    const modalActionRef = ref()
 
     const height = ref(0)
 
@@ -131,6 +146,16 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
+
+      // Back Form
+      tempRow = [parseInt(await route.params.id)]
+      if (tempRow[0] === parseInt(await route.params.id)) {
+        state.selectedRowKeys = [parseInt(await route.params.id)]
+        tempRow = [parseInt(await route.params.id)]
+        recordVisible.value.id = route.params.id
+        recordVisible.value.visible = true
+      }
+
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -141,6 +166,8 @@ export default defineComponent({
     }
 
     const handleChange = async (pagination, filters, sorter) => {
+      recordVisible.value.visible = false
+
       if (sorter.order === 'ascend') {
         sorter.order = 'asc'
       } else if (sorter.order === 'descend') {
@@ -154,12 +181,14 @@ export default defineComponent({
         pageSize: pagination.pageSize,
         order_by: sorter.order === '' ? 'code asc' : sorter.field + ' ' + sorter.order
       }
+      await router.push({ name: route.name, query: params.value })
       await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await router.push({ name: route.name, query: { ...filter.value } })
+      await fetchList({ pageNumber: 1, pageSize: 30 }, { ...filter.value })
     }
 
     const handleDeleteRecord = async () => {
@@ -181,17 +210,37 @@ export default defineComponent({
       })
     }
 
+    // Close ActionBar
+    const handleCloseRecord = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+      tempRow = []
+    }
+
+    // Click outside close ActionBar
+    const handleClickOutdideTable = () => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+        tempRow = []
+      }
+    }
+
     const handleEditRecord = () => {
       router.push({
         name: 'company-edit',
         params: {
           id: recordVisible.value.id
-        }
+        },
+        query: params.value
       })
     }
 
     const fetchList = async (params = {}, data) => {
-      isLoading.value = true
+      tempRow = []
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
         const { result } = await getLists()
@@ -230,15 +279,17 @@ export default defineComponent({
       pagination,
       columns,
       isLoading,
-      t,
       openDelete,
       state,
       rowSelection,
       recordVisible,
       height,
       params,
+      modalActionRef,
       handleDeleteRecord,
       handleEditRecord,
+      handleCloseRecord,
+      handleClickOutdideTable,
       customRow,
       handleChange,
       onFilterChange,
