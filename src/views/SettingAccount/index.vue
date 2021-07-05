@@ -38,6 +38,7 @@
       @edit="handleEditRecord"
       @delete="openDelete = true"
       @reset="handleResetPassword"
+      @on-close-modal="onCloseModalAction"
     />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
@@ -209,7 +210,6 @@ export default defineComponent({
     const handleResetPassword = async () => {
       try {
         const { resetPasswordAccount } = useResetPasswordAccountService(recordVisible.value.id)
-        debugger
         await resetPasswordAccount()
       } catch (error) {
         console.log(error)
@@ -273,6 +273,11 @@ export default defineComponent({
         state.selectedRowKeys = []
       }
     }
+
+    const onCloseModalAction = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+    }
     return {
       dataSource,
       pagination,
@@ -291,6 +296,7 @@ export default defineComponent({
       handleEditRecord,
       handleResetPassword,
       handleClickOutsideTable,
+      onCloseModalAction,
       customRow,
       handleChange,
       onFilterChange,
