@@ -67,9 +67,9 @@ export default defineComponent({
     filter.value = { ...state }
 
     const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
+      get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
-        store.commit('setCurrentRoute', val)
+        store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
     })
 
@@ -102,7 +102,7 @@ export default defineComponent({
       }
       context.emit('filter-changed', data)
       visible.value = false
-      store.commit('setIsShowSearchBadge', !isEqual(filter.value, state))
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter.value, state))
     }
 
     return {

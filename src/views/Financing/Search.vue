@@ -145,9 +145,9 @@ export default defineComponent({
     })
 
     const visible = computed({
-      get: () => store.getters.currentRoute === route.name,
+      get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
-        store.commit('setCurrentRoute', val)
+        store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
     })
 
@@ -196,7 +196,7 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      store.commit('setIsShowSearchBadge', true)
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', true)
     })
 
     return {

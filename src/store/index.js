@@ -3,25 +3,13 @@ import flash from './flash'
 import auth from './auth'
 import deposit from './deposit'
 import project from './project'
+import search from './search'
 
-const state = {
-  currentRoute: null,
-  isShowSearchBadge: false
-}
+const state = {}
 
-const getters = {
-  currentRoute: (state) => state.currentRoute,
-  isShowSearchBadge: (state) => state.isShowSearchBadge
-}
+const getters = {}
 
-const mutations = {
-  setCurrentRoute(state, routeName) {
-    state.currentRoute = routeName
-  },
-  setIsShowSearchBadge(state, isSearching) {
-    state.isShowSearchBadge = isSearching
-  }
-}
+const mutations = {}
 
 const debug = process.env.VUE_APP_ENV !== 'production'
 
@@ -30,7 +18,8 @@ const store = createStore({
     flash,
     auth,
     deposit,
-    project
+    project,
+    search
   },
   state,
   getters,
