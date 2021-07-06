@@ -553,6 +553,7 @@ export default defineComponent({
         }
 
         indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+        isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
 
         // Force rerender table
         tableKey.value++
