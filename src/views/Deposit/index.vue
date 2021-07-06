@@ -437,10 +437,13 @@ export default defineComponent({
 
     const onDeleteDepositRecord = async () => {
       const depositId = currentSelectedRecord.value?.id || ''
+      const purpose = currentSelectedRecord.value?.purpose
       if (!depositId) return
 
       isLoadingDataTable.value = true
-      const { result: deletedRecords } = await deleteDeposit(depositId, { applyForRoot: currentSelectedRecord.value?.isRoot || false })
+      const { result: deletedRecords } = await deleteDeposit(depositId, {
+        applyForRoot: currentSelectedRecord.value?.isRoot || false
+      })
 
       dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
       isVisibleDeleteModal.value = false
@@ -448,8 +451,6 @@ export default defineComponent({
       isVisibleModalActionBar.value = false
 
       // show notification
-      const purpose = currentSelectedRecord.value?.purpose
-
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
