@@ -3,7 +3,11 @@
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
-        <a-radio-group @change="handleChangeFilterMonth" v-model:value="checkedListFilterMonth" :options="filterMonthList" />
+        <a-radio-group
+          v-model:value="checkedListFilterMonth"
+          :options="filterMonthList"
+          @change="handleChangeFilterMonth"
+        />
       </div>
 
       <div>
@@ -611,9 +615,17 @@ export default defineComponent({
         checkedListFilterMonth.value = allMonth
       }
 
-      const { fromDate: currentFromDate, toDate: currentToDate } = checkedListFilterMonth.value
+      // update date default from checkedListFilterMonth
+      if (fromDate && toDate) {
+        updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId } }))
+      } else {
+        const { fromDate: currentFromDate = null, toDate: currentToDate = null } = checkedListFilterMonth.value || {}
 
-      updateParamRequestDeposit(merge(deepCopy(filtersDepositStore), { data: { groupId, fromDate: currentFromDate, toDate: currentToDate } }))
+        updateParamRequestDeposit(
+          merge(deepCopy(filtersDepositStore), { data: { groupId, fromDate: currentFromDate, toDate: currentToDate } })
+        )
+      }
+
       // update modal search deposit
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
@@ -632,7 +644,7 @@ export default defineComponent({
       () => paramRequestDataDeposit.value,
       () => {
         // uncheck quick select date
-        const { fromDate, toDate } = paramRequestDataDeposit.value.data
+        const { fromDate = null, toDate = null } = paramRequestDataDeposit.value?.data || {}
         const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
         checkedListFilterMonth.value = objFound ? objFound.value : ''
 

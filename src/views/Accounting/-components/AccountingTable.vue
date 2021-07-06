@@ -126,6 +126,7 @@ export default defineComponent({
 
         const row = {
           key: category?.categoryId || categoryIndex,
+          divisionType: category?.divisionType,
           categoryName,
           categoryId: [category?.categoryId],
           subcategoryId: []
@@ -144,6 +145,7 @@ export default defineComponent({
           subcategories.map((item) => {
             const childrenItem = {
               key: `${category?.categoryId} + ${item.subcategoryId}`,
+              divisionType: category?.divisionType,
               categoryName: item?.subcategoryName,
               categoryId: [category?.categoryId],
               subcategoryId: [item.subcategoryId]
@@ -180,6 +182,7 @@ export default defineComponent({
     const handleSelectDeposit = (record, column) => {
       const data = {
         groupId: props.groupId,
+        type: record?.divisionType ? [record.divisionType] : [],
         categoryId: record?.categoryId || [],
         subcategoryId: record?.subcategoryId || [],
         fromDate: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,

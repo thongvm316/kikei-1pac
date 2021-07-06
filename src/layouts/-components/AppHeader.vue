@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, watch, onMounted } from 'vue'
+import { defineComponent, computed, watch, onMounted, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { isEmpty } from 'lodash-es'
@@ -61,6 +61,11 @@ export default defineComponent({
 
     const isShowSearchBadge = computed(() => store.state?.search?.isShowBadge || false)
     const isVisibleSearch = computed(() => store.state?.search?.isVisible || false)
+
+    onBeforeMount(() => {
+      // check visible search button before mount
+      store.commit('search/STORE_SEARCH_VISIBLE', visibleSearchList.includes(route.name))
+    })
 
     watch(
       () => route.name,

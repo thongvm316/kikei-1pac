@@ -3,7 +3,12 @@
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">{{ $t('accounting.financing_period_label') }}:</span>
-        <a-select v-model:value="financingPeriod" :style="{ width: '120px' }" @change="handleChangeFinancingPeriod">
+        <a-select
+          v-model:value="financingPeriod"
+          :loading="isLoadingPeriod"
+          :style="{ width: '120px' }"
+          @change="handleChangeFinancingPeriod"
+        >
           <a-select-option v-for="period in periodList" :key="period.id" :value="period.id">
             {{ period.name }}
           </a-select-option>
@@ -104,6 +109,7 @@ export default defineComponent({
     const isLoadingExportCsv = ref()
 
     // period
+    const isLoadingPeriod = ref()
     const financingPeriod = ref()
     const periodList = ref([])
 
@@ -126,40 +132,52 @@ export default defineComponent({
     )
 
     const fetchPeriodList = async () => {
-      const groupId = activeKeyGroup.value
-      const periodResponse = await getPeriods(groupId)
-      periodList.value = periodResponse.result?.data || []
+      isLoadingPeriod.value = true
+      financingPeriod.value = ''
 
-      // set period current
-      const periodCurrentFound = find(periodList.value, (periodItem) => {
-        const currentTime = moment()
-        const startedDate = periodItem?.startedDate
-        const finishedDate = periodItem?.finishedDate
+      try {
+        const groupId = activeKeyGroup.value
+        const periodResponse = await getPeriods(groupId)
+        periodList.value = periodResponse.result?.data || []
 
-        if (!startedDate || !finishedDate) return false
+        // set period current
+        const periodCurrentFound = find(periodList.value, (periodItem) => {
+          const currentTime = moment()
+          const startedDate = periodItem?.startedDate
+          const finishedDate = periodItem?.finishedDate
 
-        return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
-      })
+          if (!startedDate || !finishedDate) return false
 
-      if (periodCurrentFound) {
-        financingPeriod.value = periodCurrentFound.id
-        fetchDataTables()
+          return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+        })
+
+        if (periodCurrentFound) {
+          financingPeriod.value = periodCurrentFound.id
+          fetchDataTables()
+        }
+      } finally {
+        isLoadingPeriod.value = false
       }
     }
 
     const fetchDataTables = async () => {
-      // request data
       isLoadingTable.value = true
 
-      const dataRequest = { groupId: activeKeyGroup.value, periodId: financingPeriod.value }
+      try {
+        const dataRequest = { groupId: activeKeyGroup.value, periodId: financingPeriod.value }
 
-      Promise.all([getDeposit(dataRequest), getWithdrawal(dataRequest), getTotal(dataRequest)])
-        .then(([depositReponse, withdrawalReponse, financingTotalReponse]) => {
-          depositList.value = depositReponse?.result?.data || []
-          withdrawalList.value = withdrawalReponse?.result?.data || []
-          financingTotalList.value = financingTotalReponse?.result?.data || []
-        })
-        .finally((isLoadingTable.value = false))
+        const [depositReponse, withdrawalReponse, financingTotalReponse] = await Promise.all([
+          getDeposit(dataRequest),
+          getWithdrawal(dataRequest),
+          getTotal(dataRequest)
+        ])
+
+        depositList.value = depositReponse?.result?.data || []
+        withdrawalList.value = withdrawalReponse?.result?.data || []
+        financingTotalList.value = financingTotalReponse?.result?.data || []
+      } finally {
+        isLoadingTable.value = false
+      }
     }
 
     const handleChangeFinancingPeriod = () => {
@@ -293,6 +311,7 @@ export default defineComponent({
       withdrawalList,
       financingTotalList,
 
+      isLoadingPeriod,
       isLoadingTable,
       isLoadingExportCsv,
 
