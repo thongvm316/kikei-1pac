@@ -37,11 +37,12 @@
       v-model:is-show-reset-password="isShowResetPass"
       @edit="handleEditRecord"
       @delete="openDelete = true"
-      @reset="handleResetPassword"
-      @on-close-modal="onCloseModalAction"
+      @reset="openReset = true"
+      @close="onCloseModalAction"
     />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
+    <ModalReset v-model:visible="openReset" :name="recordVisible.name" @reset="handleResetPassword($event)" />
   </section>
 </template>
 
@@ -62,6 +63,7 @@ import Table from '@/mixins/table.mixin'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import ModalReset from '@/components/ModalReset'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
 
@@ -73,7 +75,7 @@ const StorageService = Services.get('StorageService')
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete },
+  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete, ModalReset },
 
   mixins: [Table],
 
@@ -92,6 +94,7 @@ export default defineComponent({
     const store = useStore()
 
     const openDelete = ref(false)
+    const openReset = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
     const filter = ref({})
@@ -174,7 +177,7 @@ export default defineComponent({
 
       Object.assign(filter.value, defaultParam)
 
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await fetchList(pagination.value, filter.value)
     }
 
     const handleDeleteRecord = async () => {
@@ -186,7 +189,7 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      await fetchList(params.value)
+      await fetchList(pagination.value)
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
@@ -214,8 +217,8 @@ export default defineComponent({
       } catch (error) {
         console.log(error)
       }
-
-      await fetchList(params.value)
+      openReset.value = false
+      await fetchList(pagination.value)
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
@@ -223,7 +226,7 @@ export default defineComponent({
         message:
           locale.value === 'en'
             ? 'Password reset' + recordVisible.value.name + ' was successful'
-            : 'パスワードをリセット' + recordVisible.value.username + '成功しました'
+            : recordVisible.value.username + ' のアカウントのパスワードのリセットが成功しました'
       })
     }
 
@@ -285,6 +288,7 @@ export default defineComponent({
       isLoading,
       t,
       openDelete,
+      openReset,
       state,
       rowSelection,
       recordVisible,

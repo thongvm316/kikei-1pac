@@ -40,16 +40,22 @@
   }
 }
 
-.account-wrap{
-  .box-btn{
+.account-wrap {
+  .box-btn {
     .btn-delete {
       margin-right: 12px;
     }
+
     .btn-reset {
-      margin-right: 12px;
+      margin-right: 8px;
     }
-  }
-  .modal-actions__close-btn svg {
-    color: #BFBFBF;
+
+    .btn-close {
+      width: 16px;
+
+      &:hover {
+        color: #31AAF1;
+      }
+    }
   }
 }

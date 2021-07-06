@@ -164,7 +164,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
-
 import { TYPE, ACTIVE, AUTHORITY } from '@/enums/account.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
