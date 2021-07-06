@@ -92,7 +92,7 @@ export default defineComponent({
 
     const handleClear = () => {
       filter.value = { ...state }
-      dateRange.value = [] && onSubmit()
+      dateRange.value = []
     }
 
     const onSubmit = () => {

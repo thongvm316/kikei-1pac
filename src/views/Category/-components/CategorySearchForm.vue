@@ -105,7 +105,7 @@ export default defineComponent({
     })
 
     const handleClear = () => {
-      Object.assign(filter, initialState) && onSearch()
+      Object.assign(filter, initialState)
     }
 
     const onSearch = () => {

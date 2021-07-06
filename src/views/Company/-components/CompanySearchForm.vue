@@ -66,12 +66,12 @@
 </template>
 
 <script>
-import { defineComponent, reactive, computed } from 'vue'
+import { defineComponent, reactive, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { DIVISION, COUNTRY, CURRENCY } from '@/enums/company.enum'
-import { isEqual } from 'lodash-es'
+import { isEqual, keys, isArray, map, forEach, includes } from 'lodash-es'
 
 export default defineComponent({
   name: 'CompanySearchForm',
@@ -91,7 +91,7 @@ export default defineComponent({
       currency_id: []
     }
 
-    const filter = reactive({ ...initialState })
+    let filter = reactive({ ...initialState })
 
     const visible = computed({
       get: () => store.state.search.currentRoute === route.name,
@@ -100,19 +100,32 @@ export default defineComponent({
       }
     })
 
+    onMounted(() => {
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter[key] = map([...value], (i) => Number(i))
+            } else {
+              filter[key] = value
+            }
+          }
+        })
+      }
+      store.commit('setIsShowSearchBadge', !isEqual(filter, initialState))
+    })
+
     const handleClear = () => {
-      Object.assign(filter, initialState) && onSearch()
+      Object.assign(filter, initialState)
     }
 
     const onSearch = () => {
-      console.log(filter)
       const data = {
         key_search: filter.key_search,
         division: filter.division,
         country_id: filter.country_id,
         currency_id: filter.currency_id
       }
-      console.log(data)
       context.emit('filter-changed', data)
       visible.value = false
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))

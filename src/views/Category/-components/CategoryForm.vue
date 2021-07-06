@@ -141,7 +141,7 @@ export default defineComponent({
     })
 
     const handleCancel = () => {
-      router.push({ name: 'category' })
+      router.push({ name: 'category', params: route.params, query: route.query })
     }
 
     const onSubmit = handleSubmit(() => {

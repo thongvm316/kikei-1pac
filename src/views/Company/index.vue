@@ -3,7 +3,7 @@
     <company-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new', query: $route.query })">
         <add-icon class="add-icon" />
         {{ $t('company.add_company') }}
       </a-button>
@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutdideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -30,7 +31,13 @@
       </template>
     </a-table>
 
-    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
+    <ModalAction
+      v-if="recordVisible.visible"
+      ref="modalActionRef"
+      @edit="handleEditRecord"
+      @delete="openDelete = true"
+      @close="handleCloseRecord"
+    />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
@@ -46,6 +53,7 @@ import useGetCompanyListService from '@/views/Company/composables/useGetCompanyL
 import useDeleteCompanyService from '@/views/Company/composables/useDeleteCompanyService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import { forEach, isArray, keys, map, includes } from 'lodash-es'
 
 import Table from '@/mixins/table.mixin'
 import CompanySearchForm from '@/views/Company/-components/CompanySearchForm'
@@ -61,7 +69,28 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCompanyListService({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+    const body = {}
+
+    if (keys(to.query).length > 0) {
+      forEach(to.query, (value, key) => {
+        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+          if (isArray(value)) {
+            body[key] = map([...value], (i) => Number(i))
+          } else {
+            body[key] = value
+          }
+        }
+      })
+    }
+
+    const query = {
+      page_number: to.query.page_number || 1,
+      page_size: 30,
+      order_by: 'code asc',
+      ...body
+    }
+
+    const { getLists } = await useGetCompanyListService(query, body)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -80,7 +109,8 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+    const params = ref({ ...route.query })
+    const modalActionRef = ref()
 
     const height = ref(0)
 
@@ -131,6 +161,16 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
+
+      // Back Form
+      tempRow = [parseInt(await route.params.id)]
+      if (tempRow[0] === parseInt(await route.params.id)) {
+        state.selectedRowKeys = [parseInt(await route.params.id)]
+        tempRow = [parseInt(await route.params.id)]
+        recordVisible.value.id = route.params.id
+        recordVisible.value.visible = true
+      }
+
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -141,6 +181,8 @@ export default defineComponent({
     }
 
     const handleChange = async (pagination, filters, sorter) => {
+      recordVisible.value.visible = false
+
       if (sorter.order === 'ascend') {
         sorter.order = 'asc'
       } else if (sorter.order === 'descend') {
@@ -150,16 +192,42 @@ export default defineComponent({
       }
 
       params.value = {
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
+        page_number: pagination.current,
+        page_size: pagination.pageSize,
         order_by: sorter.order === '' ? 'code asc' : sorter.field + ' ' + sorter.order
       }
-      await fetchList(params.value, filter.value)
+
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter.value[key] = map([...value], (i) => Number(i))
+            } else {
+              filter.value[key] = value
+            }
+          }
+        })
+      }
+
+      await router.push({
+        name: 'company',
+        query: {
+          ...params.value,
+          ...filter.value
+        }
+      })
+
+      await fetchList(params.value, { ...filter.value })
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      params.value = {
+        page_number: 1,
+        page_size: 30
+      }
+      await router.push({ name: 'company', query: { ...params.value, ...filter.value } })
+      await fetchList({ page_number: 1, page_size: 30 }, { ...filter.value })
     }
 
     const handleDeleteRecord = async () => {
@@ -181,17 +249,37 @@ export default defineComponent({
       })
     }
 
+    // Close ActionBar
+    const handleCloseRecord = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+      tempRow = []
+    }
+
+    // Click outside close ActionBar
+    const handleClickOutdideTable = (event) => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el === event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+        tempRow = []
+      }
+    }
+
     const handleEditRecord = () => {
       router.push({
         name: 'company-edit',
         params: {
           id: recordVisible.value.id
-        }
+        },
+        query: { ...params.value, ...filter.value }
       })
     }
 
     const fetchList = async (params = {}, data) => {
-      isLoading.value = true
+      tempRow = []
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
         const { result } = await getLists()
@@ -230,15 +318,17 @@ export default defineComponent({
       pagination,
       columns,
       isLoading,
-      t,
       openDelete,
       state,
       rowSelection,
       recordVisible,
       height,
       params,
+      modalActionRef,
       handleDeleteRecord,
       handleEditRecord,
+      handleCloseRecord,
+      handleClickOutdideTable,
       customRow,
       handleChange,
       onFilterChange,

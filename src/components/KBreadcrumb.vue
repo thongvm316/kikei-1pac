@@ -4,7 +4,7 @@
       <span v-if="routes.indexOf(route) === routes.length - 1">
         {{ route.breadcrumbName }}
       </span>
-      <router-link v-else :to="route.path">
+      <router-link v-else :to="{ path: route.path, query: { ...route.query } }">
         {{ route.breadcrumbName }}
       </router-link>
     </template>
@@ -23,6 +23,21 @@ export default defineComponent({
     const { t } = useI18n({ useScope: 'global' })
     const routes = ref([])
     const route = useRoute()
+
+    const company = {
+      path: '/setting/company',
+      breadcrumbName: t('breadcrumb.company')
+    }
+
+    const category = {
+      path: '/setting/category',
+      breadcrumbName: t('breadcrumb.category')
+    }
+
+    const subcategory = {
+      path: '/setting/category/subcategory',
+      breadcrumbName: t('breadcrumb.subcategory')
+    }
 
     // all breadcrumbs
     const routesList = {
@@ -110,18 +125,10 @@ export default defineComponent({
       ],
 
       // company
-      company: [
-        {
-          path: '/setting/company',
-          breadcrumbName: t('breadcrumb.company')
-        }
-      ],
+      company: [company],
 
       'company-new': [
-        {
-          path: '/setting/company',
-          breadcrumbName: t('breadcrumb.company')
-        },
+        company,
         {
           path: 'new',
           breadcrumbName: t('breadcrumb.new')
@@ -129,10 +136,7 @@ export default defineComponent({
       ],
 
       'company-edit': [
-        {
-          path: '/setting/company',
-          breadcrumbName: t('breadcrumb.company')
-        },
+        company,
         {
           path: ':id/edit',
           breadcrumbName: t('breadcrumb.edit')
@@ -170,18 +174,10 @@ export default defineComponent({
       ],
 
       // category
-      category: [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        }
-      ],
+      category: [category],
 
       'category-new': [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        },
+        category,
         {
           path: 'new',
           breadcrumbName: t('breadcrumb.new')
@@ -189,34 +185,16 @@ export default defineComponent({
       ],
 
       'category-edit': [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        },
+        category,
         {
           path: ':id/edit',
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
-      subcategory: [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        },
-        {
-          path: '/setting/category/subcategory',
-          breadcrumbName: t('breadcrumb.subcategory')
-        }
-      ],
+      subcategory: [category, subcategory],
       'subcategory-new': [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        },
-        {
-          path: '/setting/category/subcategory',
-          breadcrumbName: t('breadcrumb.subcategory')
-        },
+        category,
+        subcategory,
         {
           path: 'new',
           breadcrumbName: t('breadcrumb.new')
@@ -224,14 +202,8 @@ export default defineComponent({
       ],
 
       'subcategory-edit': [
-        {
-          path: '/setting/category',
-          breadcrumbName: t('breadcrumb.category')
-        },
-        {
-          path: '/setting/category/subcategory',
-          breadcrumbName: t('breadcrumb.subcategory')
-        },
+        category,
+        subcategory,
         {
           path: ':id/edit',
           breadcrumbName: t('breadcrumb.edit')
@@ -258,6 +230,9 @@ export default defineComponent({
     const getRoutesList = () => {
       const nameRoute = route?.name || ''
       routes.value = routesList[nameRoute] || []
+      if (route?.query) {
+        routes.value[routes.value.length - 1].query = Object.keys(route.query).length ? { ...route.query } : ''
+      }
     }
 
     onMounted(() => {
@@ -265,7 +240,7 @@ export default defineComponent({
     })
 
     watch(
-      () => route.path,
+      () => route.query,
       () => {
         getRoutesList(route)
       }
