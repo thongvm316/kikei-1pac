@@ -503,7 +503,7 @@ export default defineComponent({
         currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
       })
 
-      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0
+      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
 
       checkAllRowTable.value =
         currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
@@ -551,6 +551,12 @@ export default defineComponent({
         if (indexConfirmedRecord !== -1) {
           dataDeposit.value[indexConfirmedRecord].confirmed = false
         }
+
+        indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+        isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
+
+        // Force rerender table
+        tableKey.value++
 
         // noti
         store.commit('flash/STORE_FLASH_MESSAGE', {
