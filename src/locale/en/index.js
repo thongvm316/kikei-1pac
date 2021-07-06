@@ -15,6 +15,7 @@ import category from './category'
 import accounting from './accounting'
 import user from './user'
 import subcategory from './subcategory'
+import login from './login'
 
 export default {
   errors,
@@ -33,5 +34,6 @@ export default {
   category,
   accounting,
   user,
-  subcategory
+  subcategory,
+  login
 }
