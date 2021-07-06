@@ -69,7 +69,9 @@ export const getSubCategory = async (params) => {
 
 export const deleteDeposit = async (id, params) => {
   try {
-    await DepositService.deleteDeposit(id, params)
+    const { data } = await DepositService.deleteDeposit(id, params)
+
+    return data
   } catch (error) {
     throw error
   }
