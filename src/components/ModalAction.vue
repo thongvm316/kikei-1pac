@@ -49,14 +49,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style scoped lang="scss">
-@import '@/styles/shared/variables';
-@import '@/styles/shared/mixins';
-
-.btn-close {
-  @include flexbox(center, center);
-  margin-left: 16px;
-  width: 16px;
-}
-</style>
