@@ -34,8 +34,15 @@
     box-shadow: 2px 2px 24px rgba(50, 50, 71, 0.25);
     border-radius: 2px;
 
-    .btn-edit {
-      margin-right: 12px;
+    .btn-delete {
+      margin-left: 12px;
+      margin-right: 16px;
+    }
+  
+    .btn-close {
+      @include flexbox(center, center);
+      width: 16px;
+      color: #bfbfbf;
     }
   }
 }

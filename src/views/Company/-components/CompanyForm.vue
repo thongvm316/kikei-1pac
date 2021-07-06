@@ -260,7 +260,7 @@ export default defineComponent({
     })
 
     const handleCancel = () => {
-      router.go(-1)
+      router.push({ name: 'company', params: route.params, query: route.query })
     }
 
     const onSubmit = handleSubmit(() => {
