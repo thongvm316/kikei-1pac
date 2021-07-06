@@ -12,7 +12,7 @@
       <template #icon><ReloadOutlined /></template>
       {{ t('action.reset_password') }}
     </a-button>
-    <a-button type="link" class="modal-actions__close-btn" @click="$emit('on-close-modal')">
+    <a-button type="link" class="btn-close" @click="$emit('close', $event)">
       <template #icon>
         <span class="btn-icon">
           <close-icon />
@@ -24,9 +24,9 @@
 <script>
 import { defineComponent } from 'vue'
 import { FormOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import CloseIcon from '@/assets/icons/ico_close.svg'
 
 import { useI18n } from 'vue-i18n'
+import CloseIcon from '@/assets/icons/ico_close.svg'
 
 export default defineComponent({
   name: 'ModalAction',
@@ -40,7 +40,7 @@ export default defineComponent({
     }
   },
 
-  emits: ['edit', 'delete', 'reset'],
+  emits: ['edit', 'delete', 'reset', 'close'],
 
   setup() {
     const { t } = useI18n()
@@ -50,4 +50,13 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
+.btn-close {
+  @include flexbox(center, center);
+  margin-left: 16px;
+  width: 16px;
+}
+</style>

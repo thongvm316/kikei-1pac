@@ -101,18 +101,16 @@ export default defineComponent({
     })
 
     const handleClear = () => {
-      Object.assign(filter, initialState) && onSearch()
+      Object.assign(filter, initialState)
     }
 
     const onSearch = () => {
-      console.log(filter)
       const data = {
         key_search: filter.key_search,
         division: filter.division,
         country_id: filter.country_id,
         currency_id: filter.currency_id
       }
-      console.log(data)
       context.emit('filter-changed', data)
       visible.value = false
       store.commit('setIsShowSearchBadge', !isEqual(filter, initialState))

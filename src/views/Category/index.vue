@@ -11,6 +11,7 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutdideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
@@ -50,7 +51,13 @@
       </template>
     </a-table>
 
-    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
+    <ModalAction
+      v-if="recordVisible.visible"
+      ref="modalActionRef"
+      @edit="handleEditRecord"
+      @delete="openDelete = true"
+      @close="handleCloseRecord"
+    />
 
     <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
   </section>
@@ -81,7 +88,9 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCategoryListService({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
+    const { getLists } = useGetCategoryListService(
+      to.query === {} ? { pageNumber: 1, pageSize: 30, order_by: 'name asc' } : to.query
+    )
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -100,8 +109,8 @@ export default defineComponent({
     const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
-
+    const params = ref({ ...route.query })
+    const modalActionRef = ref()
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -163,6 +172,8 @@ export default defineComponent({
     }
 
     const handleChange = async (pagination, filters, sorter) => {
+      recordVisible.value.visible = false
+
       if (sorter.order === 'ascend') {
         sorter.order = 'asc'
       } else if (sorter.order === 'descend') {
@@ -176,6 +187,7 @@ export default defineComponent({
         pageSize: pagination.pageSize,
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
+      await router.push({ name: route.name, query: params.value })
       await fetchList(params.value, filter.value)
     }
 
@@ -203,23 +215,43 @@ export default defineComponent({
       })
     }
 
+    // Close ActionBar
+    const handleCloseRecord = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+      tempRow = []
+    }
+
+    // Click outside close ActionBar
+    const handleClickOutdideTable = () => {
+      const el = modalActionRef.value?.$el
+      if (!el) return
+
+      if (!(el == event.target || el.contains(event.target))) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+        tempRow = []
+      }
+    }
+
     const handleEditRecord = () => {
       router.push({
         name: 'category-edit',
         params: {
           id: recordVisible.value.id
-        }
+        },
+        query: params.value
       })
     }
 
     const handleSelectNumber = (record) => {
-      console.log(filter.value)
       router.push({
         name: 'subcategory',
         params: {
           id: record.id,
           name: record.name
-        }
+        },
+        query: params.value
       })
     }
 
@@ -270,7 +302,10 @@ export default defineComponent({
       recordVisible,
       height,
       params,
+      modalActionRef,
       handleDeleteRecord,
+      handleCloseRecord,
+      handleClickOutdideTable,
       handleEditRecord,
       customRow,
       handleChange,

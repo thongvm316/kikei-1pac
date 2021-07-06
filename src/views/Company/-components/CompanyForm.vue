@@ -260,7 +260,7 @@ export default defineComponent({
     })
 
     const handleCancel = () => {
-      router.push({ name: 'company' })
+      router.go(-1)
     }
 
     const onSubmit = handleSubmit(() => {
@@ -314,15 +314,15 @@ export default defineComponent({
 
     return {
       form,
+      onSubmit,
+      handleCancel,
+      updateCompany,
+      createCompany,
+      replaceField,
       DIVISION,
       COUNTRY,
       CURRENCY,
-      PAYMENT,
-      handleCancel,
-      onSubmit,
-      updateCompany,
-      createCompany,
-      replaceField
+      PAYMENT
     }
   }
 })

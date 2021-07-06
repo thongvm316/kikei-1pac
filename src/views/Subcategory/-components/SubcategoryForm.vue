@@ -137,7 +137,7 @@ export default defineComponent({
         name: 'subcategory',
         params: {
           id: route.name === 'subcategory-edit' ? route.params.idCategory : route.params.category_id,
-          name: route.name === 'subcategory-edit' ? route.params.nameCategory: route.params.category_name
+          name: route.name === 'subcategory-edit' ? route.params.nameCategory : route.params.category_name
         }
       })
     }
