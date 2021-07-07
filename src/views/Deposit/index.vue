@@ -587,6 +587,16 @@ export default defineComponent({
       updateParamRequestDeposit({ params: { orderBy: currentSortStr } })
     }
 
+    const handleChangeFilterMonth = (val) => {
+      updateParamRequestDeposit({ params: { pageNumber: 1 }, data: val.target.value })
+
+      // reset row checkbox
+      resetConfirmAllRecord()
+
+      // update modal search deposit
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+    }
+
     onBeforeMount(async () => {
       // fetch group list
       const groupList = await getGroups()
@@ -639,13 +649,6 @@ export default defineComponent({
 
       router.replace({ query: { tab: groupId } })
     })
-
-    const handleChangeFilterMonth = (val) => {
-      updateParamRequestDeposit({ params: { pageNumber: 1 }, data: val.target.value })
-
-      // update modal search deposit
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-    }
 
     // watch to fetch data deposit
     watch(
