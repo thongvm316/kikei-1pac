@@ -1,7 +1,7 @@
 export default {
   title: 'ログイン',
   username_label: 'ログインID',
-  username_placeholder: 'IDを入力する',
+  username_placeholder: 'IDを入力してください',
   username_require: 'ユーザー名を入力してください',
   password_label: 'パスワード',
   password_placeholder: 'パスワードを入力する',
