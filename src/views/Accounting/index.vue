@@ -99,7 +99,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const pixelsScrolled = ref(0)
-    const tableIndexDisableScroll = ref()
+    const tableIndexDisableScroll = ref(-1)
     const isLoadingTable = ref(false)
     const depositList = ref([])
     const withdrawalList = ref([])
