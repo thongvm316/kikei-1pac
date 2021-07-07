@@ -71,7 +71,7 @@
               />
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="confirm_password" class="errors">
-                {{ replaceField(message, 'confirm_password') }}
+                {{ message }}
               </ErrorMessage>
             </div>
           </div>
@@ -92,26 +92,38 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import useChangePasswordAccountService from '@/views/User/composables/useChangePassAccountService'
+import Services from '@/services'
+import storageKeys from '@/enums/storage-keys'
+
+const StorageService = Services.get('StorageService')
 
 export default defineComponent({
   name: 'UserForm',
 
   setup() {
+    const router = useRouter()
+    const { handleSubmit, setFieldError } = useForm()
+    const { t, locale } = useI18n()
+    const store = useStore()
+
+    const userName = ref()
     let form = ref({
       current_password: '',
       new_password: '',
       confirm_password: ''
     })
-    const router = useRouter()
-    const { handleSubmit, setFieldError } = useForm()
-    const { t, locale } = useI18n()
+
+    onMounted(async () => {
+      userName.value = StorageService.get(storageKeys.authProfile).fullname
+    })
 
     const handleCancel = () => {
       router.go(-1)
@@ -128,11 +140,20 @@ export default defineComponent({
       try {
         const { changePassAccount } = useChangePasswordAccountService(data)
         await changePassAccount()
-        await router.go(-1)
       } catch (err) {
         checkErrorsApi(err)
         throw err
       }
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message:
+          locale.value === 'en'
+            ? userName.value + 'password reset successful'
+            : userName.value + 'のアカウントのパスワードが変更されました'
+      })
+      await router.go(-1)
     }
 
     const checkErrorsApi = (err) => {
