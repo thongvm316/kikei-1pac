@@ -34,43 +34,45 @@
       <a-tab-pane v-for="item in tabListGroup" :key="item.id" :tab="item.name" />
     </a-tabs>
 
-    <!-- deposit table -->
-    <p class="u-mt-24">売上</p>
-    <accounting-table
-      :table-index="0"
-      :table-index-disable-scroll="tableIndexDisableScroll"
-      :pixels-scrolled="pixelsScrolled"
-      :is-loading-table="isLoadingTable"
-      :group-id="activeKeyGroup"
-      :data-source="depositList"
-      @getPixelsScrolled="getPixelsScrolled"
-    />
+    <div class="accounting__table-wrapper -mx-32">
+      <!-- deposit table -->
+      <p class="u-mt-24 u-mx-32">売上</p>
+      <accounting-table
+        :table-index="0"
+        :table-index-disable-scroll="tableIndexDisableScroll"
+        :pixels-scrolled="pixelsScrolled"
+        :is-loading-table="isLoadingTable"
+        :group-id="activeKeyGroup"
+        :data-source="depositList"
+        @getPixelsScrolled="getPixelsScrolled"
+      />
 
-    <!-- withdrawal table -->
-    <p class="u-mt-24">支出</p>
-    <accounting-table
-      :table-index="1"
-      :table-index-disable-scroll="tableIndexDisableScroll"
-      :pixels-scrolled="pixelsScrolled"
-      :is-loading-table="isLoadingTable"
-      :group-id="activeKeyGroup"
-      :data-source="withdrawalList"
-      :money-color="'text-color-red'"
-      @getPixelsScrolled="getPixelsScrolled"
-    />
+      <!-- withdrawal table -->
+      <p class="u-mt-24 u-mx-32">支出</p>
+      <accounting-table
+        :table-index="1"
+        :table-index-disable-scroll="tableIndexDisableScroll"
+        :pixels-scrolled="pixelsScrolled"
+        :is-loading-table="isLoadingTable"
+        :group-id="activeKeyGroup"
+        :data-source="withdrawalList"
+        :money-color="'text-color-red'"
+        @getPixelsScrolled="getPixelsScrolled"
+      />
 
-    <!-- financing total table -->
-    <p class="u-mt-24">合計</p>
-    <accounting-table
-      :table-index="2"
-      :table-index-disable-scroll="tableIndexDisableScroll"
-      :pixels-scrolled="pixelsScrolled"
-      :is-loading-table="isLoadingTable"
-      :group-id="activeKeyGroup"
-      :data-source="financingTotalList"
-      :disable-go-to-deposit="true"
-      @getPixelsScrolled="getPixelsScrolled"
-    />
+      <!-- financing total table -->
+      <p class="u-mt-24 u-mx-32">合計</p>
+      <accounting-table
+        :table-index="2"
+        :table-index-disable-scroll="tableIndexDisableScroll"
+        :pixels-scrolled="pixelsScrolled"
+        :is-loading-table="isLoadingTable"
+        :group-id="activeKeyGroup"
+        :data-source="financingTotalList"
+        :disable-go-to-deposit="true"
+        @getPixelsScrolled="getPixelsScrolled"
+      />
+    </div>
   </div>
 </template>
 
@@ -328,6 +330,11 @@ export default defineComponent({
 .accounting {
   .-mx-32 {
     margin: 0 -32px;
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+    height: calc(100vh - 172px);
   }
 }
 </style>

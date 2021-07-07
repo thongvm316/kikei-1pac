@@ -1,7 +1,7 @@
 <template>
   <a-table
     ref="accountingTableRef"
-    class="accounting-table -mx-32"
+    class="accounting-table"
     :loading="isLoadingTable"
     :columns="columns"
     :data-source="dataTable"
@@ -27,7 +27,7 @@
 import { defineComponent, ref, watch, onMounted, onUnmounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import moment from 'moment'
-import { debounce } from 'lodash-es'
+import { debounce, uniqueId } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
@@ -121,11 +121,11 @@ export default defineComponent({
       const { detail = [], total = [] } = props.dataSource
       if (detail.length === 0) return arr
 
-      detail.map((category, categoryIndex) => {
+      detail.map((category) => {
         const categoryName = category?.name ? t(`accounting.${category?.name}`) : category?.categoryName || ''
 
         const row = {
-          key: category?.categoryId || categoryIndex,
+          key: uniqueId('__row__'),
           divisionType: category?.divisionType,
           categoryName,
           categoryId: [category?.categoryId],
@@ -144,7 +144,7 @@ export default defineComponent({
 
           subcategories.map((item) => {
             const childrenItem = {
-              key: `${category?.categoryId} + ${item.subcategoryId}`,
+              key: uniqueId('__row__'),
               divisionType: category?.divisionType,
               categoryName: item?.subcategoryName,
               categoryId: [category?.categoryId],
@@ -198,7 +198,7 @@ export default defineComponent({
       const tableIndex = el.getAttribute('accounting-table-index')
       const pixelsScrolled = el.scrollLeft
 
-      emit('getPixelsScrolled', { tableIndex: tableIndex, pixel: pixelsScrolled })
+      emit('getPixelsScrolled', { tableIndex: parseInt(tableIndex), pixel: pixelsScrolled })
     }
 
     onMounted(() => {
