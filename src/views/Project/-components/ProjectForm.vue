@@ -185,7 +185,7 @@
 
     <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
-      <div class="outsource">
+      <div class="outsource u-pl-20">
         <table>
           <tbody>
             <template v-for="(order, index) in localProjectOrders" :key="order.key">
