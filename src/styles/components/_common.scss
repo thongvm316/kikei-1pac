@@ -38,11 +38,14 @@
       margin-left: 12px;
       margin-right: 16px;
     }
-  
+
     .btn-close {
       @include flexbox(center, center);
       width: 16px;
       color: #bfbfbf;
+      &:hover {
+        color: #31AAF1;
+      }
     }
   }
 }

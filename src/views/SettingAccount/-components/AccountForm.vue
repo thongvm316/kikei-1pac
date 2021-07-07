@@ -67,25 +67,6 @@
         </Field>
       </div>
 
-      <!-- Email -->
-      <!--<div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('account.email') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                @change="handleChange"
-              />
-              <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
-                {{ replaceField(message, 'email') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>-->
       <!-- Sales -->
       <div class="form-group">
         <div class="form-content">
@@ -147,10 +128,10 @@
 
       <!-- Action Section Submit & Cancel -->
       <div class="card-footer">
-        <a-button key="back" style="width: 105px; margin-right: 16px" @click="handleCancel"
-          >{{ $t('common.cancel') }}
+        <a-button key="back" class="btn-cancel" @click="handleCancel">
+          {{ $t('common.cancel') }}
         </a-button>
-        <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
+        <a-button key="submit" type="primary" html-type="submit" class="btn-submit">
           {{ $route.name === 'account-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
@@ -169,11 +150,21 @@ import { TYPE, ACTIVE, AUTHORITY } from '@/enums/account.enum'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'AccountForm',
 
   setup() {
+    const router = useRouter()
+    const route = useRoute()
+    const store = useStore()
+    const { handleSubmit, setFieldError } = useForm()
+    const { t, locale } = useI18n()
+
+    const isHiddenField = ref(false)
+    const isDisableEditField = ref(false)
+
     let form = ref({
       account_group_id: 1,
       username: '',
@@ -185,13 +176,6 @@ export default defineComponent({
       active: true,
       is_admin: false
     })
-    const router = useRouter()
-    const route = useRoute()
-    const { handleSubmit, setFieldError } = useForm()
-    const { t, locale } = useI18n()
-
-    const isHiddenField = ref(false)
-    const isDisableEditField = ref(false)
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'account-edit') {
@@ -203,7 +187,7 @@ export default defineComponent({
     })
 
     const handleCancel = () => {
-      router.push({ name: 'account' })
+      router.push({ name: 'account', params: route.params, query: route.query })
     }
 
     const onSubmit = handleSubmit(() => {
@@ -223,7 +207,12 @@ export default defineComponent({
       try {
         const { updateAccount } = useUpdateAccountService(id, data)
         await updateAccount()
-        // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
+        })
         await router.push({ name: 'account' }).catch((err) => err)
       } catch (err) {
         throw err
@@ -235,6 +224,13 @@ export default defineComponent({
       try {
         const { createAccount } = useCreateAccountService(data)
         await createAccount()
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message:
+            locale.value === 'en' ? data.username + 'created account success' : data.username + ' が追加されました'
+        })
         await router.push({ name: 'account' })
       } catch (err) {
         checkErrorsApi(err)
