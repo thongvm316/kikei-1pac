@@ -94,7 +94,7 @@
       v-model:check-all-row-table="checkAllRowTable"
       v-model:current-selected-row-keys="currentSelectedRowKeys"
       v-model:expand-icon-column-index="expandIconColumnIndex"
-      v-click-outside="handleClickOutdideTable"
+      v-click-outside="handleClickOutsideTable"
       :is-visible-modal-action-bar="isVisibleModalActionBar"
       class="-mx-32"
       @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
@@ -336,11 +336,14 @@ export default defineComponent({
     }
 
     // close action bar
-    const handleClickOutdideTable = (event) => {
-      const el = modalActionRef.value?.$el
-      if (!el) return
+    const handleClickOutsideTable = (event) => {
+      const elModalDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit].filter(Boolean)
+      if (elNotOutsideList.length === 0) return
 
-      if (!(el == event.target || el.contains(event.target))) {
+      const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
+
+      if (isElOutside) {
         isVisibleModalActionBar.value = false
         currentSelectedRecord.value = {}
       }
@@ -711,7 +714,7 @@ export default defineComponent({
       onSortTable,
       onUnconfirmDeposit,
       handleOpenUnconfirmModal,
-      handleClickOutdideTable,
+      handleClickOutsideTable,
       onCloseModalAction,
       handleChangeFilterMonth
     }

@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="visible" centered title="削除" width="380px">
+  <a-modal v-model:visible="visible" class="modal-delete-deposit-js" centered title="削除" width="380px">
     <template #footer>
       <p v-if="currentSelectedRecord?.purpose">
         {{ $t('deposit.deposit_list.delete_deposit', { purpose }) }}
