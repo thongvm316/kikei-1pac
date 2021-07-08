@@ -103,7 +103,7 @@ const columnsDeposit = [
     },
     ellipsis: true,
     sorter: true,
-    width: 100
+    width: 110
   },
   {
     title: '計上月',
