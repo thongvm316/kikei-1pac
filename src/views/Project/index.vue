@@ -28,7 +28,7 @@
 
   <div class="project">
     <a-table
-      v-click-outside="handleClickOutdideTable"
+      v-click-outside="handleClickOutsideTable"
       class="project__list"
       :columns="columns"
       :data-source="projectDatas"
@@ -113,7 +113,13 @@
     @on-close-modal="onCloseModalAction"
   />
 
-  <a-modal v-model:visible="isDeleteConfirmModalOpen" centered :title="$t('project.delete_modal.title')" width="380px">
+  <a-modal
+    v-model:visible="isDeleteConfirmModalOpen"
+    class="modal-delete-project-js"
+    centered
+    :title="$t('project.delete_modal.title')"
+    width="380px"
+  >
     <template #footer>
       <p>
         {{ $t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
@@ -373,11 +379,14 @@ export default defineComponent({
     }
 
     // close action bar
-    const handleClickOutdideTable = () => {
-      const el = modalActionRef.value?.$el
-      if (!el) return
+    const handleClickOutsideTable = (event) => {
+      const elModalDeleteDeposit = document.querySelector('.modal-delete-project-js')
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit].filter(Boolean)
+      if (elNotOutsideList.length === 0) return
 
-      if (!(el == event.target || el.contains(event.target))) {
+      const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
+
+      if (isElOutside) {
         isOpenFloatButtons.value = false
         targetProjectSelected.value = {}
       }
@@ -438,7 +447,7 @@ export default defineComponent({
       changeProjectTable,
       getInnerHeight,
       goToEditProject,
-      handleClickOutdideTable,
+      handleClickOutsideTable,
       onCloseModalAction
     }
   }
