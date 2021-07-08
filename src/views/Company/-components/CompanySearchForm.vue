@@ -112,7 +112,7 @@ export default defineComponent({
           }
         })
       }
-      store.commit('setIsShowSearchBadge', !isEqual(filter, initialState))
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
     })
 
     const handleClear = () => {

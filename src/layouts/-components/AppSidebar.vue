@@ -285,10 +285,12 @@ $width-sub-nav-collapse: 150px;
   .router-link-exact-active > .aside__link--text {
     background-color: $color-primary-9;
     color: $color-primary-3;
+    font-weight: 700;
   }
 
   .is-active.aside__link.aside__collapse--header {
     color: $color-primary-3;
+    font-weight: 700;
   }
 
   &__link--circle-icon {

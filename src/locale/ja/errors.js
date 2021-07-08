@@ -18,5 +18,38 @@ export default {
   project_0001: '該当プロジェクトが見つかりません',
   project_0002: 'プロジェクトが無効です',
   project_0003: 'プロジェクトが存在しました',
-  project_0004: '入力が無効です'
+  project_0004: '入力が無効です',
+
+  financing_0000: 'エラーが見つかりません',
+  financing_0001: '資金繰りが見つかりません',
+  financing_0004: '入力が無効です',
+  financing_total_0000: 'エラーが見つかりません',
+  financing_total_0001: '資金繰り合計が見つかりません',
+  financing_total_0004: '入力が無効です',
+
+  country_0000: 'エラーが見つかりません',
+  country_0001: '国が見つかりません',
+  country_0002: '国が無効です',
+  country_0003: '国が存在しました',
+  country_0004: '入力が無効です',
+
+  category_0000: 'エラーが見つかりません',
+  category_0001: '大分類が見つかりません',
+  category_0002: '大分類が無効です',
+  category_0003: '大分類が存在しました',
+  category_0004: '入力が無効です',
+
+  subcategory_0000: 'エラーが見つかりません',
+  subcategory_0001: '中分類が見つかりません',
+  subcategory_0002: '中分類が無効です',
+  subcategory_0003: '中分類が存在しました',
+  subcategory_0004: '入力が無効です',
+
+  currency_0000: 'エラーが見つかりません',
+  currency_0001: '通貨が見つかりません',
+  currency_0002: '通貨が無効です',
+  currency_0003: '通貨が存在しました',
+  currency_0004: '入力が無効です',
+
+  account_0102: '権限がありません'
 }

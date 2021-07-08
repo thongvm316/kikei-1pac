@@ -7,7 +7,7 @@ export default {
     type_none: '-',
     delete_deposit: '{purpose}を削除してもよろしいですか？',
     delete_deposit_multiple: '削除してもよろしいですか？',
-    delete_success: '{purpose}を削除されました',
+    delete_success: '{purpose}が削除されました',
     delete_success_multiple: '削除されました',
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',
