@@ -99,7 +99,7 @@ export default defineComponent({
     const query = {
       page_number: to.query.page_number || 1,
       page_size: 30,
-      order_by: 'username asc',
+      order_by: 'id asc',
       ...body
     }
 
@@ -276,7 +276,7 @@ export default defineComponent({
         duration: 5,
         message:
           locale.value === 'en'
-            ? 'Password reset' + recordVisible.value.name + ' was successful'
+            ? 'Password reset' + recordVisible.value.username + ' was successful'
             : recordVisible.value.username + ' のアカウントのパスワードのリセットが成功しました'
       })
     }
@@ -297,7 +297,7 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-
+      debugger
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
