@@ -44,11 +44,11 @@ export default defineComponent({
       default: 0
     },
     tableIndexDisableScroll: {
-      type: Number,
+      validator: (value) => ['number', 'undefined'].indexOf(typeof value) !== -1,
       required: true
     },
     groupId: {
-      type: Number,
+      validator: (value) => ['number', 'undefined'].indexOf(typeof value) !== -1,
       required: true
     },
     dataSource: {
