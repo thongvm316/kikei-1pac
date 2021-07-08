@@ -101,7 +101,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const pixelsScrolled = ref(0)
-    const tableIndexDisableScroll = ref(-1)
+    const tableIndexDisableScroll = ref()
     const isLoadingTable = ref(false)
     const depositList = ref([])
     const withdrawalList = ref([])
@@ -116,7 +116,7 @@ export default defineComponent({
     const periodList = ref([])
 
     // group tabs
-    const activeKeyGroup = ref(1)
+    const activeKeyGroup = ref()
     const tabListGroup = ref([])
 
     const getPixelsScrolled = debounce(
@@ -296,8 +296,10 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // fetch group list
-      const groupList = await getGroups()
-      tabListGroup.value = groupList.result?.data || []
+      const groupsReponse = await getGroups()
+      const groupList = groupsReponse.result?.data || []
+      tabListGroup.value = groupList
+      groupList.length > 0 && (activeKeyGroup.value = groupList[0].id)
 
       fetchPeriodList()
     })
