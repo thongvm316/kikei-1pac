@@ -90,6 +90,22 @@
         </div>
       </div>
 
+      <!-- INREPORT -->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('category.report') }}</label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.show_in_report">
+              <a-radio v-for="item in INREPORT" :key="item.id" :value="item.boolean">
+                <template v-if="item.boolean"><CheckOutlined /></template>
+                <template v-else><CloseOutlined /></template>
+              </a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Section Submit & Cancel -->
       <div class="card-footer">
         <a-button key="back" style="width: 105px; margin-right: 16px" @click="handleCancel"
@@ -110,7 +126,8 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 
-import { DIVISIONCATEGORY, DIVISIONMEDIUM, INUSE } from '@/enums/category.enum'
+import { DIVISIONCATEGORY, DIVISIONMEDIUM, INUSE, INREPORT } from '@/enums/category.enum'
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons-vue'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCategoryService from '@/views/Category/composables/useUpdateCategoryService'
@@ -119,6 +136,8 @@ import useCreateCategoryService from '@/views/Category/composables/useCreateCate
 export default defineComponent({
   name: 'CategoryForm',
 
+  components: { CheckOutlined, CloseOutlined },
+
   setup() {
     let form = ref({
       name: '',
@@ -126,7 +145,8 @@ export default defineComponent({
       division_type: 0,
       in_use: true,
       subcategory_other: '',
-      description: ''
+      description: '',
+      show_in_report: true
     })
     const isOpen = ref(false)
     const router = useRouter()
@@ -161,8 +181,7 @@ export default defineComponent({
       try {
         const { updateCategory } = useUpdateCategoryService(id, data)
         await updateCategory()
-        // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({ name: 'category' }).catch((err) => err)
+        await router.push({ name: 'category' })
       } catch (err) {
         throw err
       }
@@ -203,7 +222,8 @@ export default defineComponent({
       replaceField,
       DIVISIONCATEGORY,
       DIVISIONMEDIUM,
-      INUSE
+      INUSE,
+      INREPORT
     }
   }
 })

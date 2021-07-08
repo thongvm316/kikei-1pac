@@ -191,7 +191,9 @@ export default defineComponent({
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
+
       subcategory: [category, subcategory],
+
       'subcategory-new': [
         category,
         subcategory,

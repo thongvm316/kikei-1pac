@@ -70,12 +70,12 @@
 </template>
 
 <script>
-import { defineComponent, reactive, computed } from 'vue'
+import { defineComponent, reactive, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { DIVISIONCATEGORY, DIVISIONSUBCATEGORY, INUSE } from '@/enums/category.enum'
-import { isEqual } from 'lodash-es'
+import { forEach, includes, isArray, isEqual, keys, map } from 'lodash-es'
 
 export default defineComponent({
   name: 'CategorySearchForm',
@@ -95,13 +95,28 @@ export default defineComponent({
       in_use: []
     }
 
-    const filter = reactive({ ...initialState })
+    let filter = reactive({ ...initialState })
 
     const visible = computed({
       get: () => store.state.search.currentRoute === route.name,
       set: (val) => {
         store.commit('search/STORE_SEARCH_CURRENT_ROUTE', val)
       }
+    })
+
+    onMounted(() => {
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter[key] = map([...value], (i) => Number(i))
+            } else {
+              filter[key] = value
+            }
+          }
+        })
+      }
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
     })
 
     const handleClear = () => {

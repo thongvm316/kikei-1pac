@@ -59,3 +59,14 @@ export const INUSE = [
     value: 'prohibited'
   }
 ]
+
+export const INREPORT = [
+  {
+    id: 0,
+    boolean: true
+  },
+  {
+    id: 1,
+    boolean: false
+  }
+]
