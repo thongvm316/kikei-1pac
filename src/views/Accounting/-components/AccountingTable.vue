@@ -185,8 +185,8 @@ export default defineComponent({
         type: record?.divisionType ? [record.divisionType] : [],
         categoryId: record?.categoryId || [],
         subcategoryId: record?.subcategoryId || [],
-        fromDate: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
-        toDate: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
+        statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
+        statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
       }
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
     }
