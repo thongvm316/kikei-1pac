@@ -62,7 +62,7 @@ export default defineComponent({
       category_id: props.filter.category_id,
       category_name: props.filter.category_name
     }
-
+    console.log(props)
     const filter = reactive({ ...initialState })
 
     const visible = computed({
@@ -85,6 +85,8 @@ export default defineComponent({
       visible.value = false
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
     }
+
+    console.log(filter.category_name)
 
     return {
       visible,
