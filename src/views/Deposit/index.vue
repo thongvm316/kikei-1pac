@@ -69,7 +69,7 @@
         v-model:current="currentPage"
         :total="totalRecords"
         :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
-        :page-size="10"
+        :page-size="pageSize"
         size="small"
         @change="handleChangePage"
       />
@@ -190,6 +190,7 @@ export default defineComponent({
     // pagination
     const currentPage = ref(1)
     const totalRecords = ref()
+    const pageSize = ref(50)
 
     // tabs
     const activeKeyGroupTab = ref(1)
@@ -247,7 +248,7 @@ export default defineComponent({
     ])
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1, pageSize: pageSize.value } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -696,6 +697,7 @@ export default defineComponent({
       filterMonthList,
       unconfirmRecordSeleted,
       modalActionRef,
+      pageSize,
 
       isLoadingDataTable,
       isVisibleModalActionBar,

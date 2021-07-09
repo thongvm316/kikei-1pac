@@ -165,7 +165,7 @@ export default defineComponent({
     const loading = ref(false)
     const currentPage = ref(1)
     let pagination = ref({
-      pageSize: 10,
+      pageSize: 50,
       pageNumber: 1
     })
     const height = ref(0)
