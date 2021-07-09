@@ -52,6 +52,7 @@ export default defineComponent({
       'company',
       'category',
       'account',
+      'subcategory',
       'logs'
     ]
 
