@@ -22,7 +22,7 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 217 }"
+      :scroll="{ y: height - 218 }"
       size="middle"
       @change="handleChange"
     >
@@ -110,7 +110,7 @@ export default defineComponent({
 
     const query = {
       page_number: to.query.page_number || 1,
-      page_size: 10,
+      page_size: 50,
       order_by: 'name asc',
       ...to.query,
       ...body
@@ -252,7 +252,7 @@ export default defineComponent({
       filter.value = { ...deleteEmptyValue(evt) }
       params.value = {
         page_number: 1,
-        page_size: 10,
+        page_size: 50,
         order_by: 'name asc',
         ...filter.value
       }
@@ -312,7 +312,9 @@ export default defineComponent({
     const handleSelectNumber = (record) => {
       idSelected.value = {
         key_search: '',
-        category_id: [parseInt(record.id)]
+        category_id: [parseInt(record.id)],
+        name: record.name,
+        id: record.id
       }
       router.push({
         name: 'subcategory',

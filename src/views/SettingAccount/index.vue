@@ -22,7 +22,7 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 211 }"
+      :scroll="{ y: height - 218 }"
       size="middle"
       @change="handleChange"
     >
@@ -99,7 +99,7 @@ export default defineComponent({
     const query = {
       page_number: to.query.page_number || 1,
       page_size: 30,
-      order_by: 'id asc',
+      order_by: 'username asc',
       ...body
     }
 
@@ -191,7 +191,7 @@ export default defineComponent({
       params.value = {
         page_number: pagination.current,
         page_size: pagination.pageSize,
-        order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
+        order_by: sorter.order === '' ? 'username asc' : sorter.field + ' ' + sorter.order
       }
 
       if (keys(route.query).length > 0) {
@@ -297,7 +297,6 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-      debugger
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []
@@ -322,7 +321,7 @@ export default defineComponent({
       const el = modalActionRef.value?.$el
       if (!el) return
 
-      if (!(el == event.target || el.contains(event.target))) {
+      if (!(el === event.target || el.contains(event.target))) {
         recordVisible.value.visible = false
         state.selectedRowKeys = []
       }
@@ -369,7 +368,6 @@ export default defineComponent({
 
   .btn-modal {
     width: auto;
-    height: 24px;
     border-radius: 2px;
     padding: 1px 8px;
     text-align: center;
