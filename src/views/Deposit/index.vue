@@ -467,6 +467,9 @@ export default defineComponent({
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
+      // save filters search to store
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+
       router.push({
         name: 'deposit-new',
         query: { selectedId: depositId }
