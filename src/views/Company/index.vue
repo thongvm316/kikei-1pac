@@ -22,7 +22,7 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 219 }"
+      :scroll="{ y: height - 218 }"
       size="middle"
       @change="handleChange"
     >
@@ -90,7 +90,7 @@ export default defineComponent({
 
     const query = {
       page_number: to.query.page_number || 1,
-      page_size: 30,
+      page_size: 50,
       order_by: 'code asc',
       ...to.query,
       ...body
@@ -230,7 +230,7 @@ export default defineComponent({
       filter.value = { ...deleteEmptyValue(evt) }
       params.value = {
         page_number: 1,
-        page_size: 30
+        page_size: 50
       }
       await router.push({ name: 'company', query: { ...params.value, ...filter.value } })
       await fetchList({ ...params.value }, { ...filter.value })

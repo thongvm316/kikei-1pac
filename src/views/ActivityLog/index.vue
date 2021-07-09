@@ -65,7 +65,7 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetLogListService({ pageNumber: 1, pageSize: 30 }, state)
+    const { getLists } = useGetLogListService({ pageNumber: 1, pageSize: 50 }, state)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -154,7 +154,7 @@ export default defineComponent({
       } else {
         filter.value = { ...evt }
       }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await fetchList({ pageNumber: 1, pageSize: 50 }, filter.value)
     }
 
     const customRow = (record) => {

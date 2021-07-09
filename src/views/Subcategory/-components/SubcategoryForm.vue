@@ -50,7 +50,7 @@
       <div class="form-group">
         <Field v-slot="{ field, handleChange }" v-model="form.example" name="example" rules="required">
           <div class="form-content">
-            <label class="form-label">{{ $t('subcategory.example') }}</label>
+            <label class="form-label required">{{ $t('subcategory.example') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"

@@ -24,10 +24,13 @@
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
-      :pagination="false"
+      :pagination="{
+        ...pagination,
+        showTotal: showTotal
+      }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 217 }"
+      :scroll="{ y: height - 218 }"
       size="middle"
       @change="handleChange"
     >
@@ -118,7 +121,7 @@ export default defineComponent({
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
+    const filter = ref({ key_search: '' })
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
@@ -160,10 +163,11 @@ export default defineComponent({
       queryDelete.value = { ...route.meta['queryDelete'] }
 
       // Back Form
-      if (tempRow[0] === parseInt(await route.params.category_id)) {
-        state.selectedRowKeys = [parseInt(await route.params.category_id)]
-        tempRow = [parseInt(await route.params.category_id)]
-        recordVisible.value.id = route.params.category_id
+      tempRow = [parseInt(await route.params.id)]
+      if (tempRow[0] === parseInt(await route.params.id)) {
+        state.selectedRowKeys = [parseInt(await route.params.id)]
+        tempRow = [parseInt(await route.params.id)]
+        recordVisible.value.id = route.params.id
         recordVisible.value.visible = true
       }
 
@@ -218,7 +222,7 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ page_number: 1, page_size: 30 }, filter.value)
+      await fetchList({ page_number: 1, page_size: 50 }, filter.value)
     }
 
     const handleBack = () => {
@@ -227,6 +231,9 @@ export default defineComponent({
       }
       delete queryBack.category_id
       delete queryBack.name
+      delete queryBack.category_name
+      delete queryBack.key_search
+      delete queryBack.id
       router.push({
         name: 'category',
         params: queryDelete.value,
@@ -286,8 +293,8 @@ export default defineComponent({
         name: 'subcategory-edit',
         params: {
           id: recordVisible.value.id,
-          idCategory: route.params.id,
-          nameCategory: route.params.name
+          category_id: route.params.category_id,
+          name: route.params.name
         },
         query: { ...route.query, ...params.value, ...filter.value }
       })
