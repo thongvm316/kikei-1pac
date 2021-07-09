@@ -62,7 +62,6 @@ export default defineComponent({
       category_id: props.filter.category_id,
       category_name: props.filter.category_name
     }
-
     const filter = reactive({ ...initialState })
 
     const visible = computed({

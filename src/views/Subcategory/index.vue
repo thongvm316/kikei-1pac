@@ -118,7 +118,7 @@ export default defineComponent({
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({ key_search: '' })
+    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
