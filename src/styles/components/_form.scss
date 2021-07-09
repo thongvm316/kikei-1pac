@@ -7,6 +7,7 @@
 
   .form-group {
     margin-bottom: 16px;
+
     .form-content {
       .form-label.required:after {
         content: "*";
@@ -16,12 +17,23 @@
 
       .form-input {
         margin-top: 5px;
+
         .ant-checkbox-group {
           label:first-child {
             margin-right: 15px;
           }
         }
       }
+    }
+  }
+
+  .card-footer {
+    .ant-btn {
+      min-width: 105px;
+    }
+
+    .btn-cancel {
+      margin-right: 16px;
     }
   }
 }

@@ -3,7 +3,7 @@
     <account-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new', query: $route.query })">
         <add-icon class="add-icon" />
         {{ $t('account.add_account') }}
       </a-button>
@@ -41,8 +41,8 @@
       @close="onCloseModalAction"
     />
 
-    <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
-    <ModalReset v-model:visible="openReset" :name="recordVisible.name" @reset="handleResetPassword($event)" />
+    <ModalDelete v-model:visible="openDelete" :name="recordVisible.username" @delete="handleDeleteRecord($event)" />
+    <ModalReset v-model:visible="openReset" :name="recordVisible.username" @reset="handleResetPassword($event)" />
   </section>
 </template>
 
@@ -51,12 +51,14 @@ import { defineComponent, computed, ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { forEach, isArray, keys, map, includes } from 'lodash-es'
 
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
 import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
 import useResetPasswordAccountService from '@/views/SettingAccount/composables/useResetPasswordAccountService'
+
 import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
@@ -80,7 +82,28 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getAccounts } = useGetAccountListService({ pageNumber: 1, pageSize: 30 }, defaultParam)
+    const body = {}
+
+    if (keys(to.query).length > 0) {
+      forEach(to.query, (value, key) => {
+        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+          if (isArray(value)) {
+            body[key] = map([...value], (i) => Number(i))
+          } else {
+            body[key] = value
+          }
+        }
+      })
+    }
+
+    const query = {
+      page_number: to.query.page_number || 1,
+      page_size: 30,
+      order_by: 'id asc',
+      ...body
+    }
+
+    const { getAccounts } = useGetAccountListService(query, body)
     const { result } = await getAccounts()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -146,6 +169,7 @@ export default defineComponent({
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
 
+      // check account admin
       StorageService.get(storageKeys.authProfile).isAdmin
         ? (isShowResetPass.value = true)
         : (isShowResetPass.value = false)
@@ -165,19 +189,45 @@ export default defineComponent({
       }
 
       params.value = {
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
+        page_number: pagination.current,
+        page_size: pagination.pageSize,
         order_by: sorter.order === '' ? '' : sorter.field + ' ' + sorter.order
       }
-      await fetchList(params.value, filter.value)
+
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter.value[key] = map([...value], (i) => Number(i))
+            } else {
+              filter.value[key] = value
+            }
+          }
+        })
+      }
+
+      await router.push({
+        name: 'account',
+        query: {
+          ...params.value,
+          ...filter.value
+        }
+      })
+
+      await fetchList(params.value, { ...filter.value })
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
 
-      Object.assign(filter.value, defaultParam)
+      params.value = {
+        page_number: 1,
+        page_size: 30
+      }
 
-      await fetchList(pagination.value, filter.value)
+      Object.assign(filter.value, defaultParam)
+      await fetchList(pagination.value, { ...filter.value })
+      await router.push({ name: 'account', query: { ...params.value, ...filter.value } })
     }
 
     const handleDeleteRecord = async () => {
@@ -206,7 +256,8 @@ export default defineComponent({
         name: 'account-edit',
         params: {
           id: recordVisible.value.id
-        }
+        },
+        query: { ...params.value, ...filter.value }
       })
     }
 
@@ -225,7 +276,7 @@ export default defineComponent({
         duration: 5,
         message:
           locale.value === 'en'
-            ? 'Password reset' + recordVisible.value.name + ' was successful'
+            ? 'Password reset' + recordVisible.value.username + ' was successful'
             : recordVisible.value.username + ' のアカウントのパスワードのリセットが成功しました'
       })
     }
@@ -246,7 +297,7 @@ export default defineComponent({
 
     const selectRow = (record) => {
       recordVisible.value = { ...record }
-
+      debugger
       if (tempRow.length && tempRow[0] === record.id) {
         state.selectedRowKeys = []
         tempRow = []

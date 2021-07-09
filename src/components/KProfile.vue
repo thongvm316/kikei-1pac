@@ -6,10 +6,10 @@
 
     <template #content>
       <a-menu mode="inline">
-        <a-menu-item>
-          <router-link to="/user">
+        <a-menu-item class="menu__item">
+          <router-link to="/user" class="menu__link">
             <user-setting-icon />
-            {{ $t('user.personal_settings') }}
+            <span class="menu__link--text">{{ $t('user.personal_settings') }}</span>
           </router-link>
           <!--           -->
         </a-menu-item>
@@ -163,6 +163,14 @@ export default defineComponent({
   .ant-menu {
     width: 203px;
     border: 0;
+    .menu__item {
+      .menu__link {
+        color: rgba(0, 0, 0, 0.85);
+        &:hover {
+          color: #1890ff;
+        }
+      }
+    }
   }
 
   .ant-popover-inner-content {
