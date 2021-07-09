@@ -25,5 +25,6 @@ export default {
   use_distinction: '使用区分',
   medium_classification: '中分類種類',
   input: '通常(テキスト入力)',
-  group: 'グループ'
+  group: 'グループ',
+  report: '管理会計に含む'
 }

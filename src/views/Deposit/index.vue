@@ -512,7 +512,9 @@ export default defineComponent({
         currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
       })
 
-      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+      indeterminateCheckAllRows.value =
+        currentSelectedRowKeys.value.length > 0 &&
+        currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
 
       checkAllRowTable.value =
         currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
@@ -561,7 +563,9 @@ export default defineComponent({
           dataDeposit.value[indexConfirmedRecord].confirmed = false
         }
 
-        indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+        indeterminateCheckAllRows.value =
+          currentSelectedRowKeys.value.length > 0 &&
+          currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
 
         // Force rerender table

@@ -1,28 +1,16 @@
 <template>
-  <section>
+  <section class="subcategory">
     <subcategory-search-form :filter="filter" @filter-changed="onFilterChange($event)" />
+
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
       <div>
-        <a-button
-          class="u-mr-16 bnt-back"
-          type="default"
-          @click="$router.push({ name: 'category', query: $route.query })"
-        >
+        <a-button class="u-mr-16 bnt-back" type="default" @click="handleBack">
           <arrow-icon class="arrow-icon" />
           {{ $t('subcategory.back') }}
         </a-button>
       </div>
       <div>
-        <a-button
-          class="u-ml-12 btn-modal"
-          type="primary"
-          @click="
-            $router.push({
-              name: 'subcategory-new',
-              params: { category_id: filter.category_id, category_name: filter.category_name }
-            })
-          "
-        >
+        <a-button class="u-ml-12 btn-modal" type="primary" @click="handleCreate">
           <add-icon class="add-icon" />
           {{ $t('subcategory.add_subcategory') }}
         </a-button>
@@ -31,14 +19,12 @@
 
     <a-table
       id="list-table"
+      v-click-outside="handleClickOutdideTable"
       :columns="columns"
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
-      :pagination="{
-        ...pagination,
-        showTotal: showTotal
-      }"
+      :pagination="false"
       :custom-row="customRow"
       :row-selection="rowSelection"
       :scroll="{ y: height - 217 }"
@@ -50,8 +36,20 @@
       </template>
     </a-table>
 
-    <ModalAction v-if="recordVisible.visible" @edit="handleEditRecord" @delete="openDelete = true" />
-    <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
+    <ModalAction
+      v-if="recordVisible.visible"
+      ref="modalActionRef"
+      @edit="handleEditRecord"
+      @delete="openDelete = true"
+      @close="handleCloseRecord"
+    />
+
+    <ModalDelete
+      v-model:visible="openDelete"
+      class="close-modal-delete"
+      :name="recordVisible.name"
+      @delete="handleDeleteRecord($event)"
+    />
   </section>
 </template>
 
@@ -72,6 +70,7 @@ import ArrowIcon from '@/assets/icons/ico_arrow_up.svg'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import { forEach, includes, isArray, keys, map } from 'lodash-es'
 
 export default defineComponent({
   name: 'Index',
@@ -81,13 +80,32 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetSubCategoryListService(
-      { pageNumber: 1, pageSize: 30 },
-      { key_search: '', category_id: [parseInt(to.params.id)] }
-    )
+    const body = {}
+
+    if (keys(to.query).length > 0) {
+      forEach(to.query, (value, key) => {
+        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+          if (isArray(value)) {
+            body[key] = map([...value], (i) => Number(i))
+          } else {
+            body[key] = value
+          }
+        }
+      })
+    }
+
+    const query = {
+      page_number: 1,
+      page_size: 50,
+      order_by: 'name asc',
+      ...body
+    }
+
+    const { getLists } = useGetSubCategoryListService(query, body)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
+    to.meta['queryDelete'] = body
     next()
   },
 
@@ -96,16 +114,21 @@ export default defineComponent({
     const router = useRouter()
     const { t, locale } = useI18n()
     const store = useStore()
+
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({ key_search: '', category_id: [parseInt(route.params.id)], category_name: route.params.name })
+    const filter = ref({ key_search: '' })
     const isLoading = ref(false)
     const recordVisible = ref({})
-    const params = ref({ pageNumber: 1, pageSize: 30, order_by: 'name asc' })
+    const params = ref({})
     const height = ref(0)
+    const modalActionRef = ref()
+    const queryDelete = ref({})
+
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
     const rowSelection = computed(() => {
       return {
         selectedRowKeys: state.selectedRowKeys,
@@ -134,6 +157,16 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
+      queryDelete.value = { ...route.meta['queryDelete'] }
+
+      // Back Form
+      if (tempRow[0] === parseInt(await route.params.category_id)) {
+        state.selectedRowKeys = [parseInt(await route.params.category_id)]
+        tempRow = [parseInt(await route.params.category_id)]
+        recordVisible.value.id = route.params.category_id
+        recordVisible.value.visible = true
+      }
+
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -144,6 +177,8 @@ export default defineComponent({
     }
 
     const handleChange = async (pagination, filters, sorter) => {
+      recordVisible.value.visible = false
+
       if (sorter.order === 'ascend') {
         sorter.order = 'asc'
       } else if (sorter.order === 'descend') {
@@ -153,16 +188,58 @@ export default defineComponent({
       }
 
       params.value = {
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
+        page_number: pagination.current,
+        page_size: pagination.pageSize,
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
+
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter.value[key] = map([...value], (i) => Number(i))
+            } else {
+              filter.value[key] = value
+            }
+          }
+        })
+      }
+
+      await router.push({
+        name: 'subcategory',
+        query: {
+          ...params.value,
+          ...filter.value
+        }
+      })
+
       await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      await fetchList({ page_number: 1, page_size: 30 }, filter.value)
+    }
+
+    const handleBack = () => {
+      let queryBack = {
+        ...route.query
+      }
+      delete queryBack.category_id
+      delete queryBack.name
+      router.push({
+        name: 'category',
+        params: queryDelete.value,
+        query: queryBack
+      })
+    }
+
+    const handleCreate = () => {
+      router.push({
+        name: 'subcategory-new',
+        params: route.params,
+        query: route.query
+      })
     }
 
     const handleDeleteRecord = async () => {
@@ -174,7 +251,7 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      await fetchList(params.value)
+      await fetchList(params.value, queryDelete.value)
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
@@ -184,6 +261,26 @@ export default defineComponent({
       })
     }
 
+    // Close ActionBar
+    const handleCloseRecord = () => {
+      recordVisible.value.visible = false
+      state.selectedRowKeys = []
+      tempRow = []
+    }
+
+    // Click outside close ActionBar
+    const handleClickOutdideTable = (event) => {
+      const elModalDelete = document.querySelector('.close-modal-delete')
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDelete].filter(Boolean)
+      if (elNotOutsideList.length === 0) return
+      const isElOutside = elNotOutsideList.every((el) => !(el === event.target || el.contains(event.target)))
+      if (isElOutside) {
+        recordVisible.value.visible = false
+        state.selectedRowKeys = []
+        tempRow = []
+      }
+    }
+
     const handleEditRecord = () => {
       router.push({
         name: 'subcategory-edit',
@@ -191,15 +288,18 @@ export default defineComponent({
           id: recordVisible.value.id,
           idCategory: route.params.id,
           nameCategory: route.params.name
-        }
+        },
+        query: { ...route.query, ...params.value, ...filter.value }
       })
     }
 
-    const fetchList = async (params = {}) => {
+    const fetchList = async (params = {}, data) => {
       isLoading.value = true
+      tempRow = []
       try {
-        const { getLists } = useGetSubCategoryListService({ ...params }, filter.value)
+        const { getLists } = useGetSubCategoryListService({ ...params }, data)
         const { result } = await getLists()
+
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta)
         isLoading.value = false
@@ -234,7 +334,6 @@ export default defineComponent({
       pagination,
       columns,
       isLoading,
-      t,
       openDelete,
       state,
       rowSelection,
@@ -242,6 +341,11 @@ export default defineComponent({
       height,
       params,
       filter,
+      modalActionRef,
+      handleCreate,
+      handleBack,
+      handleCloseRecord,
+      handleClickOutdideTable,
       handleDeleteRecord,
       handleEditRecord,
       customRow,

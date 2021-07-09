@@ -4,7 +4,7 @@
     <form @submit="onSubmit">
       <!-- category Name-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.category_name" name="category_id">
+        <Field v-slot="{ field, handleChange }" v-model="form.category_name" name="categoryName">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.category') }}</label>
             <div class="form-input">
@@ -17,8 +17,8 @@
                 @change="handleChange"
               ></a-input>
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="category" class="errors">
-                {{ replaceField(message, 'category') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="categoryName" class="errors">
+                {{ replaceField(message, 'categoryName') }}
               </ErrorMessage>
             </div>
           </div>
@@ -27,7 +27,7 @@
 
       <!-- subcategory name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="name" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.name" name="subcategoryName" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('subcategory.subcategoryName') }}</label>
             <div class="form-input">
@@ -38,8 +38,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="name" class="errors">
-                {{ replaceField(message, 'name') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="subcategoryName" class="errors">
+                {{ replaceField(message, 'subcategoryName') }}
               </ErrorMessage>
             </div>
           </div>
@@ -48,7 +48,7 @@
 
       <!-- subcategory example -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.example" name="example">
+        <Field v-slot="{ field, handleChange }" v-model="form.example" name="example" rules="required">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.example') }}</label>
             <div class="form-input">
@@ -115,7 +115,7 @@ export default defineComponent({
       category_id: 0,
       name: '',
       example: '',
-      in_use: 0
+      in_use: true
     })
 
     const router = useRouter()
@@ -127,18 +127,16 @@ export default defineComponent({
       if ('id' in route.params && route.name === 'subcategory-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       } else {
-        form.value.category_id = parseInt(route.params.category_id[0])
-        form.value.category_name = route.params.category_name
+        form.value.category_id = parseInt(route.params.category_id)
+        form.value.category_name = route.params.name
       }
     })
 
     const handleCancel = () => {
       router.push({
         name: 'subcategory',
-        params: {
-          id: route.name === 'subcategory-edit' ? route.params.idCategory : route.params.category_id,
-          name: route.name === 'subcategory-edit' ? route.params.nameCategory : route.params.category_name
-        }
+        params: route.params,
+        query: route.query
       })
     }
 
@@ -159,14 +157,7 @@ export default defineComponent({
       try {
         const { updateSubCategory } = useUpdateSubCategoryService(id, data)
         await updateSubCategory()
-        // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({
-          name: 'subcategory',
-          params: {
-            id: route.params.idCategory,
-            name: route.params.category_name
-          }
-        })
+        await router.push({ name: 'subcategory', params: route.params, query: route.query })
       } catch (err) {
         throw err
       }
@@ -177,13 +168,7 @@ export default defineComponent({
       try {
         const { createSubCategory } = useCreateSubCategoryService(data)
         await createSubCategory()
-        await router.push({
-          name: 'subcategory',
-          params: {
-            id: route.params.category_id,
-            name: route.params.category_name
-          }
-        })
+        await router.push({ name: 'subcategory', params: route.params, query: route.query })
       } catch (err) {
         checkErrorsApi(err)
         throw err

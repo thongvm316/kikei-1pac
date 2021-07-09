@@ -3,7 +3,7 @@
     <CategorySearchForm @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'category-new' })">
+      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'category-new', query: $route.query })">
         <add-icon class="add-icon" />
         {{ $t('category.add_category') }}
       </a-button>
@@ -59,7 +59,12 @@
       @close="handleCloseRecord"
     />
 
-    <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
+    <ModalDelete
+      v-model:visible="openDelete"
+      class="close-modal-delete"
+      :name="recordVisible.name"
+      @delete="handleDeleteRecord($event)"
+    />
   </section>
 </template>
 
@@ -73,6 +78,7 @@ import useGetCategoryListService from '@/views/Category/composables/useGetCatego
 import useDeleteCategoryService from '@/views/Category/composables/useDeleteCategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
+import { forEach, includes, isArray, keys, map } from 'lodash-es'
 
 import Table from '@/mixins/table.mixin'
 import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
@@ -88,9 +94,29 @@ export default defineComponent({
   mixins: [Table],
 
   async beforeRouteEnter(to, from, next) {
-    const { getLists } = useGetCategoryListService(
-      to.query === {} ? { pageNumber: 1, pageSize: 30, order_by: 'name asc' } : to.query
-    )
+    const body = {}
+
+    if (keys(to.query).length > 0) {
+      forEach(to.query, (value, key) => {
+        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+          if (isArray(value)) {
+            body[key] = map([...value], (i) => Number(i))
+          } else {
+            body[key] = value
+          }
+        }
+      })
+    }
+
+    const query = {
+      page_number: to.query.page_number || 1,
+      page_size: 10,
+      order_by: 'name asc',
+      ...to.query,
+      ...body
+    }
+
+    const { getLists } = await useGetCategoryListService(query, body)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -112,6 +138,7 @@ export default defineComponent({
     const params = ref({ ...route.query })
     const modalActionRef = ref()
     const height = ref(0)
+    let idSelected = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -162,6 +189,16 @@ export default defineComponent({
     onMounted(async () => {
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
+
+      // Back Form
+      tempRow = [parseInt(await route.params.id)]
+      if (tempRow[0] === parseInt(await route.params.id)) {
+        state.selectedRowKeys = [parseInt(await route.params.id)]
+        tempRow = [parseInt(await route.params.id)]
+        recordVisible.value.id = route.params.id
+        recordVisible.value.visible = true
+      }
+
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -183,17 +220,44 @@ export default defineComponent({
       }
 
       params.value = {
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
+        page_number: pagination.current,
+        page_size: pagination.pageSize,
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
-      await router.push({ name: route.name, query: params.value })
+
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            if (isArray(value)) {
+              filter.value[key] = map([...value], (i) => Number(i))
+            } else {
+              filter.value[key] = value
+            }
+          }
+        })
+      }
+
+      await router.push({
+        name: 'category',
+        query: {
+          ...params.value,
+          ...filter.value
+        }
+      })
+
       await fetchList(params.value, filter.value)
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      await fetchList({ pageNumber: 1, pageSize: 30 }, filter.value)
+      params.value = {
+        page_number: 1,
+        page_size: 10,
+        order_by: 'name asc',
+        ...filter.value
+      }
+      await router.push({ name: 'category', query: { ...params.value, ...filter.value } })
+      await fetchList(params.value, filter.value)
     }
 
     const handleDeleteRecord = async () => {
@@ -223,11 +287,12 @@ export default defineComponent({
     }
 
     // Click outside close ActionBar
-    const handleClickOutdideTable = () => {
-      const el = modalActionRef.value?.$el
-      if (!el) return
-
-      if (!(el == event.target || el.contains(event.target))) {
+    const handleClickOutdideTable = (event) => {
+      const elModalDelete = document.querySelector('.close-modal-delete')
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDelete].filter(Boolean)
+      if (elNotOutsideList.length === 0) return
+      const isElOutside = elNotOutsideList.every((el) => !(el === event.target || el.contains(event.target)))
+      if (isElOutside) {
         recordVisible.value.visible = false
         state.selectedRowKeys = []
         tempRow = []
@@ -240,23 +305,29 @@ export default defineComponent({
         params: {
           id: recordVisible.value.id
         },
-        query: params.value
+        query: { ...params.value, ...filter.value }
       })
     }
 
     const handleSelectNumber = (record) => {
+      idSelected.value = {
+        key_search: '',
+        category_id: [parseInt(record.id)]
+      }
       router.push({
         name: 'subcategory',
         params: {
-          id: record.id,
-          name: record.name
+          name: record.name,
+          category_id: record.id,
+          key_search: ''
         },
-        query: params.value
+        query: { ...idSelected.value, ...params.value, ...filter.value }
       })
     }
 
     const fetchList = async (params = {}, data) => {
       isLoading.value = true
+      tempRow = []
       try {
         const { getLists } = useGetCategoryListService({ ...params }, data)
         const { result } = await getLists()
@@ -295,7 +366,6 @@ export default defineComponent({
       pagination,
       columns,
       isLoading,
-      t,
       openDelete,
       state,
       rowSelection,

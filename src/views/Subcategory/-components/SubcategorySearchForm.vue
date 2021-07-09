@@ -81,7 +81,6 @@ export default defineComponent({
         category_id: filter.category_id,
         key_search: filter.key_search
       }
-      console.log(data)
       context.emit('filter-changed', data)
       visible.value = false
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
