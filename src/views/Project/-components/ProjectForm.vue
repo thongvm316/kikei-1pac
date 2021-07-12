@@ -724,6 +724,10 @@ export default defineComponent({
     margin-bottom: 0;
     display: inline-block;
     cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .outsource {
@@ -811,6 +815,14 @@ export default defineComponent({
     color: $color-grey-75;
     font-size: 12px;
     line-height: 18px;
+  }
+
+  .ant-radio-wrapper {
+    margin: 0 16px 0 0;
+  }
+
+  .ant-form-item-label {
+    padding: 0 0 4px;
   }
 }
 

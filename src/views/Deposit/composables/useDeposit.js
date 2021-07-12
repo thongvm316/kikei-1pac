@@ -164,9 +164,9 @@ export const createDataTableFormat = (data) => {
   })
 }
 
-export const updateDeposit = async (depositId, data) => {
+export const updateDeposit = async (depositId, data, params) => {
   try {
-    const response = await DepositService.updateDeposit(depositId, data)
+    const response = await DepositService.updateDeposit(depositId, data, params)
     return response
   } catch (error) {
     throw error
