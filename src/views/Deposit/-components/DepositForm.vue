@@ -977,6 +977,12 @@ $field-max-width: 500px;
       border: 0;
       background-color: transparent;
       padding: 0;
+
+      &:hover {
+        span {
+          text-decoration: underline;
+        }
+      }
     }
   }
 
@@ -1039,6 +1045,14 @@ $field-max-width: 500px;
 
   .ant-btn[disabled] {
     background-color: transparent;
+  }
+
+  .ant-radio-wrapper {
+    margin: 0 16px 0 0;
+  }
+
+  .ant-form-item-label {
+    padding: 0 0 4px;
   }
 }
 
