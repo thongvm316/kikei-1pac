@@ -275,7 +275,7 @@
 
     <!-- memo -->
     <a-form-item name="memo" label="メモ">
-      <a-input v-model:value="projectParams.memo" placeholder="入力してください" style="width: 300px" />
+      <a-textarea v-model:value="projectParams.memo" placeholder="入力してください" style="width: 300px; height: 160px;" />
     </a-form-item>
     <!-- memo -->
 

@@ -11,14 +11,15 @@
       </div>
 
       <div>
-        <a-button :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
-          <template #icon>
-            <span class="btn-icon"><line-down-icon /></span>
-          </template>
-          {{ $t('deposit.deposit_list.export_csv') }}
-        </a-button>
+        <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
+          <a-button type="link" :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
+            <template #icon>
+              <span class="btn-icon"><line-down-icon /></span>
+            </template>
+          </a-button>
+        </a-tooltip>
 
-        <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
+        <a-button type="primary" class="u-ml-16" @click="$router.push({ name: 'deposit-new' })">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
