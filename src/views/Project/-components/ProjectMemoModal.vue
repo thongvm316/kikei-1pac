@@ -125,9 +125,6 @@ export default defineComponent({
       line-height: 18px;
       font-weight: normal;
       padding: 4px 8px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      max-width: 82px;
 
       + .ant-tag {
         margin-top: 8px;

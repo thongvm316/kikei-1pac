@@ -280,6 +280,7 @@ export default defineComponent({
     th.ant-table-row-cell-break-word:first-child {
       background-color: $color-grey-55;
       color: $color-grey-100;
+      font-size: 16px;
     }
   }
 

@@ -4,7 +4,7 @@
       <a-tooltip color="#fff" :title="$t('project.export_csv')">
         <a-button type="link" @click="exportProjectAsCsvFile">
           <template #icon>
-            <span class="btn-icon u-pt-6"><line-down-icon /></span>
+            <span style="height: 28px" class="btn-icon"><line-down-icon /></span>
           </template>
         </a-button>
       </a-tooltip>
@@ -54,15 +54,17 @@
       </template>
 
       <template #renderProjectCombineTypeAStatus="{ record }">
-        <a-tooltip color="#fff" title="メモ">
-          <a-button class="btn-memo" type="link" @click="openMemoModal">
-            <template #icon>
-              <memo-icon />
-            </template>
-          </a-button>
-        </a-tooltip>
-        <span class="mb-0 text-grey-55 u-ml-12">{{ $t(`project.type_${record.type}`) }}</span>
-        <span class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</span>
+        <div class="u-flex u-items-center">
+          <a-tooltip color="#fff" title="メモ">
+            <a-button class="btn-memo" type="link" @click="openMemoModal">
+              <template #icon>
+                <span class="btn-icon"><memo-icon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+          <p class="mb-0 text-grey-55 u-ml-12">{{ $t(`project.type_${record.type}`) }}</p>
+          <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
+        </div>
       </template>
 
       <template #projectMoneyTitle>
@@ -504,6 +506,9 @@ export default defineComponent({
   }
 
   &__buttons {
+    display: flex;
+    align-content: center;
+
     button + button {
       margin-left: 16px;
     }
