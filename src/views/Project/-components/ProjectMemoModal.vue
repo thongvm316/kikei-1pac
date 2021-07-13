@@ -4,6 +4,7 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">メモ:</div>
         <div class="project-memo-modal__text">
+<<<<<<< Updated upstream
           <p v-if="toggleShow && initMemo?.length > 175">
             {{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false"
               >もっと見る</span
@@ -15,6 +16,10 @@
               >表示を縮小</span
             >
           </p>
+=======
+          <p style="white-space: pre-line" v-if="toggleShow && initMemo?.length > 175">{{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false">もっと見る</span></p>
+          <p style="white-space: pre-line" v-else>{{ initMemo }} <span class="project-memo-modal__toggle-btn" v-if="initMemo?.length > 175" @click="toggleShow = true">表示を縮小</span></p>
+>>>>>>> Stashed changes
         </div>
       </div>
 
@@ -41,7 +46,7 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">顧客担当:</div>
         <div class="project-memo-modal__text">
-          <p>{{ memoRecordSelected?.accountName }}</p>
+          <p>{{ memoRecordSelected?.clientInCharge }}</p>
         </div>
       </div>
 
