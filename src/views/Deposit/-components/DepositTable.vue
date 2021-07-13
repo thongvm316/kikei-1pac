@@ -123,7 +123,8 @@ const columnsDeposit = [
     dataIndex: 'purpose',
     key: 'purpose',
     ellipsis: true,
-    slots: { customRender: 'purpose' }
+    slots: { customRender: 'purpose' },
+    width: 350
   },
   {
     title: '区分',
