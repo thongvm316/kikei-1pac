@@ -55,7 +55,7 @@
 
       <template #renderProjectCombineTypeAStatus="{ record }">
         <a-tooltip color="#fff" title="メモ">
-          <a-button @click="openMemoModal" class="btn-memo" type="link">
+          <a-button class="btn-memo" type="link" @click="openMemoModal">
             <template #icon>
               <memo-icon />
             </template>
@@ -137,8 +137,7 @@
     </template>
   </a-modal>
 
-  <project-memo-modal :memo-record-selected="memoRecordSelected" v-model:visible="isOpenMemoModal" />
-
+  <project-memo-modal v-model:visible="isOpenMemoModal" :memo-record-selected="memoRecordSelected" />
 </template>
 
 <script>

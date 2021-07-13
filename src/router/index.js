@@ -17,7 +17,7 @@ const lazyLoadLayout = (pageName) => {
 const routes = [
   {
     path: '/login',
-    name: 'login',
+    name: '',
     meta: { title: `Login | ${APP_NAME}` },
     component: lazyLoadLayout('AuthLayout'),
     children: [
@@ -216,6 +216,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: '/user',
         name: 'user',
@@ -224,12 +225,14 @@ const routes = [
       }
     ]
   },
+
   {
     path: '/404',
     name: 'error-404',
     component: lazyLoadRoute('Error404'),
     meta: { title: '404 Page not found' }
   },
+
   {
     path: '/:catchAll(.*)',
     redirect: '/404'

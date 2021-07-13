@@ -1,21 +1,27 @@
 <template>
-  <a-modal class="project-memo-modal" v-model:visible="visible" title="メモ" width="700px">
+  <a-modal v-model:visible="visible" class="project-memo-modal" title="メモ" width="700px">
     <template #footer>
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">メモ:</div>
         <div class="project-memo-modal__text">
-          <p v-if="toggleShow && initMemo?.length > 175">{{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false">もっと見る</span></p>
-          <p v-else>{{ initMemo }} <span class="project-memo-modal__toggle-btn" v-if="initMemo?.length > 175" @click="toggleShow = true">表示を縮小</span></p>
+          <p v-if="toggleShow && initMemo?.length > 175">
+            {{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false"
+              >もっと見る</span
+            >
+          </p>
+          <p v-else>
+            {{ initMemo }}
+            <span v-if="initMemo?.length > 175" class="project-memo-modal__toggle-btn" @click="toggleShow = true"
+              >表示を縮小</span
+            >
+          </p>
         </div>
       </div>
 
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">外注:</div>
         <div class="project-memo-modal__text">
-          <p
-            v-for="item in memoRecordSelected?.adProjectOrders"
-            :key="item.id"
-          >
+          <p v-for="item in memoRecordSelected?.adProjectOrders" :key="item.id">
             {{ item.adCompany.name }}
             <span class="u-ml-12 u-mr-12">-</span>
             {{ item.money }} (JPY)

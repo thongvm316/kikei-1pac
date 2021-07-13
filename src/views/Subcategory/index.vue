@@ -2,19 +2,15 @@
   <section class="subcategory">
     <subcategory-search-form :filter="filter" @filter-changed="onFilterChange($event)" />
 
-    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 box-create">
-      <div>
-        <a-button class="u-mr-16 bnt-back" type="default" @click="handleBack">
-          <arrow-icon class="arrow-icon" />
-          {{ $t('subcategory.back') }}
-        </a-button>
-      </div>
-      <div>
-        <a-button class="u-ml-12 btn-modal" type="primary" @click="handleCreate">
-          <add-icon class="add-icon" />
-          {{ $t('subcategory.add_subcategory') }}
-        </a-button>
-      </div>
+    <div class="box-create">
+      <a-button class="bnt-back" type="default" @click="handleBack">
+        <arrow-icon class="arrow-icon" />
+        {{ $t('subcategory.back') }}
+      </a-button>
+      <a-button class="btn-modal" type="primary" @click="handleCreate">
+        <add-icon class="add-icon" />
+        {{ $t('subcategory.add_subcategory') }}
+      </a-button>
     </div>
 
     <a-table
@@ -363,53 +359,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style scoped lang="scss">
-.box-create {
-  padding: 0 32px;
-  text-align: right;
-  text-align: -webkit-right;
-
-  .btn-modal {
-    width: auto;
-    border-radius: 2px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-
-    .add-icon {
-      margin-right: 10.33px;
-    }
-  }
-
-  .bnt-back {
-    width: auto;
-    border-radius: 2px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    border: 0;
-    color: #808080;
-    background-color: transparent;
-
-    .arrow-icon {
-      transform: rotate(270deg);
-    }
-  }
-
-  .bnt-back:hover {
-    width: auto;
-    border-radius: 2px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    border: 0;
-    color: #1890ff;
-    background-color: transparent;
-
-    .arrow-icon {
-      transform: rotate(270deg);
-    }
-  }
-}
-</style>

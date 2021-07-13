@@ -388,24 +388,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style scoped lang="scss">
-.box-create {
-  padding: 24px 32px 0;
-  text-align: right;
-  text-align: -webkit-right;
-
-  .btn-modal {
-    width: auto;
-    border-radius: 2px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-
-    .add-icon {
-      margin-right: 10.33px;
-    }
-  }
-}
-</style>

@@ -11,7 +11,6 @@
             <user-setting-icon />
             <span class="menu__link--text">{{ $t('user.personal_settings') }}</span>
           </router-link>
-          <!--           -->
         </a-menu-item>
 
         <a-sub-menu v-if="currencyList.length > 0" key="sub1">
@@ -39,6 +38,9 @@
 <script>
 import { defineComponent, onMounted, ref, watch } from 'vue'
 import useLogoutService from '@/views/Auth/Login/composables/useLogoutService'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import UserIcon from '@/assets/icons/ico_user.svg'
 import UsdCurrencyIcon from '@/assets/icons/ico_currency_usd.svg'
@@ -46,7 +48,6 @@ import VndCurrencyIcon from '@/assets/icons/ico_currency_vnd.svg'
 import YenCurrencyIcon from '@/assets/icons/ico_currency_yen.svg'
 import LogoutIcon from '@/assets/icons/ico_logout.svg'
 import UserSettingIcon from '@/assets/icons/ico_user_setting.svg'
-import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'KProfile',
@@ -66,6 +67,8 @@ export default defineComponent({
     const openKeys = ref([])
     const loading = ref(false)
     const { t } = useI18n()
+    const router = useRouter()
+    const store = useStore()
     // currency list
     const currencyActive = ref('jpy')
     const currencyList = ref([
@@ -98,10 +101,15 @@ export default defineComponent({
       }
     }
 
-    const handleLogout = () => {
-      const { logout } = useLogoutService(loading)
-      logout()
-      window.location.href = window.location.origin + '/login'
+    const handleLogout = async () => {
+      try {
+        const { logout } = useLogoutService(loading)
+        await logout()
+      } catch (err) {
+        console.log(err)
+      }
+      store.commit('auth/CLEAR_AUTH_PROFILE')
+      await router.push({ name: 'login' })
     }
 
     onMounted(() => {
