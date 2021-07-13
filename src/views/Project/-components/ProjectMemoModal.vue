@@ -4,12 +4,12 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">メモ:</div>
         <div class="project-memo-modal__text">
-          <p v-if="toggleShow && initMemo?.length > 175">
+          <p style="white-space: pre-line" v-if="toggleShow && initMemo?.length > 175">
             {{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false"
               >もっと見る</span
             >
           </p>
-          <p v-else>
+          <p v-else style="white-space: pre-line">
             {{ initMemo }}
             <span v-if="initMemo?.length > 175" class="project-memo-modal__toggle-btn" @click="toggleShow = true"
               >表示を縮小</span
@@ -41,7 +41,7 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">顧客担当:</div>
         <div class="project-memo-modal__text">
-          <p>{{ memoRecordSelected?.accountName }}</p>
+          <p>{{ memoRecordSelected?.clientInCharge }}</p>
         </div>
       </div>
 
