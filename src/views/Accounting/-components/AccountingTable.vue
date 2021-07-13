@@ -1,7 +1,7 @@
 <template>
   <a-table
     ref="accountingTableRef"
-    class="accounting-table"
+    :class="['accounting-table', isTableTotal && 'is-table-total']"
     :loading="isLoadingTable"
     :columns="columns"
     :data-source="dataTable"
@@ -62,6 +62,14 @@ export default defineComponent({
     disableGoToDeposit: {
       type: Boolean,
       default: false
+    },
+    tableTitle: {
+      type: String,
+      require: true,
+      default: ''
+    },
+    isTableTotal: {
+      type: Boolean
     }
   },
 
@@ -83,7 +91,7 @@ export default defineComponent({
     const columns = computed(() => {
       const arr = [
         {
-          title: '',
+          title: props.tableTitle,
           width: 200,
           dataIndex: 'categoryName',
           key: 'categoryName',
@@ -244,6 +252,8 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .accounting-table {
+  margin-top: 24px;
+
   &__link {
     &:hover {
       text-decoration: underline;
@@ -265,6 +275,11 @@ export default defineComponent({
 
     .ant-table-row-cell-break-word:first-child {
       padding-left: 32px;
+    }
+
+    th.ant-table-row-cell-break-word:first-child {
+      background-color: $color-grey-55;
+      color: $color-grey-100;
     }
   }
 
@@ -323,10 +338,47 @@ export default defineComponent({
         transform: rotate(45deg);
       }
     }
+
+    p {
+      margin-bottom: 0;
+    }
   }
 
   .ant-table-empty .ant-table-body {
     overflow-x: hidden !important;
   }
+}
+
+.accounting-table:not(.is-table-total) {
+  .ant-table-fixed-left {
+    .ant-table-tbody {
+      tr.ant-table-row:not(:last-child) {
+        td.ant-table-row-cell-break-word {
+          background-color: $color-grey-96;
+          color: $color-grey-15;
+        }
+      }
+
+      tr.ant-table-row:last-child {
+        td.ant-table-row-cell-break-word {
+          background-color: $color-grey-92;
+          color: $color-grey-15;
+        }
+      }
+    }
+  }
+
+  .ant-table-fixed {
+    tr.ant-table-row:last-child {
+      td.ant-table-row-cell-break-word {
+        background-color: $color-grey-92;
+        color: $color-grey-15;
+      }
+    }
+  }
+}
+
+.accounting-table + .accounting-table {
+  margin-top: 32px;
 }
 </style>

@@ -13,15 +13,15 @@
             {{ period.name }}
           </a-select-option>
         </a-select>
-        <span class="u-ml-8 u-text-grey-75">{{ $t('accounting.period') }}</span>
       </div>
 
-      <a-button :loading="isLoadingExportCsv" @click="handleExportCsv">
-        <template #icon>
-          <span class="btn-icon"><line-down-icon /></span>
-        </template>
-        {{ $t('accounting.export_csv') }}
-      </a-button>
+      <a-tooltip color="#fff" :title="$t('accounting.export_csv')">
+        <a-button type="link" :loading="isLoadingExportCsv" @click="handleExportCsv">
+          <template #icon>
+            <span class="btn-icon"><line-down-icon /></span>
+          </template>
+        </a-button>
+      </a-tooltip>
     </div>
 
     <a-tabs
@@ -36,9 +36,9 @@
 
     <div class="accounting__table-wrapper -mx-32">
       <!-- deposit table -->
-      <p class="u-mt-24 u-mx-32">売上</p>
       <accounting-table
         :table-index="0"
+        :table-title="$t('accounting.table_deposit')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
@@ -48,9 +48,9 @@
       />
 
       <!-- withdrawal table -->
-      <p class="u-mt-24 u-mx-32">支出</p>
       <accounting-table
         :table-index="1"
+        :table-title="$t('accounting.table_withdrawal')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
@@ -61,9 +61,10 @@
       />
 
       <!-- financing total table -->
-      <p class="u-mt-24 u-mx-32">合計</p>
       <accounting-table
         :table-index="2"
+        :is-table-total="true"
+        :table-title="$t('accounting.table_total')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
