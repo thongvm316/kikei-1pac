@@ -14,7 +14,7 @@
         <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
           <a-button type="link" :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
             <template #icon>
-              <span class="btn-icon"><line-down-icon /></span>
+              <span class="btn-icon u-pt-6"><line-down-icon /></span>
             </template>
           </a-button>
         </a-tooltip>
