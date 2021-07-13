@@ -123,7 +123,6 @@ const columnsDeposit = [
     dataIndex: 'purpose',
     key: 'purpose',
     ellipsis: true,
-    // width: 350,
     slots: { customRender: 'purpose' }
   },
   {
