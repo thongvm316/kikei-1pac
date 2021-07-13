@@ -4,7 +4,7 @@
       <a-tooltip color="#fff" :title="$t('project.export_csv')">
         <a-button type="link" @click="exportProjectAsCsvFile">
           <template #icon>
-            <span class="btn-icon u-pt-6"><line-down-icon /></span>
+            <span style="height: 28px" class="btn-icon"><line-down-icon /></span>
           </template>
         </a-button>
       </a-tooltip>
@@ -504,6 +504,9 @@ export default defineComponent({
   }
 
   &__buttons {
+    display: flex;
+    align-content: center;
+
     button + button {
       margin-left: 16px;
     }
