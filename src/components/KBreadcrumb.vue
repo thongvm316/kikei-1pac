@@ -41,6 +41,14 @@ export default defineComponent({
 
     // all breadcrumbs
     const routesList = {
+      //login
+      login: [
+        {
+          path: '/login'
+        }
+      ],
+
+      //dashboard
       dashboard: [
         {
           path: '/',

@@ -4,5 +4,5 @@ export default {
   delete: '削除',
   reset: 'リセット',
   message_ja: ' を削除してもよろしいですか？',
-  message_reset_password: ' のパスワードをリセットしてもよろしいですか？'
+  message_reset_password: 'をリセットしてもよろしいですか？'
 }
