@@ -101,6 +101,7 @@ const columnsDeposit = [
     slots: {
       customRender: 'renderDepositUpdatedAt'
     },
+    ellipsis: true,
     sorter: true,
     width: 110
   },
@@ -111,16 +112,18 @@ const columnsDeposit = [
     slots: {
       customRender: 'renderDepositStatictis'
     },
+    ellipsis: true,
     sorter: true,
     width: 90
   },
-  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName' },
-  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName' },
+  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true, width: 150 },
+  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true, width: 150 },
   {
     title: '項目名',
     dataIndex: 'purpose',
     key: 'purpose',
-    width: 350,
+    ellipsis: true,
+    // width: 350,
     slots: { customRender: 'purpose' }
   },
   {
@@ -128,21 +131,24 @@ const columnsDeposit = [
     dataIndex: 'typeName',
     key: 'typeName',
     align: 'center',
-    slots: { customRender: 'typeName' }
+    slots: { customRender: 'typeName' },
+    ellipsis: true,
+    width: 150
   },
   {
     dataIndex: 'deposit',
     key: 'deposit',
     align: 'right',
     slots: { title: 'customTitleDeposit', customRender: 'deposit' },
-    width: 130
+    ellipsis: true,
+    width: 150
   },
   {
     dataIndex: 'balance',
     key: 'balance',
     align: 'right',
     slots: { title: 'customTitleBalance', customRender: 'balance' },
-    width: 130
+    width: 170
   },
   {
     title: '確定',
@@ -150,7 +156,8 @@ const columnsDeposit = [
     key: 'action',
     slots: { customRender: 'action' },
     width: '136px',
-    align: 'center'
+    align: 'center',
+    ellipsis: true
   }
 ]
 
