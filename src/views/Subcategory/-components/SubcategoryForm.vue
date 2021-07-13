@@ -48,9 +48,9 @@
 
       <!-- subcategory example -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.example" name="example" rules="required">
+        <Field v-slot="{ field, handleChange }" v-model="form.example" name="example">
           <div class="form-content">
-            <label class="form-label required">{{ $t('subcategory.example') }}</label>
+            <label class="form-label">{{ $t('subcategory.example') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
@@ -58,10 +58,6 @@
                 class="w-300"
                 @change="handleChange"
               />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="example" class="errors">
-                {{ replaceField(message, 'example') }}
-              </ErrorMessage>
             </div>
           </div>
         </Field>
