@@ -11,8 +11,12 @@ export default {
   display: 'Display',
   display_monthly: 'Monthly',
   display_all: 'All',
+  display_list: 'List',
+  display_graph: 'Graph',
   balance: 'Balance',
   please_select: 'Please select',
   download_csv: 'Download CSV',
-  emptyData: 'No Data'
+  emptyData: 'No Data',
+  show_all_bank: 'All bank',
+  show_all_group: 'All group'
 }

@@ -4,6 +4,7 @@ import auth from './auth'
 import deposit from './deposit'
 import project from './project'
 import search from './search'
+import financing from './financing'
 
 const state = {}
 
@@ -19,7 +20,8 @@ const store = createStore({
     auth,
     deposit,
     project,
-    search
+    search,
+    financing
   },
   state,
   getters,

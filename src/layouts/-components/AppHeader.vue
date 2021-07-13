@@ -48,7 +48,6 @@ export default defineComponent({
       'dashboard',
       'deposit',
       'project',
-      'financing',
       'company',
       'category',
       'account',
@@ -61,7 +60,7 @@ export default defineComponent({
 
     const isShowSearchBadge = computed(() => store.state?.search?.isShowBadge || false)
     const isVisibleSearch = computed(() => store.state?.search?.isVisible || false)
-
+    debugger
     onBeforeMount(() => {
       // check visible search button before mount
       store.commit('search/STORE_SEARCH_VISIBLE', visibleSearchList.includes(route.name))
@@ -86,21 +85,6 @@ export default defineComponent({
         if (!['project', 'project-edit'].includes(routeName)) {
           const filters = store.state.project?.filters || {}
           !isEmpty(filters) && store.commit('project/CLEAR_PROJECT_FILTER')
-        }
-      }
-    )
-
-    onMounted(() => {
-      if (['financing'].includes(route.name)) {
-        openModalSearch()
-      }
-    })
-
-    watch(
-      () => route.name,
-      (routeName) => {
-        if (['financing'].includes(routeName)) {
-          openModalSearch()
         }
       }
     )

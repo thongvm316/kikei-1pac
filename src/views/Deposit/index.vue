@@ -316,7 +316,7 @@ export default defineComponent({
       currentPage.value = 1
       expandedRowKeys.value = []
       expandIconColumnIndex.value = 10
-
+      debugger
       // fetch bank accounts
       const bankAccounts = await getBankAccounts({ groupId })
       bankAccountList.value = bankAccounts.result?.data || []
@@ -512,7 +512,9 @@ export default defineComponent({
         currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
       })
 
-      indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+      indeterminateCheckAllRows.value =
+        currentSelectedRowKeys.value.length > 0 &&
+        currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
 
       checkAllRowTable.value =
         currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
@@ -561,7 +563,9 @@ export default defineComponent({
           dataDeposit.value[indexConfirmedRecord].confirmed = false
         }
 
-        indeterminateCheckAllRows.value = currentSelectedRowKeys.value.length > 0 && currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
+        indeterminateCheckAllRows.value =
+          currentSelectedRowKeys.value.length > 0 &&
+          currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
 
         // Force rerender table
@@ -604,7 +608,7 @@ export default defineComponent({
       // fetch group list
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
-
+      debugger
       // get filters deposit from store
       const filtersDepositStore = store.state.deposit?.filters || {}
 
