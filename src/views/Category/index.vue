@@ -43,7 +43,7 @@
       </template>
 
       <template #action="{ text: action, record }">
-        <a @click="handleSelectNumber(record)">{{ action }}</a>
+        <a @click="handleSelectNumber(record)">{{ record.subcategoryKind === 10 ? action : '-' }}</a>
       </template>
 
       <template #inUse="{ text: inUse }">
@@ -310,6 +310,8 @@ export default defineComponent({
     }
 
     const handleSelectNumber = (record) => {
+      if (record.subcategoryKind !== 10) return
+
       idSelected.value = {
         key_search: '',
         category_id: [parseInt(record.id)],
