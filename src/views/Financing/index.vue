@@ -182,7 +182,7 @@ export default defineComponent({
       period_id: null,
       from_date: null,
       to_date: null,
-      show_by: 0,
+      show_by: 1,
       bank_account_ids: [],
       currency_code: ''
     }
@@ -362,11 +362,11 @@ export default defineComponent({
       if (data) {
         for (let i = 0; i < data.length; i++) {
           dataTableRow.value['date'] =
-            requestParamsData.data.show_by === 0
+            requestParamsData.data.show_by === 1
               ? moment(data[i].date).format('YYYY/MM/DD')
               : moment(data[i].date).format('YYYY/MM')
 
-          if (requestParamsData.data.show_by === 0) {
+          if (requestParamsData.data.show_by === 1) {
             Object.assign(
               dataTableRow.value,
               convertArrayToObject(data[i].dataByColumns, 'columnId', 'columns_', 'money')
