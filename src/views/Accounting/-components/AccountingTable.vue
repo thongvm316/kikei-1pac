@@ -156,7 +156,8 @@ export default defineComponent({
               divisionType: category?.divisionType,
               categoryName: item?.subcategoryName,
               categoryId: [category?.categoryId],
-              subcategoryId: [item.subcategoryId]
+              subcategoryId: [item.subcategoryId],
+              subcategoryKind: category?.subcategoryKind
             }
 
             ;(item?.data || []).map((subData) => {
@@ -192,10 +193,20 @@ export default defineComponent({
         groupId: props.groupId,
         type: record?.divisionType ? [record.divisionType] : [],
         categoryId: record?.categoryId || [],
-        subcategoryId: record?.subcategoryId || [],
+        subcategoryId: [],
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
       }
+
+      const subcategoryId = record?.subcategoryId || []
+      if (record.subcategoryKind === 20) {
+        data.subcategoryCompanyId = subcategoryId
+      } else if (record.subcategoryKind === 30) {
+        data.subcategoryGroupId = subcategoryId
+      } else {
+        data.subcategoryId = subcategoryId
+      }
+
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
     }
 
