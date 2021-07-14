@@ -318,7 +318,7 @@ export default defineComponent({
       currentPage.value = 1
       expandedRowKeys.value = []
       expandIconColumnIndex.value = 10
-
+      debugger
       // fetch bank accounts
       const bankAccounts = await getBankAccounts({ groupId })
       bankAccountList.value = bankAccounts.result?.data || []
@@ -613,7 +613,7 @@ export default defineComponent({
       // fetch group list
       const groupList = await getGroups()
       tabListGroup.value = groupList.result?.data || []
-
+      debugger
       // get filters deposit from store
       const filtersDepositStore = store.state.deposit?.filters || {}
 

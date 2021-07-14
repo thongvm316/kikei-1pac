@@ -1,16 +1,14 @@
 import apiCaller from '@/services/api-caller'
 
 const RESOURCES = Object.freeze({
-  financing: '/financing'
+  currency: '/currency'
 })
 
 export default {
-  getLists(data, params) {
+  getCurrency() {
     return apiCaller({
       method: 'POST',
-      url: `${RESOURCES.financing}/search`,
-      data,
-      params
+      url: `${RESOURCES.currency}/search`
     })
   }
 }

@@ -1,13 +1,71 @@
 .financing {
+  .financing__header {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
 
-  .btn-download {
+    &--top, &--middle, &--bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &--top {
+      padding: 24px 0 16px;
+
+      .btn-download {
+        border: none;
+        background: transparent;
+        padding: 0;
+      }
+    }
+
+    &--middle {
+      .ant-tabs {
+        width: 100%;
+        height: 46px;
+
+        &-nav {
+          .ant-tabs-tab {
+            padding: 12px 0;
+          }
+        }
+      }
+    }
+
+    &--bottom {
+      padding: 12px 0;
+
+      .form-select-bank {
+        margin-right: 24px;
+
+        .ant-select {
+          min-width: 340px;
+        }
+      }
+
+      .form-select-currency {
+        .ant-select {
+          min-width: 81px;
+        }
+      }
+    }
+
+  }
+
+  .form-group {
     display: flex;
     align-items: center;
-    margin: 25px 32px 16px auto;
-    padding: 0 10px;
+    justify-content: flex-start;
 
-    &-icon {
-      margin-right: 10px;
+    .form-label {
+      margin-right: 8px;
+    }
+  }
+
+  .form-select {
+    .ant-select {
+      min-width: 77px;
     }
   }
 
@@ -16,27 +74,35 @@
     text-align: right;
   }
 
-  .ant-pagination.mini .ant-pagination-item {
-    margin: 0 2px;
+  .ant-pagination.mini {
+    display: none;
+
+    .ant-pagination-item {
+      margin: 0 2px;
+    }
   }
 
   .ant-table-content {
-    .ant-table-thead{
+    .ant-table-thead {
       th:not(:first-child) {
         text-align: right;
       }
     }
+
     .ant-table-row {
       td:not(:first-child) {
         text-align: right;
       }
-      .ant-dropdown-link{
+
+      .ant-dropdown-link {
         color: #000;
-        &:hover{
+
+        &:hover {
           color: #31AAF1;
           text-decoration: underline;
         }
       }
+
       .text--red {
         color: #F5222D;
       }
@@ -49,31 +115,12 @@
   }
 }
 
-.search-financing {
-  .ant-modal-footer {
-    padding: 16px 182px;
+.ant-tooltip-content {
+  .ant-tooltip-arrow-content {
+    background: #fff;
+  }
 
-    form {
-      width: 100%;
-    }
-
-    .form-content {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      margin-bottom: 24px;
-    }
-
-    .form-label {
-      width: 120px;
-      text-align: left;
-    }
-
-    .form-select {
-      text-align: left;
-      .ant-select{
-        width: 152px;
-      }
-    }
+  .ant-tooltip-inner {
+    background: #fff
   }
 }
