@@ -1,10 +1,10 @@
 export const SHOW_BY = [
   {
-    id: 0,
+    id: 1,
     value: 'display_day'
   },
   {
-    id: 1,
+    id: 0,
     value: 'display_monthly'
   }
 ]

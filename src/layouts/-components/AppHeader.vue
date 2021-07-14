@@ -61,7 +61,6 @@ export default defineComponent({
 
     const isShowSearchBadge = computed(() => store.state?.search?.isShowBadge || false)
     const isVisibleSearch = computed(() => store.state?.search?.isVisible || false)
-    debugger
     onBeforeMount(() => {
       // check visible search button before mount
       store.commit('search/STORE_SEARCH_VISIBLE', visibleSearchList.includes(route.name))
