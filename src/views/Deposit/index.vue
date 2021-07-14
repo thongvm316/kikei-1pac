@@ -455,6 +455,8 @@ export default defineComponent({
       isLoadingDataTable.value = false
       isVisibleModalActionBar.value = false
 
+      totalRecords.value = totalRecords.value > 0 ? totalRecords.value - 1 : totalRecords.value
+
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
