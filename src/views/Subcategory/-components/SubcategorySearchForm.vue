@@ -40,16 +40,12 @@ import { defineComponent, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { filter, isEqual } from 'lodash-es'
+import { isEqual } from 'lodash-es'
 
 export default defineComponent({
   name: 'SubcategorySearchForm',
 
   components: { SearchIcon },
-
-  props: {
-    filter: Object
-  },
 
   emits: ['filter-changed'],
 
@@ -59,8 +55,8 @@ export default defineComponent({
 
     const initialState = {
       key_search: '',
-      category_id: props.filter.category_id,
-      category_name: props.filter.category_name
+      category_id: [parseInt(route.query.category_id)],
+      category_name: route.query.name
     }
 
     const filter = reactive({ ...initialState })
@@ -73,15 +69,15 @@ export default defineComponent({
     })
 
     const handleClear = () => {
-      Object.assign(filter, initialState) && onSearch()
+      Object.assign(filter, initialState)
     }
 
     const onSearch = () => {
       const data = {
+        category_name: filter.category_name,
         category_id: filter.category_id,
         key_search: filter.key_search
       }
-      console.log(data)
       context.emit('filter-changed', data)
       visible.value = false
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))

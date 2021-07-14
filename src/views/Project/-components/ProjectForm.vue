@@ -275,7 +275,11 @@
 
     <!-- memo -->
     <a-form-item name="memo" label="メモ">
-      <a-input v-model:value="projectParams.memo" placeholder="入力してください" style="width: 300px" />
+      <a-textarea
+        v-model:value="projectParams.memo"
+        placeholder="入力してください"
+        style="width: 300px; height: 160px"
+      />
     </a-form-item>
     <!-- memo -->
 
@@ -656,7 +660,7 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
-      dataAccounts.value = await useAccountList({ type: [0], active: true })
+      dataAccounts.value = await useAccountList({ type: [0, 2], active: true })
       // groups
       const { data: groups } = await useGroupList()
       dataGroups.value = groups
@@ -724,6 +728,10 @@ export default defineComponent({
     margin-bottom: 0;
     display: inline-block;
     cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .outsource {
@@ -811,6 +819,14 @@ export default defineComponent({
     color: $color-grey-75;
     font-size: 12px;
     line-height: 18px;
+  }
+
+  .ant-radio-wrapper {
+    margin: 0 16px 0 0;
+  }
+
+  .ant-form-item-label {
+    padding: 0 0 4px;
   }
 }
 

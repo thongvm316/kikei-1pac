@@ -51,6 +51,7 @@ export default defineComponent({
       'company',
       'category',
       'account',
+      'subcategory',
       'logs'
     ]
 
@@ -76,7 +77,7 @@ export default defineComponent({
         store.commit('search/STORE_SEARCH_VISIBLE', visibleSearchList.includes(routeName))
 
         // clear filters search deposit page
-        if (!['deposit', 'deposit-edit'].includes(routeName)) {
+        if (!['deposit', 'deposit-edit', 'deposit-new'].includes(routeName)) {
           const filters = store.state.deposit?.filters || {}
           !isEmpty(filters) && store.commit('deposit/CLEAR_DEPOSIT_FILTER')
         }

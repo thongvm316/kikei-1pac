@@ -10,10 +10,10 @@ export default {
   account: 'アカウントID',
   action: '操作',
   pageData: '画面',
-  delete: '削除',
-  add: '新規',
-  edit: '編集',
-  seen: '編集',
+  delete: 'DELETE',
+  add: 'POST',
+  edit: 'PUT',
+  seen: 'GET',
   detail: '詳細',
-  title_show: '編集'
+  title_show: '詳細'
 }

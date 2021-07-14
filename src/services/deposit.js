@@ -9,8 +9,8 @@ export default {
     return apiCaller({ method: 'POST', url: RESOURCES.deposit, data })
   },
 
-  updateDeposit(depositId, data) {
-    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/${depositId}`, data })
+  updateDeposit(depositId, data, params) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/${depositId}`, params, data })
   },
 
   getDeposit(data, params) {

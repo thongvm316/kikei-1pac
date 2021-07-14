@@ -41,6 +41,14 @@ export default defineComponent({
 
     // all breadcrumbs
     const routesList = {
+      //login
+      login: [
+        {
+          path: '/login'
+        }
+      ],
+
+      //dashboard
       dashboard: [
         {
           path: '/',
@@ -191,7 +199,9 @@ export default defineComponent({
           breadcrumbName: t('breadcrumb.edit')
         }
       ],
+
       subcategory: [category, subcategory],
+
       'subcategory-new': [
         category,
         subcategory,

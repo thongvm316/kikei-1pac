@@ -13,15 +13,15 @@
             {{ period.name }}
           </a-select-option>
         </a-select>
-        <span class="u-ml-8 u-text-grey-75">{{ $t('accounting.period') }}</span>
       </div>
 
-      <a-button :loading="isLoadingExportCsv" @click="handleExportCsv">
-        <template #icon>
-          <span class="btn-icon"><line-down-icon /></span>
-        </template>
-        {{ $t('accounting.export_csv') }}
-      </a-button>
+      <a-tooltip color="#fff" :title="$t('accounting.export_csv')">
+        <a-button type="link" :loading="isLoadingExportCsv" @click="handleExportCsv">
+          <template #icon>
+            <span class="btn-icon"><line-down-icon /></span>
+          </template>
+        </a-button>
+      </a-tooltip>
     </div>
 
     <a-tabs
@@ -36,9 +36,9 @@
 
     <div class="accounting__table-wrapper -mx-32">
       <!-- deposit table -->
-      <p class="u-mt-24 u-mx-32">売上</p>
       <accounting-table
         :table-index="0"
+        :table-title="$t('accounting.table_deposit')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
@@ -48,9 +48,9 @@
       />
 
       <!-- withdrawal table -->
-      <p class="u-mt-24 u-mx-32">支出</p>
       <accounting-table
         :table-index="1"
+        :table-title="$t('accounting.table_withdrawal')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
@@ -61,9 +61,10 @@
       />
 
       <!-- financing total table -->
-      <p class="u-mt-24 u-mx-32">合計</p>
       <accounting-table
         :table-index="2"
+        :is-table-total="true"
+        :table-title="$t('accounting.table_total')"
         :table-index-disable-scroll="tableIndexDisableScroll"
         :pixels-scrolled="pixelsScrolled"
         :is-loading-table="isLoadingTable"
@@ -80,6 +81,7 @@
 import { defineComponent, ref, onBeforeMount } from 'vue'
 import { debounce } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 import moment from 'moment'
 import { find } from 'lodash-es'
 
@@ -99,6 +101,7 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n()
+    const store = useStore()
 
     const pixelsScrolled = ref(0)
     const tableIndexDisableScroll = ref()
@@ -142,20 +145,27 @@ export default defineComponent({
         const periodResponse = await getPeriods(groupId)
         periodList.value = periodResponse.result?.data || []
 
-        // set period current
-        const periodCurrentFound = find(periodList.value, (periodItem) => {
-          const currentTime = moment()
-          const startedDate = periodItem?.startedDate
-          const finishedDate = periodItem?.finishedDate
-
-          if (!startedDate || !finishedDate) return false
-
-          return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
-        })
-
-        if (periodCurrentFound) {
-          financingPeriod.value = periodCurrentFound.id
+        // set financing period
+        const filtersAccountingStore = store.state?.accounting?.filters || {}
+        if (filtersAccountingStore?.periodId) {
+          financingPeriod.value = filtersAccountingStore?.periodId
           fetchDataTables()
+        } else {
+          // set period current
+          const periodCurrentFound = find(periodList.value, (periodItem) => {
+            const currentTime = moment()
+            const startedDate = periodItem?.startedDate
+            const finishedDate = periodItem?.finishedDate
+
+            if (!startedDate || !finishedDate) return false
+
+            return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+          })
+
+          if (periodCurrentFound) {
+            financingPeriod.value = periodCurrentFound.id
+            fetchDataTables()
+          }
         }
       } finally {
         isLoadingPeriod.value = false
@@ -177,6 +187,9 @@ export default defineComponent({
         depositList.value = depositReponse?.result?.data || []
         withdrawalList.value = withdrawalReponse?.result?.data || []
         financingTotalList.value = financingTotalReponse?.result?.data || []
+
+        // save filters accounting to store
+        store.commit('accounting/STORE_ACCOUNTING_FILTER', dataRequest)
       } finally {
         isLoadingTable.value = false
       }
@@ -299,7 +312,14 @@ export default defineComponent({
       const groupsReponse = await getGroups()
       const groupList = groupsReponse.result?.data || []
       tabListGroup.value = groupList
-      groupList.length > 0 && (activeKeyGroup.value = groupList[0].id)
+
+      // set group active
+      const filtersAccountingStore = store.state?.accounting?.filters || {}
+      if (filtersAccountingStore.groupId) {
+        activeKeyGroup.value = filtersAccountingStore.groupId
+      } else if (groupList.length > 0) {
+        activeKeyGroup.value = groupList[0].id
+      }
 
       fetchPeriodList()
     })

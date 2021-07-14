@@ -1,12 +1,13 @@
 <template>
   <section class="project__filters">
     <div class="project__buttons">
-      <a-button @click="exportProjectAsCsvFile">
-        <template #icon>
-          <span class="btn-icon"><line-down-icon /></span>
-        </template>
-        {{ $t('project.export_csv') }}
-      </a-button>
+      <a-tooltip color="#fff" :title="$t('project.export_csv')">
+        <a-button type="link" @click="exportProjectAsCsvFile">
+          <template #icon>
+            <span style="height: 28px" class="btn-icon"><line-down-icon /></span>
+          </template>
+        </a-button>
+      </a-tooltip>
 
       <a-button type="primary" @click="$router.push({ name: 'project-new' })">
         <template #icon>
@@ -53,8 +54,17 @@
       </template>
 
       <template #renderProjectCombineTypeAStatus="{ record }">
-        <span class="mb-0 text-grey-55">{{ $t(`project.type_${record.type}`) }}</span>
-        <span class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</span>
+        <div class="u-flex u-items-center">
+          <a-tooltip color="#fff" title="メモ">
+            <a-button class="btn-memo" type="link" @click="openMemoModal">
+              <template #icon>
+                <span class="btn-icon"><memo-icon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+          <p class="mb-0 text-grey-55 u-ml-12">{{ $t(`project.type_${record.type}`) }}</p>
+          <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
+        </div>
       </template>
 
       <template #projectMoneyTitle>
@@ -128,6 +138,8 @@
       <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
     </template>
   </a-modal>
+
+  <project-memo-modal v-model:visible="isOpenMemoModal" :memo-record-selected="memoRecordSelected" />
 </template>
 
 <script>
@@ -142,10 +154,12 @@ import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
 import ModalActions from '@/components/ModalActions'
+import ProjectMemoModal from './-components/ProjectMemoModal'
 import { STATUS_CODE } from '@/enums/project.enum'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import MemoIcon from '@/assets/icons/ico_memo.svg'
 
 export default defineComponent({
   name: 'ProjectPage',
@@ -154,7 +168,9 @@ export default defineComponent({
     ProjectSearchForm,
     ModalActions,
     LineDownIcon,
-    LineAddIcon
+    LineAddIcon,
+    MemoIcon,
+    ProjectMemoModal
   },
 
   setup() {
@@ -165,7 +181,7 @@ export default defineComponent({
     const loading = ref(false)
     const currentPage = ref(1)
     let pagination = ref({
-      pageSize: 10,
+      pageSize: 50,
       pageNumber: 1
     })
     const height = ref(0)
@@ -266,6 +282,9 @@ export default defineComponent({
 
     const modalActionRef = ref()
 
+    const isOpenMemoModal = ref()
+    const memoRecordSelected = ref()
+
     // data and params request
     const requestData = ref({ data: { statusCode: STATUS_CODE }, params: pagination.value })
 
@@ -278,7 +297,12 @@ export default defineComponent({
 
     const onCustomRow = (record) => {
       return {
-        onClick: () => {
+        onClick: (e) => {
+          if (e.target.classList.contains('btn-memo')) {
+            memoRecordSelected.value = record
+            return
+          }
+
           const targetId = targetProjectSelected.value?.id || ''
           const recordId = record?.id || ''
 
@@ -397,6 +421,10 @@ export default defineComponent({
       targetProjectSelected.value = {}
     }
 
+    const openMemoModal = () => {
+      isOpenMemoModal.value = true
+    }
+
     onBeforeMount(() => {
       // get filters deposit from store
       const filtersProjectStore = store.state.project?.filters || {}
@@ -437,6 +465,8 @@ export default defineComponent({
       projectDatas,
       localeTable,
       modalActionRef,
+      isOpenMemoModal,
+      memoRecordSelected,
 
       onCustomRow,
       cloneProject,
@@ -448,7 +478,8 @@ export default defineComponent({
       getInnerHeight,
       goToEditProject,
       handleClickOutsideTable,
-      onCloseModalAction
+      onCloseModalAction,
+      openMemoModal
     }
   }
 })
@@ -475,8 +506,11 @@ export default defineComponent({
   }
 
   &__buttons {
+    display: flex;
+    align-content: center;
+
     button + button {
-      margin-left: 12px;
+      margin-left: 16px;
     }
   }
 
@@ -490,6 +524,10 @@ export default defineComponent({
     .ant-table-placeholder {
       padding-top: 48px;
     }
+  }
+
+  .btn-memo svg {
+    pointer-events: none;
   }
 
   table tbody > tr {

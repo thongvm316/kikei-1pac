@@ -22,7 +22,7 @@
       }"
       :custom-row="customRow"
       :row-selection="rowSelection"
-      :scroll="{ y: height - 219 }"
+      :scroll="{ y: height - 218 }"
       size="middle"
       @change="handleChange"
     >
@@ -39,7 +39,12 @@
       @close="handleCloseRecord"
     />
 
-    <ModalDelete v-model:visible="openDelete" :name="recordVisible.name" @delete="handleDeleteRecord($event)" />
+    <ModalDelete
+      v-model:visible="openDelete"
+      class="close-modal-delete"
+      :name="recordVisible.name"
+      @delete="handleDeleteRecord($event)"
+    />
   </section>
 </template>
 
@@ -85,8 +90,9 @@ export default defineComponent({
 
     const query = {
       page_number: to.query.page_number || 1,
-      page_size: 30,
+      page_size: 50,
       order_by: 'code asc',
+      ...to.query,
       ...body
     }
 
@@ -217,17 +223,17 @@ export default defineComponent({
         }
       })
 
-      await fetchList(params.value, { ...filter.value })
+      await fetchList({ ...params.value }, { ...filter.value })
     }
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
       params.value = {
         page_number: 1,
-        page_size: 30
+        page_size: 50
       }
       await router.push({ name: 'company', query: { ...params.value, ...filter.value } })
-      await fetchList({ page_number: 1, page_size: 30 }, { ...filter.value })
+      await fetchList({ ...params.value }, { ...filter.value })
     }
 
     const handleDeleteRecord = async () => {
@@ -258,10 +264,11 @@ export default defineComponent({
 
     // Click outside close ActionBar
     const handleClickOutdideTable = (event) => {
-      const el = modalActionRef.value?.$el
-      if (!el) return
-
-      if (!(el === event.target || el.contains(event.target))) {
+      const elModalDelete = document.querySelector('.close-modal-delete')
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDelete].filter(Boolean)
+      if (elNotOutsideList.length === 0) return
+      const isElOutside = elNotOutsideList.every((el) => !(el === event.target || el.contains(event.target)))
+      if (isElOutside) {
         recordVisible.value.visible = false
         state.selectedRowKeys = []
         tempRow = []
@@ -279,6 +286,7 @@ export default defineComponent({
     }
 
     const fetchList = async (params = {}, data) => {
+      isLoading.value = true
       tempRow = []
       try {
         const { getLists } = useGetCompanyListService({ ...params }, data)
@@ -337,24 +345,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style scoped lang="scss">
-.box-create {
-  padding: 24px 32px 0;
-  text-align: right;
-  text-align: -webkit-right;
-
-  .btn-modal {
-    width: auto;
-    border-radius: 2px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-
-    .add-icon {
-      margin-right: 10.33px;
-    }
-  }
-}
-</style>

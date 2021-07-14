@@ -25,5 +25,6 @@ export default {
   use_distinction: 'Use distinction',
   medium_classification: 'Medium classification',
   input: 'Text Input',
-  group: 'Group'
+  group: 'Group',
+  report: 'Show data in report'
 }

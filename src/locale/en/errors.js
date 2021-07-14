@@ -33,6 +33,12 @@ export default {
   country_0003: 'country existed',
   country_0004: 'input is not valid',
 
+  company_0000: 'No error',
+  company_0001: 'company not found',
+  company_0002: 'company is not valid',
+  company_0003: 'company existed',
+  company_0004: 'input is not valid',
+
   category_0000: 'No error',
   category_0001: 'category not found',
   category_0002: 'category is not valid',
@@ -51,5 +57,10 @@ export default {
   currency_0003: 'currency existed',
   currency_0004: 'input is not valid',
 
+  account_0000: 'No error',
+  account_0001: 'account not found',
+  account_0002: 'account is not valid',
+  account_0003: 'account existed',
+  account_0004: 'input is not valid',
   account_0102: 'Don\'t have permission'
 }

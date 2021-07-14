@@ -10,15 +10,16 @@
         />
       </div>
 
-      <div>
-        <a-button :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
-          <template #icon>
-            <span class="btn-icon"><line-down-icon /></span>
-          </template>
-          {{ $t('deposit.deposit_list.export_csv') }}
-        </a-button>
+      <div class="u-flex u-items-center">
+        <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
+          <a-button type="link" :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
+            <template #icon>
+              <span class="btn-icon" style="height: 28px"><line-down-icon /></span>
+            </template>
+          </a-button>
+        </a-tooltip>
 
-        <a-button type="primary" class="u-ml-12" @click="$router.push({ name: 'deposit-new' })">
+        <a-button type="primary" class="u-ml-16" @click="$router.push({ name: 'deposit-new' })">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
@@ -69,7 +70,7 @@
         v-model:current="currentPage"
         :total="totalRecords"
         :show-total="(total, range) => `${range[0]}-${range[1]} / ${total}件`"
-        :page-size="10"
+        :page-size="pageSize"
         size="small"
         @change="handleChangePage"
       />
@@ -190,6 +191,7 @@ export default defineComponent({
     // pagination
     const currentPage = ref(1)
     const totalRecords = ref()
+    const pageSize = ref(50)
 
     // tabs
     const activeKeyGroupTab = ref(1)
@@ -247,7 +249,7 @@ export default defineComponent({
     ])
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1 } })
+    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1, pageSize: pageSize.value } })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -466,6 +468,9 @@ export default defineComponent({
     const onCopyRecordDeposit = () => {
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
+
+      // save filters search to store
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       router.push({
         name: 'deposit-new',
@@ -693,6 +698,7 @@ export default defineComponent({
       filterMonthList,
       unconfirmRecordSeleted,
       modalActionRef,
+      pageSize,
 
       isLoadingDataTable,
       isVisibleModalActionBar,

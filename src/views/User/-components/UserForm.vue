@@ -4,14 +4,9 @@
     <form @submit="onSubmit">
       <!-- Password -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.current_password"
-          name="current_password"
-          rules="required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.current_password" name="password" rules="required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('user.current_password') }}</label>
+            <label class="form-label required">{{ $t('user.password') }}</label>
             <div class="form-input">
               <a-input
                 type="password"
@@ -21,8 +16,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="current_password" class="errors">
-                {{ replaceField(message, 'current_password') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                {{ replaceField(message, 'password') }}
               </ErrorMessage>
             </div>
           </div>
@@ -159,8 +154,8 @@ export default defineComponent({
     const checkErrorsApi = (err) => {
       for (let item in err.response.data.errors) {
         locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
+          ? (err.response.data.errors[item] = 'The current password is incorrect')
+          : (err.response.data.errors[item] = '現在のパスワードが間違っています')
         setFieldError(item, err.response.data.errors[item])
       }
     }

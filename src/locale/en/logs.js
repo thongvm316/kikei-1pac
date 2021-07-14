@@ -10,10 +10,10 @@ export default {
   account: 'Account',
   action: 'Action',
   pageData: 'Page / Data',
-  delete: 'Delete',
-  add: 'Add',
-  edit: 'Edit',
-  seen: 'Detail',
+  delete: 'DELETE',
+  add: 'POST',
+  edit: 'PUT',
+  seen: 'GET',
   detail: 'Show Detail',
   title_show: 'Detail'
 }
