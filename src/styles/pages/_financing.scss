@@ -83,16 +83,22 @@
   }
 
   .ant-table-content {
-    .ant-table-thead {
-      th:not(:first-child) {
-        text-align: right;
+    //.ant-table-thead {
+    //  th:not(:first-child) {
+    //    text-align: right;
+    //  }
+    //}
+
+    .ant-table-body{
+      .ant-table-tbody .ant-table-row   td {
+        padding: 16px 8px;
       }
     }
 
     .ant-table-row {
-      td:not(:first-child) {
-        text-align: right;
-      }
+      //td:not(:first-child) {
+      //  text-align: right;
+      //}
 
       .ant-dropdown-link {
         color: #000;
@@ -105,6 +111,21 @@
 
       .text--red {
         color: #F5222D;
+
+        .icon-warning {
+          display: none;
+        }
+      }
+
+      .text--warning {
+        position: relative;
+        padding: 6px 0;
+
+        .icon-warning {
+          position: absolute;
+          right: 0;
+          top: -6px;
+        }
       }
     }
 
