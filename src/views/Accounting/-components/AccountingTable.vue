@@ -390,6 +390,19 @@ export default defineComponent({
   }
 }
 
+.accounting-table.is-table-total {
+  .ant-table-fixed-left {
+    .ant-table-tbody {
+      tr.ant-table-row {
+        td.ant-table-row-cell-break-word {
+          background-color: $color-grey-96;
+          color: $color-grey-15;
+        }
+      }
+    }
+  }
+}
+
 .accounting-table + .accounting-table {
   margin-top: 32px;
 }
