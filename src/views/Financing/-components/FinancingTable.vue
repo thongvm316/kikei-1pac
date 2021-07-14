@@ -6,51 +6,62 @@
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
     size="middle"
-    :scroll="{ y: height - 214 }"
+    :scroll="{ x: 'calc(600px + 50%)', y: height - 271 }"
     :row-key="(record) => record.date"
+    :pagination="pagination"
     @change="changeFinancingTable"
   >
     <template v-for="col in columnsNameList" #[col]="{ text, record }" :key="col">
       <span v-if="text.warnings">
-        <a-tooltip placement="top" :title="dataToolTip(record)">
+        <a-tooltip v-if="text.warnings.length > 0" placement="top" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
-            :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-            @click="handlePageRedirect(text, record)"
+            :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
+            @click="handlePageRedirect()"
           >
+            <icon-warnings class="icon-warning" />
             {{ text.money }}
           </a>
         </a-tooltip>
+        <a
+          v-else
+          class="ant-dropdown-link"
+          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
+          @click="handlePageRedirect()"
+        >
+          {{ text.money }}
+        </a>
       </span>
       <span v-else>
-        <a
-          class="ant-dropdown-link"
-          :class="parseInt(text) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
-        >
+        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
           {{ text }}
         </a>
       </span>
     </template>
     <template #balance="{ text, record }">
       <span v-if="text.warnings">
-        <a-tooltip placement="topRight" :title="dataToolTip(record)">
+        <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
-            :class="parseInt(text) < 0 ? 'text--red' : ''"
-            @click="handlePageRedirect(text, record)"
+            :class="parseInt(text) < 0 ? 'text--red' : 'text--warning'"
+            @click="handlePageRedirect()"
           >
-            {{ $filters.number_with_commas(record.balance) }}
+            <icon-warnings class="icon-warning" />
+            {{ $filters.number_with_commas(text.money) }}
           </a>
         </a-tooltip>
-      </span>
-      <span v-else>
         <a
+          v-else
           class="ant-dropdown-link"
           :class="parseInt(text) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
+          @click="handlePageRedirect()"
         >
-          {{ $filters.number_with_commas(record.balance) }}
+          {{ $filters.number_with_commas(text.money) }}
+        </a>
+      </span>
+      <span v-else>
+        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
+          {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
     </template>
@@ -61,27 +72,56 @@
 import { defineComponent, onBeforeMount, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+
+import humps from 'humps'
+import moment from 'moment'
 
 import Table from '@/mixins/table.mixin'
 import { toOrderBy } from '@/helpers/table'
-import humps from 'humps'
+import IconWarnings from '@/assets/icons/ico_warnings.svg'
 
 export default defineComponent({
   name: 'FinancingTable',
 
+  components: {
+    IconWarnings
+  },
+
   mixins: [Table],
 
   props: {
-    currentSelectedRowKeys: Array,
-    columnsFinancing: Array,
-    columnsNameList: Array,
-    dataFinancing: Array,
+    dataRequest: {
+      type: Object,
+      required: true
+    },
+    currentSelectedRowKeys: {
+      type: Array,
+      required: true
+    },
+    columnsFinancing: {
+      type: Array,
+      required: true
+    },
+    columnsNameList: {
+      type: Array,
+      required: true
+    },
+    dataFinancing: {
+      type: Array,
+      required: true
+    },
+    pagination: {
+      type: Object,
+      required: true
+    },
     isLoadingDataTable: Boolean
   },
 
   setup(props, { emit }) {
     const { t } = useI18n()
     const router = useRouter()
+    const store = useStore()
 
     const emptyTextHTML = ref({})
     const height = ref(0)
@@ -94,13 +134,27 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    const dataToolTip = (record) => {
-      return record.date + ': キャッシュアウト'
+    const dataToolTip = (data) => {
+      let date = moment(data.warnings[0]).format('YYYY/MM/DD')
+      return date + ': キャッシュアウト'
     }
 
-    const handlePageRedirect = (balance, data) => {
-      console.log(balance)
-      console.log(data)
+    const showToolTipData = (data) => {
+      if (data?.warnings) {
+        return data.warnings.length > 0
+      } else {
+        return false
+      }
+    }
+    const handlePageRedirect = (money, record) => {
+      const data = {
+        groupId: props.dataRequest.data.group_id,
+        bankAccountId: props.dataRequest.data.bank_account_ids,
+        fromDate: props.dataRequest.data.from_date,
+        toDate: props.dataRequest.data.to_date
+      }
+
+      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
       router.push({ name: 'deposit' })
     }
 
@@ -129,6 +183,7 @@ export default defineComponent({
       emptyTextHTML,
       height,
       dataToolTip,
+      showToolTipData,
       handlePageRedirect,
       changeFinancingTable
     }
@@ -136,4 +191,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

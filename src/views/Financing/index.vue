@@ -99,7 +99,7 @@
           <label class="form-label">{{ $t('financing.currency') }}:</label>
 
           <div class="form-select form-select-currency">
-            <a-select v-model:value="filter.currency_code" @change="onChangeCurrency">
+            <a-select v-model:value="filter.currency_code" :disabled="isDisabledCurrency" @change="onChangeCurrency">
               <a-select-option v-for="item in currencyList" :key="item.id" :value="item.code">
                 {{ item.code }}
               </a-select-option>
@@ -116,6 +116,8 @@
       v-model:columns-name-list="columnsNameList"
       v-model:data-financing="dataFinancing"
       v-model:current-selected-row-keys="currentSelectedRowKeys"
+      v-model:pagination="pagination"
+      :data-request="requestParamsData"
       @on-sort="onSortTable"
     />
   </section>
@@ -173,6 +175,8 @@ export default defineComponent({
     const isDisabledDate = ref(true)
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
+    const isDisabledCurrency = ref(false)
+    const pagination = ref({})
 
     const height = ref(0)
 
@@ -220,8 +224,24 @@ export default defineComponent({
     }
 
     const initialTableColumn = ref([
-      { title: t('financing.date'), dataIndex: 'date', key: 'date', sorter: true },
-      { title: t('financing.balance'), dataIndex: 'balance', key: 'balance', slots: { customRender: 'balance' } }
+      {
+        title: t('financing.date'),
+        dataIndex: 'date',
+        key: 'date',
+        fixed: 'left',
+        width: 150,
+        align: 'left',
+        sorter: true
+      },
+      {
+        title: t('financing.balance'),
+        dataIndex: 'balance',
+        key: 'balance',
+        fixed: 'right',
+        width: 150,
+        align: 'right',
+        slots: { customRender: 'balance' }
+      }
     ])
 
     const filter = reactive({ ...initialStateFilter })
@@ -277,8 +297,12 @@ export default defineComponent({
 
     const onChangeBankAccount = async () => {
       requestParamsData.data.bank_account_ids = []
-
+      isDisabledCurrency.value = false
       if (filter.bank_account_ids !== null) {
+        isDisabledCurrency.value = true
+        filter.currency_code = ''
+        let currencyBank = bankAccountList.value.find((item) => item.id === filter.bank_account_ids)
+        requestParamsData.data.currency_code = currencyBank.currencyCode
         requestParamsData.data.bank_account_ids.push(filter.bank_account_ids)
       }
 
@@ -328,7 +352,7 @@ export default defineComponent({
       const { result } = await getCurrency()
 
       currencyList.value = result?.data
-      filter.currency_code = currencyList?.value[0].code
+      filter.currency_code = currencyList?.value[1].code
     }
 
     const onSortTable = async (emitData) => {
@@ -348,6 +372,8 @@ export default defineComponent({
             title: data[i].name,
             dataIndex: `columns_${data[i].id}`,
             key: `columns_${data[i].id}`,
+            width: 120,
+            align: 'right',
             slots: { customRender: `columns_${data[i].id}` }
           }
           columnsFinancing.value.push(initialListColumns.value)
@@ -427,7 +453,9 @@ export default defineComponent({
       }
     })
 
-    onMounted(async () => {})
+    onMounted(async () => {
+      pagination.value = { ...requestParamsData.params }
+    })
 
     return {
       t,
@@ -457,8 +485,10 @@ export default defineComponent({
       isDisabledDate,
       isDisabledDisplay,
       isDisabledBank,
+      isDisabledCurrency,
       height,
       convertArrayToObject,
+      pagination,
       convertDataTableHeader,
       convertDataTableRows,
       exportFinancingCsvFile,
