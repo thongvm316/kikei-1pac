@@ -17,7 +17,7 @@
           <a
             class="ant-dropdown-link"
             :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirect(text, record)"
+            @click="handlePageRedirect()"
           >
             <icon-warnings class="icon-warning" />
             {{ text.money }}
@@ -27,17 +27,13 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
+          @click="handlePageRedirect()"
         >
           {{ text.money }}
         </a>
       </span>
       <span v-else>
-        <a
-          class="ant-dropdown-link"
-          :class="parseInt(text) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
-        >
+        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
           {{ text }}
         </a>
       </span>
@@ -48,7 +44,7 @@
           <a
             class="ant-dropdown-link"
             :class="parseInt(text) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirect(text, record)"
+            @click="handlePageRedirect()"
           >
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
@@ -58,17 +54,13 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
+          @click="handlePageRedirect()"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
       <span v-else>
-        <a
-          class="ant-dropdown-link"
-          :class="parseInt(text) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(text, record)"
-        >
+        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
@@ -155,10 +147,6 @@ export default defineComponent({
       }
     }
     const handlePageRedirect = (money, record) => {
-      console.log(money)
-      console.log(record)
-      console.log(props.dataRequest)
-
       const data = {
         groupId: props.dataRequest.data.group_id,
         bankAccountId: props.dataRequest.data.bank_account_ids,
@@ -166,7 +154,6 @@ export default defineComponent({
         toDate: props.dataRequest.data.to_date
       }
 
-      console.log(data)
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
       router.push({ name: 'deposit' })
     }
