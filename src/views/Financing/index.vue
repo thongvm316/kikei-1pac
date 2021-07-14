@@ -45,8 +45,13 @@
           <label class="form-label">{{ $t('financing.display') }}:</label>
 
           <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.show_by" :disabled="isDisabledDisplay" @change="onChangeShowBy">
-              <a-radio v-for="item in SHOW_BY" :key="item.id" :value="item.id">
+            <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
+              <a-radio
+                v-for="item in SHOW_BY"
+                :key="item.id"
+                :value="item.id"
+                :disabled="item.id === 1 ? isDisabledDisplay : false"
+              >
                 {{ $t(`financing.${item.value}`) }}
               </a-radio>
             </a-radio-group>
@@ -208,7 +213,7 @@ export default defineComponent({
       group_id: 1,
       period_id: '',
       date_from_to: [null, null],
-      show_by: 0,
+      show_by: 1,
       view_mode: 0,
       bank_account_ids: [],
       currency_code: ''
@@ -255,11 +260,11 @@ export default defineComponent({
         bankAccountList.value = []
         await fetchPeriodList(value)
         await fetchBankAccounts({ group_id: value })
-        filter.show_by = 0
+        filter.show_by = 1
         isDisabledDisplay.value = false
         isDisabledBank.value = false
       } else {
-        filter.show_by = null
+        filter.show_by = 0
         isDisabledDisplay.value = true
         isDisabledBank.value = true
         requestParamsData.data.bank_account_ids = []
