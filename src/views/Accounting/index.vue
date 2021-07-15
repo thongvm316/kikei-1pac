@@ -2,11 +2,11 @@
   <div class="accounting u-mx-32">
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
-        <span class="u-mr-16 u-text-grey-15">{{ $t('accounting.financing_period_label') }}:</span>
+        <span class="u-mr-8 u-text-grey-15">{{ $t('accounting.financing_period_label') }}:</span>
         <a-select
           v-model:value="financingPeriod"
           :loading="isLoadingPeriod"
-          :style="{ width: '120px' }"
+          :style="{ width: '80px' }"
           @change="handleChangeFinancingPeriod"
         >
           <a-select-option v-for="period in periodList" :key="period.id" :value="period.id">

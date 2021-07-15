@@ -156,7 +156,8 @@ export default defineComponent({
               divisionType: category?.divisionType,
               categoryName: item?.subcategoryName,
               categoryId: [category?.categoryId],
-              subcategoryId: [item.subcategoryId]
+              subcategoryId: [item.subcategoryId],
+              subcategoryKind: category?.subcategoryKind
             }
 
             ;(item?.data || []).map((subData) => {
@@ -192,10 +193,20 @@ export default defineComponent({
         groupId: props.groupId,
         type: record?.divisionType ? [record.divisionType] : [],
         categoryId: record?.categoryId || [],
-        subcategoryId: record?.subcategoryId || [],
+        subcategoryId: [],
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
       }
+
+      const subcategoryId = record?.subcategoryId || []
+      if (record.subcategoryKind === 20) {
+        data.subcategoryCompanyId = subcategoryId
+      } else if (record.subcategoryKind === 30) {
+        data.subcategoryGroupId = subcategoryId
+      } else {
+        data.subcategoryId = subcategoryId
+      }
+
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
     }
 
@@ -294,10 +305,11 @@ export default defineComponent({
       right: 0;
       margin-top: auto;
       margin-bottom: auto;
-      height: 24px;
-      width: 24px;
+      height: 14px;
+      width: 14px;
       background-color: transparent;
       border: 0;
+      margin-right: 12px;
 
       &:hover {
         border-color: none;
@@ -307,23 +319,24 @@ export default defineComponent({
       &:after {
         content: '';
         display: block;
-        width: 10px;
+        width: 8px;
         height: 1px;
         background: $color-grey-0;
         position: absolute;
-        top: 10px;
+        top: 7px;
         transition: transform 0.5s;
+        color: $color-grey-55;
       }
 
       &:before {
-        right: 9px;
+        right: 6px;
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
         transform: rotate(45deg);
       }
 
       &:after {
-        right: 3px;
+        right: 1px;
         transform: rotate(-45deg);
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
@@ -374,6 +387,19 @@ export default defineComponent({
       td.ant-table-row-cell-break-word {
         background-color: $color-grey-92;
         color: $color-grey-15;
+      }
+    }
+  }
+}
+
+.accounting-table.is-table-total {
+  .ant-table-fixed-left {
+    .ant-table-tbody {
+      tr.ant-table-row {
+        td.ant-table-row-cell-break-word {
+          background-color: $color-grey-96;
+          color: $color-grey-15;
+        }
       }
     }
   }

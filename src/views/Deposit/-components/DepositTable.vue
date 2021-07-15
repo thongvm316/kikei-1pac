@@ -133,7 +133,7 @@ const columnsDeposit = [
     align: 'center',
     slots: { customRender: 'typeName' },
     ellipsis: true,
-    width: 150
+    width: 70
   },
   {
     dataIndex: 'deposit',
