@@ -4,7 +4,7 @@
       <div class="financing__header--top u-mx-32">
         <!--Stages-->
         <div class="form-group">
-          <label class="form-label">{{ $t('financing.stages') }}:</label>
+          <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
           <div class="form-select">
             <a-select
@@ -22,7 +22,7 @@
         <!--./Stages -->
         <!--Date From-->
         <div class="form-group">
-          <label class="form-label"> {{ $t('financing.date') }}: </label>
+          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
           <div class="form-select">
             <a-range-picker
@@ -42,7 +42,7 @@
         <!--./Date From -->
         <!-- Display -->
         <div class="form-group">
-          <label class="form-label">{{ $t('financing.display') }}:</label>
+          <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
 
           <div class="form-checkbox">
             <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
@@ -52,7 +52,7 @@
                 :value="item.id"
                 :disabled="item.id === 1 ? isDisabledDisplay : false"
               >
-                {{ $t(`financing.${item.value}`) }}
+                {{ $t(`financing.financing_list.${item.value}`) }}
               </a-radio>
             </a-radio-group>
           </div>
@@ -60,8 +60,10 @@
         <!-- ./Display -->
         <!-- Download CSV -->
         <a-tooltip placement="topLeft" title="CSV ファイルダウンロード">
-          <a-button class="btn-download" :loading="loadingExportCsvButton" @click="exportFinancingCsvFile">
-            <icon-csv />
+          <a-button type="link" class="btn-download" :loading="isLoadingExportCsv" @click="exportFinancingCsvFile">
+            <template #icon>
+              <span class="btn-icon" style="height: 28px"><icon-csv /></span>
+            </template>
           </a-button>
         </a-tooltip>
         <!-- ./Download CSV -->
@@ -86,7 +88,7 @@
           <div class="form-checkbox">
             <a-radio-group v-model:value="filter.view_mode" @change="onChangeViewMode">
               <a-radio v-for="item in VIEW_MODE" :key="item.id" :value="item.id">
-                {{ $t(`financing.${item.value}`) }}
+                {{ $t(`financing.financing_list.${item.value}`) }}
               </a-radio>
             </a-radio-group>
           </div>
@@ -96,7 +98,7 @@
 
         <!-- Currency -->
         <div class="form-group">
-          <label class="form-label">{{ $t('financing.currency') }}:</label>
+          <label class="form-label">{{ $t('financing.financing_list.currency') }}:</label>
 
           <div class="form-select form-select-currency">
             <a-select v-model:value="filter.currency_code" :disabled="isDisabledCurrency" @change="onChangeCurrency">
@@ -111,11 +113,11 @@
     </div>
 
     <financing-table
+      id="financing__table"
       v-model:is-loading-data-table="isLoadingDataTable"
-      v-model:columns-financing="columnsFinancing"
-      v-model:columns-name-list="columnsNameList"
-      v-model:data-financing="dataFinancing"
-      v-model:current-selected-row-keys="currentSelectedRowKeys"
+      v-model:columns-financing="dataColumnsTableFinancing"
+      v-model:columns-name-list="dataColumnsNameTable"
+      v-model:data-financing="dataRowsTableFinancing"
       v-model:pagination="pagination"
       :data-request="requestParamsData"
       @on-sort="onSortTable"
@@ -127,23 +129,24 @@ import { defineComponent, onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import moment from 'moment'
+import { find, remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
+import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
+import { convertArrayToObject, convertDataByMonth, convertDataCsv } from './composables/useFinancing'
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
-import { convertArrayToObject, convertDataByMonth } from './composables/useFinancing'
 
+import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
 import { VIEW_MODE } from '@/enums/financing.enum'
 import { SHOW_BY } from '@/enums/financing.enum'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import { find, remove } from 'lodash-es'
-import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
 export default defineComponent({
   name: 'Index',
@@ -157,27 +160,29 @@ export default defineComponent({
 
     const groupList = ref([])
     const periodList = ref([])
-    const loadingExportCsvButton = ref()
-    const bankAccountId = ref([])
     const bankAccountList = ref([])
+    const bankAccountId = ref([])
     const currencyList = ref([])
+    const dataColumns = ref([])
+    const dataByDates = ref([])
 
-    const isLoadingDataTable = ref(true)
-    const dataFinancing = ref([])
-    const columnsFinancing = ref([])
-    const columnsNameList = ref([])
-    const currentSelectedRowKeys = ref([])
-    let dataTableRow = ref({})
-    let initialListColumns = ref({})
+    // Tables
+    const dataColumnsNameTable = ref([])
+    const createColumns = ref({})
+    const dataColumnsTableFinancing = ref([])
+    const dataRows = ref({})
+    const dataRowsTableFinancing = ref([])
 
     const isLoading = ref(false)
+    const isLoadingDataTable = ref(true)
     const isDisabledPeriod = ref(false)
     const isDisabledDate = ref(true)
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
-    const pagination = ref({})
+    const isLoadingExportCsv = ref(false)
 
+    const pagination = ref({})
     const height = ref(0)
 
     // data for request financing
@@ -196,6 +201,11 @@ export default defineComponent({
       params: { pageNumber: 1, pageSize: 100 }
     })
 
+    const initialCsvLabels = [
+      { header: t('financing.csv.header.date'), field: 'date', formatBy: 'moment_l' },
+      { header: t('financing.csv.header.total_money'), field: 'totalMoney' }
+    ]
+
     const initialExportCSV = {
       fileTitle: 'financing',
       labels: [],
@@ -204,12 +214,12 @@ export default defineComponent({
 
     const initialGroup = {
       id: null,
-      name: t('financing.show_all_group')
+      name: t('financing.financing_list.show_all_group')
     }
 
     const initialBankAccount = {
       id: null,
-      name: t('financing.show_all_bank'),
+      name: t('financing.financing_list.show_all_bank'),
       currency_code: null
     }
 
@@ -223,31 +233,31 @@ export default defineComponent({
       currency_code: ''
     }
 
-    const initialTableColumn = ref([
+    const initialColumns = ref([
       {
-        title: t('financing.date'),
+        title: t('financing.financing_list.date'),
         dataIndex: 'date',
         key: 'date',
         fixed: 'left',
-        width: 150,
+        width: 160,
         align: 'left',
         sorter: true
       },
       {
-        title: t('financing.balance'),
-        dataIndex: 'balance',
-        key: 'balance',
+        title: t('financing.financing_list.total_money'),
+        dataIndex: 'totalMoney',
+        key: 'totalMoney',
         fixed: 'right',
-        width: 150,
+        width: 160,
         align: 'right',
-        slots: { customRender: 'balance' }
+        slots: { customRender: 'totalMoney' }
       }
     ])
 
     const filter = reactive({ ...initialStateFilter })
-    const exportData = reactive({ ...initialExportCSV })
+    const dataExportCsv = reactive({ ...initialExportCSV })
 
-    // Handle Header filter
+    // Handle filter
     const onChangePeriod = async (event) => {
       filter.date_from_to = []
       isDisabledDate.value = !(event === undefined || event === null)
@@ -368,9 +378,9 @@ export default defineComponent({
 
     const onSortTable = async (emitData) => {
       let currentSortStr = ''
-      emitData.orderBy === ''
-        ? (currentSortStr = 'date asc')
-        : (currentSortStr = `${emitData.field} ${emitData.orderBy}`)
+      if (emitData.orderBy !== '') {
+        currentSortStr = `${emitData.field} ${emitData.orderBy}`
+      }
 
       requestParamsData.params.orderBy = currentSortStr
       await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
@@ -381,46 +391,40 @@ export default defineComponent({
         for (let i = 0; i < data.length; i++) {
           let titleName = data[i].name
           if (data[i].name === 'deposit' || data[i].name === 'withdrawal') {
-            titleName = t(`financing.${data[i].name}`)
+            titleName = t(`financing.financing_list.${data[i].name}`)
           }
-          initialListColumns.value = {
+          createColumns.value = {
             title: titleName,
             dataIndex: `columns_${data[i].id}`,
             key: `columns_${data[i].id}`,
-            width: 120,
+            width: 150,
             align: 'right',
             slots: { customRender: `columns_${data[i].id}` }
           }
-          columnsFinancing.value.push(initialListColumns.value)
+          dataColumnsTableFinancing.value.push(createColumns.value)
         }
-        columnsFinancing.value.unshift(initialTableColumn.value[0])
+        dataColumnsTableFinancing.value.unshift(initialColumns.value[0])
 
-        columnsFinancing.value.push(initialTableColumn.value[1])
+        dataColumnsTableFinancing.value.push(initialColumns.value[1])
       }
     }
 
     const convertDataTableRows = async (data) => {
       if (data) {
         for (let i = 0; i < data.length; i++) {
-          dataTableRow.value['date'] =
+          dataRows.value['date'] =
             requestParamsData.data.show_by === 1
               ? moment(data[i].date).format('YYYY/MM/DD')
               : moment(data[i].date).format('YYYY/MM')
 
           if (requestParamsData.data.show_by === 1) {
-            Object.assign(
-              dataTableRow.value,
-              convertArrayToObject(data[i].dataByColumns, 'columnId', 'columns_', 'money')
-            )
+            Object.assign(dataRows.value, convertArrayToObject(data[i].dataByColumns, 'columnId', 'columns_', 'money'))
           } else {
-            Object.assign(
-              dataTableRow.value,
-              convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
-            )
+            Object.assign(dataRows.value, convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money'))
           }
 
-          dataTableRow.value['balance'] = data[i].totalMoney
-          dataFinancing.value.push(Object.assign({}, dataTableRow.value))
+          dataRows.value['totalMoney'] = data[i].totalMoney
+          dataRowsTableFinancing.value.push(Object.assign({}, dataRows.value))
         }
       }
     }
@@ -432,24 +436,58 @@ export default defineComponent({
       try {
         const { getLists } = useGetFinancingListService(data, params)
         const { result } = await getLists()
-        remove(dataFinancing.value)
-        remove(columnsFinancing.value)
-        columnsNameList.value = result.data?.columns.map((item) => `columns_${item.id}`)
 
-        await convertDataTableHeader(result.data?.columns)
-        await convertDataTableRows(result.data?.dataByDates)
+        remove(dataRowsTableFinancing.value)
+        remove(dataColumnsTableFinancing.value)
+        remove(dataColumnsNameTable.value)
+        deleteEmptyValue(dataRows.value)
+
+        dataColumns.value = result.data?.columns || []
+        dataByDates.value = result.data?.dataByDates || []
+        dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
+
+        await convertDataTableHeader(dataColumns.value)
+        await convertDataTableRows(dataByDates.value)
       } finally {
         isLoadingDataTable.value = false
       }
     }
 
     const exportFinancingCsvFile = async () => {
-      initialExportCSV.labels = JSON.parse(JSON.stringify(columnsFinancing.value)).map((item) => ({
-        header: item.title,
-        field: item.dataIndex
-      }))
-      initialExportCSV.items = JSON.parse(JSON.stringify(dataFinancing.value))
-      exportCSVFile(initialExportCSV)
+      isLoadingExportCsv.value = true
+      dataExportCsv.labels = []
+
+      if (dataColumns.value) {
+        for (let i = 0; i < dataColumns.value.length; i++) {
+          let titleName = dataColumns.value[i].name
+          if (titleName === 'deposit' || titleName === 'withdrawal') {
+            titleName = t(`financing.csv.header.${dataColumns.value[i].name}`)
+          }
+          const createLabels = {
+            header: titleName,
+            field: `columns_${dataColumns.value[i].id}`
+          }
+          dataExportCsv.labels.push(createLabels)
+        }
+        dataExportCsv.labels.unshift(initialCsvLabels[0])
+
+        dataExportCsv.labels.push(initialCsvLabels[1])
+      }
+
+      const dataCsv = {}
+      dataByDates.value.forEach((item) => {
+        dataCsv.date =
+          requestParamsData.data.show_by === 1
+            ? moment(item.date).format('YYYY/MM/DD')
+            : moment(item.date).format('YYYY/MM')
+
+        Object.assign(dataCsv, convertDataCsv(item.dataByColumns, 'columnId', 'columns_', 'money'))
+        dataCsv.totalMoney = item.totalMoney.money
+        dataExportCsv.items.push(Object.assign({}, dataCsv))
+      })
+
+      isLoadingExportCsv.value = false
+      exportCSVFile(dataExportCsv)
     }
 
     onBeforeMount(async () => {
@@ -476,37 +514,35 @@ export default defineComponent({
       t,
       useRoute,
       initialGroup,
+      initialBankAccount,
+      initialStateFilter,
+      initialColumns,
       groupList,
       periodList,
-      initialBankAccount,
-      bankAccountId,
       bankAccountList,
       currencyList,
-      SHOW_BY,
-      VIEW_MODE,
-      initialStateFilter,
+      dataColumns,
+      dataByDates,
+      dataColumnsNameTable,
+      dataColumnsTableFinancing,
+      dataRowsTableFinancing,
+      bankAccountId,
+      dataExportCsv,
       filter,
       requestParamsData,
-      loadingExportCsvButton,
-      exportData,
-      isLoadingDataTable,
-      currentSelectedRowKeys,
-      dataFinancing,
-      initialTableColumn,
-      columnsNameList,
-      columnsFinancing,
+      height,
+      pagination,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,
       isDisabledDisplay,
+      isLoadingDataTable,
       isDisabledBank,
       isDisabledCurrency,
-      height,
+      isLoadingExportCsv,
+      SHOW_BY,
+      VIEW_MODE,
       convertArrayToObject,
-      pagination,
-      convertDataTableHeader,
-      convertDataTableRows,
-      exportFinancingCsvFile,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
@@ -514,11 +550,14 @@ export default defineComponent({
       onChangeBankAccount,
       onChangeViewMode,
       onChangeCurrency,
+      onSortTable,
       fetchGroupList,
       fetchPeriodList,
       fetchCurrency,
       fetchDataTableFinancing,
-      onSortTable
+      convertDataTableHeader,
+      convertDataTableRows,
+      exportFinancingCsvFile
     }
   }
 })
