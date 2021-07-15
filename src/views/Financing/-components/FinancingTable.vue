@@ -6,12 +6,12 @@
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
     size="middle"
-    :scroll="{ x: 'calc(600px + 50%)', y: height - 271 }"
+    :scroll="{ x: 'calc(600px + 50%)', y: height - 274 }"
     :row-key="(record) => record.date"
     :pagination="pagination"
     @change="changeFinancingTable"
   >
-    <template v-for="col in columnsNameList" #[col]="{ text, record }" :key="col">
+    <template v-for="col in columnsNameList" #[col]="{ text }" :key="col">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="top" :title="dataToolTip(text)">
           <a
@@ -38,7 +38,7 @@
         </a>
       </span>
     </template>
-    <template #balance="{ text, record }">
+    <template #balance="{ text }">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a

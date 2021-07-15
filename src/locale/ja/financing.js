@@ -20,5 +20,7 @@ export default {
   emptyData: '該当する資金繰りが見つかりませんでした。',
   currency: '合計 残 高 表示 通貨',
   show_all_bank: '全口座',
-  show_all_group: 'グループ全体'
+  show_all_group: 'グループ全体',
+  deposit: '入金合計',
+  withdrawal: '出金合計'
 }

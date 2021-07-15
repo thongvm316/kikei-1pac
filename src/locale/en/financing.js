@@ -18,5 +18,7 @@ export default {
   download_csv: 'Download CSV',
   emptyData: 'No Data',
   show_all_bank: 'All bank',
-  show_all_group: 'All group'
+  show_all_group: 'All group',
+  deposit: 'Deposit',
+  withdrawal: 'Withdrawall'
 }

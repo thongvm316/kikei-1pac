@@ -142,7 +142,7 @@ import { VIEW_MODE } from '@/enums/financing.enum'
 import { SHOW_BY } from '@/enums/financing.enum'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import { remove } from 'lodash-es'
+import { find, remove } from 'lodash-es'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
 export default defineComponent({
@@ -278,9 +278,7 @@ export default defineComponent({
       // fetch bank accounts
       if (value) {
         bankAccountList.value = []
-        await fetchPeriodList(value)
         await fetchBankAccounts({ group_id: value })
-        filter.show_by = 1
         isDisabledDisplay.value = false
         isDisabledBank.value = false
       } else {
@@ -297,13 +295,14 @@ export default defineComponent({
 
     const onChangeBankAccount = async () => {
       requestParamsData.data.bank_account_ids = []
-      isDisabledCurrency.value = false
       if (filter.bank_account_ids !== null) {
         isDisabledCurrency.value = true
         filter.currency_code = ''
         let currencyBank = bankAccountList.value.find((item) => item.id === filter.bank_account_ids)
         requestParamsData.data.currency_code = currencyBank.currencyCode
         requestParamsData.data.bank_account_ids.push(filter.bank_account_ids)
+      } else {
+        isDisabledCurrency.value = false
       }
 
       await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
@@ -333,7 +332,19 @@ export default defineComponent({
       const { result } = await getPeriods()
 
       periodList.value = result?.data
-      filter.period_id = periodList?.value[0]?.id
+      // set period current
+      const periodCurrentFound = find(periodList.value, (periodItem) => {
+        const currentTime = moment()
+        const startedDate = periodItem?.startedDate
+        const finishedDate = periodItem?.finishedDate
+
+        if (!startedDate || !finishedDate) return false
+
+        return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+      })
+      if (periodCurrentFound) {
+        filter.period_id = periodCurrentFound.id
+      }
     }
 
     // Fetch bank accounts
@@ -368,8 +379,12 @@ export default defineComponent({
     const convertDataTableHeader = async (data) => {
       if (data) {
         for (let i = 0; i < data.length; i++) {
+          let titleName = data[i].name
+          if (data[i].name === 'deposit' || data[i].name === 'withdrawal') {
+            titleName = t(`financing.${data[i].name}`)
+          }
           initialListColumns.value = {
-            title: data[i].name,
+            title: titleName,
             dataIndex: `columns_${data[i].id}`,
             key: `columns_${data[i].id}`,
             width: 120,
