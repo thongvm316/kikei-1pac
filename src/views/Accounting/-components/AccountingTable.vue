@@ -305,10 +305,11 @@ export default defineComponent({
       right: 0;
       margin-top: auto;
       margin-bottom: auto;
-      height: 24px;
-      width: 24px;
+      height: 14px;
+      width: 14px;
       background-color: transparent;
       border: 0;
+      margin-right: 12px;
 
       &:hover {
         border-color: none;
@@ -318,23 +319,24 @@ export default defineComponent({
       &:after {
         content: '';
         display: block;
-        width: 10px;
+        width: 8px;
         height: 1px;
         background: $color-grey-0;
         position: absolute;
-        top: 10px;
+        top: 7px;
         transition: transform 0.5s;
+        color: $color-grey-55;
       }
 
       &:before {
-        right: 9px;
+        right: 6px;
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
         transform: rotate(45deg);
       }
 
       &:after {
-        right: 3px;
+        right: 1px;
         transform: rotate(-45deg);
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
