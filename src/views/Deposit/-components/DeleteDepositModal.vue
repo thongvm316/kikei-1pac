@@ -5,7 +5,7 @@
         {{ $t('deposit.deposit_list.delete_deposit', { purpose }) }}
       </p>
       <p v-else>{{ $t('deposit.deposit_list.delete_deposit_multiple') }}</p>
-      <a-button @click="handleCancel">キャンセル</a-button>
+      <a-button type="default" @click="handleCancel">キャンセル</a-button>
       <a-button type="danger" @click="$emit('on-delete-deposit-record')">削除</a-button>
     </template>
   </a-modal>

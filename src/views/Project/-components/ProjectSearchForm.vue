@@ -152,7 +152,7 @@
           </div>
           <!-- ./Project Name -->
 
-          <a-button key="back" @click="clearSearchForm">{{ $t('financing.handle_cancel') }}</a-button>
+          <a-button key="back" type="default" @click="clearSearchForm">{{ $t('financing.handle_cancel') }}</a-button>
           <a-button key="submit" type="primary" html-type="submit" :loading="loading">
             <template #icon>
               <span class="btn-icon">

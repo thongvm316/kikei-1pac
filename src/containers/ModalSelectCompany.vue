@@ -61,7 +61,7 @@
 
             <!-- Box-Action-->
             <div class="box-action">
-              <a-button key="clear" @click="handleClear">{{ $t('company.clear') }} </a-button>
+              <a-button key="clear" type="default" @click="handleClear">{{ $t('company.clear') }} </a-button>
               <a-button key="submit" type="primary" html-type="submit">
                 <template #icon>
                   <span class="btn-icon">

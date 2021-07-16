@@ -15,7 +15,7 @@
         </a-select>
       </div>
 
-      <a-tooltip color="#fff" :title="$t('accounting.export_csv')">
+      <a-tooltip placement="topLeft" color="#fff" :title="$t('accounting.export_csv')">
         <a-button type="link" :loading="isLoadingExportCsv" @click="handleExportCsv">
           <template #icon>
             <span class="btn-icon"><line-down-icon /></span>

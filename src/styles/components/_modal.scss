@@ -32,6 +32,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
+    }
+  }
+  
+  .btn-delete {
+    &:hover {
+      background: #FF7875;
+      color: white;
+    }
+  }
 
   .ant-modal-content {
     width: 380px;
@@ -52,4 +66,13 @@
 
 .ant-checkbox + span {
   padding: 0 8px 0 4px;
+}
+
+.modal-activity-log {
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
+    }
+  }
 }

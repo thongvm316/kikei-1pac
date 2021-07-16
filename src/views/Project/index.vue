@@ -112,7 +112,7 @@
 
   <project-search-form @on-search="updateRequestData" />
 
-  <modal-actions
+  <modal-action-bar
     v-if="isOpenFloatButtons"
     ref="modalActionRef"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
@@ -134,7 +134,9 @@
       <p>
         {{ $t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
       </p>
-      <a-button @click="isDeleteConfirmModalOpen = false">{{ $t('project.delete_modal.cancel_btn') }}</a-button>
+      <a-button type="default" @click="isDeleteConfirmModalOpen = false">
+        {{ $t('project.delete_modal.cancel_btn') }}
+      </a-button>
       <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
     </template>
   </a-modal>
@@ -153,7 +155,7 @@ import { getProjectList, deleteProject, exportProject } from './composables/useP
 import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
-import ModalActions from '@/components/ModalActions'
+import ModalActionBar from '@/components/ModalActionBar'
 import ProjectMemoModal from './-components/ProjectMemoModal'
 import { STATUS_CODE } from '@/enums/project.enum'
 
@@ -166,7 +168,7 @@ export default defineComponent({
 
   components: {
     ProjectSearchForm,
-    ModalActions,
+    ModalActionBar,
     LineDownIcon,
     LineAddIcon,
     MemoIcon,

@@ -75,7 +75,7 @@
 
       <!-- Action Section Submit & Cancel -->
       <div class="card-footer">
-        <a-button key="back" style="width: 105px; margin-right: 16px" @click="handleCancel">
+        <a-button key="back" class="btn-close" style="width: 105px; margin-right: 16px" @click="handleCancel">
           {{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -116,10 +116,6 @@ export default defineComponent({
       confirm_password: ''
     })
 
-    onMounted(async () => {
-      userName.value = StorageService.get(storageKeys.authProfile).fullname
-    })
-
     const handleCancel = () => {
       router.go(-1)
     }
@@ -127,6 +123,7 @@ export default defineComponent({
     const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
       data = { ...deleteEmptyValue(data) }
+      userName.value = StorageService.get(storageKeys.authProfile).fullname
       changePassAccount(data)
     })
 

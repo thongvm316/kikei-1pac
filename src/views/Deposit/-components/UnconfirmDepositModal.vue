@@ -4,7 +4,7 @@
       <p>
         {{ $t('deposit.unconfirm_modal.message', { purpose }) }}
       </p>
-      <a-button @click="handleCancel">{{ $t('deposit.unconfirm_modal.cancel_btn') }}</a-button>
+      <a-button type="default" @click="handleCancel">{{ $t('deposit.unconfirm_modal.cancel_btn') }}</a-button>
       <a-button type="danger" :loading="isLoadingUnconfirmRequest" @click="$emit('on-unconfirm-deposit')">
         {{ $t('deposit.unconfirm_modal.unconfirm_btn') }}
       </a-button>

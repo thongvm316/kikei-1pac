@@ -108,7 +108,7 @@
 
       <!-- Action Section Submit & Cancel -->
       <div class="card-footer">
-        <a-button key="back" style="width: 105px; margin-right: 16px" @click="handleCancel"
+        <a-button key="back" class="btn-close" style="width: 105px; margin-right: 16px" @click="handleCancel"
           >{{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
