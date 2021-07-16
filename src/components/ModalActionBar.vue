@@ -56,7 +56,7 @@ import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
 import CloseIcon from '@/assets/icons/ico_close.svg'
 
 export default defineComponent({
-  name: 'ProjectFloatButtons',
+  name: 'ModalActionBar',
 
   components: {
     DeleteIcon,

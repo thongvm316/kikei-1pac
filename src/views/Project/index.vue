@@ -112,7 +112,7 @@
 
   <project-search-form @on-search="updateRequestData" />
 
-  <modal-actions
+  <modal-action-bar
     v-if="isOpenFloatButtons"
     ref="modalActionRef"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
@@ -155,7 +155,7 @@ import { getProjectList, deleteProject, exportProject } from './composables/useP
 import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
-import ModalActions from '@/components/ModalActions'
+import ModalActionBar from '@/components/ModalActionBar'
 import ProjectMemoModal from './-components/ProjectMemoModal'
 import { STATUS_CODE } from '@/enums/project.enum'
 
@@ -168,7 +168,7 @@ export default defineComponent({
 
   components: {
     ProjectSearchForm,
-    ModalActions,
+    ModalActionBar,
     LineDownIcon,
     LineAddIcon,
     MemoIcon,
