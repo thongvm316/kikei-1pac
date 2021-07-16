@@ -1,17 +1,16 @@
 <template>
   <a-table
-    class="list-table"
     :loading="isLoadingDataTable"
     :columns="columnsFinancing"
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
     size="middle"
-    :scroll="{ x: 'calc(600px + 50%)', y: height - 271 }"
+    :scroll="{ x: 1200, y: height - 274 }"
     :row-key="(record) => record.date"
     :pagination="pagination"
     @change="changeFinancingTable"
   >
-    <template v-for="col in columnsNameList" #[col]="{ text, record }" :key="col">
+    <template v-for="col in columnsNameList" #[col]="{ text }" :key="col">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="top" :title="dataToolTip(text)">
           <a
@@ -38,12 +37,12 @@
         </a>
       </span>
     </template>
-    <template #balance="{ text, record }">
+    <template #totalMoney="{ text }">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
-            :class="parseInt(text) < 0 ? 'text--red' : 'text--warning'"
+            :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
             @click="handlePageRedirect()"
           >
             <icon-warnings class="icon-warning" />
@@ -53,14 +52,14 @@
         <a
           v-else
           class="ant-dropdown-link"
-          :class="parseInt(text) < 0 ? 'text--red' : ''"
+          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
           @click="handlePageRedirect()"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
       <span v-else>
-        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
+        <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
@@ -127,7 +126,9 @@ export default defineComponent({
     const height = ref(0)
 
     emptyTextHTML.value = {
-      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.emptyData')}</div>
+      emptyText: (
+        <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.financing_list.emptyData')}</div>
+      )
     }
 
     const getInnerHeight = () => {
@@ -146,7 +147,7 @@ export default defineComponent({
         return false
       }
     }
-    const handlePageRedirect = (money, record) => {
+    const handlePageRedirect = () => {
       const data = {
         groupId: props.dataRequest.data.group_id,
         bankAccountId: props.dataRequest.data.bank_account_ids,

@@ -1,5 +1,3 @@
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
-
 export const convertArrayToObject = (array, key, key_prefix, value) => {
   let keyField = '',
     valueField = ''
@@ -21,5 +19,15 @@ export const convertDataByMonth = (array, key, key_prefix, value) => {
 
     const newValueField = Object.assign({}, valueField)
     return { ...obj, [keyField]: newValueField }
+  }, {})
+}
+
+export const convertDataCsv = (array, key, key_prefix, value) => {
+  let keyField = '',
+    valueField = ''
+  return array.reduce((obj, item) => {
+    key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+    value === '' ? (valueField = item) : (valueField = item[value])
+    return { ...obj, [keyField]: valueField }
   }, {})
 }

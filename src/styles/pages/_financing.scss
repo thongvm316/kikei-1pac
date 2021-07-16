@@ -17,6 +17,17 @@
         border: none;
         background: transparent;
         padding: 0;
+
+        &::before {
+          background-color: transparent;
+        }
+
+        //&:hover,&:focus {
+        //  outline: none;
+        //  -webkit-tap-highlight-color: transparent;
+        //
+        //}
+
       }
     }
 
@@ -81,13 +92,30 @@
       margin: 0 2px;
     }
   }
+}
+
+.ant-tooltip-content {
+  .ant-table-fixed-columns-in-body {
+    background-color: inherit;
+  }
+
+  .ant-tooltip-arrow-content {
+    background: #fff;
+  }
+
+  .ant-tooltip-inner {
+    background: #fff
+  }
+}
+
+#financing__table {
+  .ant-table-tbody .ant-table-row td {
+    padding-top: 16px;
+    padding-bottom: 14px;
+  }
 
   .ant-table-content {
-    .ant-table-body{
-      .ant-table-tbody .ant-table-row   td {
-        padding: 16px 8px;
-      }
-    }
+    border: none;
 
     .ant-table-row {
       .ant-dropdown-link {
@@ -123,15 +151,5 @@
       top: 3px;
       position: relative;
     }
-  }
-}
-
-.ant-tooltip-content {
-  .ant-tooltip-arrow-content {
-    background: #fff;
-  }
-
-  .ant-tooltip-inner {
-    background: #fff
   }
 }
