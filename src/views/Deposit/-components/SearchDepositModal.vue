@@ -110,7 +110,7 @@
             </div>
           </div>
 
-          <a-button key="back" @click="handleClearDepositFormSearch">
+          <a-button key="back" type="default" @click="handleClearDepositFormSearch">
             {{ $t('deposit.search_deposit.clear_search') }}
           </a-button>
           <a-button key="submit" type="primary" html-type="submit">

@@ -237,7 +237,7 @@
           </tbody>
         </table>
 
-        <a-button class="outsource__btn" @click="addDummyProjectOrder">
+        <a-button type="default" class="outsource__btn" @click="addDummyProjectOrder">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
@@ -284,7 +284,7 @@
     <!-- memo -->
 
     <a-form-item>
-      <a-button @click="$router.go(-1)">キャンセル</a-button>
+      <a-button type="default" @click="$router.go(-1)">キャンセル</a-button>
       <a-button type="primary" :loading="loading" style="margin-left: 8px" @click="onSubmit">登録</a-button>
     </a-form-item>
   </a-form>

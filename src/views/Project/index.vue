@@ -134,7 +134,9 @@
       <p>
         {{ $t('project.delete_modal.message', { name: targetProjectSelected?.name }) }}
       </p>
-      <a-button @click="isDeleteConfirmModalOpen = false">{{ $t('project.delete_modal.cancel_btn') }}</a-button>
+      <a-button type="default" @click="isDeleteConfirmModalOpen = false">
+        {{ $t('project.delete_modal.cancel_btn') }}
+      </a-button>
       <a-button type="danger" @click="deleteProjectCaller">{{ $t('project.delete_modal.confirm_btn') }}</a-button>
     </template>
   </a-modal>
