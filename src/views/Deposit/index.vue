@@ -107,7 +107,7 @@
 
   <search-deposit-modal @updateParamRequestDeposit="updateParamRequestDeposit" />
 
-  <modal-actions
+  <modal-action-bar
     v-if="isVisibleModalActionBar"
     ref="modalActionRef"
     v-model:is-disable-delete="isDisableDelete"
@@ -161,7 +161,7 @@ import DepositTable from './-components/DepositTable'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
-import ModalActions from '@/components/ModalActions'
+import ModalActionBar from '@/components/ModalActionBar'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
@@ -178,7 +178,7 @@ export default defineComponent({
     SearchDepositModal,
     DeleteDepositModal,
     ConfirmDepositModal,
-    ModalActions,
+    ModalActionBar,
     ModalUnconfirm
   },
 

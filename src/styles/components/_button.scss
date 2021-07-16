@@ -1,0 +1,7 @@
+.ant-btn-default {
+  &:hover {
+    background-color: $color-primary-6;
+    color: $color-grey-100;
+    border-color: $color-primary-6;
+  }
+}
