@@ -33,16 +33,29 @@
     transform: translateX(-50%);
     box-shadow: 2px 2px 24px rgba(50, 50, 71, 0.25);
     border-radius: 2px;
+    
+    .btn-edit {
+      &:hover {
+        background: #31AAF1;
+        color: white;
+      }
+    }
 
     .btn-delete {
       margin-left: 12px;
       margin-right: 16px;
+  
+      &:hover {
+        background: #31AAF1;
+        color: white;
+      }
     }
 
     .btn-close {
       @include flexbox(center, center);
       width: 16px;
       color: #bfbfbf;
+      
       &:hover {
         color: #31AAF1;
       }
@@ -51,6 +64,13 @@
 }
 
 .search {
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
+    }
+  }
+  
   .form-group {
     margin-bottom: 24px;
 
@@ -90,6 +110,15 @@
       .ant-checkbox-group {
         width: 100%;
       }
+    }
+  }
+}
+
+.card-common {
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
     }
   }
 }

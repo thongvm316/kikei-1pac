@@ -20,7 +20,7 @@
           </div>
         </div>
         <!--./Date From -->
-        <a-button key="clear" @click="handleClear">{{ $t('logs.handle_cancel') }}</a-button>
+        <a-button key="clear" class="btn-close" @click="handleClear">{{ $t('logs.handle_cancel') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit" :loading="loading">
           <template #icon>
             <span class="btn-icon">
