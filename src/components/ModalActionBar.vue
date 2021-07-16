@@ -1,6 +1,6 @@
 <template>
   <div class="box-btn modal-actions">
-    <a-button type="default" size="large" @click="$emit('on-go-to-edit')">
+    <a-button type="default" @click="$emit('on-go-to-edit')">
       <template #icon>
         <span class="btn-icon">
           <edit-icon />
@@ -9,7 +9,7 @@
       {{ $t('project.float_modal.edit') }}
     </a-button>
 
-    <a-button type="default" size="large" @click="$emit('on-go-to-copy')">
+    <a-button type="default" @click="$emit('on-go-to-copy')">
       <template #icon>
         <span class="btn-icon">
           <copy-icon />
@@ -18,7 +18,7 @@
       {{ $t('project.float_modal.copy') }}
     </a-button>
 
-    <a-button type="default" v-if="enableGoToDeposit" size="large" @click="$emit('on-go-to-deposit')">
+    <a-button v-if="enableGoToDeposit" type="default" @click="$emit('on-go-to-deposit')">
       <template #icon>
         <span class="btn-icon">
           <to-deposit-icon />
@@ -27,7 +27,7 @@
       {{ $t('project.float_modal.search_deposit') }}
     </a-button>
 
-    <a-button type="default" :disabled="isDisableDelete" size="large" @click="$emit('on-go-to-delete')">
+    <a-button type="default" :disabled="isDisableDelete" @click="$emit('on-go-to-delete')">
       <template #icon>
         <span class="btn-icon">
           <delete-icon />
@@ -88,7 +88,7 @@ export default defineComponent({
   @include flexbox(center, center);
 
   button + button {
-    margin-left: 16px;
+    margin-left: 12px;
   }
 
   &__close-btn {
@@ -108,5 +108,6 @@ export default defineComponent({
 
 .ant-layout .box-btn.modal-actions {
   bottom: 32px;
+  padding: 16px 12px 16px 16px;
 }
 </style>
