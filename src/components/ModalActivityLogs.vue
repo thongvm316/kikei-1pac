@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:visible="isVisible" :title="$t('logs.title_show')" @cancel="handleCancel">
+  <a-modal v-model:visible="isVisible" :title="$t('logs.title_show')" class="modal-activity-log" @cancel="handleCancel">
     <template #footer>
       <template v-if="Object.keys(logs).length">
         <a-textarea v-model:value="logs" class="textarea" :rows="20" />
@@ -7,7 +7,7 @@
       <template v-else>
         <LoadingOutlined />
       </template>
-      <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
+      <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
     </template>
   </a-modal>
 </template>

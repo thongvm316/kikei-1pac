@@ -51,7 +51,7 @@
           </div>
         </div>
 
-        <a-button key="back" @click="handleClear">{{ $t('company.clear') }}</a-button>
+        <a-button key="back" class="btn-close" @click="handleClear">{{ $t('company.clear') }}</a-button>
         <a-button key="submit" type="primary" html-type="submit">
           <template #icon>
             <span class="btn-icon">

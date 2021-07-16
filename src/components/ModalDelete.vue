@@ -7,8 +7,8 @@
       <template v-if="locale === 'ja'">
         <p>{{ nameCompany + $t('modal.message_ja') }}</p>
       </template>
-      <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
-      <a-button type="danger" @click="handleDelete">
+      <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
+      <a-button type="danger" class="btn-delete" @click="handleDelete">
         {{ $t('modal.delete') }}
       </a-button>
     </template>
