@@ -48,7 +48,7 @@
           <a
             class="ant-dropdown-link"
             :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirect(record)"
+            @click="handlePageRedirectTotal(record)"
           >
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
@@ -58,7 +58,7 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(record)"
+          @click="handlePageRedirectTotal(record)"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
@@ -67,7 +67,7 @@
         <a
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect(record)"
+          @click="handlePageRedirectTotal(record)"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
@@ -128,6 +128,7 @@ export default defineComponent({
     const store = useStore()
 
     const emptyTextHTML = ref({})
+    const dataRequest = ref({})
 
     emptyTextHTML.value = {
       emptyText: (
@@ -149,15 +150,31 @@ export default defineComponent({
     }
 
     const handlePageRedirect = (record, column) => {
-      let columnBankAccountsId = column.key.split('_')[1]
+      let columnId = column.key.split('_')[1]
       let bankAccountsId =
         props.dataRequest.data?.bank_account_ids.length > 0
           ? props.dataRequest.data.bank_account_ids
-          : [parseInt(columnBankAccountsId)]
+          : [parseInt(columnId)]
 
+      let groupId = props.dataRequest.data.group_id
+
+      if (props.dataRequest.data.group_id === null) {
+        bankAccountsId = []
+        groupId = parseInt(columnId)
+      }
+      const data = {
+        groupId: groupId,
+        bankAccountId: bankAccountsId,
+        fromDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
+        toDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null
+      }
+      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+      router.push({ name: 'deposit' })
+    }
+
+    const handlePageRedirectTotal = (record) => {
       const data = {
         groupId: props.dataRequest.data.group_id,
-        bankAccountId: bankAccountsId,
         fromDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
         toDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null
       }
@@ -182,6 +199,7 @@ export default defineComponent({
       dataToolTip,
       showToolTipData,
       handlePageRedirect,
+      handlePageRedirectTotal,
       changeFinancingTable
     }
   }

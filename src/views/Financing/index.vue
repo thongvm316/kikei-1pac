@@ -314,20 +314,18 @@ export default defineComponent({
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
+        updateParamRequestFinancing({ data: { group_id: filter.group_id } })
       } else {
-        filter.group_id = null
         filter.show_by = 0
         isDisabledDisplay.value = true
         isDisabledBank.value = true
         isDisabledCurrency.value = false
+        updateParamRequestFinancing({ data: { group_id: null } })
       }
       updateParamRequestFinancing({
-        data: {
-          group_id: filter.group_id,
-          show_by: filter.show_by,
-          bank_account_ids: []
-        }
+        data: { show_by: filter.show_by, bank_account_ids: [] }
       })
+
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -532,10 +530,18 @@ export default defineComponent({
         Object.assign(filter, dataFilter)
         Object.assign(requestParamsData.value, filtersFinancingStore)
         groupID = filter?.group_id || null
-
-        if (groupID) {
+        if (groupID === null) {
+          await fetchPeriodList(1)
+          await fetchBankAccounts({ group_id: 1 })
+        } else {
           await fetchPeriodList(groupID)
           await fetchBankAccounts({ group_id: groupID })
+        }
+
+        if (groupID === null) {
+          filter.group_id = groupList?.value[groupList.value.length - 1].id
+          isDisabledDisplay.value = true
+          isDisabledBank.value = true
         }
 
         if (filter.bank_account_ids.length === 0) {
