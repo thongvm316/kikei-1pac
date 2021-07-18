@@ -1,22 +1,23 @@
 <template>
   <a-table
+    id="financing__table"
     :loading="isLoadingDataTable"
     :columns="columnsFinancing"
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
     size="middle"
-    :scroll="{ x: 1200, y: height - 274 }"
+    :scroll="{ y: height - 274 }"
     :row-key="(record) => record.date"
-    :pagination="pagination"
+    :pagination="false"
     @change="changeFinancingTable"
   >
-    <template v-for="col in columnsNameList" #[col]="{ text }" :key="col">
+    <template v-for="col in columnsNameList" #[col]="{ text, record, column }" :key="col">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="top" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
             :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirect()"
+            @click="handlePageRedirect(record, column)"
           >
             <icon-warnings class="icon-warning" />
             {{ text.money }}
@@ -26,24 +27,28 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect()"
+          @click="handlePageRedirect(record, column)"
         >
           {{ text.money }}
         </a>
       </span>
       <span v-else>
-        <a class="ant-dropdown-link" :class="parseInt(text) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
+        <a
+          class="ant-dropdown-link"
+          :class="parseInt(text) < 0 ? 'text--red' : ''"
+          @click="handlePageRedirect(record, column)"
+        >
           {{ text }}
         </a>
       </span>
     </template>
-    <template #totalMoney="{ text }">
+    <template #totalMoney="{ text, record }">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
             :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirect()"
+            @click="handlePageRedirect(record)"
           >
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
@@ -53,13 +58,17 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirect()"
+          @click="handlePageRedirect(record)"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
       <span v-else>
-        <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''" @click="handlePageRedirect()">
+        <a
+          class="ant-dropdown-link"
+          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
+          @click="handlePageRedirect(record)"
+        >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
@@ -94,10 +103,6 @@ export default defineComponent({
       type: Object,
       required: true
     },
-    currentSelectedRowKeys: {
-      type: Array,
-      required: true
-    },
     columnsFinancing: {
       type: Array,
       required: true
@@ -108,10 +113,6 @@ export default defineComponent({
     },
     dataFinancing: {
       type: Array,
-      required: true
-    },
-    pagination: {
-      type: Object,
       required: true
     },
     isLoadingDataTable: Boolean
@@ -147,12 +148,18 @@ export default defineComponent({
         return false
       }
     }
-    const handlePageRedirect = () => {
+    const handlePageRedirect = (record, column) => {
+      let columnBankAccountsId = column.key.split('_')[1]
+      let bankAccountsId =
+        props.dataRequest.data?.bank_account_ids.length > 0
+          ? props.dataRequest.data.bank_account_ids
+          : [parseInt(columnBankAccountsId)]
+
       const data = {
         groupId: props.dataRequest.data.group_id,
-        bankAccountId: props.dataRequest.data.bank_account_ids,
-        fromDate: props.dataRequest.data.from_date,
-        toDate: props.dataRequest.data.to_date
+        bankAccountId: bankAccountsId,
+        fromDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
+        toDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null
       }
 
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })

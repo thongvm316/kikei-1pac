@@ -7,12 +7,7 @@
           <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
           <div class="form-select">
-            <a-select
-              v-model:value="filter.period_id"
-              :disabled="isDisabledPeriod"
-              allow-clear
-              @change="onChangePeriod"
-            >
+            <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
               <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
                 {{ item.name }}
               </a-select-option>
@@ -29,8 +24,7 @@
               v-model:value="filter.date_from_to"
               format="YYYY-MM-DD"
               :style="{ width: '260px' }"
-              :disabled="isDisabledDate"
-              :placeholder="['YYYY-MM-DD', 'YYYY-MM-DD']"
+              :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
               @change="onChangeDate"
             >
               <template #suffixIcon>
@@ -97,11 +91,11 @@
         <!-- ./Bank Account -->
 
         <!-- Currency -->
-        <div class="form-group">
+        <div v-if="!isDisabledCurrency" class="form-group">
           <label class="form-label">{{ $t('financing.financing_list.currency') }}:</label>
 
           <div class="form-select form-select-currency">
-            <a-select v-model:value="filter.currency_code" :disabled="isDisabledCurrency" @change="onChangeCurrency">
+            <a-select v-model:value="filter.currency_code" @change="onChangeCurrency">
               <a-select-option v-for="item in currencyList" :key="item.id" :value="item.code">
                 {{ item.code }}
               </a-select-option>
@@ -113,23 +107,23 @@
     </div>
 
     <financing-table
-      id="financing__table"
-      v-model:is-loading-data-table="isLoadingDataTable"
-      v-model:columns-financing="dataColumnsTableFinancing"
-      v-model:columns-name-list="dataColumnsNameTable"
-      v-model:data-financing="dataRowsTableFinancing"
-      v-model:pagination="pagination"
-      :data-request="requestParamsData"
+      :is-loading-data-table="isLoadingDataTable"
+      :columns-financing="dataColumnsTableFinancing"
+      :columns-name-list="dataColumnsNameTable"
+      :data-financing="dataRowsTableFinancing"
+      :data-request="updateDataRequest"
       @on-sort="onSortTable"
     />
   </section>
 </template>
 <script>
-import { defineComponent, onBeforeMount, onMounted, reactive, ref } from 'vue'
+import { defineComponent, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
 import moment from 'moment'
-import { find, remove } from 'lodash-es'
+import { isEmpty, remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
@@ -137,10 +131,15 @@ import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodL
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
-import { convertArrayToObject, convertDataByMonth, convertDataCsv } from './composables/useFinancing'
+import {
+  convertDataByDates,
+  convertDataByMonth,
+  convertDataCsv,
+  convertDataFilter,
+  findCurrentPeriod
+} from './composables/useFinancing'
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
 
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
 import { VIEW_MODE } from '@/enums/financing.enum'
@@ -157,6 +156,7 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n()
+    const store = useStore()
 
     const groupList = ref([])
     const periodList = ref([])
@@ -172,34 +172,39 @@ export default defineComponent({
     const dataColumnsTableFinancing = ref([])
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
+    const updateDataRequest = ref({})
 
     const isLoading = ref(false)
     const isLoadingDataTable = ref(true)
     const isDisabledPeriod = ref(false)
-    const isDisabledDate = ref(true)
+    const isDisabledDate = ref(false)
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
 
-    const pagination = ref({})
-    const height = ref(0)
-
     // data for request financing
-    const initialData = {
+    const initialDataRequest = {
       group_id: 1,
       period_id: null,
       from_date: null,
       to_date: null,
       show_by: 1,
       bank_account_ids: [],
-      currency_code: ''
+      currency_code: null
     }
 
-    const requestParamsData = reactive({
-      data: { ...initialData },
+    const requestParamsData = ref({
+      data: { ...initialDataRequest },
       params: { pageNumber: 1, pageSize: 100 }
     })
+
+    const updateParamRequestFinancing = ({ data = {}, params = {} }) => {
+      requestParamsData.value = {
+        data: { ...requestParamsData.value.data, ...data },
+        params: { ...requestParamsData.value.params, ...params }
+      }
+    }
 
     const initialCsvLabels = [
       { header: t('financing.csv.header.date'), field: 'date', formatBy: 'moment_l' },
@@ -213,24 +218,24 @@ export default defineComponent({
     }
 
     const initialGroup = {
-      id: null,
+      id: 0,
       name: t('financing.financing_list.show_all_group')
     }
 
     const initialBankAccount = {
-      id: null,
+      id: 0,
       name: t('financing.financing_list.show_all_bank'),
       currency_code: null
     }
 
     const initialStateFilter = {
       group_id: 1,
-      period_id: '',
+      period_id: null,
       date_from_to: [null, null],
       show_by: 1,
       view_mode: 0,
-      bank_account_ids: [],
-      currency_code: ''
+      bank_account_ids: null,
+      currency_code: null
     }
 
     const initialColumns = ref([
@@ -248,7 +253,7 @@ export default defineComponent({
         dataIndex: 'totalMoney',
         key: 'totalMoney',
         fixed: 'right',
-        width: 160,
+        width: 200,
         align: 'right',
         slots: { customRender: 'totalMoney' }
       }
@@ -261,9 +266,16 @@ export default defineComponent({
     const onChangePeriod = async (event) => {
       filter.date_from_to = []
       isDisabledDate.value = !(event === undefined || event === null)
-      requestParamsData.data.period_id = filter.period_id
+      updateParamRequestFinancing({
+        data: {
+          period_id: filter.period_id,
+          from_date: null,
+          to_date: null
+        }
+      })
 
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeDate = async (value, dateString) => {
@@ -271,59 +283,74 @@ export default defineComponent({
       isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
 
       filter.date_from_to = dateString
-      requestParamsData.data.from_date = filter.date_from_to[0]
-      requestParamsData.data.to_date = filter.date_from_to[1]
-      requestParamsData.data.period_id = filter.period_id
-
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      updateParamRequestFinancing({
+        data: {
+          period_id: filter.period_id,
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
+        }
+      })
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeShowBy = async () => {
-      requestParamsData.data.show_by = filter.show_by
-
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      updateParamRequestFinancing({
+        data: {
+          show_by: filter.show_by
+        }
+      })
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeTabGroup = async (value) => {
-      // fetch bank accounts
-      if (value) {
-        bankAccountList.value = []
+      // Check show tab all
+      if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
+        filter.show_by = 1
+        filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
       } else {
+        filter.group_id = null
         filter.show_by = 0
         isDisabledDisplay.value = true
         isDisabledBank.value = true
-        requestParamsData.data.bank_account_ids = []
+        isDisabledCurrency.value = false
       }
-      requestParamsData.data.group_id = filter.group_id
-      requestParamsData.data.show_by = filter.show_by
-
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      updateParamRequestFinancing({
+        data: {
+          group_id: filter.group_id,
+          show_by: filter.show_by,
+          bank_account_ids: []
+        }
+      })
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeBankAccount = async () => {
-      requestParamsData.data.bank_account_ids = []
-      if (filter.bank_account_ids !== null) {
+      if (filter.bank_account_ids !== 0) {
         isDisabledCurrency.value = true
-        filter.currency_code = ''
-        let currencyBank = bankAccountList.value.find((item) => item.id === filter.bank_account_ids)
-        requestParamsData.data.currency_code = currencyBank.currencyCode
-        requestParamsData.data.bank_account_ids.push(filter.bank_account_ids)
+        updateParamRequestFinancing({
+          data: {
+            currency_code: filter.currency_code,
+            bank_account_ids: [filter.bank_account_ids]
+          }
+        })
       } else {
         isDisabledCurrency.value = false
+        updateParamRequestFinancing({ data: { bank_account_ids: [] } })
       }
-
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeViewMode = async () => {}
 
     const onChangeCurrency = async () => {
-      requestParamsData.data.currency_code = filter.currency_code
-
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
     }
 
     // Fetch data group
@@ -333,7 +360,6 @@ export default defineComponent({
 
       groupList.value = result?.data
       groupList.value.push(initialGroup)
-      filter.group_id = groupList?.value[0]?.id
     }
 
     // Fetch data period
@@ -342,29 +368,15 @@ export default defineComponent({
       const { result } = await getPeriods()
 
       periodList.value = result?.data
-      // set period current
-      const periodCurrentFound = find(periodList.value, (periodItem) => {
-        const currentTime = moment()
-        const startedDate = periodItem?.startedDate
-        const finishedDate = periodItem?.finishedDate
-
-        if (!startedDate || !finishedDate) return false
-
-        return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
-      })
-      if (periodCurrentFound) {
-        filter.period_id = periodCurrentFound.id
-      }
     }
 
     // Fetch bank accounts
     const fetchBankAccounts = async (groupID) => {
+      remove(bankAccountList.value)
       const { getBankAccounts } = useGetBankAccountsService(groupID)
       const { result } = await getBankAccounts()
-
       bankAccountList.value = result?.data
       bankAccountList.value.unshift(initialBankAccount)
-      filter.bank_account_ids = bankAccountList?.value[0].id
     }
 
     // Fetch currency
@@ -373,7 +385,6 @@ export default defineComponent({
       const { result } = await getCurrency()
 
       currencyList.value = result?.data
-      filter.currency_code = currencyList?.value[1].code
     }
 
     const onSortTable = async (emitData) => {
@@ -382,8 +393,7 @@ export default defineComponent({
         currentSortStr = `${emitData.field} ${emitData.orderBy}`
       }
 
-      requestParamsData.params.orderBy = currentSortStr
-      await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+      requestParamsData.value.params.orderBy = currentSortStr
     }
 
     const convertDataTableHeader = async (data) => {
@@ -397,7 +407,7 @@ export default defineComponent({
             title: titleName,
             dataIndex: `columns_${data[i].id}`,
             key: `columns_${data[i].id}`,
-            width: 150,
+            width: 200,
             align: 'right',
             slots: { customRender: `columns_${data[i].id}` }
           }
@@ -412,26 +422,29 @@ export default defineComponent({
     const convertDataTableRows = async (data) => {
       if (data) {
         for (let i = 0; i < data.length; i++) {
+          if (requestParamsData.value.data.show_by === 1) {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByDates(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          } else {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          }
           dataRows.value['date'] =
-            requestParamsData.data.show_by === 1
+            requestParamsData.value.data.show_by === 1
               ? moment(data[i].date).format('YYYY/MM/DD')
               : moment(data[i].date).format('YYYY/MM')
-
-          if (requestParamsData.data.show_by === 1) {
-            Object.assign(dataRows.value, convertArrayToObject(data[i].dataByColumns, 'columnId', 'columns_', 'money'))
-          } else {
-            Object.assign(dataRows.value, convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money'))
-          }
-
           dataRows.value['totalMoney'] = data[i].totalMoney
-          dataRowsTableFinancing.value.push(Object.assign({}, dataRows.value))
+          dataRowsTableFinancing.value.push(dataRows.value)
         }
       }
     }
 
     const fetchDataTableFinancing = async (data, params) => {
       isLoadingDataTable.value = true
-
       // eslint-disable-next-line no-useless-catch
       try {
         const { getLists } = useGetFinancingListService(data, params)
@@ -440,8 +453,6 @@ export default defineComponent({
         remove(dataRowsTableFinancing.value)
         remove(dataColumnsTableFinancing.value)
         remove(dataColumnsNameTable.value)
-        deleteEmptyValue(dataRows.value)
-
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates || []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
@@ -477,7 +488,7 @@ export default defineComponent({
       const dataCsv = {}
       dataByDates.value.forEach((item) => {
         dataCsv.date =
-          requestParamsData.data.show_by === 1
+          requestParamsData.value.data.show_by === 1
             ? moment(item.date).format('YYYY/MM/DD')
             : moment(item.date).format('YYYY/MM')
 
@@ -493,22 +504,65 @@ export default defineComponent({
     onBeforeMount(async () => {
       await fetchGroupList()
       await fetchCurrency()
-      const groupID = filter?.group_id
 
-      if (groupID) {
-        await fetchPeriodList(groupID)
-        await fetchBankAccounts({ group_id: groupID })
+      // get filters financing from store
+      const filtersFinancingStore = store.state.financing?.filters || {}
+      let groupID = filter?.group_id || null
+      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
 
-        requestParamsData.data.group_id = filter.group_id
-        requestParamsData.data.period_id = filter.period_id
+      // Load data by filter store
+      if (!isEmpty(filtersFinancingStore)) {
+        const dataFilter = await convertDataFilter(filtersFinancingStore.data)
 
-        await fetchDataTableFinancing(requestParamsData.data, requestParamsData.params)
+        Object.assign(filter, dataFilter)
+        Object.assign(requestParamsData.value, filtersFinancingStore)
+        groupID = filter?.group_id || null
+
+        if (groupID) {
+          await fetchPeriodList(groupID)
+          await fetchBankAccounts({ group_id: groupID })
+        }
+
+        if (filter.bank_account_ids.length === 0) {
+          filter.bank_account_ids = bankAccountList?.value[0]?.id
+        }
+
+        isDisabledCurrency.value = !!filter.bank_account_ids
+      } else {
+        // Load data default
+        if (groupID) {
+          await fetchPeriodList(groupID)
+          await fetchBankAccounts({ group_id: groupID })
+
+          let periodCurrentFound = findCurrentPeriod(periodList.value)
+          filter.period_id = periodCurrentFound?.id || null
+        }
+
+        filter.currency_code = currencyDefault?.code || null
+        filter.bank_account_ids = bankAccountList?.value[0]?.id
+        requestParamsData.value.data.group_id = filter?.group_id || null
+        requestParamsData.value.data.period_id = filter?.period_id || null
       }
+
+      updateDataRequest.value = requestParamsData.value
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
     onMounted(async () => {
-      pagination.value = { ...requestParamsData.params }
+      // pagination.value = { ...requestParamsData.value.params }
     })
+
+    // watch to fetch data financing
+    watch(
+      () => requestParamsData.value,
+      () => {
+        updateDataRequest.value = requestParamsData.value
+        // fetch data table
+        fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+      }
+    )
 
     return {
       t,
@@ -529,9 +583,6 @@ export default defineComponent({
       bankAccountId,
       dataExportCsv,
       filter,
-      requestParamsData,
-      height,
-      pagination,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,
@@ -542,7 +593,8 @@ export default defineComponent({
       isLoadingExportCsv,
       SHOW_BY,
       VIEW_MODE,
-      convertArrayToObject,
+      updateDataRequest,
+      updateParamRequestFinancing,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
