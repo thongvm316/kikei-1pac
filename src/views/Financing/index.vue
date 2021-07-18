@@ -112,12 +112,13 @@
       :columns-name-list="dataColumnsNameTable"
       :data-financing="dataRowsTableFinancing"
       :data-request="updateDataRequest"
+      :scroll-custom="scrollCustom"
       @on-sort="onSortTable"
     />
   </section>
 </template>
 <script>
-import { defineComponent, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -173,6 +174,8 @@ export default defineComponent({
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
+    const scrollCustom = ref({})
+    const height = ref(0)
 
     const isLoading = ref(false)
     const isLoadingDataTable = ref(true)
@@ -245,7 +248,6 @@ export default defineComponent({
         key: 'date',
         fixed: 'left',
         width: 160,
-        align: 'left',
         sorter: true
       },
       {
@@ -392,8 +394,7 @@ export default defineComponent({
       if (emitData.orderBy !== '') {
         currentSortStr = `${emitData.field} ${emitData.orderBy}`
       }
-
-      requestParamsData.value.params.orderBy = currentSortStr
+      updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
     }
 
     const convertDataTableHeader = async (data) => {
@@ -416,6 +417,16 @@ export default defineComponent({
         dataColumnsTableFinancing.value.unshift(initialColumns.value[0])
 
         dataColumnsTableFinancing.value.push(initialColumns.value[1])
+      }
+      if (data.length < 5) {
+        dataColumnsTableFinancing.value.map((item) => {
+          delete item.width
+          delete item.fixed
+          return item
+        })
+        scrollCustom.value = { y: height.value - 274 }
+      } else {
+        scrollCustom.value = { x: 1500, y: height.value - 274 }
       }
     }
 
@@ -501,6 +512,10 @@ export default defineComponent({
       exportCSVFile(dataExportCsv)
     }
 
+    const getInnerHeight = () => {
+      height.value = window.innerHeight
+    }
+
     onBeforeMount(async () => {
       await fetchGroupList()
       await fetchCurrency()
@@ -550,8 +565,14 @@ export default defineComponent({
       await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
-    onMounted(async () => {
-      // pagination.value = { ...requestParamsData.value.params }
+    onMounted(() => {
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', getInnerHeight)
     })
 
     // watch to fetch data financing
@@ -594,6 +615,8 @@ export default defineComponent({
       SHOW_BY,
       VIEW_MODE,
       updateDataRequest,
+      scrollCustom,
+      height,
       updateParamRequestFinancing,
       onChangePeriod,
       onChangeDate,

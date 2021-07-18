@@ -6,7 +6,7 @@
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
     size="middle"
-    :scroll="{ y: height - 274 }"
+    :scroll="scrollCustom"
     :row-key="(record) => record.date"
     :pagination="false"
     @change="changeFinancingTable"
@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, onUnmounted, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -115,6 +115,10 @@ export default defineComponent({
       type: Array,
       required: true
     },
+    scrollCustom: {
+      type: Object,
+      required: true
+    },
     isLoadingDataTable: Boolean
   },
 
@@ -124,16 +128,11 @@ export default defineComponent({
     const store = useStore()
 
     const emptyTextHTML = ref({})
-    const height = ref(0)
 
     emptyTextHTML.value = {
       emptyText: (
         <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.financing_list.emptyData')}</div>
       )
-    }
-
-    const getInnerHeight = () => {
-      height.value = window.innerHeight
     }
 
     const dataToolTip = (data) => {
@@ -148,6 +147,7 @@ export default defineComponent({
         return false
       }
     }
+
     const handlePageRedirect = (record, column) => {
       let columnBankAccountsId = column.key.split('_')[1]
       let bankAccountsId =
@@ -175,21 +175,10 @@ export default defineComponent({
       emit('on-sort', emitData)
     }
 
-    onBeforeMount(() => {
-      // get inner height
-      getInnerHeight()
-      window.addEventListener('resize', getInnerHeight)
-    })
-
-    onUnmounted(() => {
-      window.removeEventListener('resize', getInnerHeight)
-    })
-
     return {
       t,
       useRoute,
       emptyTextHTML,
-      height,
       dataToolTip,
       showToolTipData,
       handlePageRedirect,

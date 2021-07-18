@@ -102,6 +102,10 @@
 }
 
 #financing__table {
+  td {
+    white-space: nowrap;
+  }
+
   .ant-table-content {
     border: none;
 
