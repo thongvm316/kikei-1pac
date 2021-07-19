@@ -1,4 +1,7 @@
-export const convertArrayToObject = (array, key, key_prefix, value) => {
+import { find } from 'lodash-es'
+import moment from 'moment'
+
+export const convertDataByDates = (array, key, key_prefix, value) => {
   let keyField = '',
     valueField = ''
   return array.reduce((obj, item) => {
@@ -30,4 +33,33 @@ export const convertDataCsv = (array, key, key_prefix, value) => {
     value === '' ? (valueField = item) : (valueField = item[value])
     return { ...obj, [keyField]: valueField }
   }, {})
+}
+
+export const convertDataFilter = (dataFilter) => {
+  let arrayDate = []
+  return Object.keys(dataFilter).reduce((accumulator, key) => {
+    // Copy all except from_Date & to_date
+    if (key === 'from_date') {
+      arrayDate.push(dataFilter[key])
+    } else if (key === 'to_date') {
+      arrayDate.push(dataFilter[key])
+    } else {
+      accumulator[key] = dataFilter[key]
+    }
+    accumulator['date_from_to'] = arrayDate
+    return accumulator
+  }, {})
+}
+
+// set period current
+export const findCurrentPeriod = (data) => {
+  const currentTime = moment()
+
+  return find(data, (item) => {
+    const startedDate = item?.startedDate
+    const finishedDate = item?.finishedDate
+    if (!startedDate || !finishedDate) return false
+
+    return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+  })
 }
