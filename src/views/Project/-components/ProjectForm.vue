@@ -389,12 +389,8 @@ export default defineComponent({
 
     const dynamicBaseOnAccuracy = () => {
       if (highestAccuracyRequired.value) {
-        projectFormRules.value.tags = [
-          { type: 'array', required: true, message: t('project.error_message.tags'), trigger: ['blur', 'change'] }
-        ]
         projectFormRules.value.memo = [{ required: true, message: t('project.error_message.memo'), trigger: 'change' }]
       } else {
-        projectFormRules.value.tags = []
         projectFormRules.value.memo = []
       }
     }
