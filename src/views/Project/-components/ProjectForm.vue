@@ -513,13 +513,6 @@ export default defineComponent({
 
         projectFormRef.value.validateFields(['statisticsMonth', 'statisticsMonths'])
       }
-
-      // tag param require
-      if (accuracyObj && accuracyObj.code === 'S') {
-
-      } else {
-
-      }
     }
     /* --------------------- ./handle check require statistic month --------------------- */
 
