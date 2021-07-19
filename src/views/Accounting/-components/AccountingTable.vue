@@ -114,6 +114,7 @@ export default defineComponent({
           dataIndex: monthStr,
           key: monthStr,
           width: 150,
+          align: 'right',
           slots: { customRender: 'month' }
         })
 
