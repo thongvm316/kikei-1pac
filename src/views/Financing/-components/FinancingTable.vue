@@ -11,6 +11,14 @@
     :pagination="false"
     @change="changeFinancingTable"
   >
+    <!-- custom column date -->
+    <template #customDate="{ text }">
+      <span>
+        {{ dataDate(text) }}
+      </span>
+    </template>
+    <!-- ./custom column date -->
+    <!-- custom column middle -->
     <template v-for="col in columnsNameList" #[col]="{ text, record, column }" :key="col">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="top" :title="dataToolTip(text)">
@@ -42,42 +50,32 @@
         </a>
       </span>
     </template>
-    <template #totalMoney="{ text, record }">
+    <!-- ./custom column middle -->
+    <!-- custom column total -->
+    <template #totalMoney="{ text }">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
-          <a
-            class="ant-dropdown-link"
-            :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirectTotal(record)"
-          >
+          <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'">
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
           </a>
         </a-tooltip>
-        <a
-          v-else
-          class="ant-dropdown-link"
-          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirectTotal(record)"
-        >
+        <a v-else class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''">
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
       <span v-else>
-        <a
-          class="ant-dropdown-link"
-          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirectTotal(record)"
-        >
+        <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''">
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
     </template>
+    <!-- ./custom column total -->
   </a-table>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -126,9 +124,8 @@ export default defineComponent({
     const { t } = useI18n()
     const router = useRouter()
     const store = useStore()
-
+    const dataByDate = ref(true)
     const emptyTextHTML = ref({})
-    const dataRequest = ref({})
 
     emptyTextHTML.value = {
       emptyText: (
@@ -192,15 +189,29 @@ export default defineComponent({
       emit('on-sort', emitData)
     }
 
+    const dataDate = (date) => {
+      let showByMonth = props.dataRequest?.data?.show_by === 0
+      if (showByMonth) {
+        return moment(date).format('YYYY/MM')
+      }
+      return date
+    }
+
+    onMounted(() => {
+      dataDate()
+    })
+
     return {
       t,
       useRoute,
+      dataByDate,
       emptyTextHTML,
       dataToolTip,
       showToolTipData,
       handlePageRedirect,
       handlePageRedirectTotal,
-      changeFinancingTable
+      changeFinancingTable,
+      dataDate
     }
   }
 })

@@ -248,7 +248,8 @@ export default defineComponent({
         key: 'date',
         fixed: 'left',
         width: 160,
-        sorter: true
+        sorter: true,
+        slots: { customRender: 'customDate' }
       },
       {
         title: t('financing.financing_list.total_money'),
@@ -317,6 +318,7 @@ export default defineComponent({
         updateParamRequestFinancing({ data: { group_id: filter.group_id } })
       } else {
         filter.show_by = 0
+        filter.bank_account_ids = bankAccountList?.value[0]?.id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
         isDisabledCurrency.value = false
@@ -442,10 +444,7 @@ export default defineComponent({
               convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
             )
           }
-          dataRows.value['date'] =
-            requestParamsData.value.data.show_by === 1
-              ? moment(data[i].date).format('YYYY/MM/DD')
-              : moment(data[i].date).format('YYYY/MM')
+          dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
           dataRows.value['totalMoney'] = data[i].totalMoney
           dataRowsTableFinancing.value.push(dataRows.value)
         }
