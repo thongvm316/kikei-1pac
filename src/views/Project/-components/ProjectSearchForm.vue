@@ -152,14 +152,14 @@
           </div>
           <!-- ./Project Name -->
 
-          <a-button key="back" type="default" @click="clearSearchForm">{{ $t('financing.handle_cancel') }}</a-button>
+          <a-button key="back" type="default" @click="clearSearchForm">{{ $t('project.handle_cancel') }}</a-button>
           <a-button key="submit" type="primary" html-type="submit" :loading="loading">
             <template #icon>
               <span class="btn-icon">
                 <search-icon />
               </span>
             </template>
-            {{ $t('financing.handle_ok') }}
+            {{ $t('project.handle_ok') }}
           </a-button>
         </form>
       </a-config-provider>
