@@ -161,7 +161,7 @@
     </div>
 
     <a-form-item name="tags" :label="$t('deposit.new.tag')">
-      <div class="deposit-form__tags">
+      <div class="deposit-form__tags has-max-width">
         <a-input
           v-model:value="inputTagVal"
           :placeholder="$t('deposit.new.tag_place_holder')"
@@ -932,7 +932,7 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 $field-min-width: 300px;
-$field-max-width: 500px;
+$field-max-width: 300px;
 
 .deposit-form {
   padding-top: 24px;
