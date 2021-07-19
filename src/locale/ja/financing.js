@@ -20,6 +20,7 @@ export default {
     download_csv: 'CSVファイルダウンロード',
     emptyData: '該当する資金繰りが見つかりませんでした。',
     currency: '合計残高表示通貨',
+    currency_by_all_group: '表示通貨',
     show_all_bank: '全口座',
     show_all_group: 'グループ全体',
     deposit: '入金合計',

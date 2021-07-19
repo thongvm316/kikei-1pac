@@ -126,6 +126,7 @@ export default defineComponent({
     const store = useStore()
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
+    const dataFilterRequest = ref({})
 
     emptyTextHTML.value = {
       emptyText: (
@@ -147,26 +148,53 @@ export default defineComponent({
     }
 
     const handlePageRedirect = (record, column) => {
+      dataFilterRequest.value = props.dataRequest.data
       let columnId = column.key.split('_')[1]
       let bankAccountsId =
-        props.dataRequest.data?.bank_account_ids.length > 0
-          ? props.dataRequest.data.bank_account_ids
+        dataFilterRequest.value.bank_account_ids.length > 0
+          ? dataFilterRequest.value.bank_account_ids
           : [parseInt(columnId)]
 
-      let groupId = props.dataRequest.data.group_id
-
-      if (props.dataRequest.data.group_id === null) {
+      let groupId = parseInt(columnId)
+      if (dataFilterRequest.value.group_id) {
+        groupId = dataFilterRequest.value.group_id
+      } else {
         bankAccountsId = []
-        groupId = parseInt(columnId)
       }
+
+      let fromDate = record?.date ? moment(record.date).format('YYYY-MM-DD') : null
+      let toDate = record?.date ? moment(record.date).format('YYYY-MM-DD') : null
+      if (dataFilterRequest.value.show_by === 0) {
+        fromDate = record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null
+        toDate = record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null
+      }
+
       const data = {
         groupId: groupId,
         bankAccountId: bankAccountsId,
-        fromDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
-        toDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null
+        fromDate: fromDate,
+        toDate: toDate
       }
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
       router.push({ name: 'deposit' })
+      // if (dataFilterRequest.value.group_id) {
+      //   store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+      //   router.push({ name: 'deposit' })
+      // }
+      // else {
+      //   const newFilterRequest = {
+      //     group_id: groupId,
+      //     period_id: dataFilterRequest.value.period_id,
+      //     from_date: record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null,
+      //     to_date: record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null,
+      //     show_by: dataFilterRequest.value.show_by,
+      //     bank_account_ids: bankAccountsId,
+      //     currency_code: dataFilterRequest.value.currency_code
+      //   }
+      //   store.commit('financing/STORE_FINANCING_FILTER', { newFilterRequest })
+      //   console.log(dataFilterRequest)
+      //   emit('on-filter', newFilterRequest)
+      // }
     }
 
     const handlePageRedirectTotal = (record) => {

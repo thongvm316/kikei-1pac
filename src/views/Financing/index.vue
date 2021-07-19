@@ -74,7 +74,12 @@
           <div class="form-select form-select-bank">
             <a-select v-model:value="filter.bank_account_ids" :disabled="isDisabledBank" @change="onChangeBankAccount">
               <a-select-option v-for="item in bankAccountList" :key="item.id" :value="item.id">
-                {{ item.name }}
+                <span v-if="item.currencyCode">
+                  {{ item.name + ' (' + item.currencyCode + ')' }}
+                </span>
+                <span v-else>
+                  {{ item.name }}
+                </span>
               </a-select-option>
             </a-select>
           </div>
@@ -92,7 +97,10 @@
 
         <!-- Currency -->
         <div v-if="!isDisabledCurrency" class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.currency') }}:</label>
+          <label class="form-label">
+            <span v-if="filter.group_id"> {{ $t('financing.financing_list.currency') }}: </span>
+            <span v-else> {{ $t('financing.financing_list.currency_by_all_group') }}:</span>
+          </label>
 
           <div class="form-select form-select-currency">
             <a-select v-model:value="filter.currency_code" @change="onChangeCurrency">
@@ -343,6 +351,8 @@ export default defineComponent({
         })
       } else {
         isDisabledCurrency.value = false
+        let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
+        filter.currency_code = currencyCode.code
         updateParamRequestFinancing({ data: { bank_account_ids: [] } })
       }
       // save filters to store
@@ -395,6 +405,16 @@ export default defineComponent({
         currentSortStr = `${emitData.field} ${emitData.orderBy}`
       }
       updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
+    }
+
+    const onFilterRender = async (newFilterRequest) => {
+      console.log(newFilterRequest)
+      debugger
+      if (newFilterRequest) {
+        const dataFilter = await convertDataFilter(newFilterRequest)
+        Object.assign(filter, dataFilter)
+        await fetchDataTableFinancing(newFilterRequest, requestParamsData.value.params)
+      }
     }
 
     const convertDataTableHeader = async (data) => {
@@ -579,16 +599,24 @@ export default defineComponent({
     onUnmounted(() => {
       window.removeEventListener('resize', getInnerHeight)
     })
-
     // watch to fetch data financing
     watch(
       () => requestParamsData.value,
       () => {
         updateDataRequest.value = requestParamsData.value
+        // store.getters.finanancing
         // fetch data table
         fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
     )
+    // watch to event click table financing
+    // watch(
+    //   () => store.state.financing.filters,
+    //   () => {
+    //     // fetch data table
+    //     onFilterRender()
+    //   }
+    // )
 
     return {
       t,
@@ -637,7 +665,8 @@ export default defineComponent({
       fetchDataTableFinancing,
       convertDataTableHeader,
       convertDataTableRows,
-      exportFinancingCsvFile
+      exportFinancingCsvFile,
+      onFilterRender
     }
   }
 })
