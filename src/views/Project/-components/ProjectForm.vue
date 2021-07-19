@@ -24,6 +24,10 @@
     <a-form-item name="code" label="プロジェクトコード">
       <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
+
+      <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
+        {{ $t(`common.local_error.${localErrors['code']}`) }}
+      </p>
     </a-form-item>
     <!-- code -->
 

@@ -35,7 +35,7 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: 1200, y: height - 236 }"
+      :scroll="{ x: 1200, y: height - 235 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
@@ -62,6 +62,7 @@
               </template>
             </a-button>
           </a-tooltip>
+
           <p class="mb-0 text-grey-55 u-ml-12">{{ $t(`project.type_${record.type}`) }}</p>
           <p class="mb-0 text-grey-55 u-ml-12">{{ record.statusName }}</p>
         </div>
@@ -217,7 +218,8 @@ export default defineComponent({
         colSpan: 0,
         slots: {
           customRender: 'renderProjectCombineTypeAStatus'
-        }
+        },
+        width: 200
       },
       {
         title: t('project.accuracy_name'),
