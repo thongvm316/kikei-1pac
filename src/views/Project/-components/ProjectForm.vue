@@ -24,6 +24,10 @@
     <a-form-item name="code" label="プロジェクトコード">
       <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
+
+      <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
+        {{ $t(`common.local_error.${localErrors['code']}`) }}
+      </p>
     </a-form-item>
     <!-- code -->
 
@@ -389,12 +393,8 @@ export default defineComponent({
 
     const dynamicBaseOnAccuracy = () => {
       if (highestAccuracyRequired.value) {
-        projectFormRules.value.tags = [
-          { type: 'array', required: true, message: t('project.error_message.tags'), trigger: ['blur', 'change'] }
-        ]
         projectFormRules.value.memo = [{ required: true, message: t('project.error_message.memo'), trigger: 'change' }]
       } else {
-        projectFormRules.value.tags = []
         projectFormRules.value.memo = []
       }
     }
