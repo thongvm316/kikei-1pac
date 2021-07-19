@@ -182,7 +182,6 @@ export default defineComponent({
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
-    const scrollCustom = ref({})
     const height = ref(0)
 
     const isLoading = ref(false)
@@ -193,6 +192,7 @@ export default defineComponent({
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
+    const scrollCustom = ref({})
 
     // data for request financing
     const initialDataRequest = {
@@ -249,7 +249,7 @@ export default defineComponent({
       currency_code: null
     }
 
-    const initialColumns = ref([
+    const initialColumns = [
       {
         title: t('financing.financing_list.date'),
         dataIndex: 'date',
@@ -268,7 +268,7 @@ export default defineComponent({
         align: 'right',
         slots: { customRender: 'totalMoney' }
       }
-    ])
+    ]
 
     const filter = reactive({ ...initialStateFilter })
     const dataExportCsv = reactive({ ...initialExportCSV })
@@ -434,19 +434,28 @@ export default defineComponent({
           }
           dataColumnsTableFinancing.value.push(createColumns.value)
         }
-        dataColumnsTableFinancing.value.unshift(initialColumns.value[0])
 
-        dataColumnsTableFinancing.value.push(initialColumns.value[1])
-      }
-      if (data.length < 5) {
-        dataColumnsTableFinancing.value.map((item) => {
-          delete item.width
-          delete item.fixed
-          return item
-        })
-        scrollCustom.value = { y: height.value - 274 }
-      } else {
-        scrollCustom.value = { x: 1500, y: height.value - 274 }
+        dataColumnsTableFinancing.value.unshift(initialColumns[0])
+        dataColumnsTableFinancing.value.push(initialColumns[1])
+        if (dataColumnsTableFinancing.value.length < 6) {
+          scrollCustom.value = { y: height.value - 274 }
+          dataColumnsTableFinancing.value.map((item) => {
+            delete item.width
+            delete item.fixed
+          })
+        } else {
+          scrollCustom.value = { x: 1500, y: height.value - 274 }
+          dataColumnsTableFinancing.value.map((item, index) => {
+            if (index === 0) {
+              item.width = 180
+              item.fixed = 'left'
+            }
+            if (index === dataColumnsTableFinancing.value.length - 1) {
+              item.width = 200
+              item.fixed = 'right'
+            }
+          })
+        }
       }
     }
 
@@ -624,7 +633,6 @@ export default defineComponent({
       initialGroup,
       initialBankAccount,
       initialStateFilter,
-      initialColumns,
       groupList,
       periodList,
       bankAccountList,
