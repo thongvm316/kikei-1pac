@@ -44,6 +44,7 @@
         :is-loading-table="isLoadingTable"
         :group-id="activeKeyGroup"
         :data-source="depositList"
+        :disable-go-to-deposit="false"
         @getPixelsScrolled="getPixelsScrolled"
       />
 
@@ -56,6 +57,7 @@
         :is-loading-table="isLoadingTable"
         :group-id="activeKeyGroup"
         :data-source="withdrawalList"
+        :disable-go-to-deposit="false"
         :money-color="'text-color-red'"
         @getPixelsScrolled="getPixelsScrolled"
       />
@@ -71,6 +73,7 @@
         :group-id="activeKeyGroup"
         :data-source="financingTotalList"
         :disable-go-to-deposit="true"
+        :money-color="'text-color-red'"
         @getPixelsScrolled="getPixelsScrolled"
       />
     </div>
