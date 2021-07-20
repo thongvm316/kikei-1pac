@@ -123,6 +123,7 @@
         :data-request="updateDataRequest"
         :scroll-custom="scrollCustom"
         @on-sort="onSortTable"
+        @on-filter="onFilterRender"
       />
     </template>
 
@@ -425,13 +426,22 @@ export default defineComponent({
       updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
     }
 
-    const onFilterRender = async (newFilterRequest) => {
-      console.log(newFilterRequest)
-      debugger
-      if (newFilterRequest) {
-        const dataFilter = await convertDataFilter(newFilterRequest)
+    const onFilterRender = async (data) => {
+      if (data) {
+        const dataFilter = await convertDataFilter(data)
         Object.assign(filter, dataFilter)
-        await fetchDataTableFinancing(newFilterRequest, requestParamsData.value.params)
+        isDisabledDisplay.value = false
+        isDisabledBank.value = false
+        filter.period_id = null
+        isDisabledPeriod.value = true
+        if (filter.bank_account_ids.length === 0) {
+          filter.bank_account_ids = bankAccountList?.value[0]?.id
+        }
+        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+        filter.currency_code = currencyDefault?.code || null
+        updateParamRequestFinancing({ data: data })
+
+        await fetchDataTableFinancing(data, requestParamsData.value.params)
       }
     }
 
@@ -637,13 +647,13 @@ export default defineComponent({
       }
     )
     // watch to event click table financing
-    // watch(
-    //   () => store.state.financing.filters,
-    //   () => {
-    //     // fetch data table
-    //     onFilterRender()
-    //   }
-    // )
+    watch(
+      () => store.state.financing.filters,
+      () => {
+        // fetch data table
+        onFilterRender()
+      }
+    )
 
     return {
       initialGroup,
