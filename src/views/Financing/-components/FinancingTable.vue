@@ -190,7 +190,8 @@ export default defineComponent({
       dataFilterRequest.value = props.dataRequest.data
 
       let columnId = column.key.split('_')[1]
-      let typeDeposit = parseInt(columnId) === 1 ? [20, 40] : [10]
+      let typeDeposit = []
+
       let bankAccountsId =
         dataFilterRequest.value.bank_account_ids.length > 0
           ? dataFilterRequest.value.bank_account_ids
@@ -201,6 +202,10 @@ export default defineComponent({
         groupId = dataFilterRequest.value.group_id
       } else {
         bankAccountsId = []
+      }
+
+      if (dataFilterRequest.value.bank_account_ids.length !== 0) {
+        typeDeposit = parseInt(columnId) === 1 ? [20, 40] : [10]
       }
 
       handleDateFilterRequest(record)
