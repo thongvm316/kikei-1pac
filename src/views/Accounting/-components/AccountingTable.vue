@@ -18,7 +18,9 @@
       >
         {{ $filters.number_with_commas(text) }}
       </router-link>
-      <p v-else :class="moneyColor">{{ $filters.number_with_commas(text) }}</p>
+      <p v-else :class="[!isTableTotal && moneyColor, isTableTotal && text < 0 && moneyColor]">
+        {{ $filters.number_with_commas(text) }}
+      </p>
     </template>
   </a-table>
 </template>
