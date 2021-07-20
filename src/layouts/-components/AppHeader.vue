@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, watch, onMounted, onBeforeMount } from 'vue'
+import { defineComponent, computed, watch, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { isEmpty } from 'lodash-es'
