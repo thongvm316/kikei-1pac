@@ -190,6 +190,7 @@ export default defineComponent({
       dataFilterRequest.value = props.dataRequest.data
 
       let columnId = column.key.split('_')[1]
+      let typeDeposit = parseInt(columnId) === 1 ? [20, 40] : [10]
       let bankAccountsId =
         dataFilterRequest.value.bank_account_ids.length > 0
           ? dataFilterRequest.value.bank_account_ids
@@ -208,7 +209,8 @@ export default defineComponent({
         groupId: groupId,
         bankAccountId: bankAccountsId,
         fromDate: fromDate.value,
-        toDate: toDate.value
+        toDate: toDate.value,
+        type: typeDeposit
       }
       if (dataFilterRequest.value.group_id) {
         store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
