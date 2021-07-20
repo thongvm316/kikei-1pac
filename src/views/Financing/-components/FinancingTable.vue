@@ -14,7 +14,7 @@
     <!-- custom column date -->
     <template #customDate="{ text }">
       <span>
-        {{ dataDate(text) }}
+        {{ handleDateColumn(text) }}
       </span>
     </template>
     <!-- ./custom column date -->
@@ -52,20 +52,33 @@
     </template>
     <!-- ./custom column middle -->
     <!-- custom column total -->
-    <template #totalMoney="{ text }">
+    <template #totalMoney="{ text, record }">
       <span v-if="text.warnings">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
-          <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'">
+          <a
+            class="ant-dropdown-link"
+            :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
+            @click="handlePageRedirectTotal(record)"
+          >
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
           </a>
         </a-tooltip>
-        <a v-else class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''">
+        <a
+          v-else
+          class="ant-dropdown-link"
+          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
+          @click="handlePageRedirectTotal(record)"
+        >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
       <span v-else>
-        <a class="ant-dropdown-link" :class="parseInt(text.money) < 0 ? 'text--red' : ''">
+        <a
+          class="ant-dropdown-link"
+          :class="parseInt(text.money) < 0 ? 'text--red' : ''"
+          @click="handlePageRedirectTotal(record)"
+        >
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
@@ -124,6 +137,9 @@ export default defineComponent({
     const { t } = useI18n()
     const router = useRouter()
     const store = useStore()
+
+    const fromDate = ref()
+    const toDate = ref()
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
     const dataFilterRequest = ref({})
@@ -147,8 +163,31 @@ export default defineComponent({
       }
     }
 
+    const handleDateColumn = (date) => {
+      let showByMonth = props.dataRequest?.data?.show_by === 0
+      if (showByMonth) {
+        return moment(date).format('YYYY/MM')
+      }
+      return date
+    }
+
+    const handleDateFilterRequest = (data) => {
+      let showBy = props.dataRequest.data.show_by
+      if (parseInt(showBy) === 0) {
+        // show by month
+        fromDate.value = data?.date ? moment(data.date).startOf('month').format('YYYY-MM-DD') : null
+        toDate.value = data?.date ? moment(data.date).endOf('month').format('YYYY-MM-DD') : null
+      }
+      if (parseInt(showBy) === 1) {
+        // show by day
+        fromDate.value = data?.date ? moment(data.date).format('YYYY-MM-DD') : null
+        toDate.value = data?.date ? moment(data.date).format('YYYY-MM-DD') : null
+      }
+    }
+
     const handlePageRedirect = (record, column) => {
       dataFilterRequest.value = props.dataRequest.data
+
       let columnId = column.key.split('_')[1]
       let bankAccountsId =
         dataFilterRequest.value.bank_account_ids.length > 0
@@ -162,50 +201,45 @@ export default defineComponent({
         bankAccountsId = []
       }
 
-      let fromDate = record?.date ? moment(record.date).format('YYYY-MM-DD') : null
-      let toDate = record?.date ? moment(record.date).format('YYYY-MM-DD') : null
-      if (dataFilterRequest.value.show_by === 0) {
-        fromDate = record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null
-        toDate = record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null
-      }
+      handleDateFilterRequest(record)
 
       const data = {
         groupId: groupId,
         bankAccountId: bankAccountsId,
-        fromDate: fromDate,
-        toDate: toDate
+        fromDate: fromDate.value,
+        toDate: toDate.value
       }
-      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
-      router.push({ name: 'deposit' })
-      // if (dataFilterRequest.value.group_id) {
-      //   store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
-      //   router.push({ name: 'deposit' })
-      // }
-      // else {
-      //   const newFilterRequest = {
-      //     group_id: groupId,
-      //     period_id: dataFilterRequest.value.period_id,
-      //     from_date: record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null,
-      //     to_date: record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null,
-      //     show_by: dataFilterRequest.value.show_by,
-      //     bank_account_ids: bankAccountsId,
-      //     currency_code: dataFilterRequest.value.currency_code
-      //   }
-      //   store.commit('financing/STORE_FINANCING_FILTER', { newFilterRequest })
-      //   console.log(dataFilterRequest)
-      //   emit('on-filter', newFilterRequest)
-      // }
+      if (dataFilterRequest.value.group_id) {
+        store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+        router.push({ name: 'deposit' })
+      } else {
+        const newFilterRequest = {
+          group_id: groupId,
+          period_id: dataFilterRequest.value.period_id,
+          from_date: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
+          to_date: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
+          show_by: 1,
+          bank_account_ids: [],
+          currency_code: null
+        }
+        store.commit('financing/STORE_FINANCING_FILTER', { newFilterRequest })
+        emit('on-filter', newFilterRequest)
+      }
     }
 
     const handlePageRedirectTotal = (record) => {
+      let groupId = props.dataRequest.data.group_id
+      handleDateFilterRequest(record)
       const data = {
-        groupId: props.dataRequest.data.group_id,
-        fromDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
-        toDate: record?.date ? moment(record.date).format('YYYY-MM-DD') : null
+        groupId: groupId,
+        fromDate: fromDate.value,
+        toDate: toDate.value
       }
 
-      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
-      router.push({ name: 'deposit' })
+      if (groupId) {
+        store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+        router.push({ name: 'deposit' })
+      }
     }
 
     const changeFinancingTable = (pagination, filters, sorter) => {
@@ -216,17 +250,8 @@ export default defineComponent({
 
       emit('on-sort', emitData)
     }
-
-    const dataDate = (date) => {
-      let showByMonth = props.dataRequest?.data?.show_by === 0
-      if (showByMonth) {
-        return moment(date).format('YYYY/MM')
-      }
-      return date
-    }
-
     onMounted(() => {
-      dataDate()
+      handleDateColumn()
     })
 
     return {
@@ -239,7 +264,8 @@ export default defineComponent({
       handlePageRedirect,
       handlePageRedirectTotal,
       changeFinancingTable,
-      dataDate
+      handleDateFilterRequest,
+      handleDateColumn
     }
   }
 })
