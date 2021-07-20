@@ -305,6 +305,10 @@ export default defineComponent({
       isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
 
       filter.date_from_to = dateString
+      if (dateString[0] === '' && dateString[1] === '') {
+        let periodCurrentFound = findCurrentPeriod(periodList.value)
+        filter.period_id = periodCurrentFound?.id || null
+      }
       updateParamRequestFinancing({
         data: {
           period_id: filter.period_id,
