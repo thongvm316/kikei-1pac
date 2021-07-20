@@ -17,7 +17,6 @@ const lazyLoadLayout = (pageName) => {
 const routes = [
   {
     path: '/login',
-    name: '',
     meta: { title: `Login | ${APP_NAME}` },
     component: lazyLoadLayout('AuthLayout'),
     children: [

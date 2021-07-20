@@ -85,7 +85,7 @@
           </div>
           <!-- View mode -->
           <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.view_mode" @change="onChangeViewMode">
+            <a-radio-group v-model:value="filter.view_mode" @change="onChangeViewMode(filter.view_mode)">
               <a-radio v-for="item in VIEW_MODE" :key="item.id" :value="item.id">
                 {{ $t(`financing.financing_list.${item.value}`) }}
               </a-radio>
@@ -114,16 +114,22 @@
       </div>
     </div>
 
-    <financing-table
-      :is-loading-data-table="isLoadingDataTable"
-      :columns-financing="dataColumnsTableFinancing"
-      :columns-name-list="dataColumnsNameTable"
-      :data-financing="dataRowsTableFinancing"
-      :data-request="updateDataRequest"
-      :scroll-custom="scrollCustom"
-      @on-sort="onSortTable"
-      @on-filter="onFilterRender"
-    />
+    <template v-if="isShowTable">
+      <financing-table
+        :is-loading-data-table="isLoadingDataTable"
+        :columns-financing="dataColumnsTableFinancing"
+        :columns-name-list="dataColumnsNameTable"
+        :data-financing="dataRowsTableFinancing"
+        :data-request="updateDataRequest"
+        :scroll-custom="scrollCustom"
+        @on-sort="onSortTable"
+        @on-filter="onFilterRender"
+      />
+    </template>
+
+    <template v-if="isShowChart">
+      <financing-chart />
+    </template>
   </section>
 </template>
 <script>
@@ -148,7 +154,9 @@ import {
   convertDataFilter,
   findCurrentPeriod
 } from './composables/useFinancing'
+
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
+import FinancingChart from '@/views/Financing/-components/FinancingChart'
 
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -160,7 +168,7 @@ import { CalendarOutlined } from '@ant-design/icons-vue'
 export default defineComponent({
   name: 'Index',
 
-  components: { FinancingTable, IconCsv, CalendarOutlined },
+  components: { FinancingTable, IconCsv, CalendarOutlined, FinancingChart },
 
   mixins: [Table],
 
@@ -194,6 +202,8 @@ export default defineComponent({
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
     const scrollCustom = ref({})
+    const isShowTable = ref(true)
+    const isShowChart = ref(false)
 
     // data for request financing
     const initialDataRequest = {
@@ -360,7 +370,15 @@ export default defineComponent({
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
-    const onChangeViewMode = async () => {}
+    const onChangeViewMode = async (mode) => {
+      if (mode) {
+        isShowTable.value = false
+        isShowChart.value = true
+      } else {
+        isShowTable.value = true
+        isShowChart.value = false
+      }
+    }
 
     const onChangeCurrency = async () => {
       updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
@@ -638,11 +656,8 @@ export default defineComponent({
     )
 
     return {
-      t,
-      useRoute,
       initialGroup,
       initialBankAccount,
-      initialStateFilter,
       groupList,
       periodList,
       bankAccountList,
@@ -654,6 +669,7 @@ export default defineComponent({
       dataRowsTableFinancing,
       bankAccountId,
       dataExportCsv,
+      initialStateFilter,
       filter,
       isLoading,
       isDisabledPeriod,
@@ -663,11 +679,12 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       isLoadingExportCsv,
-      SHOW_BY,
-      VIEW_MODE,
       updateDataRequest,
       scrollCustom,
       height,
+      isShowTable,
+      isShowChart,
+      useRoute,
       updateParamRequestFinancing,
       onChangePeriod,
       onChangeDate,
@@ -676,7 +693,6 @@ export default defineComponent({
       onChangeBankAccount,
       onChangeViewMode,
       onChangeCurrency,
-      onSortTable,
       fetchGroupList,
       fetchPeriodList,
       fetchCurrency,
@@ -684,7 +700,10 @@ export default defineComponent({
       convertDataTableHeader,
       convertDataTableRows,
       exportFinancingCsvFile,
-      onFilterRender
+      onFilterRender,
+      onSortTable,
+      SHOW_BY,
+      VIEW_MODE
     }
   }
 })
