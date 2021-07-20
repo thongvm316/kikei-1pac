@@ -53,7 +53,7 @@
     <!-- ./custom column middle -->
     <!-- custom column total -->
     <template #totalMoney="{ text, record }">
-      <span v-if="text.warnings">
+      <span v-if="text.warnings" :class="{ 'disabled-click': isDisabledEventClick }">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
@@ -73,7 +73,7 @@
           {{ $filters.number_with_commas(text.money) }}
         </a>
       </span>
-      <span v-else>
+      <span v-else :class="{ 'disabled-click': isDisabledEventClick }">
         <a
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -140,6 +140,7 @@ export default defineComponent({
 
     const fromDate = ref()
     const toDate = ref()
+    const isDisabledEventClick = ref(false)
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
     const dataFilterRequest = ref({})
@@ -216,8 +217,8 @@ export default defineComponent({
         const newFilterRequest = {
           group_id: groupId,
           period_id: dataFilterRequest.value.period_id,
-          from_date: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
-          to_date: record?.date ? moment(record.date).format('YYYY-MM-DD') : null,
+          from_date: record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null,
+          to_date: record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
@@ -250,15 +251,24 @@ export default defineComponent({
 
       emit('on-sort', emitData)
     }
+
     onMounted(() => {
       handleDateColumn()
     })
+
+    watch(
+      () => props.dataRequest,
+      () => {
+        isDisabledEventClick.value = !props.dataRequest.data.group_id
+      }
+    )
 
     return {
       t,
       useRoute,
       dataByDate,
       emptyTextHTML,
+      isDisabledEventClick,
       dataToolTip,
       showToolTipData,
       handlePageRedirect,
