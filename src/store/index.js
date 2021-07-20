@@ -6,6 +6,7 @@ import project from './project'
 import search from './search'
 import financing from './financing'
 import accounting from './accounting'
+import chart from './chart'
 
 const state = {}
 
@@ -23,7 +24,8 @@ const store = createStore({
     project,
     search,
     financing,
-    accounting
+    accounting,
+    chart
   },
   state,
   getters,

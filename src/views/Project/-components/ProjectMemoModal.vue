@@ -4,7 +4,7 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">メモ:</div>
         <div class="project-memo-modal__text">
-          <p style="white-space: pre-line" v-if="toggleShow && initMemo?.length > 175">
+          <p v-if="toggleShow && initMemo?.length > 175" style="white-space: pre-line">
             {{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false"
               >もっと見る</span
             >
