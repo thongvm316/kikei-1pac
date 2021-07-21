@@ -52,13 +52,13 @@
     </template>
     <!-- ./custom column middle -->
     <!-- custom column total -->
-    <template #totalMoney="{ text, record }">
+    <template #totalMoney="{ text, record, column }">
       <span v-if="text.warnings" :class="{ 'disabled-click': isDisabledEventClick }">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
             :class="parseInt(text.money) < 0 ? 'text--red' : 'text--warning'"
-            @click="handlePageRedirectTotal(record)"
+            @click="handlePageRedirectTotal(record, column)"
           >
             <icon-warnings class="icon-warning" />
             {{ $filters.number_with_commas(text.money) }}
@@ -68,7 +68,7 @@
           v-else
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirectTotal(record)"
+          @click="handlePageRedirectTotal(record, column)"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
@@ -77,7 +77,7 @@
         <a
           class="ant-dropdown-link"
           :class="parseInt(text.money) < 0 ? 'text--red' : ''"
-          @click="handlePageRedirectTotal(record)"
+          @click="handlePageRedirectTotal(record, column)"
         >
           {{ $filters.number_with_commas(text.money) }}
         </a>
@@ -140,6 +140,7 @@ export default defineComponent({
 
     const fromDate = ref()
     const toDate = ref()
+    const bankAccountsId = ref([])
     const isDisabledEventClick = ref(false)
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
@@ -186,22 +187,36 @@ export default defineComponent({
       }
     }
 
+    const handleBankIdFilterRequest = (columnId) => {
+      bankAccountsId.value = []
+
+      let bankId = props.dataRequest?.data?.bank_account_ids || []
+      let groupId = props.dataRequest?.data?.group_id || null
+
+      if (bankId.length > 0) {
+        bankAccountsId.value = bankId
+      } else {
+        if (columnId) {
+          bankAccountsId.value.push(parseInt(columnId))
+        } else {
+          bankAccountsId.value = []
+        }
+      }
+
+      if (!groupId) {
+        bankAccountsId.value = []
+      }
+    }
+
     const handlePageRedirect = (record, column) => {
       dataFilterRequest.value = props.dataRequest.data
 
-      let columnId = column.key.split('_')[1]
+      let columnId = column.key.split('_')[1] ?? ''
       let typeDeposit = []
-
-      let bankAccountsId =
-        dataFilterRequest.value.bank_account_ids.length > 0
-          ? dataFilterRequest.value.bank_account_ids
-          : [parseInt(columnId)]
-
       let groupId = parseInt(columnId)
+
       if (dataFilterRequest.value.group_id) {
         groupId = dataFilterRequest.value.group_id
-      } else {
-        bankAccountsId = []
       }
 
       if (dataFilterRequest.value.bank_account_ids.length !== 0) {
@@ -209,10 +224,11 @@ export default defineComponent({
       }
 
       handleDateFilterRequest(record)
+      handleBankIdFilterRequest(columnId)
 
       const data = {
         groupId: groupId,
-        bankAccountId: bankAccountsId,
+        bankAccountId: bankAccountsId.value,
         fromDate: fromDate.value,
         toDate: toDate.value,
         type: typeDeposit
@@ -235,11 +251,16 @@ export default defineComponent({
       }
     }
 
-    const handlePageRedirectTotal = (record) => {
+    const handlePageRedirectTotal = (record, column) => {
+      let columnId = column.key.split('_')[1] ?? ''
       let groupId = props.dataRequest.data.group_id
+
       handleDateFilterRequest(record)
+      handleBankIdFilterRequest(columnId)
+
       const data = {
         groupId: groupId,
+        bankAccountId: bankAccountsId.value,
         fromDate: fromDate.value,
         toDate: toDate.value
       }
