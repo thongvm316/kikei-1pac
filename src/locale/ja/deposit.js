@@ -12,8 +12,9 @@ export default {
     select_bank_placeholder: '口座選択',
     export_csv: 'CSVファイルダウンロード',
     create_deposit: '新規入出金追加',
-    check_all: 'チェックした項目全てを確定する',
-    confirm_all: '確定'
+    check_all: 'すべてを選択',
+    uncheck_all: 'すべてを解除',
+    confirm_all: 'チェックした項目を確定'
   },
   company_name: {
     title_search: '会社一覧',
