@@ -25,13 +25,26 @@
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
 
+    <template #renderCategoryName="{ record }">
+      <a-tooltip color="#fff" :title="record.categoryName">
+        {{ record.categoryName }}
+      </a-tooltip>
+    </template>
+
+    <template #renderSubcategoryName="{ record }">
+      <a-tooltip color="#fff" :title="record.subcategoryName">
+        {{ record.subcategoryName }}
+      </a-tooltip>
+    </template>
+
     <template #typeName="{ record }">
       <span
         :class="`type-${record.type} bank-${record.class} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
-        >{{ $t(`deposit.deposit_list.${record.typeName}`) }}</span
       >
+        {{ $t(`deposit.deposit_list.${record.typeName}`) }}
+      </span>
     </template>
 
     <template #deposit="{ record }">
@@ -116,8 +129,26 @@ const columnsDeposit = [
     sorter: true,
     width: 90
   },
-  { title: '大分類', dataIndex: 'categoryName', key: 'categoryName', ellipsis: true, width: 150 },
-  { title: '中分類', dataIndex: 'subcategoryName', key: 'subcategoryName', ellipsis: true, width: 150 },
+  {
+    title: '大分類',
+    dataIndex: 'categoryName',
+    key: 'categoryName',
+    ellipsis: true,
+    width: 150,
+    slots: {
+      customRender: 'renderCategoryName'
+    }
+  },
+  {
+    title: '中分類',
+    dataIndex: 'subcategoryName',
+    key: 'subcategoryName',
+    ellipsis: true,
+    width: 150,
+    slots: {
+      customRender: 'renderSubcategoryName'
+    }
+  },
   {
     title: '項目名',
     dataIndex: 'purpose',
