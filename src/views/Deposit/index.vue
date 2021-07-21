@@ -1,5 +1,5 @@
 <template>
-  <div class="u-mx-32">
+  <div class="deposit-list u-mx-32">
     <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16">
       <div>
         <span class="u-mr-16 u-text-grey-15">表示:</span>
@@ -30,19 +30,27 @@
 
     <div class="u-flex u-justify-between u-items-center u-mb-24">
       <div>
-        <a-checkbox
-          v-model:checked="checkAllRowTable"
-          :disabled="isDisabledSelectAllRows"
-          :indeterminate="indeterminateCheckAllRows"
-          @change="onSelectAllRows"
+        <a-tooltip
+          color="fff"
+          :title="
+            currentSelectedRowKeys.length > 1
+              ? $t('deposit.deposit_list.uncheck_all')
+              : $t('deposit.deposit_list.check_all')
+          "
         >
-          {{ $t('deposit.deposit_list.check_all') }}
-        </a-checkbox>
+          <a-checkbox
+            v-model:checked="checkAllRowTable"
+            :disabled="isDisabledSelectAllRows"
+            :indeterminate="indeterminateCheckAllRows"
+            @change="onSelectAllRows"
+          />
+        </a-tooltip>
 
         <a-button
           v-if="currentSelectedRowKeys.length > 1"
           size="small"
-          type="primary"
+          type="link"
+          class="u-ml-4"
           @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
         >
           {{ $t('deposit.deposit_list.confirm_all') }}
@@ -734,8 +742,16 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
-.-mx-32 {
-  margin: 0 -32px;
+<style lang="scss">
+.deposit-list {
+  .-mx-32 {
+    margin: 0 -32px;
+  }
+
+  .ant-btn-link:hover {
+    span {
+      text-decoration: underline;
+    }
+  }
 }
 </style>
