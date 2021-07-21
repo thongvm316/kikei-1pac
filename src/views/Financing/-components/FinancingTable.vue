@@ -140,7 +140,7 @@ export default defineComponent({
 
     const fromDate = ref()
     const toDate = ref()
-    const bankAccountsId = ref([])
+    const bankAccountsId = ref()
     const isDisabledEventClick = ref(false)
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
@@ -188,23 +188,23 @@ export default defineComponent({
     }
 
     const handleBankIdFilterRequest = (columnId) => {
-      bankAccountsId.value = []
+      bankAccountsId.value = null
 
-      let bankId = props.dataRequest?.data?.bank_account_ids || []
+      let bankId = props.dataRequest?.data?.bank_account_ids || null
       let groupId = props.dataRequest?.data?.group_id || null
 
       if (bankId.length > 0) {
-        bankAccountsId.value = bankId
+        bankAccountsId.value = bankId[0]
       } else {
         if (columnId) {
-          bankAccountsId.value.push(parseInt(columnId))
+          bankAccountsId.value = parseInt(columnId)
         } else {
-          bankAccountsId.value = []
+          bankAccountsId.value = null
         }
       }
 
       if (!groupId) {
-        bankAccountsId.value = []
+        bankAccountsId.value = null
       }
     }
 
