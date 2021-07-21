@@ -96,70 +96,56 @@ export const getDepositDetail = async (id) => {
   }
 }
 
-const typeNameBank = (depositMoney, withdrawMoney) => {
-  if (depositMoney > withdrawMoney) {
-    return TYPE_NAME_DEPOSIT[10]
-  } else if (depositMoney < withdrawMoney) {
-    return TYPE_NAME_DEPOSIT[20]
+const handleDepositMoneyValue = (data) => {
+  const { bankAccountId, depositBankAccountId, type, depositMoney, withdrawalMoney } = data
+
+  if (bankAccountId) {
+    return bankAccountId === depositBankAccountId ? depositMoney : withdrawalMoney }
+  else {
+    let money
+
+    switch (TYPE_NAME_DEPOSIT[type]) {
+      case TYPE_NAME_DEPOSIT[10]:
+        money = depositMoney
+        break
+      case TYPE_NAME_DEPOSIT[20]:
+        money = `-${withdrawalMoney}`
+        break
+      case TYPE_NAME_DEPOSIT[30]:
+        money = 0
+        break
+      case TYPE_NAME_DEPOSIT[40]:
+        money = depositMoney > 0 ? depositMoney : `-${withdrawalMoney}`
+        break
+    }
+
+    return money
+  }
+}
+
+const handleColorDeposit = (bankAccountId, depositBankAccountId) => {
+  if (!bankAccountId) return ''
+
+  return bankAccountId === depositBankAccountId ? 'blue' : 'red'
+}
+
+const handleTypeNameDeposit = (type, bankAccountId, depositBankAccountId) => {
+  if (bankAccountId) {
+    return bankAccountId === depositBankAccountId ? TYPE_NAME_DEPOSIT[10] : TYPE_NAME_DEPOSIT[20]
   } else {
-    return 'type_none'
+    return TYPE_NAME_DEPOSIT[type]
   }
 }
 
-const depositBank = (depositMoney, withdrawMoney) => {
-  if (depositMoney > withdrawMoney) {
-    return depositMoney
-  } else if (depositMoney < withdrawMoney) {
-    return `-${withdrawMoney}`
-  } else {
-    return '-'
-  }
-}
-
-const handleDepositMoneyValue = (type, depositMoney, withdrawMoney) => {
-  let money
-  switch (TYPE_NAME_DEPOSIT[type]) {
-    case TYPE_NAME_DEPOSIT[10]:
-      money = depositMoney
-      break
-    case TYPE_NAME_DEPOSIT[20]:
-      money = `-${withdrawMoney}`
-      break
-    case TYPE_NAME_DEPOSIT[30]:
-      money = 0
-      break
-    case TYPE_NAME_DEPOSIT[40]:
-      money = depositMoney > 0 ? depositMoney : `-${withdrawMoney}`
-      break
-  }
-
-  return money
-}
-
-const createExpandDataTable = (data) => {
-  if (!data || data.length <= 0) return []
-
-  return data.map((bank) => ({
-    ...bank,
-    date: null,
-    statisticsMonth: null,
-    class: typeNameBank(bank.deposit, bank.withdrawal),
-    key: uniqueId('expand-row'),
-    purpose: `${bank.name} (${bank.currency})`,
-    typeName: typeNameBank(bank.deposit, bank.withdrawal),
-    deposit: depositBank(bank.deposit, bank.withdrawal)
-  }))
-}
-
-export const createDataTableFormat = (data) => {
+export const createDataTableFormat = (data, bankAccountId) => {
   if (!data.length) return []
 
   return data.map((item) => {
     return Object.assign(item, {
       key: item.id,
-      children: createExpandDataTable(item.bankAccounts),
-      deposit: handleDepositMoneyValue(item.type, item.depositMoney, item.withdrawalMoney),
-      typeName: TYPE_NAME_DEPOSIT[item.type]
+      deposit: handleDepositMoneyValue({ bankAccountId, type: item.type, depositMoney: item.depositMoney, withdrawalMoney: item.withdrawalMoney, depositBankAccountId: item.depositBankAccountId }),
+      typeName: handleTypeNameDeposit(item.type, bankAccountId, item.depositBankAccountId),
+      colorClass: handleColorDeposit(bankAccountId, item.depositBankAccountId)
     })
   })
 }
