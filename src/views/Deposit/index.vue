@@ -33,21 +33,21 @@
         <a-tooltip
           color="fff"
           :title="
-            currentSelectedRowKeys.length > 1
+            currentSelectedRowKeys.length > 0
               ? $t('deposit.deposit_list.uncheck_all')
               : $t('deposit.deposit_list.check_all')
           "
         >
           <a-checkbox
-            v-model:checked="checkAllRowTable"
+            v-model:checked="isCheckAllRowTable"
             :disabled="isDisabledSelectAllRows"
-            :indeterminate="indeterminateCheckAllRows"
+            :indeterminate="isIndeterminateCheckAllRow"
             @change="onSelectAllRows"
           />
         </a-tooltip>
 
         <a-button
-          v-if="currentSelectedRowKeys.length > 1"
+          v-if="currentSelectedRowKeys.length > 0"
           size="small"
           type="link"
           class="u-ml-4"
@@ -99,8 +99,8 @@
       v-model:expanded-row-keys="expandedRowKeys"
       v-model:is-loading-data-table="isLoadingDataTable"
       v-model:data-deposit="dataDeposit"
-      v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
-      v-model:check-all-row-table="checkAllRowTable"
+      v-model:indeterminate-check-all-rows="isIndeterminateCheckAllRow"
+      v-model:check-all-row-table="isCheckAllRowTable"
       v-model:current-selected-row-keys="currentSelectedRowKeys"
       v-model:expand-icon-column-index="expandIconColumnIndex"
       v-click-outside="handleClickOutsideTable"
@@ -223,8 +223,8 @@ export default defineComponent({
     const modalActionRef = ref()
 
     // check all row
-    const checkAllRowTable = ref()
-    const indeterminateCheckAllRows = ref()
+    const isCheckAllRowTable = ref(false)
+    const isIndeterminateCheckAllRow = ref(false)
     const isDisabledSelectAllRows = ref(false)
 
     const isLoadingExportCsv = ref()
@@ -292,17 +292,17 @@ export default defineComponent({
     }
 
     const onSelectAllRows = (e) => {
-      indeterminateCheckAllRows.value = false
-      const keyRowList = dataDeposit.value.filter((item) => !item.confirmed)
+      const keyRowList = dataDeposit.value.filter((item) => !item.confirmed).map((item) => item.key)
+      const isCheckAll = e.target.checked && !isIndeterminateCheckAllRow.value
 
-      e.target.checked
-        ? (currentSelectedRowKeys.value = keyRowList.map((item) => item.key))
-        : (currentSelectedRowKeys.value = [])
+      currentSelectedRowKeys.value = isCheckAll ? keyRowList : []
+      isCheckAllRowTable.value = isCheckAll
+      isIndeterminateCheckAllRow.value = false
     }
 
     const resetConfirmAllRecord = () => {
-      checkAllRowTable.value = false
-      indeterminateCheckAllRows.value = false
+      isCheckAllRowTable.value = false
+      isIndeterminateCheckAllRow.value = false
       currentSelectedRowKeys.value = []
     }
 
@@ -527,11 +527,11 @@ export default defineComponent({
         currentSelectedRowKeys.value = currentSelectedRowKeys.value.filter((key) => key !== confirmedId)
       })
 
-      indeterminateCheckAllRows.value =
+      isIndeterminateCheckAllRow.value =
         currentSelectedRowKeys.value.length > 0 &&
         currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
 
-      checkAllRowTable.value =
+      isCheckAllRowTable.value =
         currentSelectedRowKeys.value.length === dataDeposit.value.filter((item) => !item.confirmed).length &&
         currentSelectedRowKeys.value.length > 2
 
@@ -578,7 +578,7 @@ export default defineComponent({
           dataDeposit.value[indexConfirmedRecord].confirmed = false
         }
 
-        indeterminateCheckAllRows.value =
+        isIndeterminateCheckAllRow.value =
           currentSelectedRowKeys.value.length > 0 &&
           currentSelectedRowKeys.value.length < dataDeposit.value.filter((item) => !item.confirmed).length
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
@@ -687,10 +687,10 @@ export default defineComponent({
     )
 
     return {
-      checkAllRowTable,
+      isCheckAllRowTable,
       bankAccountId,
       currentPage,
-      indeterminateCheckAllRows,
+      isIndeterminateCheckAllRow,
       currentSelectedRowKeys,
       bankAccountList,
       tabListGroup,
