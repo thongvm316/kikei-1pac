@@ -1,7 +1,6 @@
 <template>
   <a-table
     class="deposit-table"
-    :expanded-row-keys="expandedRowKeys"
     :loading="isLoadingDataTable"
     :scroll="{ x: 1200, y: height - 295 }"
     :row-class-name="onAddRowClass"
@@ -15,10 +14,8 @@
       getCheckboxProps: (record) => ({ disabled: record.confirmed })
     }"
     :pagination="false"
-    :expand-icon-column-index="expandIconColumnIndex"
     :expand-icon-as-cell="false"
     :locale="localeTable"
-    @expand="onClickExpandRowButton"
     @change="changeDepositTable"
   >
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
@@ -39,7 +36,7 @@
 
     <template #typeName="{ record }">
       <span
-        :class="`type-${record.type} bank-${record.class} ${
+        :class="`${record.colorClass} type-${record.type} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
       >
@@ -49,7 +46,7 @@
 
     <template #deposit="{ record }">
       <span
-        :class="`type-${record.type} bank-${record.class} ${
+        :class="`${record.colorClass} type-${record.type} ${
           record.type === 40 && record.depositMoney > record.withdrawalMoney ? 'deposit' : 'withdraw'
         }`"
       >
@@ -64,23 +61,21 @@
     </template>
 
     <template #action="{ record }">
-      <template v-if="record.children">
-        <a-button
-          v-if="record.confirmed && isAdmin"
-          type="danger"
-          @click="$emit('handle-open-unconfirm-modal', record)"
-        >
-          取消
-        </a-button>
-        <a-button
-          v-else
-          :disabled="record.confirmed"
-          type="primary"
-          @click="$emit('on-open-confirm-deposit-record-modal', record)"
-        >
-          確定
-        </a-button>
-      </template>
+      <a-button
+        v-if="record.confirmed && isAdmin"
+        type="danger"
+        @click="$emit('handle-open-unconfirm-modal', record)"
+      >
+        取消
+      </a-button>
+      <a-button
+        v-else
+        :disabled="record.confirmed"
+        type="primary"
+        @click="$emit('on-open-confirm-deposit-record-modal', record)"
+      >
+        確定
+      </a-button>
     </template>
 
     <template #purpose="{ record }">
@@ -92,105 +87,18 @@
       <p v-else class="mb-0 u-whitespace-normal">{{ record.purpose }}</p>
     </template>
 
-    <template #customTitleDeposit> 入出金額<br />(JPY) </template>
+    <template #customTitleDeposit><span>入出金額<br />({{ currencyCodeText }})</span></template>
 
-    <template #customTitleBalance> 残高<br />(JPY) </template>
+    <template #customTitleBalance> 残高<br />({{ currencyCodeText }}) </template>
   </a-table>
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, ref, onUnmounted } from 'vue'
+import { defineComponent, onBeforeMount, ref, onUnmounted, computed } from 'vue'
 import humps from 'humps'
 import { useStore } from 'vuex'
 
 import { toOrderBy } from '@/helpers/table'
-
-const columnsDeposit = [
-  {
-    title: '入出金日',
-    dataIndex: 'date',
-    key: 'date',
-    align: 'left',
-    slots: {
-      customRender: 'renderDepositUpdatedAt'
-    },
-    ellipsis: true,
-    sorter: true,
-    width: 110
-  },
-  {
-    title: '計上月',
-    dataIndex: 'statisticsMonth',
-    key: 'statisticsMonth',
-    slots: {
-      customRender: 'renderDepositStatictis'
-    },
-    ellipsis: true,
-    sorter: true,
-    width: 90
-  },
-  {
-    title: '大分類',
-    dataIndex: 'categoryName',
-    key: 'categoryName',
-    ellipsis: true,
-    width: 150,
-    slots: {
-      customRender: 'renderCategoryName'
-    }
-  },
-  {
-    title: '中分類',
-    dataIndex: 'subcategoryName',
-    key: 'subcategoryName',
-    ellipsis: true,
-    width: 150,
-    slots: {
-      customRender: 'renderSubcategoryName'
-    }
-  },
-  {
-    title: '項目名',
-    dataIndex: 'purpose',
-    key: 'purpose',
-    ellipsis: true,
-    slots: { customRender: 'purpose' },
-    width: 350
-  },
-  {
-    title: '区分',
-    dataIndex: 'typeName',
-    key: 'typeName',
-    align: 'center',
-    slots: { customRender: 'typeName' },
-    ellipsis: true,
-    width: 70
-  },
-  {
-    dataIndex: 'deposit',
-    key: 'deposit',
-    align: 'right',
-    slots: { title: 'customTitleDeposit', customRender: 'deposit' },
-    ellipsis: true,
-    width: 150
-  },
-  {
-    dataIndex: 'balance',
-    key: 'balance',
-    align: 'right',
-    slots: { title: 'customTitleBalance', customRender: 'balance' },
-    width: 170
-  },
-  {
-    title: '確定',
-    dataIndex: 'action',
-    key: 'action',
-    slots: { customRender: 'action' },
-    width: '136px',
-    align: 'center',
-    ellipsis: true
-  }
-]
 
 export default defineComponent({
   name: 'DepositTable',
@@ -201,8 +109,6 @@ export default defineComponent({
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
-    expandedRowKeys: Array,
-    expandIconColumnIndex: Number,
     isVisibleModalActionBar: Boolean
   },
 
@@ -217,6 +123,97 @@ export default defineComponent({
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
     }
+
+    const columnsDeposit = [
+      {
+        title: '入出金日',
+        dataIndex: 'date',
+        key: 'date',
+        align: 'left',
+        slots: {
+          customRender: 'renderDepositUpdatedAt'
+        },
+        ellipsis: true,
+        sorter: true,
+        width: 110
+      },
+      {
+        title: '計上月',
+        dataIndex: 'statisticsMonth',
+        key: 'statisticsMonth',
+        slots: {
+          customRender: 'renderDepositStatictis'
+        },
+        ellipsis: true,
+        sorter: true,
+        width: 90
+      },
+      {
+        title: '大分類',
+        dataIndex: 'categoryName',
+        key: 'categoryName',
+        ellipsis: true,
+        width: 150,
+        slots: {
+          customRender: 'renderCategoryName'
+        }
+      },
+      {
+        title: '中分類',
+        dataIndex: 'subcategoryName',
+        key: 'subcategoryName',
+        ellipsis: true,
+        width: 150,
+        slots: {
+          customRender: 'renderSubcategoryName'
+        }
+      },
+      {
+        title: '項目名',
+        dataIndex: 'purpose',
+        key: 'purpose',
+        ellipsis: true,
+        slots: { customRender: 'purpose' },
+        width: 350
+      },
+      {
+        title: '区分',
+        dataIndex: 'typeName',
+        key: 'typeName',
+        align: 'center',
+        slots: { customRender: 'typeName' },
+        ellipsis: true,
+        width: 70
+      },
+      {
+        dataIndex: 'deposit',
+        key: 'deposit',
+        align: 'right',
+        slots: { title: 'customTitleDeposit', customRender: 'deposit' },
+        ellipsis: true,
+        width: 150
+      },
+      {
+        dataIndex: 'balance',
+        key: 'balance',
+        align: 'right',
+        slots: { title: 'customTitleBalance', customRender: 'balance' },
+        width: 170
+      },
+      {
+        title: '確定',
+        dataIndex: 'action',
+        key: 'action',
+        slots: { customRender: 'action' },
+        width: '136px',
+        align: 'center',
+        ellipsis: true
+      }
+    ]
+
+    const currencyCodeText = computed(() => {
+      return props.dataDeposit[0]?.currency
+    })
 
     const onSelectChangeRow = (selectedRowKeys) => {
       if (
@@ -252,21 +249,9 @@ export default defineComponent({
       }
     }
 
-    const onClickExpandRowButton = (expanded, record) => {
-      if (expanded) {
-        props.expandedRowKeys.push(record.key)
-      } else {
-        emit(
-          'update:expandedRowKeys',
-          props.expandedRowKeys.filter((item) => item !== record.key)
-        )
-      }
-    }
-
     const onAddRowClass = (record) => {
       let classes = ''
       if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
-      if (props.expandedRowKeys.includes(record.key)) classes += ' is-expand-row'
 
       return classes
     }
@@ -299,11 +284,11 @@ export default defineComponent({
       columnsDeposit,
       localeTable,
       height,
+      currencyCodeText,
 
       onSelectChangeRow,
       onSelectAllChangeRows,
       onCustomRow,
-      onClickExpandRowButton,
       onAddRowClass,
       changeDepositTable
     }
@@ -421,12 +406,12 @@ export default defineComponent({
     }
   }
 
-  .bank-type_deposit_sales {
-    color: $color-additional-blue-6;
+  .red {
+    color: $color-additional-red-6 !important;
   }
 
-  .bank-type_deposit_payment {
-    color: $color-additional-red-6;
+  .blue {
+    color: $color-additional-blue-6 !important;
   }
 
   .ant-table-placeholder {
