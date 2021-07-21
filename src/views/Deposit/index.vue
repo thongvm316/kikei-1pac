@@ -59,11 +59,10 @@
 
       <a-select
         v-model:value="bankAccountId"
+        :allowClear="true"
         show-arrow
         :max-tag-count="1"
         option-label-prop="label"
-        dropdown-class-name="multiple-select-custom"
-        mode="multiple"
         :placeholder="$t('deposit.deposit_list.select_bank_placeholder')"
         :style="{ width: '350px' }"
         :default-active-first-option="false"
@@ -96,13 +95,11 @@
 
     <deposit-table
       :key="tableKey"
-      v-model:expanded-row-keys="expandedRowKeys"
       v-model:is-loading-data-table="isLoadingDataTable"
       v-model:data-deposit="dataDeposit"
       v-model:indeterminate-check-all-rows="indeterminateCheckAllRows"
       v-model:check-all-row-table="checkAllRowTable"
       v-model:current-selected-row-keys="currentSelectedRowKeys"
-      v-model:expand-icon-column-index="expandIconColumnIndex"
       v-click-outside="handleClickOutsideTable"
       :is-visible-modal-action-bar="isVisibleModalActionBar"
       class="-mx-32"
@@ -206,14 +203,12 @@ export default defineComponent({
     const tabListGroup = ref([])
 
     // select bank account
-    const bankAccountId = ref([])
+    const bankAccountId = ref()
     const bankAccountList = ref([])
 
     // table
     const dataDeposit = ref([])
     const isLoadingDataTable = ref(true)
-    const expandedRowKeys = ref([])
-    const expandIconColumnIndex = ref(10)
     const currentSelectedRowKeys = ref([])
     const currentSelectedRecord = ref()
     const confirmedSelectedDepositRecord = ref()
@@ -272,20 +267,10 @@ export default defineComponent({
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
 
-        dataDeposit.value = createDataTableFormat(data.result?.data || [])
+        dataDeposit.value = createDataTableFormat(data.result?.data || [], bankAccountId.value || null)
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
         currentPage.value = paramsRequest.pageNumber || 1
-
-        // expand row table
-        const COLLUMNS_COUNT = 9
-        dataDeposit.value[0]?.bankAccounts?.length
-          ? (expandIconColumnIndex.value = COLLUMNS_COUNT)
-          : (expandIconColumnIndex.value = 10)
-
-        bankAccountId.value.length
-          ? (expandedRowKeys.value = dataDeposit.value.map((item) => item.key))
-          : (expandedRowKeys.value = [])
       } finally {
         isLoadingDataTable.value = false
       }
@@ -322,16 +307,14 @@ export default defineComponent({
 
     const onHandleChangeTabGroup = async (groupId) => {
       // reset params
-      bankAccountId.value = []
+      bankAccountId.value = null
       currentPage.value = 1
-      expandedRowKeys.value = []
-      expandIconColumnIndex.value = 10
 
       // fetch bank accounts
       const bankAccounts = await getBankAccounts({ groupId })
       bankAccountList.value = bankAccounts.result?.data || []
 
-      updateParamRequestDeposit({ data: { groupId, bankAccountId: [] }, params: { pageNumber: 1 } })
+      updateParamRequestDeposit({ data: { groupId, bankAccountId: null }, params: { pageNumber: 1 } })
       resetConfirmAllRecord()
 
       router.push({ query: { ...route.query, tab: groupId } })
@@ -631,11 +614,12 @@ export default defineComponent({
       const bankAccounts = await getBankAccounts({
         groupId: filtersDepositStore.data?.groupId || activeKeyGroupTab.value
       })
+
       bankAccountList.value = bankAccounts.result?.data || []
 
       // set bank account value
-      const bankAccountSelected = filtersDepositStore?.data?.bankAccountId || []
-      if (bankAccountSelected.length > 0) {
+      const bankAccountSelected = filtersDepositStore?.data?.bankAccountId || null
+      if (bankAccountSelected) {
         bankAccountId.value = bankAccountSelected
       }
 
@@ -695,9 +679,7 @@ export default defineComponent({
       bankAccountList,
       tabListGroup,
       dataDeposit,
-      expandedRowKeys,
       totalRecords,
-      expandIconColumnIndex,
       activeKeyGroupTab,
       tableKey,
       isDisabledSelectAllRows,
