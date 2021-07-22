@@ -4,13 +4,13 @@
     <div ref="BarARef" class="stacked-bar__item" />
     <div ref="BarBRef" class="stacked-bar__item" />
     <div ref="BarCRef" class="stacked-bar__item" />
-    <div ref="BarARef" class="stacked-bar__item" />
+    <div ref="BarDRef" class="stacked-bar__item" />
     <div ref="BarERef" class="stacked-bar__item" />
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 
 export default defineComponent({
   name: 'StackedBarSales',
@@ -22,6 +22,15 @@ export default defineComponent({
     const BarCRef = ref()
     const BarDRef = ref()
     const BarERef = ref()
+
+    onMounted(() => {
+      BarSRef.value.style.width = '20%'
+      BarARef.value.style.width = '10%'
+      BarBRef.value.style.width = '30%'
+      BarCRef.value.style.width = '15%'
+      BarDRef.value.style.width = '25%'
+      BarERef.value.style.width = '24%'
+    })
 
     return {
       BarSRef,
@@ -71,7 +80,7 @@ export default defineComponent({
   }
 
   &__item:last-child {
-    background-color: #EB5757; // FIXME
+    background-color: $color-additional-red-6;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
 

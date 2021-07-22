@@ -6,6 +6,7 @@
     :pagination="false"
     :locale="localeTable"
     :scroll="{ x: 1500 }"
+    class="u-mx-n32"
   >
     <template
       v-for="col in ['renderS', 'renderA', 'renderB', 'renderC', 'renderD', 'renderE']"

@@ -1,17 +1,54 @@
 <template>
-  <controller-table :title="'Title table'" :group-list="groupList" />
-  <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
-  <stacked-bar-sales />
+  <div class="dashboard u-mx-32">
+    <div class="dashboard__block">
+      <controller-block
+        :block-id="0"
+        :block-list="blockOrder"
+        :title="'Table 1'"
+        :group-list="groupList"
+        @on-swap-block-order="swapBlockOrder"
+      >
+        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+      </controller-block>
+    </div>
+
+    <div class="dashboard__block">
+      <controller-block
+        :block-id="1"
+        :block-list="blockOrder"
+        :title="'Table 2'"
+        :group-list="groupList"
+        @on-swap-block-order="swapBlockOrder"
+      >
+        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <stacked-bar-sales />
+      </controller-block>
+    </div>
+
+    <div class="dashboard__block">
+      <controller-block
+        :block-id="2"
+        :block-list="blockOrder"
+        :title="'Table 3'"
+        :group-list="groupList"
+        @on-swap-block-order="swapBlockOrder"
+      >
+        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+      </controller-block>
+    </div>
+  </div>
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount } from 'vue'
+import { defineComponent, ref, onBeforeMount, onMounted } from 'vue'
+import { findIndex, find } from 'lodash-es'
 
-import ControllerTable from './-components/ControllerTable'
+import ControllerBlock from './-components/ControllerBlock'
 import SalesTable from './-components/SalesTable'
 import StackedBarSales from './-components/StackedBarSales'
 
 import { getGroups } from './composables/useDashboard'
+import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
 
 const dataTableSales = [
   {
@@ -38,14 +75,15 @@ export default defineComponent({
   name: 'DashboardPage',
 
   components: {
-    ControllerTable,
+    ControllerBlock,
     SalesTable,
     StackedBarSales
   },
 
   setup() {
     // table order
-    // const tableOrder = ref([])
+    const blockOrder = ref([])
+    const blockListEl = ref()
 
     // group tabs
     const groupList = ref([])
@@ -53,19 +91,99 @@ export default defineComponent({
     //sales table
     const isLoadingTableSales = ref()
 
+    const generateOrderList = () => {
+      blockListEl.value = document.querySelectorAll('.dashboard__block')
+      if (blockListEl.value.length === 0) return
+
+      blockOrder.value = new Array(blockListEl.value.length).fill(undefined).map((_, index) => ({
+        id: index, // don't change
+        order: index
+      }))
+
+      setBlockOrder()
+    }
+
+    const swapBlockOrder = ({ id, mode }) => {
+      const currentBlockIndex = findIndex(blockOrder.value, { id })
+      if (
+        currentBlockIndex !== -1 &&
+        ((mode === ORDER_UP && currentBlockIndex === 0) ||
+          (mode === ORDER_DOWN && currentBlockIndex + 1 === blockOrder.value.length))
+      ) {
+        return
+      }
+
+      // block target
+      let blockTargetIndex
+      if (mode === ORDER_UP) {
+        blockTargetIndex = currentBlockIndex - 1
+      } else if (mode === ORDER_DOWN) {
+        blockTargetIndex = currentBlockIndex + 1
+      }
+
+      const orderCurrent = blockOrder.value[currentBlockIndex].order
+      const orderTarget = blockOrder.value[blockTargetIndex].order
+
+      // change order
+      blockOrder.value[currentBlockIndex].order = orderTarget
+      blockOrder.value[blockTargetIndex].order = orderCurrent
+
+      // swap list
+      ;[blockOrder.value[currentBlockIndex], blockOrder.value[blockTargetIndex]] = [
+        blockOrder.value[blockTargetIndex],
+        blockOrder.value[currentBlockIndex]
+      ]
+
+      setBlockOrder()
+    }
+
+    const setBlockOrder = () => {
+      if (blockListEl.value.length === 0) return
+
+      blockListEl.value.forEach((block, index) => {
+        const blockFound = find(blockOrder.value, { id: index })
+        if (!blockFound) return
+        block.style.order = blockFound.order
+      })
+    }
+
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroups()
       groupList.value = groupsReponse.result?.data || []
     })
 
+    onMounted(() => {
+      generateOrderList()
+    })
+
     return {
       groupList,
       isLoadingTableSales,
-      dataTableSales
+      dataTableSales,
+      blockOrder,
+
+      swapBlockOrder
     }
   }
 })
 </script>
 
-<style></style>
+<style lang="scss">
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
+.dashboard {
+  @include flexbox(null, null);
+  flex-direction: column;
+  margin-top: -40px;
+
+  &__block {
+    margin-top: 64px;
+  }
+
+  // &__block:first-child {
+  //   margin-top: 24px;
+  // }
+}
+</style>
