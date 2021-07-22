@@ -491,10 +491,10 @@ export default defineComponent({
     const onOpenConfirmDepositRecordModal = (data, typeConfirm) => {
       isVisibleConfirmDepositModal.value = true
       if (typeConfirm === 'confirmAll') {
-        const purposeFound = data.length === 1 ? find(dataDeposit.value, { id: data[0] }) : ''
+        const recordFound = data.length === 1 ? find(dataDeposit.value, { id: data[0] }) : ''
 
         confirmedSelectedDepositRecord.value = data
-        confirmedSelectedPurpose.value = purposeFound ? purposeFound?.purpose : ''
+        confirmedSelectedPurpose.value = recordFound ? recordFound?.purpose : ''
       } else {
         confirmedSelectedDepositRecord.value = [data.id]
         confirmedSelectedPurpose.value = data.purpose
