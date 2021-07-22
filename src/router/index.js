@@ -91,10 +91,17 @@ const routes = [
       },
 
       {
-        path: '/financing',
+        path: '/financing/table',
         name: 'financing',
         component: lazyLoadRoute('Financing'),
         meta: { title: `Financing Report | ${APP_NAME}` }
+      },
+
+      {
+        path: '/financing/chart',
+        name: 'financing-chart',
+        component: lazyLoadRoute('FinancingChart'),
+        meta: { title: `FinancingChart Report | ${APP_NAME}` }
       },
 
       {

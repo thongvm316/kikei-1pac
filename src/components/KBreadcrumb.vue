@@ -124,6 +124,14 @@ export default defineComponent({
         }
       ],
 
+      // financing chart
+      'financing-chart': [
+        {
+          path: '/financing/chart',
+          breadcrumbName: t('breadcrumb.financing')
+        }
+      ],
+
       // accounting
       accounting: [
         {

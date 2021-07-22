@@ -114,15 +114,7 @@
       </div>
     </div>
 
-    <financing-table
-      :is-loading-data-table="isLoadingDataTable"
-      :columns-financing="dataColumnsTableFinancing"
-      :columns-name-list="dataColumnsNameTable"
-      :data-financing="dataRowsTableFinancing"
-      :data-request="updateDataRequest"
-      :scroll-custom="scrollCustom"
-      @on-sort="onSortTable"
-    />
+    <financing-chart />
   </section>
 </template>
 <script>
@@ -134,21 +126,22 @@ import { useStore } from 'vuex'
 import moment from 'moment'
 import { isEmpty, remove } from 'lodash-es'
 
-import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
+// import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
+import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
 import {
-  convertDataByDates,
-  convertDataByMonth,
+  // convertDataByDates,
+  // convertDataByMonth,
   convertDataCsv,
   convertDataFilter,
   findCurrentPeriod
 } from './composables/useFinancing'
 
-import FinancingTable from '@/views/Financing/-components/FinancingTable'
+import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -160,7 +153,7 @@ import { CalendarOutlined } from '@ant-design/icons-vue'
 export default defineComponent({
   name: 'Index',
 
-  components: { FinancingTable, IconCsv, CalendarOutlined },
+  components: { IconCsv, CalendarOutlined, FinancingChart },
 
   mixins: [Table],
 
@@ -176,27 +169,26 @@ export default defineComponent({
     const currencyList = ref([])
     const dataColumns = ref([])
     const dataByDates = ref([])
+    const dataChart = ref([])
 
     // Tables
-    const dataColumnsNameTable = ref([])
-    const createColumns = ref({})
-    const dataColumnsTableFinancing = ref([])
-    const dataRows = ref({})
-    const dataRowsTableFinancing = ref([])
+    // const dataColumnsNameTable = ref([])
+    // const createColumns = ref({})
+    // const dataColumnsTableFinancing = ref([])
+    // const dataRows = ref({})
+    // const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
     const height = ref(0)
 
     const isLoading = ref(false)
-    const isLoadingDataTable = ref(true)
+    // const isLoadingDataTable = ref(true)
     const isDisabledPeriod = ref(false)
     const isDisabledDate = ref(false)
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
-    const scrollCustom = ref({})
-    // const isShowTable = ref(true)
-    // const isShowChart = ref(false)
+    // const scrollCustom = ref({})
 
     // data for request financing
     const initialDataRequest = {
@@ -248,33 +240,34 @@ export default defineComponent({
       period_id: null,
       date_from_to: [null, null],
       show_by: 1,
-      view_mode: 0,
+      view_mode: 1,
       bank_account_ids: null,
       currency_code: null
     }
 
-    const initialColumns = [
-      {
-        title: t('financing.financing_list.date'),
-        dataIndex: 'date',
-        key: 'date',
-        fixed: 'left',
-        width: 160,
-        sorter: true,
-        slots: { customRender: 'customDate' }
-      },
-      {
-        title: t('financing.financing_list.total_money'),
-        dataIndex: 'totalMoney',
-        key: 'totalMoney',
-        fixed: 'right',
-        width: 200,
-        align: 'right',
-        slots: { customRender: 'totalMoney' }
-      }
-    ]
+    // const initialColumns = [
+    //   {
+    //     title: t('financing.financing_list.date'),
+    //     dataIndex: 'date',
+    //     key: 'date',
+    //     fixed: 'left',
+    //     width: 160,
+    //     sorter: true,
+    //     slots: { customRender: 'customDate' }
+    //   },
+    //   {
+    //     title: t('financing.financing_list.total_money'),
+    //     dataIndex: 'totalMoney',
+    //     key: 'totalMoney',
+    //     fixed: 'right',
+    //     width: 200,
+    //     align: 'right',
+    //     slots: { customRender: 'totalMoney' }
+    //   }
+    // ]
 
     const filter = reactive({ ...initialStateFilter })
+    console.log(filter)
     const dataExportCsv = reactive({ ...initialExportCSV })
 
     // Handle filter
@@ -298,10 +291,6 @@ export default defineComponent({
       isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
 
       filter.date_from_to = dateString
-      if (dateString[0] === '' && dateString[1] === '') {
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        filter.period_id = periodCurrentFound?.id || null
-      }
       updateParamRequestFinancing({
         data: {
           period_id: filter.period_id,
@@ -324,6 +313,7 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
+      console.log('chart', value)
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -368,8 +358,8 @@ export default defineComponent({
     }
 
     const onChangeViewMode = async (mode) => {
-      if (mode) {
-        await router.push({ name: 'financing-chart' })
+      if (!mode) {
+        await router.push({ name: 'financing' })
       }
     }
 
@@ -411,116 +401,113 @@ export default defineComponent({
       currencyList.value = result?.data
     }
 
-    const onSortTable = async (emitData) => {
-      let currentSortStr = ''
-      if (emitData.orderBy !== '') {
-        currentSortStr = `${emitData.field} ${emitData.orderBy}`
-      }
-      updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
+    // Fetch Data chart
+    const fectchChart = async (groupID) => {
+      const { getDataChart } = useGetDataChartService({ groupID, ...filter })
+      const { result } = await getDataChart()
+      dataChart.value = result?.data
+      console.log('result', dataChart.value)
     }
 
-    const onFilterRender = async (data) => {
-      if (data) {
-        const dataFilter = await convertDataFilter(data)
-        Object.assign(filter, dataFilter)
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        filter.period_id = null
-        isDisabledPeriod.value = true
-        if (filter.bank_account_ids.length === 0) {
-          filter.bank_account_ids = bankAccountList?.value[0]?.id
-        }
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.currency_code = currencyDefault?.code || null
-        updateParamRequestFinancing({ data: data })
+    // const onSortTable = async (emitData) => {
+    //   let currentSortStr = ''
+    //   if (emitData.orderBy !== '') {
+    //     currentSortStr = `${emitData.field} ${emitData.orderBy}`
+    //   }
+    //   updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
+    // }
 
-        await fetchDataTableFinancing(data, requestParamsData.value.params)
-      }
-    }
+    // const onFilterRender = async (newFilterRequest) => {
+    //   if (newFilterRequest) {
+    //     const dataFilter = await convertDataFilter(newFilterRequest)
+    //     Object.assign(filter, dataFilter)
+    //     await fetchDataTableFinancing(newFilterRequest, requestParamsData.value.params)
+    //   }
+    // }
 
-    const convertDataTableHeader = async (data) => {
-      if (data) {
-        for (let i = 0; i < data.length; i++) {
-          let titleName = data[i].name
-          if (data[i].name === 'deposit' || data[i].name === 'withdrawal') {
-            titleName = t(`financing.financing_list.${data[i].name}`)
-          }
-          createColumns.value = {
-            title: titleName,
-            dataIndex: `columns_${data[i].id}`,
-            key: `columns_${data[i].id}`,
-            width: 200,
-            align: 'right',
-            slots: { customRender: `columns_${data[i].id}` }
-          }
-          dataColumnsTableFinancing.value.push(createColumns.value)
-        }
-
-        dataColumnsTableFinancing.value.unshift(initialColumns[0])
-        dataColumnsTableFinancing.value.push(initialColumns[1])
-        if (dataColumnsTableFinancing.value.length < 6) {
-          scrollCustom.value = { y: height.value - 274 }
-          dataColumnsTableFinancing.value.map((item) => {
-            delete item.width
-            delete item.fixed
-          })
-        } else {
-          scrollCustom.value = { x: 1500, y: height.value - 274 }
-          dataColumnsTableFinancing.value.map((item, index) => {
-            if (index === 0) {
-              item.width = 180
-              item.fixed = 'left'
-            }
-            if (index === dataColumnsTableFinancing.value.length - 1) {
-              item.width = 200
-              item.fixed = 'right'
-            }
-          })
-        }
-      }
-    }
-
-    const convertDataTableRows = async (data) => {
-      if (data) {
-        for (let i = 0; i < data.length; i++) {
-          if (requestParamsData.value.data.show_by === 1) {
-            dataRows.value = Object.assign(
-              {},
-              convertDataByDates(data[i].dataByColumns, 'columnId', 'columns_', 'money')
-            )
-          } else {
-            dataRows.value = Object.assign(
-              {},
-              convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
-            )
-          }
-          dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
-          dataRows.value['totalMoney'] = data[i].totalMoney
-          dataRowsTableFinancing.value.push(dataRows.value)
-        }
-      }
-    }
-
-    const fetchDataTableFinancing = async (data, params) => {
-      isLoadingDataTable.value = true
-      // eslint-disable-next-line no-useless-catch
-      try {
-        const { getLists } = useGetFinancingListService(data, params)
-        const { result } = await getLists()
-
-        remove(dataRowsTableFinancing.value)
-        remove(dataColumnsTableFinancing.value)
-        remove(dataColumnsNameTable.value)
-        dataColumns.value = result.data?.columns || []
-        dataByDates.value = result.data?.dataByDates || []
-        dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
-
-        await convertDataTableHeader(dataColumns.value)
-        await convertDataTableRows(dataByDates.value)
-      } finally {
-        isLoadingDataTable.value = false
-      }
-    }
+    // const convertDataTableHeader = async (data) => {
+    //   if (data) {
+    //     for (let i = 0; i < data.length; i++) {
+    //       let titleName = data[i].name
+    //       if (data[i].name === 'deposit' || data[i].name === 'withdrawal') {
+    //         titleName = t(`financing.financing_list.${data[i].name}`)
+    //       }
+    //       createColumns.value = {
+    //         title: titleName,
+    //         dataIndex: `columns_${data[i].id}`,
+    //         key: `columns_${data[i].id}`,
+    //         width: 200,
+    //         align: 'right',
+    //         slots: { customRender: `columns_${data[i].id}` }
+    //       }
+    //       dataColumnsTableFinancing.value.push(createColumns.value)
+    //     }
+    //
+    //     // dataColumnsTableFinancing.value.unshift(initialColumns[0])
+    //     // dataColumnsTableFinancing.value.push(initialColumns[1])
+    //     if (dataColumnsTableFinancing.value.length < 6) {
+    //       scrollCustom.value = { y: height.value - 274 }
+    //       dataColumnsTableFinancing.value.map((item) => {
+    //         delete item.width
+    //         delete item.fixed
+    //       })
+    //     } else {
+    //       scrollCustom.value = { x: 1500, y: height.value - 274 }
+    //       dataColumnsTableFinancing.value.map((item, index) => {
+    //         if (index === 0) {
+    //           item.width = 180
+    //           item.fixed = 'left'
+    //         }
+    //         if (index === dataColumnsTableFinancing.value.length - 1) {
+    //           item.width = 200
+    //           item.fixed = 'right'
+    //         }
+    //       })
+    //     }
+    //   }
+    // }
+    //
+    // const convertDataTableRows = async (data) => {
+    //   if (data) {
+    //     for (let i = 0; i < data.length; i++) {
+    //       if (requestParamsData.value.data.show_by === 1) {
+    //         dataRows.value = Object.assign(
+    //           {},
+    //           convertDataByDates(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+    //         )
+    //       } else {
+    //         dataRows.value = Object.assign(
+    //           {},
+    //           convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+    //         )
+    //       }
+    //       dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
+    //       dataRows.value['totalMoney'] = data[i].totalMoney
+    //       dataRowsTableFinancing.value.push(dataRows.value)
+    //     }
+    //   }
+    // }
+    //
+    // const fetchDataTableFinancing = async (data, params) => {
+    //   isLoadingDataTable.value = true
+    //   // eslint-disable-next-line no-useless-catch
+    //   try {
+    //     const { getLists } = useGetFinancingListService(data, params)
+    //     const { result } = await getLists()
+    //
+    //     remove(dataRowsTableFinancing.value)
+    //     remove(dataColumnsTableFinancing.value)
+    //     remove(dataColumnsNameTable.value)
+    //     dataColumns.value = result.data?.columns || []
+    //     dataByDates.value = result.data?.dataByDates || []
+    //     dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
+    //
+    //     await convertDataTableHeader(dataColumns.value)
+    //     await convertDataTableRows(dataByDates.value)
+    //   } finally {
+    //     isLoadingDataTable.value = false
+    //   }
+    // }
 
     const exportFinancingCsvFile = async () => {
       isLoadingExportCsv.value = true
@@ -566,6 +553,7 @@ export default defineComponent({
     onBeforeMount(async () => {
       await fetchGroupList()
       await fetchCurrency()
+      await fectchChart()
 
       // get filters financing from store
       const filtersFinancingStore = store.state.financing?.filters || {}
@@ -617,7 +605,7 @@ export default defineComponent({
       updateDataRequest.value = requestParamsData.value
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+      // await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
     onMounted(() => {
@@ -636,17 +624,17 @@ export default defineComponent({
         updateDataRequest.value = requestParamsData.value
         // store.getters.finanancing
         // fetch data table
-        fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+        // fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
     )
     // watch to event click table financing
-    watch(
-      () => store.state.financing.filters,
-      () => {
-        // fetch data table
-        onFilterRender()
-      }
-    )
+    // watch(
+    //   () => store.state.financing.filters,
+    //   () => {
+    //     // fetch data table
+    //     onFilterRender()
+    //   }
+    // )
 
     return {
       initialGroup,
@@ -657,9 +645,9 @@ export default defineComponent({
       currencyList,
       dataColumns,
       dataByDates,
-      dataColumnsNameTable,
-      dataColumnsTableFinancing,
-      dataRowsTableFinancing,
+      // dataColumnsNameTable,
+      // dataColumnsTableFinancing,
+      // dataRowsTableFinancing,
       bankAccountId,
       dataExportCsv,
       initialStateFilter,
@@ -668,12 +656,12 @@ export default defineComponent({
       isDisabledPeriod,
       isDisabledDate,
       isDisabledDisplay,
-      isLoadingDataTable,
+      // isLoadingDataTable,
       isDisabledBank,
       isDisabledCurrency,
       isLoadingExportCsv,
       updateDataRequest,
-      scrollCustom,
+      // scrollCustom,
       height,
       updateParamRequestFinancing,
       onChangePeriod,
@@ -686,12 +674,12 @@ export default defineComponent({
       fetchGroupList,
       fetchPeriodList,
       fetchCurrency,
-      fetchDataTableFinancing,
-      convertDataTableHeader,
-      convertDataTableRows,
+      // fetchDataTableFinancing,
+      // convertDataTableHeader,
+      // convertDataTableRows,
       exportFinancingCsvFile,
-      onFilterRender,
-      onSortTable,
+      // onFilterRender,
+      // onSortTable,
       SHOW_BY,
       VIEW_MODE
     }
