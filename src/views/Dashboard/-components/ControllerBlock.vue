@@ -3,35 +3,45 @@
     <p>{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
-        <a-button
-          v-if="myBlock?.order !== 0"
-          type="link"
-          class="controller-table__triangle u-flex u-justify-center u-items-center"
-          @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_UP })"
-        >
-          <template #icon>
-            <triangle-up-icon />
-          </template>
-        </a-button>
+        <a-tooltip color="#fff" title="上に移動">
+          <a-button
+            v-if="myBlock?.order !== 0"
+            type="link"
+            class="controller-table__triangle u-flex u-justify-center u-items-center"
+            @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_UP })"
+          >
+            <template #icon>
+              <triangle-up-icon />
+            </template>
+          </a-button>
+        </a-tooltip>
 
-        <a-button
-          v-if="myBlock?.order !== blockList.length - 1"
-          type="link"
-          class="controller-table__triangle u-flex u-justify-center u-items-center"
-          @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_DOWN })"
-        >
-          <template #icon>
-            <triangle-down-icon />
-          </template>
-        </a-button>
+        <a-tooltip color="#fff" title="下に移動">
+          <a-button
+            v-if="myBlock?.order !== blockList.length - 1"
+            type="link"
+            class="controller-table__triangle u-flex u-justify-center u-items-center"
+            @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_DOWN })"
+          >
+            <template #icon>
+              <triangle-down-icon />
+            </template>
+          </a-button>
+        </a-tooltip>
       </div>
 
-      <a-button type="default" class="u-flex u-justify-center u-items-center u-ml-32" @click="handleToggleShowContent">
-        <template #icon>
-          <minus-icon v-if="isShowBlockContent" />
-          <add-icon v-else />
-        </template>
-      </a-button>
+      <a-tooltip color="#fff" :title="isShowBlockContent ? 'Hide' : 'Show'">
+        <a-button
+          type="default"
+          class="u-flex u-justify-center u-items-center u-ml-32"
+          @click="handleToggleShowContent"
+        >
+          <template #icon>
+            <minus-icon v-if="isShowBlockContent" />
+            <add-icon v-else />
+          </template>
+        </a-button>
+      </a-tooltip>
     </div>
   </div>
 
@@ -40,7 +50,7 @@
     <a-tabs
       v-model:active-key="groupActive"
       default-active-key="1"
-      class="u-mx-n32"
+      class="u-mx-n32 u-mt-8"
       :animated="false"
       @change="onHandleChangeGroup"
     >
