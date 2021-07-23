@@ -8,7 +8,7 @@
     <div :class="{ active: openChart }" class="modal-chart">
       <close-icon class="icon" @click="openChart = false" />
       <div class="group-chart">
-        <a-checkbox-group v-model:value="value">
+        <a-checkbox-group>
           <a-checkbox v-for="item in plainOptions" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
         </a-checkbox-group>
       </div>
@@ -52,10 +52,10 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
-import { forEach } from 'lodash-es'
+import { forEach, map } from 'lodash-es'
 
 import CloseIcon from '@/assets/icons/ico_close.svg'
 import { LineChartOutlined } from '@ant-design/icons-vue'
@@ -91,81 +91,92 @@ export default defineComponent({
 
   components: { CloseIcon, LineChartOutlined },
 
-  setup() {
+  props: {
+    dataChart: {
+      type: [Array, Object],
+      required: true,
+      default: () => []
+    }
+  },
+
+  setup(props) {
     const myChartRef = ref()
     const element = ref()
     const modalContent = ref()
 
+    const { dataChart } = toRefs(props)
+    const results = ref(props.dataChart)
+
     const isActive = ref(false)
     const openChart = ref(false)
 
-    const labels = [
-      ['01', '2021/7'],
-      '02',
-      '03',
-      '04',
-      '05',
-      '06',
-      '07',
-      '08',
-      '09',
-      '10',
-      '11',
-      '12',
-      '13',
-      '14',
-      '15',
-      '16',
-      '17',
-      '18',
-      '19',
-      '20',
-      '21',
-      '22',
-      '23',
-      '24',
-      '25',
-      '26',
-      '27',
-      '28',
-      '29',
-      '30',
-      '31',
-      ['01', '2021/8'],
-      '02',
-      '03',
-      '04',
-      '05',
-      '06',
-      '07',
-      '08',
-      '09',
-      '10',
-      '11',
-      '12',
-      '13',
-      '14',
-      '15',
-      '16',
-      '17',
-      '18',
-      '19',
-      '20',
-      '21',
-      '22',
-      '23',
-      '24',
-      '25',
-      '26',
-      '27',
-      '28',
-      '29',
-      '30',
-      '31'
-    ]
+    // const labels = [
+    //   ['01', '2021/7'],
+    //   '02',
+    //   '03',
+    //   '04',
+    //   '05',
+    //   '06',
+    //   '07',
+    //   '08',
+    //   '09',
+    //   '10',
+    //   '11',
+    //   '12',
+    //   '13',
+    //   '14',
+    //   '15',
+    //   '16',
+    //   '17',
+    //   '18',
+    //   '19',
+    //   '20',
+    //   '21',
+    //   '22',
+    //   '23',
+    //   '24',
+    //   '25',
+    //   '26',
+    //   '27',
+    //   '28',
+    //   '29',
+    //   '30',
+    //   '31',
+    //   ['01', '2021/8'],
+    //   '02',
+    //   '03',
+    //   '04',
+    //   '05',
+    //   '06',
+    //   '07',
+    //   '08',
+    //   '09',
+    //   '10',
+    //   '11',
+    //   '12',
+    //   '13',
+    //   '14',
+    //   '15',
+    //   '16',
+    //   '17',
+    //   '18',
+    //   '19',
+    //   '20',
+    //   '21',
+    //   '22',
+    //   '23',
+    //   '24',
+    //   '25',
+    //   '26',
+    //   '27',
+    //   '28',
+    //   '29',
+    //   '30',
+    //   '31'
+    // ]
 
     const data = {
-      labels: labels,
+      labels: [],
       datasets: [
         {
           ...line1,
@@ -175,37 +186,34 @@ export default defineComponent({
           pointHoverRadius: 10,
           pointHoverBorderWidth: 3,
           pointRadius: 10,
-          data: [
-            120, 100, 90, 65, 59, 80, 24, 56, 55, 12, 16, 17, -20, 80, 20, -5, 34, 12, 5, 6, 7, 120, 100, 90, 65, 59,
-            80, 24, 56, 55, -12, -16, 17, -20, 80, 20, -5, 34, 12, 5, 6, 7
-          ]
-        },
-        {
-          ...line2,
-          label: 'My first dataset 2',
-          fill: false,
-          pointBorderWidth: 3,
-          pointHoverRadius: 10,
-          pointHoverBorderWidth: 3,
-          pointRadius: 10,
-          data: [
-            23, 43, 12, 45, 65, 76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23, 45, 65, 12,
-            12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12
-          ]
-        },
-        {
-          ...line3,
-          label: 'My first dataset 3',
-          fill: false,
-          pointBorderWidth: 3,
-          pointHoverRadius: 10,
-          pointHoverBorderWidth: 3,
-          pointRadius: 10,
-          data: [
-            43, 12, 23, 45, 65, 12, 12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12, 23, 43, 12, 45, 65,
-            76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23
-          ]
+          data: []
         }
+        // {
+        //   ...line2,
+        //   label: 'My first dataset 2',
+        //   fill: false,
+        //   pointBorderWidth: 3,
+        //   pointHoverRadius: 10,
+        //   pointHoverBorderWidth: 3,
+        //   pointRadius: 10,
+        //   data: [
+        //     23, 43, 12, 45, 65, 76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23, 45, 65, 12,
+        //     12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12
+        //   ]
+        // },
+        // {
+        //   ...line3,
+        //   label: 'My first dataset 3',
+        //   fill: false,
+        //   pointBorderWidth: 3,
+        //   pointHoverRadius: 10,
+        //   pointHoverBorderWidth: 3,
+        //   pointRadius: 10,
+        //   data: [
+        //     43, 12, 23, 45, 65, 12, 12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12, 23, 43, 12, 45, 65,
+        //     76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23
+        //   ]
+        // }
       ]
     }
 
@@ -322,7 +330,29 @@ export default defineComponent({
       }
     }
 
-    onMounted(() => {
+    watch(dataChart, (val) => {
+      results.value = val
+
+      const dataShow = map(results.value[0].detail, (e) => {
+        const element = {}
+        element[e.date] = e.balance
+
+        return element
+      })
+
+      const labels = map(dataShow, (item) => {
+        return Object.keys(item)[0]
+      })
+
+      const dataY = map(dataShow, (item) => {
+        return Object.values(item)[0]
+      })
+
+      data.labels = labels
+      data.datasets[0].data = dataY
+
+      console.log(data)
+
       window.myLineChart = createChart()
     })
 

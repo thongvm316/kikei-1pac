@@ -195,8 +195,6 @@ export default defineComponent({
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
     const scrollCustom = ref({})
-    // const isShowTable = ref(true)
-    // const isShowChart = ref(false)
 
     // data for request financing
     const initialDataRequest = {

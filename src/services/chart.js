@@ -5,10 +5,11 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getDataChart(params) {
+  getDataChart(data, params) {
     return apiCaller({
       method: 'POST',
       url: `${RESOURCES.chart}`,
+      data,
       params
     })
   }

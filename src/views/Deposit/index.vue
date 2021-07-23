@@ -59,7 +59,7 @@
 
       <a-select
         v-model:value="bankAccountId"
-        :allowClear="true"
+        :allow-clear="true"
         show-arrow
         :max-tag-count="1"
         option-label-prop="label"
