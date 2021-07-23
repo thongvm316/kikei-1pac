@@ -1,11 +1,25 @@
 <template lang="">
   <div class="stacked-bar u-flex u-justify-between u-items-center">
-    <div ref="BarSRef" class="stacked-bar__item" />
-    <div ref="BarARef" class="stacked-bar__item" />
-    <div ref="BarBRef" class="stacked-bar__item" />
-    <div ref="BarCRef" class="stacked-bar__item" />
-    <div ref="BarDRef" class="stacked-bar__item" />
-    <div ref="BarERef" class="stacked-bar__item" />
+    <div ref="BarSRef" class="stacked-bar__item">
+      <span>S</span>
+    </div>
+    <div ref="BarARef" class="stacked-bar__item">
+      <span>A</span>
+    </div>
+    <div ref="BarBRef" class="stacked-bar__item">
+      <span>B</span>
+    </div>
+    <div ref="BarCRef" class="stacked-bar__item">
+      <span>C</span>
+    </div>
+    <div ref="BarDRef" class="stacked-bar__item">
+      <span>D</span>
+    </div>
+    <div ref="BarERef" class="stacked-bar__item">
+      <span>E</span>
+    </div>
+    <div ref="BarERef" class="stacked-bar__item">
+    </div>
   </div>
 </template>
 
@@ -57,18 +71,19 @@ export default defineComponent({
     height: 100%;
     width: 100%;
     position: relative;
+    background-color: $color-grey-100;
 
-    &:after {
+    span {
       @include flexbox(center, center);
 
       position: absolute;
+      content: '';
       top: -6px;
       right: -12px;
       height: 24px;
       width: 24px;
       border-radius: 50%;
-      content: 'S';
-      background-color: $color-additional-blue-6;
+      background-color: $color-grey-85;
       z-index: 1;
     }
   }
@@ -77,16 +92,16 @@ export default defineComponent({
     background-color: $color-additional-blue-6;
     border-top-left-radius: 50px;
     border-bottom-left-radius: 50px;
+
+    span {
+      background-color: $color-additional-blue-6;
+    }
   }
 
   &__item:last-child {
     background-color: $color-additional-red-6;
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
-
-    &:after {
-      display: none;
-    }
   }
 }
 </style>
