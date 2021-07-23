@@ -220,7 +220,7 @@ export default defineComponent({
       }
 
       if (dataFilterRequest.value.bank_account_ids.length !== 0) {
-        typeDeposit = parseInt(columnId) === 1 ? [20, 40] : [10]
+        typeDeposit = parseInt(columnId) === 1 ? [20, 30, 40] : [10]
       }
 
       handleDateFilterRequest(record)
