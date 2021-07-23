@@ -1,5 +1,5 @@
 <template lang="">
-  <div class="stacked-bar u-flex u-justify-between u-items-center">
+  <div class="stacked-bar">
     <div ref="BarSRef" class="stacked-bar__item">
       <span>S</span>
     </div>
@@ -18,8 +18,7 @@
     <div ref="BarERef" class="stacked-bar__item">
       <span>E</span>
     </div>
-    <div ref="BarERef" class="stacked-bar__item">
-    </div>
+    <div ref="BarERef" class="stacked-bar__item"></div>
   </div>
 </template>
 
@@ -63,9 +62,9 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .stacked-bar {
-  width: 100%;
+  @include flexbox(center, center);
   height: 12px;
-  margin-top: 12px;
+  margin: 12px 32px;
 
   &__item {
     height: 100%;

@@ -39,9 +39,22 @@ export default defineComponent({
 
   components: {},
 
-  setup () {
+  setup() {
     const myBankLineChartRef = ref()
-    const labels = ['2021/07', '2021/08', '2021/09', '2021/10', '2021/11', '2021/12', '2022/01', '2022/02', '2022/03', '2022/04', '2022/05', '2022/06']
+    const labels = [
+      '2021/07',
+      '2021/08',
+      '2021/09',
+      '2021/10',
+      '2021/11',
+      '2021/12',
+      '2022/01',
+      '2022/02',
+      '2022/03',
+      '2022/04',
+      '2022/05',
+      '2022/06'
+    ]
     const data = {
       labels,
       datasets: [
@@ -158,10 +171,8 @@ export default defineComponent({
       myBankLineChartRef
     }
   }
-
 })
 </script>
-
 
 <style lang="scss" scoped>
 .canvas {

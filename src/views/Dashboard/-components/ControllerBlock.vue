@@ -1,5 +1,5 @@
 <template>
-  <div class="controller-table u-flex u-justify-between u-items-center">
+  <div class="controller-block u-flex u-justify-between u-items-center">
     <p>{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
@@ -7,7 +7,7 @@
           <a-button
             v-if="myBlock?.order !== 0"
             type="link"
-            class="controller-table__triangle u-flex u-justify-center u-items-center"
+            class="controller-block__triangle u-flex u-justify-center u-items-center"
             @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_UP })"
           >
             <template #icon>
@@ -20,7 +20,7 @@
           <a-button
             v-if="myBlock?.order !== blockList.length - 1"
             type="link"
-            class="controller-table__triangle u-flex u-justify-center u-items-center"
+            class="controller-block__triangle u-flex u-justify-center u-items-center"
             @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_DOWN })"
           >
             <template #icon>
@@ -30,7 +30,7 @@
         </a-tooltip>
       </div>
 
-      <a-tooltip color="#fff" :title="isShowBlockContent ? 'Hide' : 'Show'">
+      <a-tooltip color="#fff" :title="isShowBlockContent ? '閉じる' : '開く'">
         <a-button
           type="default"
           class="u-flex u-justify-center u-items-center u-ml-32"
@@ -46,19 +46,21 @@
   </div>
 
   <!-- block content -->
-  <div v-show="isShowBlockContent">
-    <a-tabs
-      v-model:active-key="groupActive"
-      default-active-key="1"
-      class="u-mx-n32 u-mt-8"
-      :animated="false"
-      @change="onHandleChangeGroup"
-    >
-      <a-tab-pane v-for="group in groupList" :key="group.id" :tab="group.name" />
-    </a-tabs>
+  <a-collapse v-model:activeKey="activeKey" :bordered="false" class="controller-collapse u-mt-8">
+    <a-collapse-panel key="1" class="u-mx-n32">
+      <a-tabs
+        v-if="!isUnvisibleGroupTab"
+        v-model:active-key="groupActive"
+        default-active-key="1"
+        :animated="false"
+        @change="onHandleChangeGroup"
+      >
+        <a-tab-pane v-for="group in groupList" :key="group.id" :tab="group.name" />
+      </a-tabs>
 
-    <slot></slot>
-  </div>
+      <slot />
+    </a-collapse-panel>
+  </a-collapse>
 </template>
 
 <script>
@@ -83,10 +85,17 @@ export default defineComponent({
   },
 
   props: {
-    blockId: Number,
+    blockId: {
+      type: Number,
+      require: true
+    },
     blockList: Object,
     title: String,
-    groupList: Object
+    groupList: Object,
+    isUnvisibleGroupTab: {
+      type: Boolean,
+      default: false
+    }
   },
 
   emits: ['on-swap-block-order'],
@@ -94,11 +103,13 @@ export default defineComponent({
   setup(props) {
     const groupActive = ref()
     const isShowBlockContent = ref(true)
+    const activeKey = ref(['1'])
 
     const onHandleChangeGroup = () => {}
 
     const handleToggleShowContent = () => {
       isShowBlockContent.value = !isShowBlockContent.value
+      activeKey.value = activeKey.value.length > 0 ? [] : ['1']
     }
 
     const myBlock = computed(() => find(props.blockList, { id: props.blockId }))
@@ -109,6 +120,7 @@ export default defineComponent({
       ORDER_DOWN,
       myBlock,
       isShowBlockContent,
+      activeKey,
 
       onHandleChangeGroup,
       handleToggleShowContent
@@ -118,9 +130,29 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.controller-table {
+.controller-block {
   &__triangle {
     width: 18px;
+  }
+}
+
+.controller-collapse {
+  width: 100%;
+
+  .ant-collapse-header {
+    display: none;
+  }
+
+  .ant-collapse-content-box {
+    padding: 0 !important;
+  }
+
+  .ant-collapse-item {
+    border-bottom: 0;
+  }
+
+  .ant-collapse-borderless {
+    background-color: transparent !important;
   }
 }
 </style>

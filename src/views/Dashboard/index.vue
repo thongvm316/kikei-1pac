@@ -2,21 +2,25 @@
   <div class="dashboard u-mx-32">
     <div class="dashboard__block">
       <controller-block
-        :block-id="0"
+        :block-id="blockIdList[0]"
         :block-list="blockOrder"
-        :title="'Table 1'"
+        :title="'経理業務'"
         :group-list="groupList"
+        :is-unvisible-group-tab="true"
         @on-swap-block-order="swapBlockOrder"
       >
-        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <AccoutingOperationsTable
+          :is-loading-table="isLoadingAccoutingOperations"
+          :data-source="dataTableAccoutingOperations"
+        />
       </controller-block>
     </div>
 
     <div class="dashboard__block">
       <controller-block
-        :block-id="1"
+        :block-id="blockIdList[1]"
         :block-list="blockOrder"
-        :title="'Table 2'"
+        :title="'今期売上見込'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
@@ -27,21 +31,21 @@
 
     <div class="dashboard__block">
       <controller-block
-        :block-id="2"
+        :block-id="blockIdList[2]"
         :block-list="blockOrder"
-        :title="'Table 3'"
+        :title="'月次簡易試算'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
-        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <monthly-accounting-table :is-loading-table="isLoadingMonthlyAccounting" :data-source="dataTableMonthly" />
       </controller-block>
     </div>
 
     <div class="dashboard__block">
       <controller-block
-        :block-id="3"
+        :block-id="blockIdList[3]"
         :block-list="blockOrder"
-        :title="'Table 4'"
+        :title="'銀行残高推移'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
@@ -51,9 +55,9 @@
 
     <div class="dashboard__block">
       <controller-block
-        :block-id="3"
+        :block-id="blockIdList[4]"
         :block-list="blockOrder"
-        :title="'Table 5'"
+        :title="'今期顧客別売上'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
@@ -70,11 +74,23 @@ import { findIndex, find } from 'lodash-es'
 import ControllerBlock from './-components/ControllerBlock'
 import SalesTable from './-components/SalesTable'
 import StackedBarSales from './-components/StackedBarSales'
-import BankLineChart from './-components/BankLineChart.vue'
+import BankLineChart from './-components/BankLineChart'
 import PieChart from './-components/PieChart'
+import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
+import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 
 import { getGroups } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
+
+const dataTableAccoutingOperations = [
+  {
+    key: '1',
+    firstCol: '本日未確定',
+    gumiVietnam: 999,
+    vand: 999,
+    vandCreative: 999
+  }
+]
 
 const dataTableSales = [
   {
@@ -97,6 +113,33 @@ const dataTableSales = [
   }
 ]
 
+const dataTableMonthly = [
+  {
+    key: '1',
+    type: '売上',
+    202104: 1111111323343343,
+    202105: 1111111323343343,
+    202106: 1111111323343343,
+    202107: 1111111323343343
+  },
+  {
+    key: '1',
+    type: '支出',
+    202104: 1111111323343343,
+    202105: 1111111323343343,
+    202106: 1111111323343343,
+    202107: 1111111323343343
+  },
+  {
+    key: '1',
+    type: '利益',
+    202104: 1111111323343343,
+    202105: 1111111323343343,
+    202106: 1111111323343343,
+    202107: 1111111323343343
+  }
+]
+
 export default defineComponent({
   name: 'DashboardPage',
 
@@ -105,28 +148,35 @@ export default defineComponent({
     SalesTable,
     StackedBarSales,
     BankLineChart,
-    PieChart
+    PieChart,
+    AccoutingOperationsTable,
+    MonthlyAccountingTable
   },
 
   setup() {
     // table order
     const blockOrder = ref([])
     const blockListEl = ref()
+    const blockIdList = ref([])
 
     // group tabs
     const groupList = ref([])
 
-    //sales table
+    //tables
     const isLoadingTableSales = ref()
+    const isLoadingAccoutingOperations = ref(false)
+    const isLoadingMonthlyAccounting = ref(false)
 
     const generateOrderList = () => {
       blockListEl.value = document.querySelectorAll('.dashboard__block')
       if (blockListEl.value.length === 0) return
 
       blockOrder.value = new Array(blockListEl.value.length).fill(undefined).map((_, index) => ({
-        id: index, // don't change
+        id: index,
         order: index
       }))
+
+      blockIdList.value = blockOrder.value.map((block) => block.id)
 
       setBlockOrder()
     }
@@ -190,6 +240,11 @@ export default defineComponent({
       isLoadingTableSales,
       dataTableSales,
       blockOrder,
+      blockIdList,
+      dataTableAccoutingOperations,
+      isLoadingAccoutingOperations,
+      dataTableMonthly,
+      isLoadingMonthlyAccounting,
 
       swapBlockOrder
     }
@@ -209,9 +264,5 @@ export default defineComponent({
   &__block {
     margin-top: 64px;
   }
-
-  // &__block:first-child {
-  //   margin-top: 24px;
-  // }
 }
 </style>

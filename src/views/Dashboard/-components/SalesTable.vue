@@ -6,11 +6,10 @@
     :pagination="false"
     :locale="localeTable"
     :scroll="{ x: 1500 }"
-    class="u-mx-n32"
   >
     <template
       v-for="col in ['renderS', 'renderA', 'renderB', 'renderC', 'renderD', 'renderE']"
-      #[col]="{ text, record }"
+      #[col]="{ text }"
       :key="col"
     >
       <span>
@@ -21,20 +20,18 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch, onMounted, onUnmounted, computed } from 'vue'
-import { useStore } from 'vuex'
+import { defineComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
-  name: 'AccountingTable',
+  name: 'SalesTable',
 
   props: {
     isLoadingTable: Boolean,
     dataSource: Object
   },
 
-  setup(props, { emit }) {
-    const store = useStore()
+  setup() {
     const { t } = useI18n()
 
     const localeTable = {
@@ -107,6 +104,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/styles/shared/variables';
-@import '@/styles/shared/mixins';
+// @import '@/styles/shared/variables';
+// @import '@/styles/shared/mixins';
 </style>
