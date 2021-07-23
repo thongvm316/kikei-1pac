@@ -526,7 +526,7 @@ export default defineComponent({
       tableKey.value++
 
       // show notification
-      const purpose = currentSelectedRecord.value?.purpose
+      const purpose = confirmedSelectedPurpose?.value
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
