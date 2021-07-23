@@ -338,6 +338,8 @@ export default defineComponent({
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
+        isDisabledCurrency.value = false
+
         updateParamRequestFinancing({ data: { group_id: filter.group_id } })
       } else {
         filter.show_by = 0
