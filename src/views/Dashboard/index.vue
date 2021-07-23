@@ -36,6 +36,30 @@
         <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
       </controller-block>
     </div>
+
+    <div class="dashboard__block">
+      <controller-block
+        :block-id="3"
+        :block-list="blockOrder"
+        :title="'Table 4'"
+        :group-list="groupList"
+        @on-swap-block-order="swapBlockOrder"
+      >
+        <BankLineChart />
+      </controller-block>
+    </div>
+
+    <div class="dashboard__block">
+      <controller-block
+        :block-id="3"
+        :block-list="blockOrder"
+        :title="'Table 5'"
+        :group-list="groupList"
+        @on-swap-block-order="swapBlockOrder"
+      >
+        <PieChart />
+      </controller-block>
+    </div>
   </div>
 </template>
 
@@ -46,6 +70,8 @@ import { findIndex, find } from 'lodash-es'
 import ControllerBlock from './-components/ControllerBlock'
 import SalesTable from './-components/SalesTable'
 import StackedBarSales from './-components/StackedBarSales'
+import BankLineChart from './-components/BankLineChart.vue'
+import PieChart from './-components/PieChart'
 
 import { getGroups } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
@@ -77,7 +103,9 @@ export default defineComponent({
   components: {
     ControllerBlock,
     SalesTable,
-    StackedBarSales
+    StackedBarSales,
+    BankLineChart,
+    PieChart
   },
 
   setup() {
