@@ -8,9 +8,15 @@
     <div :class="{ active: openChart }" class="modal-chart">
       <close-icon class="icon" @click="openChart = false" />
       <div class="group-chart">
-        <a-checkbox-group>
-          <a-checkbox v-for="item in plainOptions" :key="item.id" :value="item.id">{{ item.value }}</a-checkbox>
-        </a-checkbox-group>
+        <a-checkbox
+          v-for="item in plainOptions"
+          :key="item.data_id"
+          v-model:checked="item.checked"
+          :value="item.data_id"
+          @change="onToggleIndicated"
+        >
+          {{ item.data_name }}
+        </a-checkbox>
       </div>
     </div>
 
@@ -54,37 +60,12 @@
 <script>
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import Chart from 'chart.js/auto'
-
-import { forEach, map, split } from 'lodash-es'
-
 import CloseIcon from '@/assets/icons/ico_close.svg'
+import { find, forEach, map, split, findIndex } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
+import { CHART } from '@/enums/chart-line.enum'
 
 window.myLineChart = null
-
-const line1 = {
-  borderColor: 'rgba(145, 213, 255, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(145, 213, 255, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(9, 109, 217, 1)'
-}
-
-const line2 = {
-  borderColor: 'rgba(255, 173, 210, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(255, 173, 210, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(196, 29, 127, 1)'
-}
-
-const line3 = {
-  borderColor: 'rgba(183, 235, 143, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(183, 235, 143, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(56, 158, 13, 1)'
-}
 
 export default defineComponent({
   name: 'Index',
@@ -96,10 +77,6 @@ export default defineComponent({
       type: [Array, Object],
       required: true,
       default: () => []
-    },
-    dataId: {
-      type: Number,
-      required: true
     }
   },
 
@@ -107,68 +84,12 @@ export default defineComponent({
     const myChartRef = ref()
     const element = ref()
     const modalContent = ref()
-
-    const { dataChart } = toRefs(props)
-    const { dataId } = toRefs(props)
-    const results = ref(props.dataChart)
-    const id = ref(props.dataId)
-
     const isActive = ref(false)
     const openChart = ref(false)
-
-    const data = {
-      labels: [],
-      datasets: [
-        {
-          ...line1,
-          label: 'My first dataset 1',
-          fill: false,
-          pointBorderWidth: 3,
-          pointHoverRadius: 8,
-          pointHoverBorderWidth: 3,
-          pointRadius: 8,
-          data: []
-        },
-        {
-          ...line2,
-          label: 'My first dataset 2',
-          fill: false,
-          pointBorderWidth: 3,
-          pointHoverRadius: 8,
-          pointHoverBorderWidth: 3,
-          pointRadius: 8,
-          data: []
-        },
-        {
-          ...line3,
-          label: 'My first dataset 3',
-          fill: false,
-          pointBorderWidth: 3,
-          pointHoverRadius: 8,
-          pointHoverBorderWidth: 3,
-          pointRadius: 8,
-          data: []
-        }
-      ]
-    }
-
-    const plainOptions = [
-      {
-        id: 0,
-        label: 'Apple',
-        value: 'Apple'
-      },
-      {
-        id: 1,
-        label: 'Pear',
-        value: 'Pear'
-      },
-      {
-        id: 2,
-        label: 'Orange',
-        value: 'Orange'
-      }
-    ]
+    const { dataChart } = toRefs(props)
+    const data = ref({ labels: [], datasets: [] })
+    const plainOptions = ref([])
+    const indicated = ref([1, 2])
 
     const options = {
       responsive: true,
@@ -189,7 +110,7 @@ export default defineComponent({
           },
           ticks: {
             color: ({ index }) => {
-              return data.datasets.some((val) => val.data[index] < 0) ? '#F5222D' : '#000000'
+              return data.value.datasets.some((val) => val.data[index] < 0) ? '#F5222D' : '#000000'
             },
             beginAtZero: true,
             autoSkip: false
@@ -205,7 +126,6 @@ export default defineComponent({
           }
         }
       },
-
       plugins: {
         legend: {
           display: false
@@ -214,7 +134,6 @@ export default defineComponent({
           enabled: false
         }
       },
-
       onClick: (evt, nativeElement) => {
         element.value = window.myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true)
         // set position modal
@@ -223,11 +142,11 @@ export default defineComponent({
           opacityLine(nativeElement)
           // const datasetIndex = element.value[0].datasetIndex
           const index = element.value[0].index
-          console.log(data.labels[index], 'label')
+          console.log(data.value.labels[index], 'label')
           // console.log(data.datasets[datasetIndex].data[index], 'value')
           isActive.value = true
         } else {
-          forEach(data.datasets, (item) => {
+          forEach(data.value.datasets, (item) => {
             item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
             item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
             item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
@@ -262,59 +181,44 @@ export default defineComponent({
       }
     }
 
-    watch(dataId, (val) => {
-      id.value = val
-    })
+    watch(dataChart, (value) => {
+      // reset dataset when switch tab group
+      data.value.datasets = []
+      plainOptions.value = []
 
-    watch(dataChart, (val) => {
-      const dataShow = ref({})
-      results.value = val
-
-      for (let item in results.value) {
-        dataShow.value = map(results.value[item].detail, (e) => {
-          const element = {}
-          element[e.date] = e.balance
-          return element
+      // indicates setting <=> all group (tab)
+      if (value.length > 1) {
+        plainOptions.value = map(value, (item) => {
+          const chart = find(CHART, (i) => i.data_id === item.dataId)
+          return { data_id: item.dataId, data_name: item.dataName, color: chart.border, checked: true }
         })
-
-        const labels = map(dataShow.value, (item) => {
-          return split(Object.keys(item)[0], ',')
-        })
-
-        const dataY = map(dataShow.value, (item) => {
-          return Object.values(item)[0]
-        })
-
-        data.labels = labels
-        data.datasets[item].data = dataY
-
-        if (id.value === 1) {
-          data.datasets[item] = { ...data.datasets[item], ...line1 }
-          window.myLineChart.setDatasetVisibility(1, false)
-          window.myLineChart.setDatasetVisibility(2, false)
-        }
-        if (id.value === 2) {
-          data.datasets[item] = { ...data.datasets[item], ...line2 }
-          window.myLineChart.setDatasetVisibility(1, false)
-          window.myLineChart.setDatasetVisibility(2, false)
-        }
-        if (id.value === 3) {
-          data.datasets[item] = { ...data.datasets[item], ...line3 }
-          window.myLineChart.setDatasetVisibility(1, false)
-          window.myLineChart.setDatasetVisibility(2, false)
-        }
-        if (id.value === 0) {
-          if (results.value[item].dataId === 1) {
-            data.datasets[item] = { ...data.datasets[item], ...line1 }
-          }
-          if (results.value[item].dataId === 2) {
-            data.datasets[item] = { ...data.datasets[item], ...line2 }
-          }
-          if (results.value[item].dataId === 3) {
-            data.datasets[item] = { ...data.datasets[item], ...line3 }
-          }
-        }
       }
+
+      forEach(value, (item) => {
+        const result = mapChart(item.detail)
+        const labels = mapLabel(result)
+        const dataY = mapDataY(result)
+        const chart = find(CHART, (i) => i.data_id === item.dataId)
+
+        // set label
+        data.value.labels = labels
+        // set datasets
+        data.value.datasets.push({
+          label: chart.label,
+          pointBorderWidth: 3,
+          pointHoverRadius: 8,
+          pointHoverBorderWidth: 3,
+          pointRadius: 8,
+          borderColor: chart.border,
+          pointBorderColor: 'rgba(255, 255, 255, 1)',
+          pointBackgroundColor: chart.pointBg,
+          pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+          pointHoverBackgroundColor: chart.pointHoverBg,
+          data: [...dataY]
+        })
+      })
+
+      // re render chart
       window.myLineChart.update()
     })
 
@@ -322,10 +226,34 @@ export default defineComponent({
       window.myLineChart = createChart()
     })
 
+    const onToggleIndicated = (e) => {
+      const index = findIndex(CHART, (item) => item.data_id === e.target.value)
+      if (index > -1) {
+        data.value.datasets[index].hidden = !e.target.checked
+        window.myLineChart.update()
+      }
+    }
+
+    const mapChart = (data) => {
+      return map(data, (e) => {
+        const element = {}
+        element[e.date] = e.balance
+        return element
+      })
+    }
+
+    const mapLabel = (data) => {
+      return map(data, (i) => split(Object.keys(i)[0], ','))
+    }
+
+    const mapDataY = (data) => {
+      return map(data, (i) => Object.values(i)[0])
+    }
+
     const createChart = () => {
       return new Chart(myChartRef.value, {
         type: 'line',
-        data,
+        data: data.value,
         options,
         plugins: [plugins]
       })
@@ -353,7 +281,7 @@ export default defineComponent({
     const opacityLine = (elm) => {
       const datasetIndex = elm[0].datasetIndex
 
-      forEach(data.datasets, (item, index) => {
+      forEach(data.value.datasets, (item, index) => {
         if (index !== datasetIndex) {
           item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '0.2)')
           item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '0.2)')
@@ -373,7 +301,9 @@ export default defineComponent({
       modalContent,
       isActive,
       openChart,
-      plainOptions
+      plainOptions,
+      indicated,
+      onToggleIndicated
     }
   }
 })
