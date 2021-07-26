@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <financing-chart :data-chart="dataChartFinancing" />
+    <financing-chart :data-chart="dataChartFinancing" :data-id="dataId" />
   </section>
 </template>
 <script>
@@ -162,6 +162,7 @@ export default defineComponent({
     // Chart
     const dataChartFinancing = ref([])
     const updateDataRequest = ref({})
+    const dataId = ref(0)
 
     const isLoading = ref(false)
     const isLoadingDataChart = ref(true)
@@ -277,6 +278,7 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
+      dataId.value = value
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -523,6 +525,7 @@ export default defineComponent({
       isLoadingExportCsv,
       dataChartFinancing,
       updateDataRequest,
+      dataId,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,

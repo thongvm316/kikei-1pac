@@ -55,7 +55,7 @@
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import Chart from 'chart.js/auto'
 
-import { forEach, map } from 'lodash-es'
+import { forEach, map, split } from 'lodash-es'
 
 import CloseIcon from '@/assets/icons/ico_close.svg'
 import { LineChartOutlined } from '@ant-design/icons-vue'
@@ -71,19 +71,19 @@ const line1 = {
 }
 
 const line2 = {
-  borderColor: 'rgba(183, 235, 143, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(183, 235, 143, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(56, 158, 13, 1)'
-}
-
-const line3 = {
   borderColor: 'rgba(255, 173, 210, 1)',
   pointBorderColor: 'rgba(255, 255, 255, 1)',
   pointBackgroundColor: 'rgba(255, 173, 210, 1)',
   pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
   pointHoverBackgroundColor: 'rgba(196, 29, 127, 1)'
+}
+
+const line3 = {
+  borderColor: 'rgba(183, 235, 143, 1)',
+  pointBorderColor: 'rgba(255, 255, 255, 1)',
+  pointBackgroundColor: 'rgba(183, 235, 143, 1)',
+  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+  pointHoverBackgroundColor: 'rgba(56, 158, 13, 1)'
 }
 
 export default defineComponent({
@@ -96,6 +96,10 @@ export default defineComponent({
       type: [Array, Object],
       required: true,
       default: () => []
+    },
+    dataId: {
+      type: Number,
+      required: true
     }
   },
 
@@ -105,75 +109,12 @@ export default defineComponent({
     const modalContent = ref()
 
     const { dataChart } = toRefs(props)
+    const { dataId } = toRefs(props)
     const results = ref(props.dataChart)
+    const id = ref(props.dataId)
 
     const isActive = ref(false)
     const openChart = ref(false)
-
-    // const labels = [
-    //   ['01', '2021/7'],
-    //   '02',
-    //   '03',
-    //   '04',
-    //   '05',
-    //   '06',
-    //   '07',
-    //   '08',
-    //   '09',
-    //   '10',
-    //   '11',
-    //   '12',
-    //   '13',
-    //   '14',
-    //   '15',
-    //   '16',
-    //   '17',
-    //   '18',
-    //   '19',
-    //   '20',
-    //   '21',
-    //   '22',
-    //   '23',
-    //   '24',
-    //   '25',
-    //   '26',
-    //   '27',
-    //   '28',
-    //   '29',
-    //   '30',
-    //   '31',
-    //   ['01', '2021/8'],
-    //   '02',
-    //   '03',
-    //   '04',
-    //   '05',
-    //   '06',
-    //   '07',
-    //   '08',
-    //   '09',
-    //   '10',
-    //   '11',
-    //   '12',
-    //   '13',
-    //   '14',
-    //   '15',
-    //   '16',
-    //   '17',
-    //   '18',
-    //   '19',
-    //   '20',
-    //   '21',
-    //   '22',
-    //   '23',
-    //   '24',
-    //   '25',
-    //   '26',
-    //   '27',
-    //   '28',
-    //   '29',
-    //   '30',
-    //   '31'
-    // ]
 
     const data = {
       labels: [],
@@ -183,37 +124,31 @@ export default defineComponent({
           label: 'My first dataset 1',
           fill: false,
           pointBorderWidth: 3,
-          pointHoverRadius: 10,
+          pointHoverRadius: 8,
           pointHoverBorderWidth: 3,
-          pointRadius: 10,
+          pointRadius: 8,
+          data: []
+        },
+        {
+          ...line2,
+          label: 'My first dataset 2',
+          fill: false,
+          pointBorderWidth: 3,
+          pointHoverRadius: 8,
+          pointHoverBorderWidth: 3,
+          pointRadius: 8,
+          data: []
+        },
+        {
+          ...line3,
+          label: 'My first dataset 3',
+          fill: false,
+          pointBorderWidth: 3,
+          pointHoverRadius: 8,
+          pointHoverBorderWidth: 3,
+          pointRadius: 8,
           data: []
         }
-        // {
-        //   ...line2,
-        //   label: 'My first dataset 2',
-        //   fill: false,
-        //   pointBorderWidth: 3,
-        //   pointHoverRadius: 10,
-        //   pointHoverBorderWidth: 3,
-        //   pointRadius: 10,
-        //   data: [
-        //     23, 43, 12, 45, 65, 76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23, 45, 65, 12,
-        //     12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12
-        //   ]
-        // },
-        // {
-        //   ...line3,
-        //   label: 'My first dataset 3',
-        //   fill: false,
-        //   pointBorderWidth: 3,
-        //   pointHoverRadius: 10,
-        //   pointHoverBorderWidth: 3,
-        //   pointRadius: 10,
-        //   data: [
-        //     43, 12, 23, 45, 65, 12, 12, 3, 4, -56, 6, 7, -32, 12, 34, -99, -102, -210, 50, 34, 12, 23, 43, 12, 45, 65,
-        //     76, 87, 1, 2, -4, 5, 98, -45, -100, -120, -90, 34, 12, 5, 6, 7, 43, 12, 23
-        //   ]
-        // }
       ]
     }
 
@@ -262,9 +197,6 @@ export default defineComponent({
         },
         y: {
           beginAtZero: true,
-          ticks: {
-            stepSize: 50
-          },
           grid: {
             drawBorder: false,
             color: (context) => {
@@ -290,8 +222,8 @@ export default defineComponent({
           reRenderPos()
           opacityLine(nativeElement)
           // const datasetIndex = element.value[0].datasetIndex
-          // const index = element.value[0].index
-          // console.log(data.labels[index], 'label')
+          const index = element.value[0].index
+          console.log(data.labels[index], 'label')
           // console.log(data.datasets[datasetIndex].data[index], 'value')
           isActive.value = true
         } else {
@@ -300,9 +232,9 @@ export default defineComponent({
             item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
             item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
           })
-
-          window.myLineChart.update()
         }
+
+        window.myLineChart.update()
       }
     }
 
@@ -330,29 +262,63 @@ export default defineComponent({
       }
     }
 
+    watch(dataId, (val) => {
+      id.value = val
+    })
+
     watch(dataChart, (val) => {
+      const dataShow = ref({})
       results.value = val
 
-      const dataShow = map(results.value[0].detail, (e) => {
-        const element = {}
-        element[e.date] = e.balance
+      for (let item in results.value) {
+        dataShow.value = map(results.value[item].detail, (e) => {
+          const element = {}
+          element[e.date] = e.balance
+          return element
+        })
 
-        return element
-      })
+        const labels = map(dataShow.value, (item) => {
+          return split(Object.keys(item)[0], ',')
+        })
 
-      const labels = map(dataShow, (item) => {
-        return Object.keys(item)[0]
-      })
+        const dataY = map(dataShow.value, (item) => {
+          return Object.values(item)[0]
+        })
 
-      const dataY = map(dataShow, (item) => {
-        return Object.values(item)[0]
-      })
+        data.labels = labels
+        data.datasets[item].data = dataY
 
-      data.labels = labels
-      data.datasets[0].data = dataY
+        if (id.value === 1) {
+          data.datasets[item] = { ...data.datasets[item], ...line1 }
+          window.myLineChart.setDatasetVisibility(1, false)
+          window.myLineChart.setDatasetVisibility(2, false)
+        }
+        if (id.value === 2) {
+          data.datasets[item] = { ...data.datasets[item], ...line2 }
+          window.myLineChart.setDatasetVisibility(1, false)
+          window.myLineChart.setDatasetVisibility(2, false)
+        }
+        if (id.value === 3) {
+          data.datasets[item] = { ...data.datasets[item], ...line3 }
+          window.myLineChart.setDatasetVisibility(1, false)
+          window.myLineChart.setDatasetVisibility(2, false)
+        }
+        if (id.value === 0) {
+          if (results.value[item].dataId === 1) {
+            data.datasets[item] = { ...data.datasets[item], ...line1 }
+          }
+          if (results.value[item].dataId === 2) {
+            data.datasets[item] = { ...data.datasets[item], ...line2 }
+          }
+          if (results.value[item].dataId === 3) {
+            data.datasets[item] = { ...data.datasets[item], ...line3 }
+          }
+        }
+      }
+      window.myLineChart.update()
+    })
 
-      console.log(data)
-
+    onMounted(() => {
       window.myLineChart = createChart()
     })
 
