@@ -1,5 +1,5 @@
 <template>
-  <div class="controller-block u-flex u-justify-between u-items-center">
+  <div class="controller-block u-flex u-justify-between u-items-center u-mx-32">
     <p>{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
@@ -47,7 +47,7 @@
 
   <!-- block content -->
   <a-collapse v-model:activeKey="activeKey" :bordered="false" class="controller-collapse u-mt-8">
-    <a-collapse-panel key="1" class="u-mx-n32">
+    <a-collapse-panel key="1">
       <a-tabs
         v-if="!isUnvisibleGroupTab"
         v-model:active-key="groupActive"

@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard u-mx-32">
+  <div class="dashboard">
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[0]"
@@ -173,7 +173,8 @@ export default defineComponent({
 
       blockOrder.value = new Array(blockListEl.value.length).fill(undefined).map((_, index) => ({
         id: index,
-        order: index
+        order: index,
+        mode: ''
       }))
 
       blockIdList.value = blockOrder.value.map((block) => block.id)
@@ -206,6 +207,10 @@ export default defineComponent({
       blockOrder.value[currentBlockIndex].order = orderTarget
       blockOrder.value[blockTargetIndex].order = orderCurrent
 
+      // set mode
+      blockOrder.value[currentBlockIndex].mode = mode
+      blockOrder.value[blockTargetIndex].mode = mode === ORDER_UP ? ORDER_DOWN : ORDER_UP
+
       // swap list
       ;[blockOrder.value[currentBlockIndex], blockOrder.value[blockTargetIndex]] = [
         blockOrder.value[blockTargetIndex],
@@ -218,11 +223,34 @@ export default defineComponent({
     const setBlockOrder = () => {
       if (blockListEl.value.length === 0) return
 
+      // get lenghts to move (set variable before run transform)
+      blockListEl.value.forEach((block, index) => {
+        const blockFound = find(blockOrder.value, { id: index })
+        if (!blockFound || !blockFound.mode) return
+
+        const heightEl = block.offsetHeight + 64 // + margin-top
+        if (blockFound.mode === ORDER_UP) {
+          document.documentElement.style.setProperty('--move-up-length', `-${heightEl}px`)
+        } else {
+          document.documentElement.style.setProperty('--move-down-length', `${heightEl}px`)
+        }
+      })
+
+      // apply styles, animations
       blockListEl.value.forEach((block, index) => {
         const blockFound = find(blockOrder.value, { id: index })
         if (!blockFound) return
         block.style.order = blockFound.order
+        block.classList.remove('animation-move-up', 'animation-move-down')
+
+        // animation
+        if (!blockFound.mode) return
+        // void block.offsetWidth // magic to run
+        block.classList.add(blockFound.mode === ORDER_UP ? 'animation-move-down' : 'animation-move-up')
       })
+
+      // clear all mode
+      blockOrder.value = blockOrder.value.map((item) => ({ ...item, mode: '' }))
     }
 
     onBeforeMount(async () => {
@@ -257,12 +285,49 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .dashboard {
+  $move-up-length: var(--move-up-length);
+  $move-down-length: var(--move-down-length);
+
   @include flexbox(null, null);
   flex-direction: column;
   margin-top: -40px;
 
   &__block {
     margin-top: 64px;
+  }
+
+  .animation-move-up,
+  .animation-move-down {
+    animation-duration: 500ms;
+    animation-timing-function: ease-in-out;
+  }
+
+  .animation-move-up {
+    animation-name: moveBlockUp;
+  }
+
+  .animation-move-down {
+    animation-name: moveBlockDown;
+  }
+
+  @keyframes moveBlockUp {
+    0% {
+      transform: translateY($move-up-length);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes moveBlockDown {
+    0% {
+      transform: translateY($move-down-length);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
   }
 }
 </style>
