@@ -16,6 +16,7 @@ import AccountingManagementService from './accounting-management'
 import UserService from './user'
 import CurrencyService from './currency'
 import ChartService from './chart'
+import DashboardService from './dashboard'
 
 const repositories = {
   StorageService,
@@ -35,7 +36,8 @@ const repositories = {
   AccountingManagementService,
   UserService,
   CurrencyService,
-  ChartService
+  ChartService,
+  DashboardService
 }
 
 export default {

@@ -2,23 +2,29 @@
   <a-table
     :loading="isLoadingTable"
     :columns="columns"
-    :data-source="dataSource"
+    :data-source="dataRows"
     :pagination="false"
     :locale="localeTable"
     :scroll="{ x: 1000 }"
     class="accounting-operations"
   >
-    <template v-for="col in ['renderGumiVietnam', 'renderVand', 'renderVandCreative']" #[col]="{ text }" :key="col">
-      <span>
-        {{ $filters.number_with_commas(text) }}
-      </span>
+    <template #renderGroup="{ text, column }">
+      <router-link
+        :to="{ name: 'deposit' }"
+        class="accounting-operations__link"
+        @click="handleSelectPendingDeposits(column)"
+      >
+        {{ `${$filters.number_with_commas(text)} 件` }}
+      </router-link>
     </template>
   </a-table>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { find } from 'lodash-es'
 
 export default defineComponent({
   name: 'AccountingOperationsTable',
@@ -28,55 +34,70 @@ export default defineComponent({
     dataSource: Object
   },
 
-  setup() {
+  setup(props) {
     const { t } = useI18n()
+    const store = useStore()
 
     const localeTable = {
       emptyText: t('accounting.empty_text_table')
     }
 
-    const columns = [
-      {
-        title: '',
-        dataIndex: 'firstCol',
-        key: 'firstCol',
-        align: 'center',
-        ellipsis: true,
-        fixed: 'left',
-        width: 200
-      },
-      {
-        title: 'gumiVietnam',
-        dataIndex: 'gumiVietnam',
-        key: 'gumiVietnam',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'renderGumiVietnam' }
-      },
-      {
-        title: 'vand',
-        dataIndex: 'vand',
-        key: 'vand',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'renderVand' }
-      },
-      {
-        title: 'vandCreative',
-        dataIndex: 'vandCreative',
-        key: 'vandCreative',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'renderVandCreative' }
+    const columns = computed(() => {
+      let headerList = [
+        {
+          title: '',
+          dataIndex: 'firstCol',
+          key: 'firstCol',
+          align: 'center',
+          ellipsis: true,
+          fixed: 'left',
+          width: 200
+        }
+      ]
+
+      props.dataSource.map((item) => {
+        headerList.push({
+          title: item?.groupName,
+          dataIndex: item?.groupName,
+          key: item?.groupId,
+          align: 'right',
+          ellipsis: true,
+          slots: { customRender: 'renderGroup' }
+        })
+      })
+
+      return headerList
+    })
+
+    const dataRows = computed(() => {
+      const row = {
+        key: '1',
+        firstCol: '本日未確定'
       }
-    ]
+
+      props.dataSource.map((item) => {
+        row[item?.groupName] = item?.pendingDepositsCount || 0
+      })
+
+      return [row]
+    })
+
+    const handleSelectPendingDeposits = (column) => {
+      const groupFound = find(props.dataSource, { groupName: column.dataIndex })
+
+      const data = {
+        groupId: groupFound?.groupId,
+        confirmed: [false]
+      }
+
+      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+    }
 
     return {
       columns,
-      localeTable
+      localeTable,
+      dataRows,
+      handleSelectPendingDeposits
     }
   }
 })
@@ -87,6 +108,13 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .accounting-operations {
+  &__link {
+    &:hover {
+      text-decoration: underline;
+      color: inherit;
+    }
+  }
+
   .ant-table-fixed-left {
     border-top: 1px solid #bfbfbf;
 
@@ -104,7 +132,8 @@ export default defineComponent({
       tr.ant-table-row {
         td.ant-table-row-cell-break-word {
           background-color: $color-grey-96;
-          color: $color-grey-15;
+          color: $color-primary-9;
+          font-weight: 700;
         }
       }
     }

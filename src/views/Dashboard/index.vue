@@ -10,7 +10,7 @@
         @on-swap-block-order="swapBlockOrder"
       >
         <AccoutingOperationsTable
-          :is-loading-table="isLoadingAccoutingOperations"
+          :is-loading-table="isLoadingAccountingOperations"
           :data-source="dataTableAccoutingOperations"
         />
       </controller-block>
@@ -79,18 +79,8 @@ import PieChart from './-components/PieChart'
 import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 
-import { getGroups } from './composables/useDashboard'
+import { getGroups, getPendingDeposits } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
-
-const dataTableAccoutingOperations = [
-  {
-    key: '1',
-    firstCol: '本日未確定',
-    gumiVietnam: 999,
-    vand: 999,
-    vandCreative: 999
-  }
-]
 
 const dataTableSales = [
   {
@@ -163,9 +153,10 @@ export default defineComponent({
     const groupList = ref([])
 
     //tables
+    const isLoadingAccountingOperations = ref(false)
     const isLoadingTableSales = ref()
-    const isLoadingAccoutingOperations = ref(false)
     const isLoadingMonthlyAccounting = ref(false)
+    const dataTableAccoutingOperations = ref([])
 
     const generateOrderList = () => {
       blockListEl.value = document.querySelectorAll('.dashboard__block')
@@ -256,7 +247,11 @@ export default defineComponent({
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroups()
-      groupList.value = groupsReponse.result?.data || []
+      groupList.value = groupsReponse?.result?.data || []
+
+      // fetch pending deposits
+      const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations)
+      dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
     })
 
     onMounted(() => {
@@ -270,7 +265,7 @@ export default defineComponent({
       blockOrder,
       blockIdList,
       dataTableAccoutingOperations,
-      isLoadingAccoutingOperations,
+      isLoadingAccountingOperations,
       dataTableMonthly,
       isLoadingMonthlyAccounting,
 
