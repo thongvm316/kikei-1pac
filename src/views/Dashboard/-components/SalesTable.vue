@@ -2,26 +2,25 @@
   <a-table
     :loading="isLoadingTable"
     :columns="columns"
-    :data-source="dataSource"
+    :data-source="dataTable"
     :pagination="false"
     :locale="localeTable"
     :scroll="{ x: 1500 }"
+    class="sales-table"
   >
-    <template
-      v-for="col in ['renderS', 'renderA', 'renderB', 'renderC', 'renderD', 'renderE']"
-      #[col]="{ text }"
-      :key="col"
-    >
-      <span>
+    <template #renderAccuracy="{ text, column, record, index }">
+      <span v-if="index === 1 && column.dataIndex === 'S'">累積売上</span>
+      <router-link v-else :to="{ name: 'project' }" class="sales-table__link" @click="handleClickLink(column, record)">
         {{ $filters.number_with_commas(text) }}
-      </span>
+      </router-link>
     </template>
   </a-table>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'SalesTable',
@@ -31,79 +30,82 @@ export default defineComponent({
     dataSource: Object
   },
 
-  setup() {
+  setup(props) {
     const { t } = useI18n()
+    const store = useStore()
 
     const localeTable = {
       emptyText: t('accounting.empty_text_table')
     }
 
-    const columns = [
-      {
-        title: 'S（受注)',
-        dataIndex: 'S',
-        key: 'S',
+    const columns = computed(() => {
+      if (!props?.dataSource.length) return []
+
+      const headerList = props.dataSource.map((accuracy) => ({
+        title: `${accuracy.accuracyCode} (${accuracy.accuracyName})`,
+        dataIndex: accuracy.accuracyCode,
+        key: accuracy.accuracyId,
         align: 'right',
         ellipsis: true,
         width: 110,
-        slots: { customRender: 'renderS' }
-      },
-      {
-        title: 'A（口頭受注)',
-        dataIndex: 'A',
-        key: 'A',
-        align: 'right',
-        ellipsis: true,
-        width: 110,
-        slots: { customRender: 'renderA' }
-      },
-      {
-        title: 'B',
-        dataIndex: 'B',
-        key: 'B',
-        align: 'right',
-        ellipsis: true,
-        width: 110,
-        slots: { customRender: 'renderB' }
-      },
-      {
-        title: 'C（金額次第)',
-        dataIndex: 'C',
-        key: 'C',
-        align: 'right',
-        ellipsis: true,
-        width: 110,
-        slots: { customRender: 'renderC' }
-      },
-      {
-        title: 'D（とりあえず見積もり)',
-        dataIndex: 'D',
-        key: 'D',
-        align: 'right',
-        ellipsis: true,
-        width: 110,
-        slots: { customRender: 'renderD' }
-      },
-      {
-        title: 'E（引合)',
-        dataIndex: 'E',
-        key: 'E',
-        align: 'right',
-        ellipsis: true,
-        width: 110,
-        slots: { customRender: 'renderE' }
+        slots: { customRender: 'renderAccuracy' }
+      }))
+      return headerList
+    })
+
+    const dataTable = computed(() => {
+      if (!props?.dataSource.length) return []
+
+      let rows = [
+        {
+          key: 1
+        },
+        {
+          key: 2
+        }
+      ]
+
+      const accuracyIdAccumulated = []
+      props.dataSource.forEach((accuracy) => {
+        accuracyIdAccumulated.push(accuracy.accuracyId)
+
+        rows[0][accuracy.accuracyCode] = accuracy.revenue
+        rows[0][`${accuracy.accuracyCode}Id`] = [accuracy.accuracyId]
+        rows[1][accuracy.accuracyCode] = accuracy.accumulate
+        rows[1][`${accuracy.accuracyCode}Id`] = [...accuracyIdAccumulated]
+      })
+
+      return rows
+    })
+
+    const handleClickLink = (column, record) => {
+      const data = {
+        accuracyId: record[`${column.dataIndex}Id`]
       }
-    ]
+
+      store.commit('project/STORE_PROJECT_FILTER', { data })
+    }
 
     return {
       columns,
-      localeTable
+      localeTable,
+      dataTable,
+      handleClickLink
     }
   }
 })
 </script>
 
 <style lang="scss">
-// @import '@/styles/shared/variables';
-// @import '@/styles/shared/mixins';
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
+.sales-table {
+  &__link {
+    &:hover {
+      text-decoration: underline;
+      color: $color-grey-15;
+    }
+  }
+}
 </style>

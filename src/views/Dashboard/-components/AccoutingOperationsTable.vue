@@ -111,7 +111,7 @@ export default defineComponent({
   &__link {
     &:hover {
       text-decoration: underline;
-      color: inherit;
+      color: $color-grey-15;
     }
   }
 

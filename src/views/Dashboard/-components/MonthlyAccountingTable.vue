@@ -2,22 +2,20 @@
   <a-table
     :loading="isLoadingTable"
     :columns="columns"
-    :data-source="dataSource"
+    :data-source="dataTable"
     :pagination="false"
     :locale="localeTable"
-    :scroll="{ x: 1000 }"
+    :scroll="{ x: 1200 }"
     class="monthly-accounting"
   >
-    <template #month="{ record, index, text, column }">
-      <span>
-        {{ $filters.number_with_commas(text) }}
-      </span>
+    <template #renderMonth="{ text }">
+      {{ $filters.number_with_commas(text) }}
     </template>
   </a-table>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
@@ -28,64 +26,73 @@ export default defineComponent({
     dataSource: Object
   },
 
-  setup() {
+  setup(props) {
     const { t } = useI18n()
 
     const localeTable = {
       emptyText: t('accounting.empty_text_table')
     }
 
-    const columns = [
-      {
-        title: '',
-        dataIndex: 'type',
-        key: 'type',
-        align: 'center',
-        ellipsis: true,
-        fixed: 'left',
-        width: 200
-      },
-      {
-        title: '2021年4月',
-        dataIndex: '202104',
-        key: '202104',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'month' }
-      },
-      {
-        title: '2021年5月',
-        dataIndex: '202105',
-        key: '202105',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'month' }
-      },
-      {
-        title: '2021年6月',
-        dataIndex: '202106',
-        key: '202106',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'month' }
-      },
-      {
-        title: '2021年7月',
-        dataIndex: '202107',
-        key: '202107',
-        align: 'right',
-        ellipsis: true,
-        // width: 80,
-        slots: { customRender: 'month' }
-      }
-    ]
+    const columns = computed(() => {
+      const headerList = [
+        {
+          title: '',
+          dataIndex: 'type',
+          key: 'type',
+          align: 'center',
+          ellipsis: true,
+          fixed: 'left',
+          width: 200
+        }
+      ]
+
+      if (!props?.dataSource.length) return headerList
+
+      props.dataSource.forEach((item) => {
+        headerList.push({
+          title: item?.month,
+          dataIndex: item?.month,
+          key: item?.month,
+          align: 'right',
+          ellipsis: true,
+          width: 200,
+          slots: { customRender: 'renderMonth' }
+        })
+      })
+      return headerList
+    })
+
+    const dataTable = computed(() => {
+      const rows = [
+        {
+          key: '1',
+          type: '売上'
+        },
+        {
+          key: '2',
+          type: '支出'
+        },
+        {
+          key: '3',
+          type: '利益'
+        }
+      ]
+
+      if (!props?.dataSource.length) return rows
+
+      props.dataSource.forEach((item) => {
+        rows[0][item.month] = item.revenue
+        rows[1][item.month] = item.spending
+        rows[2][item.month] = item.profit
+      })
+
+      return rows
+    })
 
     return {
       columns,
-      localeTable
+      localeTable,
+      dataTable
     }
   }
 })

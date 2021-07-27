@@ -23,6 +23,7 @@
         :title="'今期売上見込'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
+        @on-change-group="fetchSales($event)"
       >
         <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
         <stacked-bar-sales />
@@ -36,6 +37,7 @@
         :title="'月次簡易試算'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
+        @on-change-group="fetchMonthlyAccounting($event)"
       >
         <monthly-accounting-table :is-loading-table="isLoadingMonthlyAccounting" :data-source="dataTableMonthly" />
       </controller-block>
@@ -60,7 +62,7 @@
         :title="'今期顧客別売上'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
-        @on-emit-group-id="changeGroupRanking($event)"
+        @on-change-group="fetchRaking($event)"
       >
         <div class="dashboard__ranking">
           <ranking-table :ranking-data="rankingData" />
@@ -84,56 +86,14 @@ import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 import RankingTable from './-components/RankingTable'
 
-import { getGroups, getPendingDeposits, getRevenue } from './composables/useDashboard'
+import {
+  getGroups,
+  getPendingDeposits,
+  getRevenue,
+  getRevenueStatistics,
+  getRevenueBalance
+} from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
-
-const dataTableSales = [
-  {
-    key: '1',
-    S: 1111111323343343,
-    A: 323343343,
-    B: 323343343,
-    C: 323343343,
-    D: 323343343,
-    E: 323343343
-  },
-  {
-    key: '2',
-    S: '累積売上',
-    A: 1111111323343343,
-    B: 1111111323343343,
-    C: 1111111323343343,
-    D: 1111111323343343,
-    E: 1111111323343343
-  }
-]
-
-const dataTableMonthly = [
-  {
-    key: '1',
-    type: '売上',
-    202104: 1111111323343343,
-    202105: 1111111323343343,
-    202106: 1111111323343343,
-    202107: 1111111323343343
-  },
-  {
-    key: '1',
-    type: '支出',
-    202104: 1111111323343343,
-    202105: 1111111323343343,
-    202106: 1111111323343343,
-    202107: 1111111323343343
-  },
-  {
-    key: '1',
-    type: '利益',
-    202104: 1111111323343343,
-    202105: 1111111323343343,
-    202106: 1111111323343343,
-    202107: 1111111323343343
-  }
-]
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -163,6 +123,8 @@ export default defineComponent({
     const isLoadingTableSales = ref()
     const isLoadingMonthlyAccounting = ref(false)
     const dataTableAccoutingOperations = ref([])
+    const dataTableSales = ref([])
+    const dataTableMonthly = ref([])
 
     // revenue
     const rankingData = ref()
@@ -253,23 +215,47 @@ export default defineComponent({
       blockOrder.value = blockOrder.value.map((item) => ({ ...item, mode: '' }))
     }
 
-    const changeGroupRanking = async (id) => {
-      const { result } = await getRevenue({ groupId: id })
-      rankingData.value = result.data
+    // FETCH APIs
+    const fetchPendingDeposits = async () => {
+      const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations)
+      dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
+    }
+
+    const fetchSales = async (groupId) => {
+      const salesReponse = await getRevenueStatistics(isLoadingTableSales, { groupId })
+      dataTableSales.value = salesReponse?.result?.data || []
+    }
+
+    const fetchMonthlyAccounting = async (groupId) => {
+      const monthlyAccountingReponse = await getRevenueBalance(isLoadingMonthlyAccounting, { groupId })
+      dataTableMonthly.value = monthlyAccountingReponse?.result?.data || []
+    }
+
+    const fetchRaking = async (groupId) => {
+      const { result } = await getRevenue({ groupId })
+      rankingData.value = result?.data
     }
 
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroups()
-      groupList.value = groupsReponse?.result?.data || []
+      const groupListData = groupsReponse?.result?.data || []
+      if (groupListData.length > 1) {
+        // add item
+        groupListData.push({
+          id: 0, // default all group
+          name: 'グループ全体'
+        })
+      }
+      groupList.value = groupListData
 
-      // fetch pending deposits
-      const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations)
-      dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
+      const defaultGroupId = groupList.value[0].id
+      if (!defaultGroupId) return
 
-      // revenue
-      const { result } = await getRevenue({ groupId: groupList.value[0].id })
-      rankingData.value = result.data
+      fetchPendingDeposits(defaultGroupId)
+      fetchSales(defaultGroupId)
+      fetchMonthlyAccounting(defaultGroupId)
+      fetchRaking(defaultGroupId)
     })
 
     onMounted(() => {
@@ -289,7 +275,10 @@ export default defineComponent({
       rankingData,
 
       swapBlockOrder,
-      changeGroupRanking
+      fetchPendingDeposits,
+      fetchSales,
+      fetchMonthlyAccounting,
+      fetchRaking
     }
   }
 })

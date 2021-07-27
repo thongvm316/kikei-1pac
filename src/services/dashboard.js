@@ -11,5 +11,13 @@ export default {
 
   getRevenue(params) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.revenue}/topcompany`, params })
+  },
+
+  getRevenueStatistics(params) {
+    return apiCaller({ method: 'GET', url: '/revenue/statistics', params })
+  },
+
+  getRevenueBalance(params) {
+    return apiCaller({ method: 'GET', url: '/revenue/balance', params })
   }
 }
