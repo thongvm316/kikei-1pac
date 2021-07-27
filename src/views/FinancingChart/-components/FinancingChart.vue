@@ -56,11 +56,12 @@
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, findIndex, isEqual } from 'lodash-es'
+import { find, forEach, map, split, findIndex, isEqual, includes } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
 import { useStore } from 'vuex'
 import useGetDetailChartService from '@/views/FinancingChart/composables/useGetDetailChartService'
+import moment from 'moment'
 
 window.myLineChart = null
 
@@ -108,7 +109,7 @@ export default defineComponent({
       aspectRatio: 2.4,
       layout: {
         padding: {
-          top: 60,
+          top: 50,
           left: 10,
           right: 10
         }
@@ -122,7 +123,9 @@ export default defineComponent({
           },
           ticks: {
             color: ({ index }) => {
-              return data.value.datasets.some((val) => val.data[index] < 0) ? '#F5222D' : '#000000'
+              return data.value.datasets.some((val) => includes([undefined, false], val.hidden) && val.data[index] < 0)
+                ? '#F5222D'
+                : '#000000'
             },
             beginAtZero: true,
             autoSkip: false
@@ -256,7 +259,17 @@ export default defineComponent({
     }
 
     const mapLabel = (data) => {
-      return map(data, (i) => split(Object.keys(i)[0], ','))
+      return map(data, (i) => {
+        const arr = split(Object.keys(i)[0], ',')
+        let index = null
+
+        if (arr.length > 1) index = 1
+        if (arr.length === 1 && arr[0].includes('-')) index = 0
+
+        arr[index] = moment(arr[index]).format('YYYY/MM')
+
+        return arr
+      })
     }
 
     const mapDataY = (data) => {
