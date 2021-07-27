@@ -8,8 +8,6 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import Chart from 'chart.js/auto'
 
-// window.myLineChart = null
-
 const line1 = {
   borderColor: 'rgba(145, 213, 255, 1)',
   pointBorderColor: 'rgba(255, 255, 255, 1)',
@@ -179,7 +177,7 @@ export default defineComponent({
   background: #fff;
 
   canvas {
-    // padding: 0 32px;
+    padding: 0 32px;
   }
 }
 </style>

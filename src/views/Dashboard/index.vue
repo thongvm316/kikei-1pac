@@ -49,7 +49,7 @@
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
-        <BankLineChart />
+        <bank-line-chart />
       </controller-block>
     </div>
 
@@ -61,7 +61,10 @@
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
       >
-        <PieChart />
+        <div class="dashboard__ranking">
+          <RankingTable />
+          <pie-chart />
+        </div>
       </controller-block>
     </div>
   </div>
@@ -78,6 +81,7 @@ import BankLineChart from './-components/BankLineChart'
 import PieChart from './-components/PieChart'
 import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
+import RankingTable from './-components/RankingTable'
 
 import { getGroups, getPendingDeposits } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
@@ -140,7 +144,8 @@ export default defineComponent({
     BankLineChart,
     PieChart,
     AccoutingOperationsTable,
-    MonthlyAccountingTable
+    MonthlyAccountingTable,
+    RankingTable
   },
 
   setup() {
@@ -289,6 +294,12 @@ export default defineComponent({
 
   &__block {
     margin-top: 64px;
+  }
+
+  &__ranking {
+    display: flex;
+    background-color: $color-grey-100;
+    padding-right: 32px;
   }
 
   .animation-move-up,

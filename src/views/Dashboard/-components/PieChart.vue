@@ -1,6 +1,14 @@
 <template>
-  <div class="canvas u-mx-n32">
-    <canvas ref="myPieChartRef" />
+  <div class="pie-chart">
+    <div class="canvas">
+      <canvas ref="myPieChartRef" />
+    </div>
+
+    <ul>
+      <li><span class="doted"></span>xanh</li>
+      <li><span class="doted"></span>do</li>
+      <li><span class="doted"></span>tim</li>
+    </ul>
   </div>
 </template>
 
@@ -26,14 +34,32 @@ export default defineComponent({
           'rgb(54, 162, 235)',
           'rgb(255, 205, 86)'
         ],
-        hoverOffset: 4
+        borderColor: '#FFFFFF',
+        hoverBorderWidth: 0
       }]
+    }
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: true,
+
+      plugins: {
+        legend: {
+          display: false
+        },
+
+        tooltip: {
+          backgroundColor: 'red',
+          titleColor: '#262626'
+        }
+      }
     }
 
     const createChart = () => {
       return new Chart(myPieChartRef.value, {
         type: 'pie',
-        data
+        data,
+        options
       })
     }
 
@@ -51,7 +77,32 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-.canvas {
-  width: 256px;
+@import '@/styles/shared/variables';
+
+.pie-chart {
+  display: flex;
+  margin-left: 68px;
+  margin-top: 24px;
+
+  .canvas {
+    width: 256px;
+  }
+
+  ul {
+    list-style: none;
+
+    li {
+      color: $color-grey-55;
+
+      .doted {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: red;
+        margin-right: 16px;
+      }
+    }
+  }
 }
 </style>
