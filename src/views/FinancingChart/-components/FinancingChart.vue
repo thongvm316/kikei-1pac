@@ -37,7 +37,7 @@
                 {{ item.money.toLocaleString() }}</span
               >
               <template v-if="item.warnings.length > 0">
-                <span class="note-money">{{ item.warnings[0] }}</span>
+                <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
               </template>
             </span>
           </li>
