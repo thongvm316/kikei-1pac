@@ -183,6 +183,13 @@
         style="width: 300px"
       />
       <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
+      <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
+        <a-button type="link" @click="isHistoryMoneyModalOpen = true">
+          <template #icon>
+            <span style="height: 16px" class="btn-icon"><history-icon /></span>
+          </template>
+        </a-button>
+      </a-tooltip>
       <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
     </a-form-item>
     <!-- money -->
@@ -294,6 +301,7 @@
   </a-form>
 
   <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
+  <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
 </template>
 
 <script>
@@ -315,9 +323,11 @@ import {
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
+import MoneyHistoryModal from './MoneyHistoryModal.vue'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import HistoryIcon from '@/assets/icons/ico_history.svg'
 
 export default defineComponent({
   name: 'ProjectForm',
@@ -325,7 +335,9 @@ export default defineComponent({
   components: {
     CalendarOutlined,
     ModalSelectCompany,
-    LineAddIcon
+    LineAddIcon,
+    HistoryIcon,
+    MoneyHistoryModal
   },
 
   props: {
@@ -375,6 +387,8 @@ export default defineComponent({
     const dataGroups = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
+
+    const isHistoryMoneyModalOpen = ref()
 
     const handleChangeStatisticsDateValue = (val) => {
       projectParams.value.statisticsMonths = val
@@ -704,6 +718,7 @@ export default defineComponent({
       localProjectOrders,
       totalMoneyOutsourcing,
       depositCurrencyCode,
+      isHistoryMoneyModalOpen,
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,
