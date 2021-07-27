@@ -59,7 +59,7 @@
 
       <a-select
         v-model:value="bankAccountId"
-        :allowClear="true"
+        :allow-clear="true"
         show-arrow
         :max-tag-count="1"
         option-label-prop="label"
@@ -491,8 +491,10 @@ export default defineComponent({
     const onOpenConfirmDepositRecordModal = (data, typeConfirm) => {
       isVisibleConfirmDepositModal.value = true
       if (typeConfirm === 'confirmAll') {
+        const recordFound = data.length === 1 ? find(dataDeposit.value, { id: data[0] }) : ''
+
         confirmedSelectedDepositRecord.value = data
-        confirmedSelectedPurpose.value = ''
+        confirmedSelectedPurpose.value = recordFound ? recordFound?.purpose : ''
       } else {
         confirmedSelectedDepositRecord.value = [data.id]
         confirmedSelectedPurpose.value = data.purpose
@@ -524,7 +526,7 @@ export default defineComponent({
       tableKey.value++
 
       // show notification
-      const purpose = currentSelectedRecord.value?.purpose
+      const purpose = confirmedSelectedPurpose?.value
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
@@ -612,7 +614,7 @@ export default defineComponent({
 
       // fetch bank accounts
       const bankAccounts = await getBankAccounts({
-        groupId: filtersDepositStore.data?.groupId || activeKeyGroupTab.value
+        groupId: filtersDepositStore.data?.groupId || getTabIndex(tabListGroup.value)
       })
 
       bankAccountList.value = bankAccounts.result?.data || []

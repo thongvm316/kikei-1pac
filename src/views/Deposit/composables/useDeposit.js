@@ -100,8 +100,8 @@ const handleDepositMoneyValue = (data) => {
   const { bankAccountId, depositBankAccountId, type, depositMoney, withdrawalMoney } = data
 
   if (bankAccountId) {
-    return bankAccountId === depositBankAccountId ? depositMoney : withdrawalMoney }
-  else {
+    return bankAccountId === depositBankAccountId ? depositMoney : `-${withdrawalMoney}`
+  } else {
     let money
 
     switch (TYPE_NAME_DEPOSIT[type]) {
@@ -143,7 +143,13 @@ export const createDataTableFormat = (data, bankAccountId) => {
   return data.map((item) => {
     return Object.assign(item, {
       key: item.id,
-      deposit: handleDepositMoneyValue({ bankAccountId, type: item.type, depositMoney: item.depositMoney, withdrawalMoney: item.withdrawalMoney, depositBankAccountId: item.depositBankAccountId }),
+      deposit: handleDepositMoneyValue({
+        bankAccountId,
+        type: item.type,
+        depositMoney: item.depositMoney,
+        withdrawalMoney: item.withdrawalMoney,
+        depositBankAccountId: item.depositBankAccountId
+      }),
       typeName: handleTypeNameDeposit(item.type, bankAccountId, item.depositBankAccountId),
       colorClass: handleColorDeposit(bankAccountId, item.depositBankAccountId)
     })
