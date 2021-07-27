@@ -13,31 +13,27 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, computed, watch } from 'vue'
 import Chart from 'chart.js/auto'
+
+window.pieChartRanking = null
 
 export default defineComponent({
   name: 'PieChart',
 
+  props: {
+    rankingData: Array
+  },
+
   components: {},
 
-  setup () {
+  setup (props) {
     const myPieChartRef = ref()
-    const labels = ['red', 'green', 'yellow']
-    const data = {
-      labels,
-      datasets: [{
-        label: 'My First Dataset',
-        data: [300, 50, 100],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgb(255, 205, 86)'
-        ],
-        borderColor: '#FFFFFF',
-        hoverBorderWidth: 0
-      }]
-    }
+    const dataPieChart = computed(() => {
+      return props.rankingData?.map(item => parseInt(item.revenue))
+    })
+
+    const data = ref({ datasets: [] })
 
     const options = {
       responsive: true,
@@ -58,30 +54,66 @@ export default defineComponent({
     const createChart = () => {
       return new Chart(myPieChartRef.value, {
         type: 'pie',
-        data,
+        data: data.value,
         options
       })
     }
 
+    watch(dataPieChart, (value) => {
+      data.value.datasets = []
+
+      let xxx = null
+
+      if (value.length < 7) {
+        xxx = value
+      } else {
+        xxx = [10, 20, 30, 40, 50]
+      }
+
+      // set datasets
+      data.value.datasets.push({
+        data: xxx,
+        backgroundColor: [
+          '#FA8C16',
+          '#2F54EB',
+          '#13C2C2',
+          '#52C41A',
+          '#722ED1',
+          '#8C8C8C'
+        ],
+        hoverBackgroundColor: [
+          '#FFD591',
+          '#ADC6FF',
+          '#87E8DE',
+          '#B7EB8F',
+          '#D3ADF7',
+          '#BFBFBF'
+        ],
+        borderColor: '#FFFFFF',
+        hoverBorderWidth: 0
+      })
+
+      // update pie chart
+      window.pieChartRanking.update()
+    })
+
     onMounted(() => {
-      createChart()
+      window.pieChartRanking = createChart()
     })
 
     return {
       myPieChartRef
     }
   }
-
 })
 </script>
-
 
 <style lang="scss" scoped>
 @import '@/styles/shared/variables';
 
 .pie-chart {
   display: flex;
-  margin-left: 68px;
+  margin-left: 105px;
   margin-top: 24px;
 
   .canvas {

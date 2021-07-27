@@ -98,14 +98,16 @@ export default defineComponent({
     }
   },
 
-  emits: ['on-swap-block-order'],
+  emits: ['on-swap-block-order', 'on-emit-group-id'],
 
-  setup(props) {
+  setup(props, { emit }) {
     const groupActive = ref()
     const isShowBlockContent = ref(true)
     const activeKey = ref(['1'])
 
-    const onHandleChangeGroup = () => {}
+    const onHandleChangeGroup = (id) => {
+      emit('on-emit-group-id', id)
+    }
 
     const handleToggleShowContent = () => {
       isShowBlockContent.value = !isShowBlockContent.value

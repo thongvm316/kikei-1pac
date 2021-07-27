@@ -9,20 +9,13 @@
     </thead>
 
     <tbody>
-      <tr>
-        <td>1</td>
-        <td>ニューフォリア</td>
-        <td class="u-text-right">1,999,999,999,999,999</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>ニューフォリア</td>
-        <td class="u-text-right">1,999,999,999,999,999</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>ニューフォリア</td>
-        <td class="u-text-right">1,999,999,999,999,999</td>
+      <tr
+        v-for="(item, index) in rankingData"
+        :key="item.rankingData"
+      >
+        <td>{{ index + 1 }}</td>
+        <td>{{ item.companyName }}</td>
+        <td class="u-text-right">{{ item.revenue }}</td>
       </tr>
     </tbody>
   </table>
@@ -33,6 +26,10 @@ import { defineComponent, ref, onMounted } from 'vue'
 
 export default defineComponent({
   name: 'RankingTable',
+
+  props: {
+    rankingData: Array
+  },
 
   setup() {
 
@@ -56,30 +53,18 @@ table {
     color: $color-primary-9;
     font-weight: 700;
 
-    tr {
-      border-bottom: 1px solid $color-grey-75;
-    }
-
-    th {
-      padding: 16px;
-
-      &:first-child {
-        border-right: 1px solid $color-grey-75;
-      }
+    th:first-child {
+      border-right: 1px solid $color-grey-75;
     }
   }
 
   tbody {
     tr {
-      border-top: 1px solid $color-grey-75;
-
       &:hover td {
-        background-color: $color-grey-96;
+        // background-color: $color-grey-96;
       }
 
       td {
-        padding: 16px;
-
         &:first-child {
           border-right: 1px solid $color-grey-75;
           color: $color-primary-9;
@@ -90,6 +75,11 @@ table {
         }
       }
     }
+  }
+
+  th, td {
+    padding: 16px;
+    border-bottom: 1px solid $color-grey-75;
   }
 }
 </style>

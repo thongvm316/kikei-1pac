@@ -26,3 +26,13 @@ export const getPendingDeposits = async (isLoadingAccountingOperations) => {
     isLoadingAccountingOperations.value = false
   }
 }
+
+export const getRevenue = async (param) => {
+  try {
+    const { data } = await DashboardService.getRevenue(param)
+
+    return data
+  } catch (e) {
+    throw e
+  }
+}

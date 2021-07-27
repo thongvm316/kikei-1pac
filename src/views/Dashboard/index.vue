@@ -60,10 +60,11 @@
         :title="'今期顧客別売上'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
+        @on-emit-group-id="changeGroupRanking($event)"
       >
         <div class="dashboard__ranking">
-          <RankingTable />
-          <pie-chart />
+          <ranking-table :ranking-data="rankingData" />
+          <pie-chart :ranking-data="rankingData" />
         </div>
       </controller-block>
     </div>
@@ -83,7 +84,7 @@ import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 import RankingTable from './-components/RankingTable'
 
-import { getGroups, getPendingDeposits } from './composables/useDashboard'
+import { getGroups, getPendingDeposits, getRevenue } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
 
 const dataTableSales = [
@@ -162,6 +163,9 @@ export default defineComponent({
     const isLoadingTableSales = ref()
     const isLoadingMonthlyAccounting = ref(false)
     const dataTableAccoutingOperations = ref([])
+
+    // revenue
+    const rankingData = ref()
 
     const generateOrderList = () => {
       blockListEl.value = document.querySelectorAll('.dashboard__block')
@@ -249,6 +253,11 @@ export default defineComponent({
       blockOrder.value = blockOrder.value.map((item) => ({ ...item, mode: '' }))
     }
 
+    const changeGroupRanking = async (id) => {
+      const { result } = await getRevenue({ groupId: id })
+      rankingData.value = result.data
+    }
+
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroups()
@@ -257,6 +266,10 @@ export default defineComponent({
       // fetch pending deposits
       const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations)
       dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
+
+      // revenue
+      const { result } = await getRevenue({ groupId: groupList.value[0].id })
+      rankingData.value = result.data
     })
 
     onMounted(() => {
@@ -273,8 +286,10 @@ export default defineComponent({
       isLoadingAccountingOperations,
       dataTableMonthly,
       isLoadingMonthlyAccounting,
+      rankingData,
 
-      swapBlockOrder
+      swapBlockOrder,
+      changeGroupRanking
     }
   }
 })
