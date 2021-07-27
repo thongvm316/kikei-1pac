@@ -1,14 +1,25 @@
 import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
-  chart: '/accounting_management/total'
+  chart: '/financing/search/chart'
 })
 
 export default {
-  getData() {
+  getDataChart(data, params) {
     return apiCaller({
       method: 'POST',
-      url: `${RESOURCES.chart}`
+      url: `${RESOURCES.chart}`,
+      data,
+      params
+    })
+  },
+
+  getDetailChart(data, params) {
+    return apiCaller({
+      method: 'POST',
+      url: `${RESOURCES.chart}/getdetail`,
+      data,
+      params
     })
   }
 }

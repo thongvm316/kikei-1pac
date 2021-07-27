@@ -1,0 +1,171 @@
+.chart {
+  background: #fff;
+  
+  .btn-chart {
+    margin-top: 8px;
+    margin-right: 32px;
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    
+    &:hover {
+      background: #31aaf1;
+      color: #fff;
+    }
+  }
+  
+  .modal-chart {
+    position: absolute;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+    pointer-events: auto;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s ease-in;
+    z-index: 10;
+    padding: 11px 16px 8px;
+    margin-right: 16px;
+    margin-top: 11px;
+    width: auto;
+    right: 0;
+    top: 28%;
+    text-align: right;
+    
+    &.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .icon {
+      cursor: pointer;
+      
+      &:hover {
+        color: #31aaf1;
+      }
+    }
+    
+    .group-chart {
+      span {
+        display: inline-flex;
+        align-items: center;
+        
+        .line-through {
+          text-decoration-line: line-through;
+        }
+        
+        .modal-color {
+          width: 24px;
+          height: 12px;
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+  
+  .canvas {
+    position: relative;
+    height: calc(100vh - 230px);
+    background: #fff;
+    
+    canvas {
+      position: absolute;
+      background-color: #fff;
+    }
+    
+    .modal-content {
+      position: absolute;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 0;
+      border-radius: 2px;
+      box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+      pointer-events: auto;
+      width: auto;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.2s ease-in;
+      z-index: 10;
+      
+      &.active {
+        visibility: visible;
+        opacity: 1;
+      }
+  
+      .icon {
+        cursor: pointer;
+    
+        &:hover {
+          color: #31aaf1;
+        }
+      }
+    }
+    
+    .icon {
+      position: absolute;
+      top: 11px;
+      right: 13px;
+      cursor: pointer;
+    }
+    
+    ul {
+      list-style: none;
+      margin-top: 31px;
+      padding: 0 16px 16px;
+      margin-bottom: 0;
+      
+      hr.dashed {
+        border-top: 1px dashed #000000;
+      }
+      
+      li {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .left-detail {
+          font-size: 14px;
+          width: auto;
+          margin-right: 12px;
+        }
+        
+        .right-detail {
+          font-size: 14px;
+          flex: 1;
+          text-align: right;
+        }
+        
+        span {
+          font-size: 0.97vw;
+        }
+        
+        .money-detail {
+          display: flex;
+          flex-direction: column;
+          
+          .note-money {
+            font-size: 14px;
+            color: #BFBFBF;
+          }
+          
+          .start-color {
+            font-size: 14px;
+            display: flex;
+            justify-content: flex-end;
+  
+            p {
+              color: #F5222D;
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}

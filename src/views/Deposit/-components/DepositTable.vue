@@ -61,11 +61,7 @@
     </template>
 
     <template #action="{ record }">
-      <a-button
-        v-if="record.confirmed && isAdmin"
-        type="danger"
-        @click="$emit('handle-open-unconfirm-modal', record)"
-      >
+      <a-button v-if="record.confirmed && isAdmin" type="danger" @click="$emit('handle-open-unconfirm-modal', record)">
         取消
       </a-button>
       <a-button
@@ -87,7 +83,9 @@
       <p v-else class="mb-0 u-whitespace-normal">{{ record.purpose }}</p>
     </template>
 
-    <template #customTitleDeposit><span>入出金額<br />({{ currencyCodeText }})</span></template>
+    <template #customTitleDeposit
+      ><span>入出金額<br />({{ currencyCodeText }})</span></template
+    >
 
     <template #customTitleBalance> 残高<br />({{ currencyCodeText }}) </template>
   </a-table>
