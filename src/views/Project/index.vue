@@ -49,7 +49,7 @@
 
       <template #renderProjectName="{ record }">
         <p class="mb-0 text-grey-55">{{ record.code }}</p>
-        <p class="mb-0 text-grey-55">{{ record.companyName }}</p>
+        <p class="mb-0 text-grey-55 u-whitespace-normal">{{ record.companyName }}</p>
         <p class="mb-0 font-bold u-whitespace-normal">{{ record.name }}</p>
       </template>
 
