@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
+import { defineComponent, onMounted, ref, toRefs, watch, nextTick } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
 import { find, forEach, map, split, findIndex, isEqual, includes } from 'lodash-es'
@@ -64,6 +64,15 @@ import useGetDetailChartService from '@/views/FinancingChart/composables/useGetD
 import moment from 'moment'
 
 window.myLineChart = null
+
+const layout = {
+  padding: {
+    top: 50,
+    bottom: 15,
+    left: 15,
+    right: 15
+  }
+}
 
 export default defineComponent({
   name: 'Index',
@@ -105,15 +114,8 @@ export default defineComponent({
 
     const options = {
       responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2.4,
-      layout: {
-        padding: {
-          top: 50,
-          left: 10,
-          right: 10
-        }
-      },
+      maintainAspectRatio: false,
+      layout,
       scales: {
         x: {
           grid: {
@@ -153,11 +155,18 @@ export default defineComponent({
         element.value = window.myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true)
         // set position modal
         if (element.value.length) {
-          opacityLine(nativeElement)
           const index = element.value[0].index
-          reRenderPos(index)
-          handleClickPoint(index)
-          isActive.value = true
+
+          opacityLine(nativeElement)
+
+          handleClickPoint(index).then(async (result) => {
+            detailChart.value = { ...result.data }
+            totalMoney.value = detailChart.value.totalMoney.toLocaleString()
+
+            await reRenderPos()
+
+            isActive.value = true
+          })
         } else {
           forEach(data.value.datasets, (item) => {
             item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
@@ -276,29 +285,32 @@ export default defineComponent({
       return map(data, (i) => Object.values(i)[0])
     }
 
-    const handleClickPoint = async (item) => {
-      forEach(checkDate.value.detail, (value) => {
-        isEquals.value = isEqual(checkDate.value.detail[item].date, value.date)
-        if (isEquals.value) fullDate.value = checkDate.value.detail[item].fulldate
+    const handleClickPoint = (item) => {
+      // eslint-disable-next-line no-async-promise-executor
+      return new Promise(async (resolve, reject) => {
+        forEach(checkDate.value.detail, (value) => {
+          isEquals.value = isEqual(checkDate.value.detail[item].date, value.date)
+          if (isEquals.value) fullDate.value = checkDate.value.detail[item].fulldate
+        })
+
+        const data = store.state.financing?.filters
+
+        dataPoint.value = {
+          ...data.data,
+          from_date: fullDate.value,
+          to_date: fullDate.value,
+          data_id: checkDate.value.dataId
+        }
+
+        // eslint-disable-next-line no-useless-catch
+        try {
+          const { getDetailChart } = useGetDetailChartService(dataPoint.value, data.params)
+          const { result } = await getDetailChart()
+          resolve(result)
+        } catch (e) {
+          reject(e)
+        }
       })
-
-      const data = store.state.financing?.filters
-
-      dataPoint.value = {
-        ...data.data,
-        from_date: fullDate.value,
-        to_date: fullDate.value,
-        data_id: checkDate.value.dataId
-      }
-
-      try {
-        const { getDetailChart } = useGetDetailChartService(dataPoint.value, data.params)
-        const { result } = await getDetailChart()
-        detailChart.value = { ...result.data }
-        totalMoney.value = detailChart.value.totalMoney.toLocaleString()
-      } catch (e) {
-        console.log(e)
-      }
     }
 
     const createChart = () => {
@@ -323,35 +335,35 @@ export default defineComponent({
     const reRenderPos = () => {
       const left = element.value[0].element.x
       const top = element.value[0].element.y
-      const width = modalContent.value.offsetWidth
-      const height = 135
 
-      if (left > 1200) {
-        modalContent.value.style.left = left - width - 10 + 'px'
-      } else {
-        modalContent.value.style.left = left + 10 + 'px'
-      }
+      nextTick(() => {
+        const width = modalContent.value.offsetWidth
+        const height = modalContent.value.offsetHeight
 
-      if (top > height) {
-        modalContent.value.style.top = top - height + 'px'
-      } else {
-        modalContent.value.style.top = top + 'px'
-      }
+        const canvasW = myChartRef.value.offsetWidth
+        const canvasH = myChartRef.value.offsetHeight
+
+        const deltaX = layout.padding.left + layout.padding.right
+        const deltaY = layout.padding.top + layout.padding.bottom
+
+        modalContent.value.style.left = left + width >= canvasW - deltaX ? `${left - width + 6}px` : `${left + 6}px`
+        modalContent.value.style.top =
+          canvasH + deltaY - top * ((canvasH + deltaY) / canvasW) + height >= canvasH - deltaY
+            ? `${top - height - 6}px`
+            : `${top - 6}px`
+      })
     }
 
     const opacityLine = (elm) => {
       const datasetIndex = elm[0].datasetIndex
+      let opacity = null
 
       forEach(data.value.datasets, (item, index) => {
-        if (index !== datasetIndex) {
-          item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '0.2)')
-          item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '0.2)')
-          item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '0.2)')
-        } else {
-          item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
-          item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-          item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
-        }
+        opacity = index !== datasetIndex ? 0.4 : 1
+
+        item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, `${opacity})`)
+        item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, `${opacity})`)
+        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, `${opacity})`)
       })
 
       window.myLineChart.update()
