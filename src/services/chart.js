@@ -12,5 +12,14 @@ export default {
       data,
       params
     })
+  },
+
+  getDetailChart(data, params) {
+    return apiCaller({
+      method: 'POST',
+      url: `${RESOURCES.chart}/getdetail`,
+      data,
+      params
+    })
   }
 }

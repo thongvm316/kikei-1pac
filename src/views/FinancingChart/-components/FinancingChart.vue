@@ -1,24 +1,27 @@
 <template>
   <section class="chart">
-    <a-button class="btn-chart" @click="openChart = true">
-      <template #icon><LineChartOutlined /></template>
-      {{ $t('modal.chart') }}
-    </a-button>
+    <template v-if="isVisible ? isVisible : (openChart = false)">
+      <a-button class="btn-chart" @click="openChart = true">
+        <template #icon><LineChartOutlined /></template>
+        {{ $t('modal.chart') }}
+      </a-button>
 
-    <div :class="{ active: openChart }" class="modal-chart">
-      <close-icon class="icon" @click="openChart = false" />
-      <div class="group-chart">
-        <a-checkbox
-          v-for="item in plainOptions"
-          :key="item.data_id"
-          v-model:checked="item.checked"
-          :value="item.data_id"
-          @change="onToggleIndicated"
-        >
-          {{ item.data_name }}
-        </a-checkbox>
+      <div :class="{ active: openChart }" class="modal-chart">
+        <close-icon class="icon" @click="openChart = false" />
+        <div class="group-chart">
+          <a-checkbox
+            v-for="item in plainOptions"
+            :key="item.data_id"
+            v-model:checked="item.checked"
+            :value="item.data_id"
+            @change="onToggleIndicated"
+          >
+            <span :class="!item.checked ? 'line-through' : ''">{{ item.data_name }}</span>
+            <div :style="{ background: item.color }" class="modal-color"></div>
+          </a-checkbox>
+        </div>
       </div>
-    </div>
+    </template>
 
     <div class="canvas">
       <canvas ref="myChartRef" @click=";(isActive = false), (openChart = false)" />
@@ -26,30 +29,22 @@
       <div ref="modalContent" :class="{ active: isActive }" class="modal-content">
         <close-icon class="icon" @click="isActive = false" />
         <ul>
-          <li>
-            <span>銀行名 (VND)</span>
-            <span>9,999,999,999,999,999</span>
-          </li>
-          <li class="negative">
-            <span>銀行名 (USD)</span>
-            <span>-999,999,999</span>
-          </li>
-          <li class="negative">
-            <span>銀行名 (USD)</span>
-            <span>-999,999,999,999</span>
-          </li>
-          <li>
-            <span>銀行名 (VND)</span>
-            <span>9,999,999,999,999,999</span>
-          </li>
-          <li>
-            <span>銀行名 (VND)</span>
-            <span>9,999,999,999,999,999</span>
+          <li v-for="item in detailChart.data" :key="item">
+            <span class="left-detail">{{ item.label }}</span>
+            <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
+              <span class="start-color"
+                ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                {{ item.money.toLocaleString() }}</span
+              >
+              <template v-if="item.warnings.length > 0">
+                <span class="note-money">{{ item.warnings[0] }}</span>
+              </template>
+            </span>
           </li>
           <hr class="dashed" />
           <li>
-            <span>銀行名 (VND)</span>
-            <span>9,999,999,999,999,999</span>
+            <span class="left-detail">残高合計</span>
+            <span class="right-detail">{{ totalMoney }}</span>
           </li>
         </ul>
       </div>
@@ -61,9 +56,11 @@
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, findIndex } from 'lodash-es'
+import { find, forEach, map, split, findIndex, isEqual } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
+import { useStore } from 'vuex'
+import useGetDetailChartService from '@/views/FinancingChart/composables/useGetDetailChartService'
 
 window.myLineChart = null
 
@@ -77,19 +74,33 @@ export default defineComponent({
       type: [Array, Object],
       required: true,
       default: () => []
+    },
+    isVisible: {
+      type: Boolean,
+      required: true
     }
   },
 
   setup(props) {
+    const store = useStore()
     const myChartRef = ref()
     const element = ref()
     const modalContent = ref()
+    const checkDate = ref([])
+    const isEquals = ref()
+    const fullDate = ref()
+    const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
     const { dataChart } = toRefs(props)
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
+
+    const detailChart = ref({})
+    const detailLabels = ref([])
+    const detailMoney = ref([])
+    const totalMoney = ref()
 
     const options = {
       responsive: true,
@@ -140,10 +151,8 @@ export default defineComponent({
         if (element.value.length) {
           reRenderPos()
           opacityLine(nativeElement)
-          // const datasetIndex = element.value[0].datasetIndex
           const index = element.value[0].index
-          console.log(data.value.labels[index], 'label')
-          // console.log(data.datasets[datasetIndex].data[index], 'value')
+          handleClickPoint(index)
           isActive.value = true
         } else {
           forEach(data.value.datasets, (item) => {
@@ -182,6 +191,7 @@ export default defineComponent({
     }
 
     watch(dataChart, (value) => {
+      isActive.value = false
       // reset dataset when switch tab group
       data.value.datasets = []
       plainOptions.value = []
@@ -195,6 +205,7 @@ export default defineComponent({
       }
 
       forEach(value, (item) => {
+        checkDate.value = item
         const result = mapChart(item.detail)
         const labels = mapLabel(result)
         const dataY = mapDataY(result)
@@ -205,10 +216,10 @@ export default defineComponent({
         // set datasets
         data.value.datasets.push({
           label: chart.label,
-          pointBorderWidth: 3,
-          pointHoverRadius: 8,
-          pointHoverBorderWidth: 3,
-          pointRadius: 8,
+          pointBorderWidth: 4,
+          pointHoverRadius: 7,
+          pointHoverBorderWidth: 4,
+          pointRadius: 7,
           borderColor: chart.border,
           pointBorderColor: 'rgba(255, 255, 255, 1)',
           pointBackgroundColor: chart.pointBg,
@@ -248,6 +259,31 @@ export default defineComponent({
 
     const mapDataY = (data) => {
       return map(data, (i) => Object.values(i)[0])
+    }
+
+    const handleClickPoint = async (item) => {
+      forEach(checkDate.value.detail, (value) => {
+        isEquals.value = isEqual(checkDate.value.detail[item].date, value.date)
+        if (isEquals.value) fullDate.value = checkDate.value.detail[item].fulldate
+      })
+
+      const data = store.state.financing?.filters
+
+      dataPoint.value = {
+        ...data.data,
+        from_date: fullDate.value,
+        to_date: fullDate.value,
+        data_id: checkDate.value.dataId
+      }
+
+      try {
+        const { getDetailChart } = useGetDetailChartService(dataPoint.value, data.params)
+        const { result } = await getDetailChart()
+        detailChart.value = { ...result.data }
+        totalMoney.value = detailChart.value.totalMoney.toLocaleString()
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     const createChart = () => {
@@ -303,6 +339,10 @@ export default defineComponent({
       openChart,
       plainOptions,
       indicated,
+      detailChart,
+      detailLabels,
+      detailMoney,
+      totalMoney,
       onToggleIndicated
     }
   }

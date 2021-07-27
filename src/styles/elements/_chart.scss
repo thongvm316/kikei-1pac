@@ -46,6 +46,23 @@
         color: #31aaf1;
       }
     }
+    
+    .group-chart {
+      span {
+        display: inline-flex;
+        align-items: center;
+        
+        .line-through {
+          text-decoration-line: line-through;
+        }
+        
+        .modal-color {
+          width: 24px;
+          height: 12px;
+          margin-left: 5px;
+        }
+      }
+    }
   }
   
   .canvas {
@@ -66,7 +83,7 @@
       border-radius: 2px;
       box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
       pointer-events: auto;
-      width: 22vw;
+      width: auto;
       visibility: hidden;
       opacity: 0;
       transition: all 0.2s ease-in;
@@ -89,7 +106,7 @@
     .icon {
       position: absolute;
       top: 11px;
-      right: 16px;
+      right: 13px;
       cursor: pointer;
     }
     
@@ -112,13 +129,36 @@
           margin-bottom: 0;
         }
         
+        .left-detail {
+          width: 150px;
+          margin-right: 12px;
+        }
+        
+        .right-detail {
+          flex: 1;
+          text-align: right;
+        }
+        
         span {
           font-size: 0.97vw;
         }
         
-        &.negative {
-          span:last-child {
-            color: #f5222d;
+        .money-detail {
+          display: flex;
+          flex-direction: column;
+          
+          .note-money {
+            color: #BFBFBF;
+          }
+          
+          .start-color {
+            display: flex;
+            justify-content: flex-end;
+  
+            p {
+              color: #F5222D;
+              margin-bottom: 0;
+            }
           }
         }
       }
