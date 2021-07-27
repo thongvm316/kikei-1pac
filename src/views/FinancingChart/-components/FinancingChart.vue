@@ -27,7 +27,7 @@
       <canvas ref="myChartRef" @click=";(isActive = false), (openChart = false)" />
 
       <div ref="modalContent" :class="{ active: isActive }" class="modal-content">
-        <close-icon class="icon" @click="isActive = false" />
+        <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
             <span class="left-detail">{{ item.label }}</span>
@@ -150,9 +150,9 @@ export default defineComponent({
         element.value = window.myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true)
         // set position modal
         if (element.value.length) {
-          reRenderPos()
           opacityLine(nativeElement)
           const index = element.value[0].index
+          reRenderPos(index)
           handleClickPoint(index)
           isActive.value = true
         } else {
@@ -244,6 +244,7 @@ export default defineComponent({
         data.value.datasets[index].hidden = !e.target.checked
         window.myLineChart.update()
       }
+      if (e) handleClose()
     }
 
     const mapChart = (data) => {
@@ -296,11 +297,21 @@ export default defineComponent({
       })
     }
 
+    const handleClose = () => {
+      isActive.value = false
+      forEach(data.value.datasets, (item) => {
+        item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
+        item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
+        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
+      })
+      window.myLineChart.update()
+    }
+
     const reRenderPos = () => {
       const left = element.value[0].element.x
       const top = element.value[0].element.y
       const width = modalContent.value.offsetWidth
-      const height = modalContent.value.offsetHeight
+      const height = 135
 
       if (left > 1200) {
         modalContent.value.style.left = left - width - 10 + 'px'
@@ -308,7 +319,7 @@ export default defineComponent({
         modalContent.value.style.left = left + 10 + 'px'
       }
 
-      if (top > height / 1.75) {
+      if (top > height) {
         modalContent.value.style.top = top - height + 'px'
       } else {
         modalContent.value.style.top = top + 'px'
@@ -344,6 +355,7 @@ export default defineComponent({
       detailLabels,
       detailMoney,
       totalMoney,
+      handleClose,
       onToggleIndicated
     }
   }
