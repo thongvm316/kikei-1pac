@@ -108,8 +108,9 @@ export default defineComponent({
       aspectRatio: 2.4,
       layout: {
         padding: {
-          top: 55,
-          left: 32
+          top: 60,
+          left: 10,
+          right: 10
         }
       },
       scales: {
@@ -217,9 +218,9 @@ export default defineComponent({
         data.value.datasets.push({
           label: chart.label,
           pointBorderWidth: 4,
-          pointHoverRadius: 7,
+          pointHoverRadius: 8,
           pointHoverBorderWidth: 4,
-          pointRadius: 7,
+          pointRadius: 8,
           borderColor: chart.border,
           pointBorderColor: 'rgba(255, 255, 255, 1)',
           pointBackgroundColor: chart.pointBg,

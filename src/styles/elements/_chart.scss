@@ -130,11 +130,13 @@
         }
         
         .left-detail {
+          font-size: 14px;
           width: 150px;
           margin-right: 12px;
         }
         
         .right-detail {
+          font-size: 14px;
           flex: 1;
           text-align: right;
         }
@@ -148,10 +150,12 @@
           flex-direction: column;
           
           .note-money {
+            font-size: 14px;
             color: #BFBFBF;
           }
           
           .start-color {
+            font-size: 14px;
             display: flex;
             justify-content: flex-end;
   
