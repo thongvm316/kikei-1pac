@@ -133,7 +133,7 @@ export default {
     message_multiple: '確定してもよろしいですか？',
     cancel_btn: 'キャンセル',
     confirm_btn: '確定',
-    confirm_success: '{purpose}を確定されました',
+    confirm_success: '{purpose}が確定されました',
     confirm_success_multiple: '確定されました'
   },
 
