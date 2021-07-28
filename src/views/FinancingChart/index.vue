@@ -306,6 +306,7 @@ export default defineComponent({
 
     const onChangeCurrency = async () => {
       updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     // Fetch data group

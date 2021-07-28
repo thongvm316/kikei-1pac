@@ -32,13 +32,13 @@
         <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
-            <span class="left-detail">{{
+            <router-link :to="{ name: 'deposit' }" class="left-detail">{{
               item.label === 'Withdrawal'
                 ? $t('modal.chart_label_Withdrawal')
                 : item.label === 'Deposit'
                 ? $t('modal.chart_label_Deposit')
                 : item.label
-            }}</span>
+            }}</router-link>
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
               <span class="start-color"
                 ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
@@ -51,7 +51,9 @@
               </div>
               <div v-else>
                 <template v-if="item.warnings.length">
-                  <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span>
+                  <span class="note-money__chart-all"
+                    >{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span
+                  >
                 </template>
               </div>
             </span>
@@ -73,7 +75,7 @@
 import { defineComponent, onMounted, ref, toRefs, watch, nextTick } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, findIndex, isEqual, includes } from 'lodash-es'
+import { find, forEach, map, split, findIndex, includes } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
 import { useStore } from 'vuex'

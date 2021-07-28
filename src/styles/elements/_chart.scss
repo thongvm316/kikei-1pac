@@ -130,19 +130,19 @@
         }
         
         .left-detail {
-          font-size: 14px;
+          font-size: 0.9vw;
           width: auto;
           margin-right: 12px;
         }
         
         .right-detail {
-          font-size: 14px;
+          font-size: 0.9vw;
           flex: 1;
           text-align: right;
         }
         
         span {
-          font-size: 0.97vw;
+          font-size: 0.9vw;
         }
         
         .money-detail {
@@ -150,12 +150,17 @@
           flex-direction: column;
           
           .note-money {
-            font-size: 14px;
+            font-size: 0.9vw;
+            color: #BFBFBF;
+          }
+          
+          .note-money__chart-all {
+            font-size: 0.9vw;
             color: #262626;
           }
           
           .start-color {
-            font-size: 14px;
+            font-size: 0.9vw;
             display: flex;
             justify-content: flex-end;
   
