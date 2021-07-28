@@ -174,7 +174,7 @@
     <!-- accountID -->
 
     <!-- money -->
-    <a-form-item name="money" label="金額" :class="{ 'has-error': localErrors['money'] }">
+    <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
       <a-input-number
         v-model:value="projectParams.money"
         placeholder="入力してください"
@@ -191,6 +191,9 @@
         </a-button>
       </a-tooltip>
       <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
+
+      <!-- history money edit -->
+      <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
     </a-form-item>
     <!-- money -->
 
@@ -301,7 +304,6 @@
   </a-form>
 
   <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
-  <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
 </template>
 
 <script>
