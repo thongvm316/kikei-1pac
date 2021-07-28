@@ -45,16 +45,17 @@
               <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
             </div>
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
-              <span class="start-color"
-                ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                {{ item.money.toLocaleString() }}</span
-              >
               <div v-if="idTab">
+                <span class="start-color"
+                  ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                  {{ item.money.toLocaleString() }}</span
+                >
                 <template v-if="item.warnings.length">
                   <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
                 </template>
               </div>
               <div v-else>
+                <span class="start-color"> {{ item.money.toLocaleString() }}</span>
                 <template v-if="item.warnings.length">
                   <span class="note-money__chart-all"
                     >{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span
