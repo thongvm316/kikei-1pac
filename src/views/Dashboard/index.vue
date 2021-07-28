@@ -3,7 +3,6 @@
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[0]"
-        :block-list="blockOrder"
         :title="'経理業務'"
         :group-list="groupList"
         :is-unvisible-group-tab="true"
@@ -19,13 +18,12 @@
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[1]"
-        :block-list="blockOrder"
         :title="'今期売上見込'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchSales($event)"
       >
-        <sales-table :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <sales-table :block-id="blockIdList[1]" :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
         <stacked-bar-sales />
       </controller-block>
     </div>
@@ -33,7 +31,6 @@
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[2]"
-        :block-list="blockOrder"
         :title="'月次簡易試算'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
@@ -46,7 +43,6 @@
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[3]"
-        :block-list="blockOrder"
         :title="'銀行残高推移'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
@@ -58,7 +54,6 @@
     <div class="dashboard__block">
       <controller-block
         :block-id="blockIdList[4]"
-        :block-list="blockOrder"
         :title="'今期顧客別売上'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
@@ -74,8 +69,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, onMounted } from 'vue'
+import { defineComponent, ref, onBeforeMount, computed, nextTick } from 'vue'
 import { findIndex, find } from 'lodash-es'
+import { useStore } from 'vuex'
 
 import ControllerBlock from './-components/ControllerBlock'
 import SalesTable from './-components/SalesTable'
@@ -94,6 +90,9 @@ import {
   getRevenueBalance
 } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
+import services from '@/services'
+import storageKeys from '@/enums/storage-keys'
+import { deepCopy } from '@/helpers/json-parser'
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -110,10 +109,13 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
+    const StorageService = services.get('StorageService')
+
     // table order
-    const blockOrder = ref([])
     const blockListEl = ref()
     const blockIdList = ref([])
+    const groupIdDefault = ref(0)
 
     // group tabs
     const groupList = ref([])
@@ -129,27 +131,34 @@ export default defineComponent({
     // revenue
     const rankingData = ref()
 
+    const dashboardBlocks = computed(() => store.state.dashboard.blocks)
+
     const generateOrderList = () => {
       blockListEl.value = document.querySelectorAll('.dashboard__block')
       if (blockListEl.value.length === 0) return
 
-      blockOrder.value = new Array(blockListEl.value.length).fill(undefined).map((_, index) => ({
-        id: index,
-        order: index,
-        mode: ''
-      }))
+      if (dashboardBlocks.value.length !== blockListEl.value.length) {
+        const blockOrder = new Array(blockListEl.value.length).fill(undefined).map((_, index) => ({
+          id: index,
+          order: index,
+          mode: '',
+          groupId: groupIdDefault.value
+        }))
 
-      blockIdList.value = blockOrder.value.map((block) => block.id)
+        updateBlockStore(blockOrder)
+      }
+
+      blockIdList.value = dashboardBlocks.value.map((_, index) => index) // needs to be the same as the id generated above
 
       setBlockOrder()
     }
 
     const swapBlockOrder = ({ id, mode }) => {
-      const currentBlockIndex = findIndex(blockOrder.value, { id })
+      const currentBlockIndex = findIndex(dashboardBlocks.value, { id })
       if (
         currentBlockIndex !== -1 &&
         ((mode === ORDER_UP && currentBlockIndex === 0) ||
-          (mode === ORDER_DOWN && currentBlockIndex + 1 === blockOrder.value.length))
+          (mode === ORDER_DOWN && currentBlockIndex + 1 === dashboardBlocks.value.length))
       ) {
         return
       }
@@ -162,23 +171,25 @@ export default defineComponent({
         blockTargetIndex = currentBlockIndex + 1
       }
 
-      const orderCurrent = blockOrder.value[currentBlockIndex].order
-      const orderTarget = blockOrder.value[blockTargetIndex].order
+      let _dashboardBlocks = deepCopy(dashboardBlocks.value)
 
       // change order
-      blockOrder.value[currentBlockIndex].order = orderTarget
-      blockOrder.value[blockTargetIndex].order = orderCurrent
+      const orderCurrent = _dashboardBlocks[currentBlockIndex].order
+      const orderTarget = _dashboardBlocks[blockTargetIndex].order
+      _dashboardBlocks[currentBlockIndex].order = orderTarget
+      _dashboardBlocks[blockTargetIndex].order = orderCurrent
 
       // set mode
-      blockOrder.value[currentBlockIndex].mode = mode
-      blockOrder.value[blockTargetIndex].mode = mode === ORDER_UP ? ORDER_DOWN : ORDER_UP
+      _dashboardBlocks[currentBlockIndex].mode = mode
+      _dashboardBlocks[blockTargetIndex].mode = mode === ORDER_UP ? ORDER_DOWN : ORDER_UP
 
       // swap list
-      ;[blockOrder.value[currentBlockIndex], blockOrder.value[blockTargetIndex]] = [
-        blockOrder.value[blockTargetIndex],
-        blockOrder.value[currentBlockIndex]
+      ;[_dashboardBlocks[currentBlockIndex], _dashboardBlocks[blockTargetIndex]] = [
+        _dashboardBlocks[blockTargetIndex],
+        _dashboardBlocks[currentBlockIndex]
       ]
 
+      updateBlockStore(_dashboardBlocks)
       setBlockOrder()
     }
 
@@ -187,7 +198,7 @@ export default defineComponent({
 
       // get lenghts to move (set variable before run transform)
       blockListEl.value.forEach((block, index) => {
-        const blockFound = find(blockOrder.value, { id: index })
+        const blockFound = find(dashboardBlocks.value, { id: index })
         if (!blockFound || !blockFound.mode) return
 
         const heightEl = block.offsetHeight + 64 // + margin-top
@@ -200,7 +211,7 @@ export default defineComponent({
 
       // apply styles, animations
       blockListEl.value.forEach((block, index) => {
-        const blockFound = find(blockOrder.value, { id: index })
+        const blockFound = find(dashboardBlocks.value, { id: index })
         if (!blockFound) return
         block.style.order = blockFound.order
         block.classList.remove('animation-move-up', 'animation-move-down')
@@ -212,7 +223,15 @@ export default defineComponent({
       })
 
       // clear all mode
-      blockOrder.value = blockOrder.value.map((item) => ({ ...item, mode: '' }))
+      const _dashboardBlocks = dashboardBlocks.value.map((item) => ({ ...item, mode: '' }))
+
+      // save to store
+      updateBlockStore(_dashboardBlocks)
+    }
+
+    const updateBlockStore = (data) => {
+      StorageService.set(storageKeys.dashboardBlocks, data)
+      store.commit('dashboard/STORE_DASHBOARD_BLOCKS', deepCopy(data))
     }
 
     // FETCH APIs
@@ -237,6 +256,11 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
+      const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks) || store.state.dashboard.blocks
+      if (dashboardBlocks && !store.state.dashboard.blocks) {
+        store.commit('dashboard/STORE_DASHBOARD_BLOCKS', dashboardBlocks)
+      }
+
       // fetch group list
       const groupsReponse = await getGroups()
       const groupListData = groupsReponse?.result?.data || []
@@ -249,24 +273,25 @@ export default defineComponent({
       }
       groupList.value = groupListData
 
-      const defaultGroupId = groupList.value[0].id
-      if (!defaultGroupId) return
+      groupIdDefault.value = groupList.value[0]?.id || 0
+      if (!groupIdDefault.value) return
 
-      fetchPendingDeposits(defaultGroupId)
-      fetchSales(defaultGroupId)
-      fetchMonthlyAccounting(defaultGroupId)
-      fetchRaking(defaultGroupId)
-    })
+      fetchPendingDeposits(groupIdDefault.value)
+      fetchSales(groupIdDefault.value)
+      fetchMonthlyAccounting(groupIdDefault.value)
+      fetchRaking(groupIdDefault.value)
 
-    onMounted(() => {
-      generateOrderList()
+      nextTick(() => {
+        // DOM is updated
+        generateOrderList()
+      })
     })
 
     return {
       groupList,
       isLoadingTableSales,
       dataTableSales,
-      blockOrder,
+      dashboardBlocks,
       blockIdList,
       dataTableAccoutingOperations,
       isLoadingAccountingOperations,

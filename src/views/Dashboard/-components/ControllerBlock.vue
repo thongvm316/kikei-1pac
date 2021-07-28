@@ -18,7 +18,7 @@
 
         <a-tooltip color="#fff" title="下に移動">
           <a-button
-            v-if="myBlock?.order !== blockList.length - 1"
+            v-if="myBlock?.order !== dashboardBlocks?.length - 1"
             type="link"
             class="controller-block__triangle u-flex u-justify-center u-items-center"
             @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_DOWN })"
@@ -66,8 +66,12 @@
 <script>
 import { defineComponent, ref, computed } from 'vue'
 import { find } from 'lodash-es'
+import { useStore } from 'vuex'
 
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
+import services from '@/services'
+import storageKeys from '@/enums/storage-keys'
+import { deepCopy } from '@/helpers/json-parser'
 
 import TriangleUpIcon from '@/assets/icons/ico_triangle_up.svg'
 import TriangleDownIcon from '@/assets/icons/ico_triangle_down.svg'
@@ -89,7 +93,6 @@ export default defineComponent({
       type: Number,
       require: true
     },
-    blockList: Object,
     title: String,
     groupList: Object,
     isUnvisibleGroupTab: {
@@ -101,12 +104,25 @@ export default defineComponent({
   emits: ['on-swap-block-order', 'on-change-group'],
 
   setup(props, { emit }) {
+    const store = useStore()
+    const StorageService = services.get('StorageService')
+
     const groupActive = ref()
     const isShowBlockContent = ref(true)
     const activeKey = ref(['1'])
 
+    const dashboardBlocks = computed(() => store.state.dashboard.blocks)
+
     const onHandleChangeGroup = (id) => {
       emit('on-change-group', id)
+
+      // update groupId in store
+      const _dashboardBlocks = dashboardBlocks.value.map((block) => ({
+        ...block,
+        groupId: block.id === props.blockId ? id : block.groupId
+      }))
+
+      updateBlockStore(_dashboardBlocks)
     }
 
     const handleToggleShowContent = () => {
@@ -114,7 +130,12 @@ export default defineComponent({
       activeKey.value = activeKey.value.length > 0 ? [] : ['1']
     }
 
-    const myBlock = computed(() => find(props.blockList, { id: props.blockId }))
+    const myBlock = computed(() => find(store.state.dashboard.blocks, { id: props.blockId }))
+
+    const updateBlockStore = (data) => {
+      StorageService.set(storageKeys.dashboardBlocks, data)
+      store.commit('dashboard/STORE_DASHBOARD_BLOCKS', deepCopy(data))
+    }
 
     return {
       groupActive,
@@ -123,6 +144,7 @@ export default defineComponent({
       myBlock,
       isShowBlockContent,
       activeKey,
+      dashboardBlocks,
 
       onHandleChangeGroup,
       handleToggleShowContent

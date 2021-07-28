@@ -7,6 +7,7 @@ import search from './search'
 import financing from './financing'
 import accounting from './accounting'
 import chart from './chart'
+import dashboard from './dashboard'
 
 const state = {}
 
@@ -25,7 +26,8 @@ const store = createStore({
     search,
     financing,
     accounting,
-    chart
+    chart,
+    dashboard
   },
   state,
   getters,

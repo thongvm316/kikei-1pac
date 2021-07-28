@@ -21,13 +21,15 @@
 import { defineComponent, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { find } from 'lodash-es'
 
 export default defineComponent({
   name: 'SalesTable',
 
   props: {
     isLoadingTable: Boolean,
-    dataSource: Object
+    dataSource: Object,
+    blockId: Number
   },
 
   setup(props) {
@@ -83,6 +85,8 @@ export default defineComponent({
         accuracyId: record[`${column.dataIndex}Id`]
       }
 
+      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
+      if (blockFound?.groupId) data.groupId = [blockFound.groupId]
       store.commit('project/STORE_PROJECT_FILTER', { data })
     }
 
