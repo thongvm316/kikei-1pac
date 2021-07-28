@@ -30,22 +30,37 @@
         <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
-            <span class="left-detail">{{ item.label }}</span>
+            <span class="left-detail">{{
+              item.label === 'Withdrawal'
+                ? $t('modal.chart_label_Withdrawal')
+                : item.label === 'Deposit'
+                ? $t('modal.chart_label_Deposit')
+                : item.label
+            }}</span>
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
               <span class="start-color"
                 ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
                 {{ item.money.toLocaleString() }}</span
               >
-              <template v-if="item.warnings.length > 0">
-                <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+              <tempalte v-if="idTab !== 0">
+                <template v-if="item.warnings.length > 0">
+                  <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                </template>
+              </tempalte>
+              <template v-else>
+                <template v-if="item.warnings.length > 0">
+                  <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span>
+                </template>
               </template>
             </span>
           </li>
-          <hr class="dashed" />
-          <li>
-            <span class="left-detail">残高合計</span>
-            <span class="right-detail">{{ totalMoney }}</span>
-          </li>
+          <tempalte v-if="idTab !== 0">
+            <hr class="dashed" />
+            <li>
+              <span class="left-detail">残高合計</span>
+              <span class="right-detail">{{ totalMoney }}</span>
+            </li>
+          </tempalte>
         </ul>
       </div>
     </div>
@@ -88,6 +103,10 @@ export default defineComponent({
     isVisible: {
       type: Boolean,
       required: true
+    },
+    isTabGroup: {
+      type: Number,
+      required: true
     }
   },
 
@@ -102,10 +121,11 @@ export default defineComponent({
     const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
-    const { dataChart } = toRefs(props)
+    const { dataChart, isTabGroup } = toRefs(props)
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
+    const idTab = ref(1)
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -159,7 +179,7 @@ export default defineComponent({
 
           opacityLine(nativeElement)
 
-          handleClickPoint(index).then(async (result) => {
+          handleClickPoint(index, nativeElement).then(async (result) => {
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value.totalMoney.toLocaleString()
 
@@ -202,6 +222,10 @@ export default defineComponent({
         }
       }
     }
+
+    watch(isTabGroup, (value) => {
+      idTab.value = value
+    })
 
     watch(dataChart, (value) => {
       isActive.value = false
@@ -285,7 +309,7 @@ export default defineComponent({
       return map(data, (i) => Object.values(i)[0])
     }
 
-    const handleClickPoint = (item) => {
+    const handleClickPoint = (item, nativeElement) => {
       // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve, reject) => {
         forEach(checkDate.value.detail, (value) => {
@@ -295,11 +319,20 @@ export default defineComponent({
 
         const data = store.state.financing?.filters
 
-        dataPoint.value = {
-          ...data.data,
-          from_date: fullDate.value,
-          to_date: fullDate.value,
-          data_id: checkDate.value.dataId
+        if (idTab.value === 0) {
+          dataPoint.value = {
+            ...data.data,
+            from_date: fullDate.value,
+            to_date: fullDate.value,
+            data_id: nativeElement[0].datasetIndex === 0 ? 1 : 2
+          }
+        } else {
+          dataPoint.value = {
+            ...data.data,
+            from_date: fullDate.value,
+            to_date: fullDate.value,
+            data_id: checkDate.value.dataId
+          }
         }
 
         // eslint-disable-next-line no-useless-catch
@@ -380,6 +413,7 @@ export default defineComponent({
       detailLabels,
       detailMoney,
       totalMoney,
+      idTab,
       handleClose,
       onToggleIndicated
     }

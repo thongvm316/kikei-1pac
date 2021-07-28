@@ -5,5 +5,8 @@ export default {
   reset: 'リセット',
   message_ja: ' を削除してもよろしいですか？',
   message_reset_password: 'をリセットしてもよろしいですか？',
-  chart: '表示設定'
+  chart: '表示設定',
+  chart_label_Withdrawal: '出金',
+  chart_label_Deposit: '入金',
+  cash_out: ':キャッシュアウト'
 }

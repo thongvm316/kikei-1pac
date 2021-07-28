@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" />
+    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" :is-tab-group="isTabGroup" />
   </section>
 </template>
 <script>
@@ -144,6 +144,7 @@ export default defineComponent({
     const periodList = ref([])
     const bankAccountList = ref([])
     const currencyList = ref([])
+    const isTabGroup = ref(1)
 
     // Chart
     const dataChartFinancing = ref([])
@@ -251,6 +252,7 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
+      isTabGroup.value = value
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -406,7 +408,7 @@ export default defineComponent({
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
-
+        filter.currency_code = currencyDefault?.code || null
         isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default
@@ -461,6 +463,7 @@ export default defineComponent({
       dataChartFinancing,
       updateDataRequest,
       idVisible,
+      isTabGroup,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
