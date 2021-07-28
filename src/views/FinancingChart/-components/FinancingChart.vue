@@ -2,7 +2,9 @@
   <section class="chart">
     <template v-if="isVisible ? isVisible : (openChart = false)">
       <a-button class="btn-chart" @click="openChart = true">
-        <template #icon><LineChartOutlined /></template>
+        <template #icon>
+          <LineChartOutlined />
+        </template>
         {{ $t('modal.chart') }}
       </a-button>
 
@@ -42,25 +44,25 @@
                 ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
                 {{ item.money.toLocaleString() }}</span
               >
-              <tempalte v-if="idTab !== 0">
-                <template v-if="item.warnings.length > 0">
+              <div v-if="idTab">
+                <template v-if="item.warnings.length">
                   <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
                 </template>
-              </tempalte>
-              <template v-else>
-                <template v-if="item.warnings.length > 0">
+              </div>
+              <div v-else>
+                <template v-if="item.warnings.length">
                   <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span>
                 </template>
-              </template>
+              </div>
             </span>
           </li>
-          <tempalte v-if="idTab !== 0">
+          <div v-if="idTab">
             <hr class="dashed" />
             <li>
               <span class="left-detail">残高合計</span>
               <span class="right-detail">{{ totalMoney }}</span>
             </li>
-          </tempalte>
+          </div>
         </ul>
       </div>
     </div>
@@ -116,8 +118,6 @@ export default defineComponent({
     const element = ref()
     const modalContent = ref()
     const checkDate = ref([])
-    const isEquals = ref()
-    const fullDate = ref()
     const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
@@ -125,7 +125,7 @@ export default defineComponent({
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
-    const idTab = ref(1)
+    const idTab = ref(props.isTabGroup)
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -175,11 +175,9 @@ export default defineComponent({
         element.value = window.myLineChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true)
         // set position modal
         if (element.value.length) {
-          const index = element.value[0].index
-
           opacityLine(nativeElement)
 
-          handleClickPoint(index, nativeElement).then(async (result) => {
+          handleClickPoint(nativeElement).then(async (result) => {
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value.totalMoney.toLocaleString()
 
@@ -223,9 +221,13 @@ export default defineComponent({
       }
     }
 
-    watch(isTabGroup, (value) => {
-      idTab.value = value
-    })
+    watch(
+      isTabGroup,
+      (value) => {
+        idTab.value = value
+      },
+      { immediate: true }
+    )
 
     watch(dataChart, (value) => {
       isActive.value = false
@@ -241,8 +243,10 @@ export default defineComponent({
         })
       }
 
+      // template array
+      checkDate.value = [...value]
+
       forEach(value, (item) => {
-        checkDate.value = item
         const result = mapChart(item.detail)
         const labels = mapLabel(result)
         const dataY = mapDataY(result)
@@ -309,35 +313,32 @@ export default defineComponent({
       return map(data, (i) => Object.values(i)[0])
     }
 
-    const handleClickPoint = (item, nativeElement) => {
+    const handleClickPoint = (nativeElement) => {
+      let fullDate = null
+      let dataId = null
       // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve, reject) => {
-        forEach(checkDate.value.detail, (value) => {
-          isEquals.value = isEqual(checkDate.value.detail[item].date, value.date)
-          if (isEquals.value) fullDate.value = checkDate.value.detail[item].fulldate
-        })
+        if (nativeElement.length) {
+          forEach(checkDate.value, (item, i) => {
+            if (nativeElement[0].datasetIndex === i) {
+              fullDate = item.detail[nativeElement[0].index].fulldate
+              dataId = item.dataId
+            }
+          })
+        }
 
-        const data = store.state.financing?.filters
+        const filters = store.state.financing?.filters
 
-        if (idTab.value === 0) {
-          dataPoint.value = {
-            ...data.data,
-            from_date: fullDate.value,
-            to_date: fullDate.value,
-            data_id: nativeElement[0].datasetIndex === 0 ? 1 : 2
-          }
-        } else {
-          dataPoint.value = {
-            ...data.data,
-            from_date: fullDate.value,
-            to_date: fullDate.value,
-            data_id: checkDate.value.dataId
-          }
+        dataPoint.value = {
+          ...filters.data,
+          from_date: fullDate,
+          to_date: fullDate,
+          data_id: dataId
         }
 
         // eslint-disable-next-line no-useless-catch
         try {
-          const { getDetailChart } = useGetDetailChartService(dataPoint.value, data.params)
+          const { getDetailChart } = useGetDetailChartService(dataPoint.value, filters.params)
           const { result } = await getDetailChart()
           resolve(result)
         } catch (e) {
