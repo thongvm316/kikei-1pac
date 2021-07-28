@@ -374,17 +374,11 @@ export default defineComponent({
         const width = modalContent.value.offsetWidth
         const height = modalContent.value.offsetHeight
 
-        const canvasW = myChartRef.value.offsetWidth
-        const canvasH = myChartRef.value.offsetHeight
+        const canvasW = myChartRef.value.clientWidth
+        const canvasH = myChartRef.value.clientHeight
 
-        const deltaX = layout.padding.left + layout.padding.right
-        const deltaY = layout.padding.top + layout.padding.bottom
-
-        modalContent.value.style.left = left + width >= canvasW - deltaX ? `${left - width + 6}px` : `${left + 6}px`
-        modalContent.value.style.top =
-          canvasH + deltaY - top * ((canvasH + deltaY) / canvasW) + height >= canvasH - deltaY
-            ? `${top - height - 6}px`
-            : `${top - 6}px`
+        modalContent.value.style.left = left + width >= canvasW ? `${left - width + 6}px` : `${left + 6}px`
+        modalContent.value.style.top = top + height >= canvasH - top ? `${top - height - 6}px` : `${top - 6}px`
       })
     }
 
