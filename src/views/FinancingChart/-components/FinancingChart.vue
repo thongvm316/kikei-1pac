@@ -32,13 +32,18 @@
         <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
-            <router-link :to="{ name: 'deposit' }" class="left-detail">{{
-              item.label === 'Withdrawal'
-                ? $t('modal.chart_label_Withdrawal')
-                : item.label === 'Deposit'
-                ? $t('modal.chart_label_Deposit')
-                : item.label
-            }}</router-link>
+            <div v-if="idTab">
+              <span class="left-detail">{{
+                item.label === 'Withdrawal'
+                  ? $t('modal.chart_label_Withdrawal')
+                  : item.label === 'Deposit'
+                  ? $t('modal.chart_label_Deposit')
+                  : item.label
+              }}</span>
+            </div>
+            <div v-else>
+              <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
+            </div>
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
               <span class="start-color"
                 ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>

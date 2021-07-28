@@ -1,20 +1,13 @@
 <template>
-  <div
-    v-show="visible"
-    class="money-history"
-  >
+  <div v-show="visible" class="money-history">
     <div class="money-history__head">
       <p>金額変更詳細</p>
-      <closeIcon @click="handleCancel" class="u-cursor-pointer" />
+      <closeIcon class="u-cursor-pointer" @click="handleCancel" />
     </div>
 
     <div class="money-history__body">
       <div class="money-history__body--scroll">
-        <div
-          v-for="item in project.value?.adProjectMoneyHistories"
-          :key="item.id"
-          class="money-history__item"
-        >
+        <div v-for="item in project.value?.adProjectMoneyHistories" :key="item.id" class="money-history__item">
           <p>{{ item.createdAt }}</p>
           <p>{{ item.money }} ({{ item.adCurrency.code }})</p>
         </div>
@@ -30,13 +23,13 @@ import CloseIcon from '@/assets/icons/ico_close.svg'
 export default defineComponent({
   name: 'MoneyHistoryModal',
 
+  components: {
+    CloseIcon
+  },
+
   props: {
     project: Object,
     visible: Boolean
-  },
-
-  components: {
-    CloseIcon
   },
 
   setup(props, { emit }) {
@@ -63,7 +56,7 @@ export default defineComponent({
   z-index: 200;
   left: calc(100% + 97px);
   width: 390px;
-  box-shadow: 0px 8px 16px 0px #3232470F;
+  box-shadow: 0px 8px 16px 0px #3232470f;
   box-shadow: 0px 8px 8px 0px #32324714;
   border-radius: 5px;
 
