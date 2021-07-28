@@ -375,10 +375,10 @@ export default defineComponent({
         const height = modalContent.value.offsetHeight
 
         const canvasW = myChartRef.value.clientWidth
-        const canvasH = myChartRef.value.clientHeight
+        // const canvasH = myChartRef.value.clientHeight
 
-        modalContent.value.style.left = left + width >= canvasW ? `${left - width + 6}px` : `${left + 6}px`
-        modalContent.value.style.top = top + height >= canvasH - top ? `${top - height - 6}px` : `${top - 6}px`
+        modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
+        modalContent.value.style.top = `${top - height - 8}px`
       })
     }
 
