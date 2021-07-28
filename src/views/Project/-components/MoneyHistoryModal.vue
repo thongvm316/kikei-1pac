@@ -1,28 +1,46 @@
 <template>
-  <a-modal v-model:visible="visible" centered title="金額変更詳細" width="390px" class="money-history-modal">
-    <template #footer>
-      <div class="wrapper">
-        <div v-for="item in project.value?.adProjectMoneyHistories" :key="item.id" class="money-history">
+  <div
+    v-show="visible"
+    class="money-history"
+  >
+    <div class="money-history__head">
+      <p>金額変更詳細</p>
+      <closeIcon @click="handleCancel" class="u-cursor-pointer" />
+    </div>
+
+    <div class="money-history__body">
+      <div class="money-history__body--scroll">
+        <div
+          v-for="item in project.value?.adProjectMoneyHistories"
+          :key="item.id"
+          class="money-history__item"
+        >
           <p>{{ item.createdAt }}</p>
           <p>{{ item.money }} ({{ item.adCurrency.code }})</p>
         </div>
       </div>
-    </template>
-  </a-modal>
+    </div>
+  </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent } from 'vue'
+import CloseIcon from '@/assets/icons/ico_close.svg'
 
 export default defineComponent({
   name: 'MoneyHistoryModal',
 
   props: {
-    project: Object
+    project: Object,
+    visible: Boolean
   },
 
-  setup(_, { emit }) {
-    const visible = ref()
+  components: {
+    CloseIcon
+  },
+
+  setup(props, { emit }) {
+    const visible = computed(() => props.visible)
 
     const handleCancel = () => {
       emit('update:visible', false)
@@ -38,22 +56,50 @@ export default defineComponent({
 
 <style lang="scss">
 @import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
 
-.money-history-modal {
-  .ant-modal-footer {
-    text-align: left;
+.money-history {
+  @include y-centered();
+  z-index: 200;
+  left: calc(100% + 97px);
+  width: 390px;
+  box-shadow: 0px 8px 16px 0px #3232470F;
+  box-shadow: 0px 8px 8px 0px #32324714;
+  border-radius: 5px;
+
+  &__head {
+    @include flexbox(space-between, center);
+    padding: 12px 24px;
+    background-color: $color-grey-94;
+    border-radius: 5px;
+
+    p {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      color: $color-primary-9;
+    }
+  }
+
+  &__body {
+    background-color: $color-grey-100;
+    border-end-end-radius: 5px;
+    border-end-start-radius: 5px;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    color: $color-grey-15;
     padding: 16px 0 10px 24px;
+
+    &--scroll {
+      max-height: 153px;
+      overflow-y: auto;
+      padding-right: 24px;
+    }
   }
 
-  .wrapper {
-    max-height: 153px;
-    overflow-y: auto;
-    padding-right: 24px;
-  }
-
-  .money-history {
-    display: flex;
-    justify-content: space-between;
+  &__item {
+    @include flexbox(space-between, center);
     font-size: 12px;
     line-height: 18px;
     color: $color-grey-15;
@@ -63,10 +109,10 @@ export default defineComponent({
     &:not(:first-child) {
       padding-top: 6px;
     }
+  }
 
-    p {
-      margin-bottom: 0;
-    }
+  p {
+    margin-bottom: 0;
   }
 }
 </style>
