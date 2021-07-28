@@ -227,12 +227,12 @@ export default defineComponent({
       isTabGroup,
       (value) => {
         idTab.value = value
+        isActive.value = false
       },
       { immediate: true }
     )
 
     watch(dataChart, (value) => {
-      isActive.value = false
       // reset dataset when switch tab group
       data.value.datasets = []
       plainOptions.value = []
