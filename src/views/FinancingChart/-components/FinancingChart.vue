@@ -236,6 +236,7 @@ export default defineComponent({
       // reset dataset when switch tab group
       data.value.datasets = []
       plainOptions.value = []
+      isActive.value = false
 
       // indicates setting <=> all group (tab)
       if (value.length > 1) {
