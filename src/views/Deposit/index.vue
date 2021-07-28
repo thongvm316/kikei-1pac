@@ -29,7 +29,7 @@
     </div>
 
     <div class="u-flex u-justify-between u-items-center u-mb-24">
-      <div>
+      <div class="u-relative">
         <a-tooltip
           color="fff"
           :title="
@@ -50,7 +50,7 @@
           v-if="currentSelectedRowKeys.length > 0"
           size="small"
           type="link"
-          class="u-ml-4"
+          class="u-absolute u-ml-4"
           @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
         >
           {{ $t('deposit.deposit_list.confirm_all') }}
