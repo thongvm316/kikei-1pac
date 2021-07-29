@@ -533,8 +533,8 @@ export default defineComponent({
         requestDataFilter.value.data = {
           group_id: columnId,
           period_id: null,
-          from_date: fromDate.value,
-          to_date: fromDate.value,
+          from_date: fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null,
+          to_date: fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
