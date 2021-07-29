@@ -2,7 +2,9 @@
   <section class="chart">
     <template v-if="isVisible ? isVisible : (openChart = false)">
       <a-button class="btn-chart" @click="openChart = true">
-        <template #icon><LineChartOutlined /></template>
+        <template #icon>
+          <LineChartOutlined />
+        </template>
         {{ $t('modal.chart') }}
       </a-button>
 
@@ -30,22 +32,76 @@
         <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
-            <span class="left-detail">{{ item.label }}</span>
+            <div v-if="idTab">
+              <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                <span class="left-detail">
+                  {{
+                    item.label === 'Withdrawal'
+                      ? $t('modal.chart_label_Withdrawal')
+                      : item.label === 'Deposit'
+                      ? $t('modal.chart_label_Deposit')
+                      : item.label
+                  }}
+                </span>
+              </router-link>
+            </div>
+
+            <div v-else>
+              <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
+            </div>
+
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
-              <span class="start-color"
-                ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                {{ item.money.toLocaleString() }}</span
-              >
-              <template v-if="item.warnings.length > 0">
-                <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-              </template>
+              <div v-if="idTab">
+                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color">
+                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                    {{ item.money.toLocaleString() }}
+                  </span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                  </template>
+                </router-link>
+
+                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color">
+                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                    {{ item.money.toLocaleString() }}
+                  </span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                  </template>
+                </router-link>
+              </div>
+              <div v-else>
+                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money__chart-all">
+                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                    </span>
+                  </template>
+                </router-link>
+                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money__chart-all">
+                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                    </span>
+                  </template>
+                </router-link>
+              </div>
             </span>
           </li>
-          <hr class="dashed" />
-          <li>
-            <span class="left-detail">残高合計</span>
-            <span class="right-detail">{{ totalMoney }}</span>
-          </li>
+          <div v-if="idTab">
+            <hr class="dashed" />
+            <li>
+              <span class="left-detail">残高合計</span>
+
+              <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
+                <span class="right-detail">{{ totalMoney }}</span>
+              </router-link>
+            </li>
+          </div>
         </ul>
       </div>
     </div>
@@ -53,10 +109,10 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
+import { defineComponent, onMounted, ref, toRefs, watch, nextTick, onBeforeMount } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, findIndex, isEqual, includes } from 'lodash-es'
+import { find, forEach, map, split, findIndex, includes, cloneDeep } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
 import { useStore } from 'vuex'
@@ -64,6 +120,15 @@ import useGetDetailChartService from '@/views/FinancingChart/composables/useGetD
 import moment from 'moment'
 
 window.myLineChart = null
+
+const layout = {
+  padding: {
+    top: 50,
+    bottom: 15,
+    left: 15,
+    right: 15
+  }
+}
 
 export default defineComponent({
   name: 'Index',
@@ -79,6 +144,10 @@ export default defineComponent({
     isVisible: {
       type: Boolean,
       required: true
+    },
+    isTabGroup: {
+      type: Number,
+      required: true
     }
   },
 
@@ -88,32 +157,35 @@ export default defineComponent({
     const element = ref()
     const modalContent = ref()
     const checkDate = ref([])
-    const isEquals = ref()
-    const fullDate = ref()
     const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
-    const { dataChart } = toRefs(props)
+    const { dataChart, isTabGroup } = toRefs(props)
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
+    const idTab = ref(props.isTabGroup)
 
     const detailChart = ref({})
     const detailLabels = ref([])
     const detailMoney = ref([])
     const totalMoney = ref()
-
+    const fullDate = ref()
+    // data filter deposit
+    const groupId = ref()
+    const fromDate = ref()
+    const toDate = ref()
+    const typeDeposit = ref()
+    const moneyType = ref()
+    const bankAccountsId = ref()
+    const dataFilters = ref({})
+    const requestDataFilter = ref({
+      data: {}
+    })
     const options = {
       responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2.4,
-      layout: {
-        padding: {
-          top: 50,
-          left: 10,
-          right: 10
-        }
-      },
+      maintainAspectRatio: false,
+      layout,
       scales: {
         x: {
           grid: {
@@ -154,10 +226,15 @@ export default defineComponent({
         // set position modal
         if (element.value.length) {
           opacityLine(nativeElement)
-          const index = element.value[0].index
-          reRenderPos(index)
-          handleClickPoint(index)
-          isActive.value = true
+
+          handleClickPoint(nativeElement).then(async (result) => {
+            detailChart.value = { ...result.data }
+            totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
+
+            await reRenderPos()
+
+            if (totalMoney.value) isActive.value = true
+          })
         } else {
           forEach(data.value.datasets, (item) => {
             item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
@@ -194,11 +271,20 @@ export default defineComponent({
       }
     }
 
+    watch(
+      isTabGroup,
+      (value) => {
+        idTab.value = value
+        isActive.value = false
+      },
+      { immediate: true }
+    )
+
     watch(dataChart, (value) => {
-      isActive.value = false
       // reset dataset when switch tab group
       data.value.datasets = []
       plainOptions.value = []
+      isActive.value = false
 
       // indicates setting <=> all group (tab)
       if (value.length > 1) {
@@ -208,8 +294,10 @@ export default defineComponent({
         })
       }
 
+      // template array
+      checkDate.value = [...value]
+
       forEach(value, (item) => {
-        checkDate.value = item
         const result = mapChart(item.detail)
         const labels = mapLabel(result)
         const dataY = mapDataY(result)
@@ -235,6 +323,19 @@ export default defineComponent({
 
       // re render chart
       window.myLineChart.update()
+    })
+
+    watch(
+      () => store.state.financing.filters.data,
+      () => {
+        dataFilters.value = store.state.financing?.filters?.data ? cloneDeep(store.state.financing.filters.data) : {}
+        groupId.value = dataFilters.value.group_id
+      }
+    )
+
+    onBeforeMount(() => {
+      dataFilters.value = store.state.financing?.filters?.data ? cloneDeep(store.state.financing.filters.data) : {}
+      groupId.value = dataFilters.value.group_id
     })
 
     onMounted(() => {
@@ -276,29 +377,43 @@ export default defineComponent({
       return map(data, (i) => Object.values(i)[0])
     }
 
-    const handleClickPoint = async (item) => {
-      forEach(checkDate.value.detail, (value) => {
-        isEquals.value = isEqual(checkDate.value.detail[item].date, value.date)
-        if (isEquals.value) fullDate.value = checkDate.value.detail[item].fulldate
+    const handleClickPoint = (nativeElement) => {
+      let dataId = null
+      // eslint-disable-next-line no-async-promise-executor
+      return new Promise(async (resolve, reject) => {
+        if (nativeElement.length) {
+          forEach(checkDate.value, (item, i) => {
+            if (nativeElement[0].datasetIndex === i) {
+              fullDate.value = item.detail[nativeElement[0].index].fulldate
+              dataId = item.dataId
+            }
+          })
+        }
+
+        const filters = store.state.financing?.filters
+
+        dataPoint.value = {
+          ...filters.data,
+          from_date: fullDate.value,
+          to_date: fullDate.value,
+          data_id: dataId
+        }
+
+        // eslint-disable-next-line no-useless-catch
+        try {
+          const { getDetailChart } = useGetDetailChartService(dataPoint.value, filters.params)
+          const { result } = await getDetailChart()
+          resolve(result)
+          if (result.data === null) {
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'error',
+              message: 'errors.data_chart_null'
+            })
+          }
+        } catch (e) {
+          reject(e)
+        }
       })
-
-      const data = store.state.financing?.filters
-
-      dataPoint.value = {
-        ...data.data,
-        from_date: fullDate.value,
-        to_date: fullDate.value,
-        data_id: checkDate.value.dataId
-      }
-
-      try {
-        const { getDetailChart } = useGetDetailChartService(dataPoint.value, data.params)
-        const { result } = await getDetailChart()
-        detailChart.value = { ...result.data }
-        totalMoney.value = detailChart.value.totalMoney.toLocaleString()
-      } catch (e) {
-        console.log(e)
-      }
     }
 
     const createChart = () => {
@@ -323,38 +438,134 @@ export default defineComponent({
     const reRenderPos = () => {
       const left = element.value[0].element.x
       const top = element.value[0].element.y
-      const width = modalContent.value.offsetWidth
-      const height = 135
 
-      if (left > 1200) {
-        modalContent.value.style.left = left - width - 10 + 'px'
-      } else {
-        modalContent.value.style.left = left + 10 + 'px'
-      }
+      nextTick(() => {
+        const width = modalContent.value.offsetWidth
+        const height = modalContent.value.offsetHeight
 
-      if (top > height) {
-        modalContent.value.style.top = top - height + 'px'
-      } else {
-        modalContent.value.style.top = top + 'px'
-      }
+        const canvasW = myChartRef.value.clientWidth
+        // const canvasH = myChartRef.value.clientHeight
+
+        modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
+        modalContent.value.style.top = `${top - height - 8}px`
+      })
     }
 
     const opacityLine = (elm) => {
       const datasetIndex = elm[0].datasetIndex
+      let opacity = null
 
       forEach(data.value.datasets, (item, index) => {
-        if (index !== datasetIndex) {
-          item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '0.2)')
-          item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '0.2)')
-          item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '0.2)')
-        } else {
-          item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
-          item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-          item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
-        }
+        opacity = index !== datasetIndex ? 0.4 : 1
+
+        item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, `${opacity})`)
+        item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, `${opacity})`)
+        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, `${opacity})`)
       })
 
       window.myLineChart.update()
+    }
+
+    const handleBankIdRequest = (id) => {
+      bankAccountsId.value = null
+      let bankId = dataFilters.value?.bank_account_ids || null
+      let groupId = dataFilters.value?.group_id || null
+
+      if (bankId.length > 0) {
+        bankAccountsId.value = bankId[0]
+      } else {
+        if (id) {
+          bankAccountsId.value = parseInt(id)
+        } else {
+          bankAccountsId.value = null
+        }
+      }
+
+      if (!groupId) {
+        bankAccountsId.value = null
+      }
+    }
+
+    const handleDateRequest = (fullDate) => {
+      let showBy = dataFilters.value.show_by
+      if (parseInt(showBy) === 0) {
+        // show by month
+        fromDate.value = fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null
+        toDate.value = fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null
+      }
+      if (parseInt(showBy) === 1) {
+        // show by day
+        fromDate.value = fullDate ? moment(fullDate).format('YYYY-MM-DD') : null
+        toDate.value = fullDate ? moment(fullDate).format('YYYY-MM-DD') : null
+      }
+    }
+
+    const handleTypeDepositRequest = (id) => {
+      let columnId = parseInt(id)
+
+      if (dataFilters.value.bank_account_ids.length !== 0) {
+        if (columnId === 2) {
+          typeDeposit.value = null
+          moneyType.value = 2
+        }
+        if (columnId === 1) {
+          typeDeposit.value = null
+          moneyType.value = 1
+        }
+      } else {
+        typeDeposit.value = null
+        moneyType.value = null
+      }
+    }
+
+    const handlePageRedirect = (item, fullDate) => {
+      let columnId = item?.id ?? null
+      handleBankIdRequest(columnId)
+      handleDateRequest(fullDate)
+      handleTypeDepositRequest(columnId)
+
+      if (dataFilters.value.group_id) {
+        requestDataFilter.value.data = {
+          groupId: dataFilters.value.group_id,
+          bankAccountId: bankAccountsId.value,
+          fromDate: fromDate.value,
+          toDate: toDate.value,
+          type: typeDeposit.value,
+          moneyType: moneyType.value
+        }
+
+        store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
+      } else {
+        requestDataFilter.value.data = {
+          group_id: columnId,
+          period_id: null,
+          from_date: fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null,
+          to_date: fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null,
+          show_by: 1,
+          bank_account_ids: [],
+          currency_code: null
+        }
+
+        store.commit('financing/STORE_FINANCING_FILTER', requestDataFilter.value)
+      }
+    }
+
+    const handleRowTotalRedirect = (item, fullDate) => {
+      let columnId = item?.id ?? null
+
+      handleBankIdRequest(columnId)
+      handleDateRequest(fullDate)
+      handleTypeDepositRequest(columnId)
+
+      requestDataFilter.value.data = {
+        groupId: dataFilters.value.group_id,
+        bankAccountId: bankAccountsId.value,
+        fromDate: fromDate.value,
+        toDate: toDate.value,
+        type: dataFilters.value.typeDeposit,
+        moneyType: dataFilters.value.moneyType
+      }
+      store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
     }
 
     return {
@@ -368,8 +579,15 @@ export default defineComponent({
       detailLabels,
       detailMoney,
       totalMoney,
+      idTab,
+      fullDate,
+      groupId,
+      onToggleIndicated,
       handleClose,
-      onToggleIndicated
+      handleBankIdRequest,
+      handleDateRequest,
+      handlePageRedirect,
+      handleRowTotalRedirect
     }
   }
 })

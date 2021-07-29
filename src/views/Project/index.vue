@@ -35,7 +35,7 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: 1200, y: height - 235 }"
+      :scroll="{ x: 1200, y: height - 236 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''

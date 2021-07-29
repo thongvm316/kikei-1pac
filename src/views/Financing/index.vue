@@ -122,6 +122,7 @@
       :data-request="updateDataRequest"
       :scroll-custom="scrollCustom"
       @on-sort="onSortTable"
+      @on-filter="onFilterRender"
     />
   </section>
 </template>
@@ -596,7 +597,7 @@ export default defineComponent({
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
-
+        filter.currency_code = currencyDefault?.code || null
         isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default
