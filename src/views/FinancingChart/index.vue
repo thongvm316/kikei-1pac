@@ -325,29 +325,6 @@ export default defineComponent({
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
-    // const disabledDate = (current) => {
-    //   // if (!dates.value || dates.value.length === 0) {
-    //   //   return true
-    //   // }
-    //
-    //   const diffDate = current.diff(dates.value[0], 'days')
-    //   return Math.abs(diffDate) > 60
-    // }
-    //
-    // const onOpenChange = (open) => {
-    //   if (open) {
-    //     dates.value = []
-    //   }
-    // }
-    //
-    // const onChange = (val) => {
-    //   value.value = val
-    // }
-    //
-    // const onCalendarChange = (val) => {
-    //   dates.value = val
-    // }
-
     // Fetch data group
     const fetchGroupList = async () => {
       const { getGroups } = useGetGroupListService()
@@ -477,11 +454,6 @@ export default defineComponent({
       updateDataRequest,
       idVisible,
       isTabGroup,
-      // value,
-      // disabledDate,
-      // onOpenChange,
-      // onChange,
-      // onCalendarChange,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
