@@ -210,7 +210,7 @@ export default defineComponent({
 
     const requestParamsData = ref({
       data: { ...initialDataRequest },
-      params: { pageNumber: 1, pageSize: 100 }
+      params: { pageNumber: 1, pageSize: 365 }
     })
 
     const updateParamRequestFinancing = ({ data = {}, params = {} }) => {
