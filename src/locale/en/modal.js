@@ -9,5 +9,6 @@ export default {
   chart_label_Withdrawal: 'Withdrawal',
   chart_label_Deposit: 'Deposit',
   cash_out: ':cash out',
-  balance_chart: 'balance'
+  balance_chart: 'balance',
+  total_balance: 'Total balance'
 }
