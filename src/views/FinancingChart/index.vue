@@ -17,9 +17,9 @@
         <!--./Stages -->
         <!--Date From-->
         <div class="form-group">
-          <label class="form-label label-date"> {{ $t('financing.financing_list.date') }}: </label>
+          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
-          <div class="form-select date-chart">
+          <div class="form-select">
             <a-range-picker
               v-model:value="filter.date_from_to"
               format="YYYY-MM-DD"
@@ -31,7 +31,6 @@
                 <CalendarOutlined />
               </template>
             </a-range-picker>
-            <span class="note_chart-date">※グラフ表示の場合は2ヶ月以内の日付を選択してください</span>
           </div>
         </div>
         <!--./Date From -->
