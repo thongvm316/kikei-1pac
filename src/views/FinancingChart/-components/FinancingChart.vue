@@ -434,10 +434,10 @@ export default defineComponent({
     }
 
     const reRenderPos = () => {
-      const left = element.value[0].element.x
-      const top = element.value[0].element.y
-
       nextTick(() => {
+        const left = element.value[0].element.x
+        const top = element.value[0].element.y
+
         const width = modalContent.value.offsetWidth
         const height = modalContent.value.offsetHeight
 
@@ -445,12 +445,7 @@ export default defineComponent({
         const canvasH = myChartRef.value.clientHeight
 
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top =
-          top + height >= canvasH
-            ? `${top - height - 8}px`
-            : top * 2 + height <= canvasH
-              ? `${top - 8}px`
-              : `${top - height}px`
+        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 6}px` : `${top - 6}px`
       })
     }
 
