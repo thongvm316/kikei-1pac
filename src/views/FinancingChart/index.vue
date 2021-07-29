@@ -236,11 +236,11 @@ export default defineComponent({
             message: 'errors.chart_date_2m'
           })
           filter.date_from_to = dateString[0] === '' && dateString[1] === ''
-          return
+        } else {
+          filter.date_from_to = dateString
         }
         filter.period_id = null
         isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
-        filter.date_from_to = dateString
         if (dateString[0] === '' && dateString[1] === '') {
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
