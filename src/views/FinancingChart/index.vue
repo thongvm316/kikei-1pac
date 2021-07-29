@@ -54,7 +54,7 @@
         <!-- ./Display -->
       </div>
       <div class="financing__header--middle">
-        <a-tabs v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
+        <a-tabs ref="tabGroup" v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
           <a-tab-pane v-for="item in groupList" :key="item.id" :tab="item.name"></a-tab-pane>
         </a-tabs>
       </div>
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" :is-tab-group="isTabGroup" />
+    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" @on-tab-change="handleTab" />
   </section>
 </template>
 <script>
@@ -145,12 +145,12 @@ export default defineComponent({
     const periodList = ref([])
     const bankAccountList = ref([])
     const currencyList = ref([])
-    const isTabGroup = ref(1)
 
     // Chart
     const dataChartFinancing = ref([])
     const updateDataRequest = ref({})
     const idVisible = ref(false)
+    const tabGroup = ref()
 
     const isLoading = ref(false)
     const isLoadingDataChart = ref(true)
@@ -269,7 +269,6 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
-      isTabGroup.value = value
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -294,6 +293,11 @@ export default defineComponent({
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+    }
+
+    const handleTab = (evt) => {
+      console.log(evt)
+      onChangeTabGroup(evt)
     }
 
     const onChangeBankAccount = async () => {
@@ -471,7 +475,8 @@ export default defineComponent({
       dataChartFinancing,
       updateDataRequest,
       idVisible,
-      isTabGroup,
+      tabGroup,
+      handleTab,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,

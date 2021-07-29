@@ -32,7 +32,7 @@
         <close-icon class="icon" @click="handleClose" />
         <ul>
           <li v-for="item in detailChart.data" :key="item">
-            <div v-if="idTab">
+            <div v-if="dataChart.length < 2">
               <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
                 <span class="left-detail">
                   {{
@@ -46,11 +46,11 @@
               </router-link>
             </div>
             <div v-else>
-              <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
+              <span class="left-detail_chart-all">{{ $t('modal.balance_chart') }}</span>
             </div>
 
             <span class="money-detail right-detail">
-              <div v-if="idTab" :style="item.money < 0 ? 'color: red' : 'color: black'">
+              <div v-if="dataChart.length < 2" :style="item.money < 0 ? 'color: red' : 'color: black'">
                 <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
                   <span class="start-color">
                     <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
@@ -72,7 +72,11 @@
                 </router-link>
               </div>
               <div v-else>
-                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                <router-link
+                  v-if="dataChart.length < 2"
+                  :to="{ name: 'deposit' }"
+                  @click="handlePageRedirect(item, fullDate)"
+                >
                   <span class="start-color"> {{ item.money.toLocaleString() }}</span>
                   <template v-if="item.warnings.length">
                     <span class="note-money__chart-all">
@@ -80,18 +84,18 @@
                     </span>
                   </template>
                 </router-link>
-                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                <div v-else class="money_chart-all" @click="handlePageRedirect(item, fullDate)">
                   <span class="start-color"> {{ item.money.toLocaleString() }}</span>
                   <template v-if="item.warnings.length">
                     <span class="note-money__chart-all">
                       {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
                     </span>
                   </template>
-                </router-link>
+                </div>
               </div>
             </span>
           </li>
-          <div v-if="idTab">
+          <div v-if="dataChart.length < 2">
             <hr class="dashed" />
             <li>
               <span>{{ $t('modal.total_balance') }}</span>
@@ -142,14 +146,10 @@ export default defineComponent({
     isVisible: {
       type: Boolean,
       required: true
-    },
-    isTabGroup: {
-      type: Number,
-      required: true
     }
   },
 
-  setup(props) {
+  setup(props, { emit }) {
     const store = useStore()
     const myChartRef = ref()
     const element = ref()
@@ -158,11 +158,10 @@ export default defineComponent({
     const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
-    const { dataChart, isTabGroup } = toRefs(props)
+    const { dataChart } = toRefs(props)
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
-    const idTab = ref(props.isTabGroup)
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -268,15 +267,6 @@ export default defineComponent({
         }
       }
     }
-
-    watch(
-      isTabGroup,
-      (value) => {
-        idTab.value = value
-        isActive.value = false
-      },
-      { immediate: true }
-    )
 
     watch(dataChart, (value) => {
       // reset dataset when switch tab group
@@ -523,6 +513,7 @@ export default defineComponent({
       handleTypeDepositRequest(columnId)
 
       if (dataFilters.value.group_id) {
+        console.log('1')
         requestDataFilter.value.data = {
           groupId: dataFilters.value.group_id,
           bankAccountId: bankAccountsId.value,
@@ -531,20 +522,21 @@ export default defineComponent({
           type: typeDeposit.value,
           moneyType: moneyType.value
         }
-
         store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
       } else {
+        console.log('2')
         requestDataFilter.value.data = {
           group_id: columnId,
           period_id: null,
-          from_date: fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null,
-          to_date: fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null,
+          from_date: fullDate,
+          to_date: fullDate,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
         }
 
         store.commit('financing/STORE_FINANCING_FILTER', requestDataFilter.value)
+        emit('on-tab-change', columnId)
       }
     }
 
@@ -577,7 +569,6 @@ export default defineComponent({
       detailLabels,
       detailMoney,
       totalMoney,
-      idTab,
       fullDate,
       groupId,
       onToggleIndicated,
