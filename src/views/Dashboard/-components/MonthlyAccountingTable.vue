@@ -57,7 +57,7 @@ export default defineComponent({
           align: 'center',
           ellipsis: true,
           fixed: 'left',
-          width: 200
+          width: 150
         }
       ]
 
@@ -70,7 +70,7 @@ export default defineComponent({
           key: item?.month,
           align: 'right',
           ellipsis: true,
-          width: 200,
+          width: 160,
           slots: { customRender: 'renderMonth' }
         })
       })

@@ -1,6 +1,6 @@
 <template>
   <div class="controller-block u-flex u-justify-between u-items-center u-mx-32">
-    <p>{{ title }}</p>
+    <p class="ontroller-block__title">{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
         <a-tooltip color="#fff" title="上に移動">
@@ -154,9 +154,21 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
+
 .controller-block {
+  &__title {
+    color: $color-grey-15;
+    font-size: 16px;
+  }
+
   &__triangle {
     width: 18px;
+
+    &:hover {
+      color: $color-grey-55;
+    }
   }
 }
 
@@ -174,9 +186,9 @@ export default defineComponent({
   .ant-collapse-item {
     border-bottom: 0;
   }
+}
 
-  .ant-collapse-borderless {
-    background-color: transparent !important;
-  }
+.controller-collapse.ant-collapse-borderless {
+  background-color: transparent;
 }
 </style>

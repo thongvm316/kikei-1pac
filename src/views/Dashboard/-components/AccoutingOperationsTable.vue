@@ -5,7 +5,7 @@
     :data-source="dataRows"
     :pagination="false"
     :locale="localeTable"
-    :scroll="{ x: 1000 }"
+    :scroll="{ x: 700 }"
     class="accounting-operations"
   >
     <template #renderGroup="{ text, column }">

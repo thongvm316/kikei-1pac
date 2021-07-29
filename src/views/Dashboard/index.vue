@@ -28,7 +28,7 @@
           :is-loading-table="isLoadingTableSales"
           :data-source="dataTableSales?.statistics"
         />
-        <stacked-bar-sales />
+        <stacked-bar-sales :data-source="dataTableSales" />
       </controller-block>
     </div>
 
@@ -272,10 +272,10 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      // const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks)
-      // if (dashboardBlocks) {
-      //   store.commit('dashboard/STORE_DASHBOARD_BLOCKS', dashboardBlocks)
-      // }
+      const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks)
+      if (dashboardBlocks) {
+        store.commit('dashboard/STORE_DASHBOARD_BLOCKS', dashboardBlocks)
+      }
 
       // fetch group list
       const groupsReponse = await getGroups()

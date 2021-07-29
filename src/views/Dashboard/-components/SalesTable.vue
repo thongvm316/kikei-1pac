@@ -5,7 +5,7 @@
     :data-source="dataTable"
     :pagination="false"
     :locale="localeTable"
-    :scroll="{ x: 1500 }"
+    :scroll="{ x: 1000 }"
     class="sales-table"
   >
     <template #renderAccuracy="{ text, column, record, index }">
@@ -49,7 +49,7 @@ export default defineComponent({
         key: accuracy.accuracyId,
         align: 'right',
         ellipsis: true,
-        width: 110,
+        width: 90,
         slots: { customRender: 'renderAccuracy' }
       }))
       return headerList
