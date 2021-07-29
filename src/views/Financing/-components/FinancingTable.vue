@@ -241,6 +241,7 @@ export default defineComponent({
         type: typeDeposit,
         moneyType: moneyType
       }
+
       if (dataFilterRequest.value.group_id) {
         store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
         router.push({ name: 'deposit' })
