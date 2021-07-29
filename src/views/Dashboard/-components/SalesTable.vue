@@ -113,5 +113,14 @@ export default defineComponent({
       color: $color-grey-15;
     }
   }
+
+  .ant-table-placeholder {
+    @include flexbox(center, center);
+    height: 96px;
+  }
+
+  .ant-table-empty .ant-table-body {
+    overflow-x: hidden !important;
+  }
 }
 </style>

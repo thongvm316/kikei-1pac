@@ -140,5 +140,14 @@ export default defineComponent({
       }
     }
   }
+
+  .ant-table-placeholder {
+    @include flexbox(center, center);
+    height: 48px;
+  }
+
+  .ant-table-empty .ant-table-body {
+    overflow-x: hidden !important;
+  }
 }
 </style>
