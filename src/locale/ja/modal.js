@@ -8,5 +8,6 @@ export default {
   chart: '表示設定',
   chart_label_Withdrawal: '出金',
   chart_label_Deposit: '入金',
-  cash_out: ':キャッシュアウト'
+  cash_out: ':キャッシュアウト',
+  balance_chart: '残高'
 }

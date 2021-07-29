@@ -36,7 +36,7 @@ export default {
   company_0000: 'エラーが見つかりません',
   company_0001: '企業名企業見つかりません',
   company_0002: '企業名企業無効です',
-  company_0003: '企業名企業存在しました',
+  company_0003: '企業が存在しました',
   company_0004: '入力が無効です',
 
   category_0000: 'エラーが見つかりません',
@@ -62,5 +62,8 @@ export default {
   account_0002: 'アカウントが無効です',
   account_0003: 'アカウントが存在しました',
   account_0004: '入力が無効です',
-  account_0102: '権限がありません'
+  account_0102: '権限がありません',
+
+  chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
+  data_chart_null: 'no data'
 }

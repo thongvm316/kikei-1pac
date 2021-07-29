@@ -122,6 +122,7 @@
       :data-request="updateDataRequest"
       :scroll-custom="scrollCustom"
       @on-sort="onSortTable"
+      @on-filter="onFilterRender"
     />
   </section>
 </template>

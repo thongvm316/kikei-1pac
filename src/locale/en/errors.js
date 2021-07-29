@@ -62,5 +62,8 @@ export default {
   account_0002: 'account is not valid',
   account_0003: 'account existed',
   account_0004: 'input is not valid',
-  account_0102: 'Don\'t have permission'
+  account_0102: 'Don\'t have permission',
+
+  chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
+  data_chart_null: 'no data'
 }

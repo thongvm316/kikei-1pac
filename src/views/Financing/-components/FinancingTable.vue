@@ -241,21 +241,22 @@ export default defineComponent({
         type: typeDeposit,
         moneyType: moneyType
       }
+
       if (dataFilterRequest.value.group_id) {
         store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
         router.push({ name: 'deposit' })
       } else {
-        const newFilterRequest = {
+        const data = {
           group_id: groupId,
-          period_id: dataFilterRequest.value.period_id,
+          period_id: null,
           from_date: record?.date ? moment(record.date).startOf('month').format('YYYY-MM-DD') : null,
           to_date: record?.date ? moment(record.date).endOf('month').format('YYYY-MM-DD') : null,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
         }
-        store.commit('financing/STORE_FINANCING_FILTER', { newFilterRequest })
-        emit('on-filter', newFilterRequest)
+        store.commit('financing/STORE_FINANCING_FILTER', { data })
+        emit('on-filter', data)
       }
     }
 

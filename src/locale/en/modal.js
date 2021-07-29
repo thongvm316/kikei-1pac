@@ -8,5 +8,6 @@ export default {
   chart: 'Setting Display',
   chart_label_Withdrawal: 'Withdrawal',
   chart_label_Deposit: 'Deposit',
-  cash_out: ':cash out'
+  cash_out: ':cash out',
+  balance_chart: 'balance'
 }
