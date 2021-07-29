@@ -23,11 +23,7 @@
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchSales($event)"
       >
-        <sales-table
-          :block-id="blockIdList[1]"
-          :is-loading-table="isLoadingTableSales"
-          :data-source="dataTableSales?.statistics"
-        />
+        <sales-table :block-id="blockIdList[1]" :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
         <stacked-bar-sales :data-source="dataTableSales" />
       </controller-block>
     </div>

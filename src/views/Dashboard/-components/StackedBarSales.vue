@@ -12,13 +12,15 @@
         :key="accuracy.accuracyId"
         :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
         placement="bottom"
-        overlay-class-name="stacked-bar__chart--popover"
+        :overlay-class-name="['stacked-bar__chart--popover', !accuracy.accuracyCode && 'popover-last-child']"
       >
         <template #content>
           <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
-          <p v-if="accuracy.accuracyCode">{{ `達成率: ${accuracy.percent}%` }}</p>
+          <p v-if="accuracy.accuracyCode" class="u-text-grey-55">
+            達成率:<span class="u-text-grey-15">{{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}</span>
+          </p>
         </template>
-        <div class="stacked-bar__item" :style="{ width: `${accuracy.percent}%` }">
+        <div class="stacked-bar__item" :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }">
           <span>{{ accuracy.accuracyCode }}</span>
         </div>
       </a-popover>
@@ -50,8 +52,8 @@ export default defineComponent({
 
       const list = props.dataSource.statistics.map((accuracy) => {
         const _total = totalRevenue > revenueTarget ? totalRevenue : revenueTarget
-        const percent = (accuracy?.revenue / _total) * 100
-        // const percent = 15
+        // const percent = (accuracy?.revenue / _total) * 100
+        const percent = 15
         totalPercent += percent
 
         return { ...accuracy, percent }
@@ -191,9 +193,19 @@ export default defineComponent({
       background-color: $color-additional-red-4;
     }
 
+    .ant-popover-title {
+      color: $color-additional-red-6;
+    }
+
     span {
       display: none;
     }
+  }
+}
+
+.stacked-bar__chart--popover.popover-last-child {
+  .ant-popover-title {
+    color: $color-additional-red-6;
   }
 }
 </style>

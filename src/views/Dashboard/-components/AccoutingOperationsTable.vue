@@ -55,7 +55,7 @@ export default defineComponent({
         }
       ]
 
-      props.dataSource.map((item) => {
+      ;(props?.dataSource?.pendingDeposits || []).map((item) => {
         headerList.push({
           title: item?.groupName,
           dataIndex: item?.groupName,
@@ -75,7 +75,7 @@ export default defineComponent({
         firstCol: '本日未確定'
       }
 
-      props.dataSource.map((item) => {
+      ;(props?.dataSource?.pendingDeposits || []).map((item) => {
         row[item?.groupName] = item?.pendingDepositsCount || 0
       })
 
@@ -83,11 +83,13 @@ export default defineComponent({
     })
 
     const handleSelectPendingDeposits = (column) => {
-      const groupFound = find(props.dataSource, { groupName: column.dataIndex })
+      const groupFound = find(props?.dataSource?.pendingDeposits || [], { groupName: column.dataIndex })
 
       const data = {
         groupId: groupFound?.groupId,
-        confirmed: [false]
+        confirmed: [false],
+        fromDate: props?.dataSource?.fromDate || null,
+        toDate: props?.dataSource?.toDate || null
       }
 
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })

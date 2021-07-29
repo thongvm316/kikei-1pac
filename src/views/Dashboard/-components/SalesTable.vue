@@ -41,9 +41,9 @@ export default defineComponent({
     }
 
     const columns = computed(() => {
-      if (!props?.dataSource?.length) return []
+      if (!props?.dataSource?.statistics?.length) return []
 
-      const headerList = props.dataSource.map((accuracy) => ({
+      const headerList = props.dataSource.statistics.map((accuracy) => ({
         title: `${accuracy.accuracyCode} (${accuracy.accuracyName})`,
         dataIndex: accuracy.accuracyCode,
         key: accuracy.accuracyId,
@@ -56,7 +56,7 @@ export default defineComponent({
     })
 
     const dataTable = computed(() => {
-      if (!props?.dataSource?.length) return []
+      if (!props?.dataSource?.statistics?.length) return []
 
       let rows = [
         {
@@ -68,7 +68,7 @@ export default defineComponent({
       ]
 
       const accuracyIdAccumulated = []
-      props.dataSource.forEach((accuracy) => {
+      props.dataSource.statistics.forEach((accuracy) => {
         accuracyIdAccumulated.push(accuracy.accuracyId)
 
         rows[0][accuracy.accuracyCode] = accuracy.revenue
@@ -82,7 +82,9 @@ export default defineComponent({
 
     const handleClickLink = (column, record) => {
       const data = {
-        accuracyId: record[`${column.dataIndex}Id`]
+        accuracyId: record[`${column.dataIndex}Id`],
+        statisticsFrom: props.dataSource?.fromDate || null,
+        statisticsTo: props.dataSource?.toDate || null
       }
 
       const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
