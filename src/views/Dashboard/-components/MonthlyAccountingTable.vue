@@ -8,8 +8,18 @@
     :scroll="{ x: 1200 }"
     class="monthly-accounting"
   >
-    <template #renderMonth="{ text }">
-      {{ $filters.number_with_commas(text) }}
+    <template #renderMonth="{ text, record, column, index }">
+      <router-link
+        v-if="index + 1 !== dataTable.length"
+        :to="{ name: 'deposit' }"
+        :class="['amonthly-accounting__link', index === 1 && 'text-color-red']"
+        @click="handleSelectLink(column, index)"
+      >
+        {{ $filters.number_with_commas(text) }}
+      </router-link>
+      <p v-else :class="[index === 2 && text < 0 && 'text-color-red']">
+        {{ $filters.number_with_commas(text) }}
+      </p>
     </template>
   </a-table>
 </template>
@@ -17,17 +27,22 @@
 <script>
 import { defineComponent, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { find } from 'lodash-es'
+import moment from 'moment'
 
 export default defineComponent({
   name: 'MonthlyAccountingTable',
 
   props: {
     isLoadingTable: Boolean,
-    dataSource: Object
+    dataSource: Object,
+    blockId: Number
   },
 
   setup(props) {
     const { t } = useI18n()
+    const store = useStore()
 
     const localeTable = {
       emptyText: t('accounting.empty_text_table')
@@ -89,10 +104,24 @@ export default defineComponent({
       return rows
     })
 
+    const handleSelectLink = (column, rowIndex) => {
+      const data = {
+        statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
+        statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null,
+        // type: [rowIndex + 1 === 0 ? 10 : 20]
+      }
+
+      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
+      if (blockFound?.groupId) data.groupId = blockFound.groupId
+
+      store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
+    }
+
     return {
       columns,
       localeTable,
-      dataTable
+      dataTable,
+      handleSelectLink
     }
   }
 })
@@ -103,6 +132,17 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .monthly-accounting {
+  &__link {
+    &:hover {
+      text-decoration: underline;
+      color: inherit;
+    }
+  }
+
+  .text-color-red {
+    color: $color-additional-red-6;
+  }
+
   .ant-table-fixed-left {
     border-top: 1px solid #bfbfbf;
 

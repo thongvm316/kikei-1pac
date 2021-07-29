@@ -41,7 +41,7 @@ export default defineComponent({
     }
 
     const columns = computed(() => {
-      if (!props?.dataSource.length) return []
+      if (!props?.dataSource?.length) return []
 
       const headerList = props.dataSource.map((accuracy) => ({
         title: `${accuracy.accuracyCode} (${accuracy.accuracyName})`,
@@ -56,7 +56,7 @@ export default defineComponent({
     })
 
     const dataTable = computed(() => {
-      if (!props?.dataSource.length) return []
+      if (!props?.dataSource?.length) return []
 
       let rows = [
         {

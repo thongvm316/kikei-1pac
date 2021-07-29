@@ -23,7 +23,11 @@
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchSales($event)"
       >
-        <sales-table :block-id="blockIdList[1]" :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <sales-table
+          :block-id="blockIdList[1]"
+          :is-loading-table="isLoadingTableSales"
+          :data-source="dataTableSales?.statistics"
+        />
         <stacked-bar-sales />
       </controller-block>
     </div>
@@ -36,7 +40,11 @@
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchMonthlyAccounting($event)"
       >
-        <monthly-accounting-table :is-loading-table="isLoadingMonthlyAccounting" :data-source="dataTableMonthly" />
+        <monthly-accounting-table
+          :block-id="blockIdList[2]"
+          :is-loading-table="isLoadingMonthlyAccounting"
+          :data-source="dataTableMonthly"
+        />
       </controller-block>
     </div>
 
@@ -146,6 +154,14 @@ export default defineComponent({
         }))
 
         updateBlockStore(blockOrder)
+      } else {
+        // reset groupId
+        const _dashboardBlocks = dashboardBlocks.value.map((block) => ({
+          ...block,
+          groupId: groupIdDefault.value
+        }))
+
+        updateBlockStore(_dashboardBlocks)
       }
 
       blockIdList.value = dashboardBlocks.value.map((_, index) => index) // needs to be the same as the id generated above
@@ -256,10 +272,10 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks) || store.state.dashboard.blocks
-      if (dashboardBlocks && !store.state.dashboard.blocks) {
-        store.commit('dashboard/STORE_DASHBOARD_BLOCKS', dashboardBlocks)
-      }
+      // const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks)
+      // if (dashboardBlocks) {
+      //   store.commit('dashboard/STORE_DASHBOARD_BLOCKS', dashboardBlocks)
+      // }
 
       // fetch group list
       const groupsReponse = await getGroups()
