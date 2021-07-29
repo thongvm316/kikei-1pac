@@ -9,7 +9,7 @@
       <div class="money-history__body--scroll">
         <div v-for="item in project.value?.adProjectMoneyHistories" :key="item.id" class="money-history__item">
           <p>{{ item.createdAt }}</p>
-          <p>{{ item.money }} ({{ item.adCurrency.code }})</p>
+          <p>{{ $filters.number_with_commas(item.money) }} ({{ item.adCurrency.code }})</p>
         </div>
       </div>
     </div>
