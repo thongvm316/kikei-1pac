@@ -148,7 +148,6 @@ export default defineComponent({
 
     // Chart
     const dataChartFinancing = ref([])
-    const updateDataRequest = ref({})
     const idVisible = ref(false)
     const tabGroup = ref()
 
@@ -296,8 +295,16 @@ export default defineComponent({
     }
 
     const handleTab = (evt) => {
-      console.log(evt)
-      onChangeTabGroup(evt)
+      requestParamsData.value.data = {
+        ...evt,
+        currency_code: requestParamsData.value.data.currency_code
+      }
+
+      filter.group_id = evt.group_id
+      filter.date_from_to[0] = evt.from_date
+      filter.date_from_to[1] = evt.to_date
+
+      onChangeTabGroup(evt.group_id)
     }
 
     const onChangeBankAccount = async () => {
@@ -445,8 +452,6 @@ export default defineComponent({
           to_date: moment().add(59, 'days').format('YYYY-MM-DD')
         }
       }
-
-      updateDataRequest.value = requestParamsData.value
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       await fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
@@ -456,7 +461,6 @@ export default defineComponent({
     watch(
       () => requestParamsData.value,
       () => {
-        updateDataRequest.value = requestParamsData.value
         // fetch data chart
         fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
@@ -473,7 +477,6 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       dataChartFinancing,
-      updateDataRequest,
       idVisible,
       tabGroup,
       handleTab,

@@ -149,6 +149,8 @@ export default defineComponent({
     }
   },
 
+  emits: ['on-tab-change'],
+
   setup(props, { emit }) {
     const store = useStore()
     const myChartRef = ref()
@@ -176,9 +178,11 @@ export default defineComponent({
     const moneyType = ref()
     const bankAccountsId = ref()
     const dataFilters = ref({})
+
     const requestDataFilter = ref({
       data: {}
     })
+
     const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -513,7 +517,6 @@ export default defineComponent({
       handleTypeDepositRequest(columnId)
 
       if (dataFilters.value.group_id) {
-        console.log('1')
         requestDataFilter.value.data = {
           groupId: dataFilters.value.group_id,
           bankAccountId: bankAccountsId.value,
@@ -524,19 +527,17 @@ export default defineComponent({
         }
         store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
       } else {
-        console.log('2')
         requestDataFilter.value.data = {
           group_id: columnId,
           period_id: null,
-          from_date: fullDate,
-          to_date: fullDate,
+          from_date: fromDate.value,
+          to_date: toDate.value,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
         }
 
-        store.commit('financing/STORE_FINANCING_FILTER', requestDataFilter.value)
-        emit('on-tab-change', columnId)
+        emit('on-tab-change', requestDataFilter.value.data)
       }
     }
 
