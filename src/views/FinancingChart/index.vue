@@ -230,12 +230,13 @@ export default defineComponent({
         // Calculate the day difference
         const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
         const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-        if (diffDays > 60) {
+        if (diffDays > 59) {
           store.commit('flash/STORE_FLASH_MESSAGE', {
             variant: 'error',
             message: 'errors.chart_date_2m'
           })
-          filter.date_from_to = dateString[0] === '' && dateString[1] === ''
+          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
         } else {
           filter.date_from_to = dateString
         }
@@ -430,7 +431,15 @@ export default defineComponent({
         filter.currency_code = currencyDefault?.code || null
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         requestParamsData.value.data.group_id = filter?.group_id || null
-        requestParamsData.value.data.period_id = filter?.period_id || null
+        filter.period_id = null
+        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          period_id: null,
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+        }
       }
 
       updateDataRequest.value = requestParamsData.value

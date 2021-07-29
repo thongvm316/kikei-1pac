@@ -445,7 +445,12 @@ export default defineComponent({
         const canvasH = myChartRef.value.clientHeight
 
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 8}px` : `${top + 8}px`
+        modalContent.value.style.top =
+          top + height >= canvasH
+            ? `${top - height - 8}px`
+            : top * 2 + height <= canvasH
+              ? `${top - 8}px`
+              : `${top - height}px`
       })
     }
 
