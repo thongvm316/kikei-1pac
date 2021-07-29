@@ -33,34 +33,62 @@
         <ul>
           <li v-for="item in detailChart.data" :key="item">
             <div v-if="idTab">
-              <span class="left-detail">{{
-                item.label === 'Withdrawal'
-                  ? $t('modal.chart_label_Withdrawal')
-                  : item.label === 'Deposit'
-                  ? $t('modal.chart_label_Deposit')
-                  : item.label
-              }}</span>
+              <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                <span class="left-detail">
+                  {{
+                    item.label === 'Withdrawal'
+                      ? $t('modal.chart_label_Withdrawal')
+                      : item.label === 'Deposit'
+                      ? $t('modal.chart_label_Deposit')
+                      : item.label
+                  }}
+                </span>
+              </router-link>
             </div>
+
             <div v-else>
               <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
             </div>
+
             <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
               <div v-if="idTab">
-                <span class="start-color"
-                  ><p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                  {{ item.money.toLocaleString() }}</span
-                >
-                <template v-if="item.warnings.length">
-                  <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-                </template>
+                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color">
+                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                    {{ item.money.toLocaleString() }}
+                  </span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                  </template>
+                </router-link>
+
+                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color">
+                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                    {{ item.money.toLocaleString() }}
+                  </span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                  </template>
+                </router-link>
               </div>
               <div v-else>
-                <span class="start-color"> {{ item.money.toLocaleString() }}</span>
-                <template v-if="item.warnings.length">
-                  <span class="note-money__chart-all"
-                    >{{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}</span
-                  >
-                </template>
+                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money__chart-all">
+                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                    </span>
+                  </template>
+                </router-link>
+                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <template v-if="item.warnings.length">
+                    <span class="note-money__chart-all">
+                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                    </span>
+                  </template>
+                </router-link>
               </div>
             </span>
           </li>
@@ -68,7 +96,10 @@
             <hr class="dashed" />
             <li>
               <span class="left-detail">残高合計</span>
-              <span class="right-detail">{{ totalMoney }}</span>
+
+              <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
+                <span class="right-detail">{{ totalMoney }}</span>
+              </router-link>
             </li>
           </div>
         </ul>
@@ -78,10 +109,10 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, toRefs, watch, nextTick } from 'vue'
+import { defineComponent, onMounted, ref, toRefs, watch, nextTick, onBeforeMount } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, findIndex, includes } from 'lodash-es'
+import { find, forEach, map, split, findIndex, includes, cloneDeep } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
 import { useStore } from 'vuex'
@@ -139,7 +170,18 @@ export default defineComponent({
     const detailLabels = ref([])
     const detailMoney = ref([])
     const totalMoney = ref()
-
+    const fullDate = ref()
+    // data filter deposit
+    const groupId = ref()
+    const fromDate = ref()
+    const toDate = ref()
+    const typeDeposit = ref()
+    const moneyType = ref()
+    const bankAccountsId = ref()
+    const dataFilters = ref({})
+    const requestDataFilter = ref({
+      data: {}
+    })
     const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -283,6 +325,19 @@ export default defineComponent({
       window.myLineChart.update()
     })
 
+    watch(
+      () => store.state.financing.filters.data,
+      () => {
+        dataFilters.value = store.state.financing?.filters?.data ? cloneDeep(store.state.financing.filters.data) : {}
+        groupId.value = dataFilters.value.group_id
+      }
+    )
+
+    onBeforeMount(() => {
+      dataFilters.value = store.state.financing?.filters?.data ? cloneDeep(store.state.financing.filters.data) : {}
+      groupId.value = dataFilters.value.group_id
+    })
+
     onMounted(() => {
       window.myLineChart = createChart()
     })
@@ -323,14 +378,13 @@ export default defineComponent({
     }
 
     const handleClickPoint = (nativeElement) => {
-      let fullDate = null
       let dataId = null
       // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve, reject) => {
         if (nativeElement.length) {
           forEach(checkDate.value, (item, i) => {
             if (nativeElement[0].datasetIndex === i) {
-              fullDate = item.detail[nativeElement[0].index].fulldate
+              fullDate.value = item.detail[nativeElement[0].index].fulldate
               dataId = item.dataId
             }
           })
@@ -340,8 +394,8 @@ export default defineComponent({
 
         dataPoint.value = {
           ...filters.data,
-          from_date: fullDate,
-          to_date: fullDate,
+          from_date: fullDate.value,
+          to_date: fullDate.value,
           data_id: dataId
         }
 
@@ -406,6 +460,108 @@ export default defineComponent({
       window.myLineChart.update()
     }
 
+    const handleBankIdRequest = (id) => {
+      bankAccountsId.value = null
+      let bankId = dataFilters.value?.bank_account_ids || null
+      let groupId = dataFilters.value?.group_id || null
+
+      if (bankId.length > 0) {
+        bankAccountsId.value = bankId[0]
+      } else {
+        if (id) {
+          bankAccountsId.value = parseInt(id)
+        } else {
+          bankAccountsId.value = null
+        }
+      }
+
+      if (!groupId) {
+        bankAccountsId.value = null
+      }
+    }
+
+    const handleDateRequest = (fullDate) => {
+      let showBy = dataFilters.value.show_by
+      if (parseInt(showBy) === 0) {
+        // show by month
+        fromDate.value = fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null
+        toDate.value = fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null
+      }
+      if (parseInt(showBy) === 1) {
+        // show by day
+        fromDate.value = fullDate ? moment(fullDate).format('YYYY-MM-DD') : null
+        toDate.value = fullDate ? moment(fullDate).format('YYYY-MM-DD') : null
+      }
+    }
+
+    const handleTypeDepositRequest = (id) => {
+      let columnId = parseInt(id)
+
+      if (dataFilters.value.bank_account_ids.length !== 0) {
+        if (columnId === 2) {
+          typeDeposit.value = null
+          moneyType.value = 2
+        }
+        if (columnId === 1) {
+          typeDeposit.value = null
+          moneyType.value = 1
+        }
+      } else {
+        typeDeposit.value = null
+        moneyType.value = null
+      }
+    }
+
+    const handlePageRedirect = (item, fullDate) => {
+      let columnId = item?.id ?? null
+      handleBankIdRequest(columnId)
+      handleDateRequest(fullDate)
+      handleTypeDepositRequest(columnId)
+
+      if (dataFilters.value.group_id) {
+        requestDataFilter.value.data = {
+          groupId: dataFilters.value.group_id,
+          bankAccountId: bankAccountsId.value,
+          fromDate: fromDate.value,
+          toDate: toDate.value,
+          type: typeDeposit.value,
+          moneyType: moneyType.value
+        }
+
+        store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
+      } else {
+        requestDataFilter.value.data = {
+          group_id: columnId,
+          period_id: null,
+          from_date: fromDate.value,
+          to_date: fromDate.value,
+          show_by: 1,
+          bank_account_ids: [],
+          currency_code: null
+        }
+
+        store.commit('financing/STORE_FINANCING_FILTER', requestDataFilter.value)
+      }
+    }
+
+    const handleRowTotalRedirect = (item, fullDate) => {
+      let columnId = item?.id ?? null
+
+      handleBankIdRequest(columnId)
+      handleDateRequest(fullDate)
+      handleTypeDepositRequest(columnId)
+
+      requestDataFilter.value.data = {
+        groupId: dataFilters.value.group_id,
+        bankAccountId: bankAccountsId.value,
+        fromDate: fromDate.value,
+        toDate: toDate.value,
+        type: dataFilters.value.typeDeposit,
+        moneyType: dataFilters.value.moneyType
+      }
+      store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
+    }
+
     return {
       myChartRef,
       modalContent,
@@ -418,8 +574,14 @@ export default defineComponent({
       detailMoney,
       totalMoney,
       idTab,
+      fullDate,
+      groupId,
+      onToggleIndicated,
       handleClose,
-      onToggleIndicated
+      handleBankIdRequest,
+      handleDateRequest,
+      handlePageRedirect,
+      handleRowTotalRedirect
     }
   }
 })
