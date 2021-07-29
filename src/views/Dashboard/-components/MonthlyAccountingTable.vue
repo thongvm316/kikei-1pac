@@ -108,7 +108,7 @@ export default defineComponent({
       const data = {
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null,
-        // type: [rowIndex + 1 === 0 ? 10 : 20]
+        type: rowIndex === 0 ? [10, 40] : [20, 40]
       }
 
       const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })

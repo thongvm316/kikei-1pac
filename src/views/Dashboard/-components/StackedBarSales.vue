@@ -52,8 +52,7 @@ export default defineComponent({
 
       const list = props.dataSource.statistics.map((accuracy) => {
         const _total = totalRevenue > revenueTarget ? totalRevenue : revenueTarget
-        // const percent = (accuracy?.revenue / _total) * 100
-        const percent = 15
+        const percent = (accuracy?.revenue / _total) * 100
         totalPercent += percent
 
         return { ...accuracy, percent }
@@ -67,8 +66,6 @@ export default defineComponent({
         revenue: revenueTarget,
         percent: remainingPercent > 0 ? remainingPercent : 0
       })
-
-      console.log('list', list)
 
       return list
     })
