@@ -60,12 +60,12 @@ export default defineComponent({
 
 .money-history {
   @include y-centered();
-  z-index: 200;
   left: calc(100% + 97px);
   width: 390px;
   box-shadow: 0px 8px 16px 0px #3232470F;
   box-shadow: 0px 8px 8px 0px #32324714;
   border-radius: 5px;
+  z-index: 199;
 
   &__head {
     @include flexbox(space-between, center);
