@@ -113,6 +113,7 @@ import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import moment from 'moment'
 
 import { isEmpty, remove } from 'lodash-es'
 
@@ -406,6 +407,15 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
         filter.currency_code = currencyDefault?.code || null
+        filter.period_id = null
+        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          period_id: null,
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+        }
         isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default

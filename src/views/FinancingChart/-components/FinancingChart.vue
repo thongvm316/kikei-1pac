@@ -45,13 +45,12 @@
                 </span>
               </router-link>
             </div>
-
             <div v-else>
               <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
             </div>
 
-            <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
-              <div v-if="idTab">
+            <span class="money-detail right-detail">
+              <div v-if="idTab" :style="item.money < 0 ? 'color: red' : 'color: black'">
                 <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
                   <span class="start-color">
                     <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
@@ -95,8 +94,7 @@
           <div v-if="idTab">
             <hr class="dashed" />
             <li>
-              <span class="left-detail">残高合計</span>
-
+              <span>{{ $t('modal.total_balance') }}</span>
               <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
                 <span class="right-detail">{{ totalMoney }}</span>
               </router-link>
@@ -444,10 +442,10 @@ export default defineComponent({
         const height = modalContent.value.offsetHeight
 
         const canvasW = myChartRef.value.clientWidth
-        // const canvasH = myChartRef.value.clientHeight
+        const canvasH = myChartRef.value.clientHeight
 
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top = `${top - height - 8}px`
+        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 8}px` : `${top + 8}px`
       })
     }
 
