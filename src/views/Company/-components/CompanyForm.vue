@@ -253,6 +253,12 @@ export default defineComponent({
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
 
+    const companyEnums = ref({
+      companyCode: t('company.companyCode'),
+      companyName: t('company.companyName'),
+      companySlackCode: t('company.companySlackCode')
+    })
+
     onMounted(() => {
       if ('id' in route.params && route.name === 'company-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
@@ -302,8 +308,8 @@ export default defineComponent({
     const checkErrorsApi = (err) => {
       for (let item in err.response.data.errors) {
         locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
+          ? (err.response.data.errors[item] = `${companyEnums.value[item]} existed`)
+          : (err.response.data.errors[item] = `${companyEnums.value[item]}は存在しました`)
         setFieldError(item, err.response.data.errors[item])
       }
     }
