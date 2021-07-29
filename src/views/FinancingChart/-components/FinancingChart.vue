@@ -84,14 +84,14 @@
                     </span>
                   </template>
                 </router-link>
-                <div v-else class="money_chart-all" @click="handlePageRedirect(item, fullDate)">
+                <router-link v-else :to="{ name: 'financing-chart' }" @click="handlePageRedirect(item, fullDate)">
                   <span class="start-color"> {{ item.money.toLocaleString() }}</span>
                   <template v-if="item.warnings.length">
                     <span class="note-money__chart-all">
                       {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
                     </span>
                   </template>
-                </div>
+                </router-link>
               </div>
             </span>
           </li>
