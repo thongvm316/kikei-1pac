@@ -17,9 +17,9 @@
         <!--./Stages -->
         <!--Date From-->
         <div class="form-group">
-          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
+          <label class="form-label label-date"> {{ $t('financing.financing_list.date') }}: </label>
 
-          <div class="form-select">
+          <div class="form-select date-chart">
             <a-range-picker
               v-model:value="filter.date_from_to"
               format="YYYY-MM-DD"
@@ -31,6 +31,7 @@
                 <CalendarOutlined />
               </template>
             </a-range-picker>
+            <span class="note_chart-date">※グラフ表示の場合は2ヶ月以内の日付を選択してください</span>
           </div>
         </div>
         <!--./Date From -->
@@ -222,23 +223,38 @@ export default defineComponent({
     }
 
     const onChangeDate = async (value, dateString) => {
-      filter.period_id = null
-      isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
-
-      filter.date_from_to = dateString
-      if (dateString[0] === '' && dateString[1] === '') {
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        filter.period_id = periodCurrentFound?.id || null
-      }
-      updateParamRequestFinancing({
-        data: {
-          period_id: filter.period_id,
-          from_date: filter.date_from_to[0],
-          to_date: filter.date_from_to[1]
+      if (dateString.length > 1) {
+        //convert strings to date for comparing
+        const startDate = new Date(dateString[0])
+        const endDate = new Date(dateString[1])
+        // Calculate the day difference
+        const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
+        const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
+        if (diffDays > 60) {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            message: 'errors.chart_date_2m'
+          })
+          filter.date_from_to = dateString[0] === '' && dateString[1] === ''
+          return
         }
-      })
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+        filter.period_id = null
+        isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
+        filter.date_from_to = dateString
+        if (dateString[0] === '' && dateString[1] === '') {
+          let periodCurrentFound = findCurrentPeriod(periodList.value)
+          filter.period_id = periodCurrentFound?.id || null
+        }
+        updateParamRequestFinancing({
+          data: {
+            period_id: filter.period_id,
+            from_date: filter.date_from_to[0],
+            to_date: filter.date_from_to[1]
+          }
+        })
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+      }
     }
 
     const onChangeShowBy = async () => {
@@ -308,6 +324,29 @@ export default defineComponent({
       updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
+
+    // const disabledDate = (current) => {
+    //   // if (!dates.value || dates.value.length === 0) {
+    //   //   return true
+    //   // }
+    //
+    //   const diffDate = current.diff(dates.value[0], 'days')
+    //   return Math.abs(diffDate) > 60
+    // }
+    //
+    // const onOpenChange = (open) => {
+    //   if (open) {
+    //     dates.value = []
+    //   }
+    // }
+    //
+    // const onChange = (val) => {
+    //   value.value = val
+    // }
+    //
+    // const onCalendarChange = (val) => {
+    //   dates.value = val
+    // }
 
     // Fetch data group
     const fetchGroupList = async () => {
@@ -438,6 +477,11 @@ export default defineComponent({
       updateDataRequest,
       idVisible,
       isTabGroup,
+      // value,
+      // disabledDate,
+      // onOpenChange,
+      // onChange,
+      // onCalendarChange,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,

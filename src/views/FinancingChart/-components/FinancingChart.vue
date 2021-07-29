@@ -229,11 +229,11 @@ export default defineComponent({
 
           handleClickPoint(nativeElement).then(async (result) => {
             detailChart.value = { ...result.data }
-            totalMoney.value = detailChart.value.totalMoney.toLocaleString()
+            totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
 
             await reRenderPos()
 
-            isActive.value = true
+            if (totalMoney.value) isActive.value = true
           })
         } else {
           forEach(data.value.datasets, (item) => {
@@ -404,6 +404,12 @@ export default defineComponent({
           const { getDetailChart } = useGetDetailChartService(dataPoint.value, filters.params)
           const { result } = await getDetailChart()
           resolve(result)
+          if (result.data === null) {
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'error',
+              message: 'errors.data_chart_null'
+            })
+          }
         } catch (e) {
           reject(e)
         }
