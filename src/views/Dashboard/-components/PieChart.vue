@@ -5,9 +5,12 @@
     </div>
 
     <ul>
-      <li><span class="doted"></span>xanh</li>
-      <li><span class="doted"></span>do</li>
-      <li><span class="doted"></span>tim</li>
+      <li
+        v-for="(item, index) in explainChartText"
+        :key="item.id"
+      >
+        <span :class="`doted doted--${index + 1}`"></span>{{ item.companyName }}
+      </li>
     </ul>
   </div>
 </template>
@@ -15,6 +18,7 @@
 <script>
 import { defineComponent, ref, onMounted, computed, watch } from 'vue'
 import Chart from 'chart.js/auto'
+import { uniqueId } from 'lodash-es'
 
 window.pieChartRanking = null
 
@@ -30,7 +34,18 @@ export default defineComponent({
   setup (props) {
     const myPieChartRef = ref()
     const dataPieChart = computed(() => {
-      return props.rankingData?.map(item => parseInt(item.revenue))
+      return props.rankingData?.map(item => parseFloat(parseFloat(item.revenue).toFixed(0)))
+    })
+
+    const explainChartText = computed(() => {
+      if (props.rankingData?.length < 5) {
+        return props.rankingData
+      } else {
+        let explainChartText = props.rankingData?.filter((_, index) => index < 5)
+        explainChartText?.push({ icompanyId: uniqueId('__ranking_chart__'), companyName: 'その他' })
+
+        return explainChartText
+      }
     })
 
     const data = ref({ datasets: [] })
@@ -45,8 +60,24 @@ export default defineComponent({
         },
 
         tooltip: {
-          backgroundColor: 'red',
-          titleColor: '#262626'
+          backgroundColor: '#ffffff',
+          titleColor: '#262626',
+          titleFont: { weight: 'normal', lighheight: '18px' },
+          padding: { left: 16, top: 8, right: 16, bottom: 0 },
+          position: 'average',
+          caretSize: 0,
+
+          callbacks: {
+            title: function(context) {
+              const [chartData] = context
+              const sumData = dataPieChart.value.reduce((prep, next) => prep + next, 0)
+              const percentData = parseFloat(parseFloat(chartData.raw * 100 / sumData).toFixed(0))
+
+              return `$ ${chartData.formattedValue} - ${percentData}%`
+            },
+
+            label: () => ''
+          }
         }
       }
     }
@@ -59,20 +90,29 @@ export default defineComponent({
       })
     }
 
+    const handleValuePieChart = (data) => {
+      if (data.length < 7) return data
+
+      let valueFromTop6 = null
+      let valuePieChart = []
+      data.forEach((item, index) => {
+        if (index < 5) {
+          valuePieChart.push(item)
+        } else {
+          valueFromTop6 += item
+        }
+      })
+      valuePieChart.push(valueFromTop6)
+
+      return valuePieChart
+    }
+
     watch(dataPieChart, (value) => {
       data.value.datasets = []
 
-      let xxx = null
-
-      if (value.length < 7) {
-        xxx = value
-      } else {
-        xxx = [10, 20, 30, 40, 50]
-      }
-
       // set datasets
       data.value.datasets.push({
-        data: xxx,
+        data: handleValuePieChart(value),
         backgroundColor: [
           '#FA8C16',
           '#2F54EB',
@@ -93,6 +133,8 @@ export default defineComponent({
         hoverBorderWidth: 0
       })
 
+      // set labels
+
       // update pie chart
       window.pieChartRanking.update()
     })
@@ -102,6 +144,7 @@ export default defineComponent({
     })
 
     return {
+      explainChartText,
       myPieChartRef
     }
   }
@@ -111,8 +154,16 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import '@/styles/shared/variables';
 
+$doted-colors: (
+  '1': #FA8C16,
+  '2': $color-additional-blue-6,
+  '3': #13C2C2,
+  '4': #52C41A,
+  '5': #722ED1,
+  '6': $color-grey-55
+);
+
 .pie-chart {
-  display: flex;
   margin-left: 105px;
   margin-top: 24px;
 
@@ -122,17 +173,28 @@ export default defineComponent({
 
   ul {
     list-style: none;
+    padding-left: 0;
+    margin-top: 16px;
 
     li {
       color: $color-grey-55;
 
+      & + li {
+        margin-top: 16px;
+      }
+
       .doted {
         display: inline-block;
-        width: 8px;
-        height: 8px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-        background-color: red;
         margin-right: 16px;
+
+        @each $key, $val in $doted-colors {
+          &--#{$key} {
+            background-color: $val;
+          }
+        }
       }
     }
   }

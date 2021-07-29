@@ -15,7 +15,7 @@
       >
         <td>{{ index + 1 }}</td>
         <td>{{ item.companyName }}</td>
-        <td class="u-text-right">{{ item.revenue }}</td>
+        <td class="u-text-right">{{ $filters.number_with_commas(item.revenue) }}</td>
       </tr>
     </tbody>
   </table>
