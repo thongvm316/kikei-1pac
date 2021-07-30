@@ -207,7 +207,8 @@ export default defineComponent({
                 : '#000000'
             },
             beginAtZero: true,
-            autoSkip: false
+            autoSkip: false,
+            maxRotation: 0
           }
         },
         y: {
