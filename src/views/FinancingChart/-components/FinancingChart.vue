@@ -52,7 +52,7 @@
             <span class="money-detail right-detail">
               <div v-if="dataChart.length < 2" :style="item.money < 0 ? 'color: red' : 'color: black'">
                 <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color">
+                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
                     <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
                     {{ item.money.toLocaleString() }}
                   </span>
@@ -62,7 +62,7 @@
                 </router-link>
 
                 <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color">
+                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
                     <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
                     {{ item.money.toLocaleString() }}
                   </span>
@@ -77,7 +77,9 @@
                   :to="{ name: 'deposit' }"
                   @click="handlePageRedirect(item, fullDate)"
                 >
-                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                    {{ item.money.toLocaleString() }}</span
+                  >
                   <template v-if="item.warnings.length">
                     <span class="note-money__chart-all">
                       {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
@@ -85,7 +87,9 @@
                   </template>
                 </router-link>
                 <router-link v-else :to="{ name: 'financing-chart' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
+                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                    {{ item.money.toLocaleString() }}</span
+                  >
                   <template v-if="item.warnings.length">
                     <span class="note-money__chart-all">
                       {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
@@ -98,9 +102,11 @@
           <div v-if="dataChart.length < 2">
             <hr class="dashed" />
             <li>
-              <span>{{ $t('modal.total_balance') }}</span>
+              <span class="left-detail_chart-all">{{ $t('modal.total_balance') }}</span>
               <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
-                <span class="right-detail">{{ totalMoney }}</span>
+                <span class="right-detail_chart-all" :style="totalMoney < 0 ? 'color: red' : 'color: black'">{{
+                  totalMoney
+                }}</span>
               </router-link>
             </li>
           </div>
