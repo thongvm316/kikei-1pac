@@ -23,29 +23,29 @@ export const CHART = [
   {
     data_id: 4,
     label: 'Line 4',
-    border: 'rgb(143,235,227)',
-    pointBg: 'rgb(143,235,224)',
-    pointHoverBg: 'rgb(13,129,158)'
+    border: 'rgba(143, 235, 227, 1)',
+    pointBg: 'rgba(143, 235, 224, 1)',
+    pointHoverBg: 'rgba(13, 129, 158, 1)'
   },
   {
     data_id: 5,
     label: 'Line 5',
-    border: 'rgb(143,155,235)',
-    pointBg: 'rgb(160,143,235)',
-    pointHoverBg: 'rgb(86,13,158)'
+    border: 'rgba(143, 155, 235, 1)',
+    pointBg: 'rgba(160, 143, 235, 1)',
+    pointHoverBg: 'rgba(86, 13, 158, 1)'
   },
   {
     data_id: 6,
     label: 'Line 6',
-    border: 'rgb(235,143,191)',
-    pointBg: 'rgb(235,143,226)',
-    pointHoverBg: 'rgb(131,13,158)'
+    border: 'rgba(235, 143, 191, 1)',
+    pointBg: 'rgba(235, 143, 226, 1)',
+    pointHoverBg: 'rgba(131, 13, 158, 1)'
   },
   {
     data_id: 7,
     label: 'Line 7',
-    border: 'rgb(235,223,143)',
-    pointBg: 'rgb(235,233,143)',
-    pointHoverBg: 'rgb(158,156,13)'
+    border: 'rgba(235 ,223, 143, 1)',
+    pointBg: 'rgba(235, 233, 143, 1)',
+    pointHoverBg: 'rgba(158, 156, 13, 1)'
   }
 ]
