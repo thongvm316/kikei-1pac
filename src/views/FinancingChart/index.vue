@@ -290,7 +290,21 @@ export default defineComponent({
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
-        updateParamRequestFinancing({ data: { group_id: filter.group_id } })
+        if (value !== 0) {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            message: 'errors.chart_date_2m'
+          })
+          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        }
+        updateParamRequestFinancing({
+          data: {
+            group_id: filter.group_id,
+            from_date: moment().format('YYYY-MM-DD'),
+            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+          }
+        })
       } else {
         idVisible.value = true
         filter.show_by = 0
