@@ -25,7 +25,14 @@
       </div>
     </template>
 
-    <div class="canvas">
+    <div
+      class="canvas"
+      :style="{
+        width: data.labels.length === widthLabel ? data.labels.length * widthLabel + 'px' : 100 + '%',
+        'overflow-x': 'scroll',
+        'overflow-y': 'hidden'
+      }"
+    >
       <canvas ref="myChartRef" @click=";(isActive = false), (openChart = false)" />
 
       <div ref="modalContent" :class="{ active: isActive }" class="modal-content">
@@ -168,6 +175,7 @@ export default defineComponent({
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
+    const widthLabel = ref(60)
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -577,6 +585,8 @@ export default defineComponent({
       totalMoney,
       fullDate,
       groupId,
+      data,
+      widthLabel,
       onToggleIndicated,
       handleClose,
       handleBankIdRequest,

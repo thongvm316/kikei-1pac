@@ -1,6 +1,6 @@
 .chart {
   background: #fff;
-  overflow: hidden;
+  overflow: overlay;
   
   .btn-chart {
     margin-top: 8px;
@@ -30,7 +30,6 @@
     padding: 11px 16px 8px;
     margin-right: 16px;
     margin-top: 11px;
-    width: auto;
     right: 0;
     top: 28%;
     text-align: right;
@@ -85,7 +84,6 @@
       border-radius: 2px;
       box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
       pointer-events: auto;
-      width: auto;
       visibility: hidden;
       opacity: 0;
       z-index: 10;
