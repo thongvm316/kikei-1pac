@@ -93,7 +93,7 @@
             <div class="form-input">
               <a-select
                 v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
+                :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
                 @change="handleChange"
               >
@@ -123,7 +123,7 @@
             <div class="form-input">
               <a-select
                 v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
+                :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
                 @change="handleChange"
               >
@@ -148,7 +148,7 @@
             <div class="form-input">
               <a-select
                 v-model:value="field.value"
-                :placeholder="$t('common.please_enter')"
+                :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
                 @change="handleChange"
               >
@@ -264,9 +264,9 @@ export default defineComponent({
     const { t, locale } = useI18n()
 
     const companyEnums = ref({
-      companyCode: t('company.companyCode'),
-      companyName: t('company.companyName'),
-      companySlackCode: t('company.companySlackCode')
+      company_code_project: t('company.error_company_code_project'),
+      company_name: t('company.error_company_name'),
+      company_slack_code: t('company.error_company_slack_code')
     })
 
     onMounted(() => {
@@ -299,6 +299,7 @@ export default defineComponent({
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
         await router.push({ name: 'company' }).catch((err) => err)
       } catch (err) {
+        checkErrorsApi(err)
         throw err
       }
     }
@@ -316,10 +317,15 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
       for (let item in err.response.data.errors) {
+        if (item === 'company_code') item = 'company_code_project'
+
         locale.value === 'en'
           ? (err.response.data.errors[item] = `${companyEnums.value[item]} existed`)
           : (err.response.data.errors[item] = `${companyEnums.value[item]}は存在しました`)
+
         setFieldError(item, err.response.data.errors[item])
       }
     }
