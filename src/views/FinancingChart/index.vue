@@ -54,7 +54,7 @@
         <!-- ./Display -->
       </div>
       <div class="financing__header--middle">
-        <a-tabs v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
+        <a-tabs ref="tabGroup" v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
           <a-tab-pane v-for="item in groupList" :key="item.id" :tab="item.name"></a-tab-pane>
         </a-tabs>
       </div>
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" :is-tab-group="isTabGroup" />
+    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" @on-tab-change="handleTab" />
   </section>
 </template>
 <script>
@@ -145,12 +145,11 @@ export default defineComponent({
     const periodList = ref([])
     const bankAccountList = ref([])
     const currencyList = ref([])
-    const isTabGroup = ref(1)
 
     // Chart
     const dataChartFinancing = ref([])
-    const updateDataRequest = ref({})
     const idVisible = ref(false)
+    const tabGroup = ref()
 
     const isLoading = ref(false)
     const isLoadingDataChart = ref(true)
@@ -269,7 +268,6 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
-      isTabGroup.value = value
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -294,6 +292,19 @@ export default defineComponent({
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+    }
+
+    const handleTab = (evt) => {
+      requestParamsData.value.data = {
+        ...evt,
+        currency_code: requestParamsData.value.data.currency_code
+      }
+
+      filter.group_id = evt.group_id
+      filter.date_from_to[0] = evt.from_date
+      filter.date_from_to[1] = evt.to_date
+
+      onChangeTabGroup(evt.group_id)
     }
 
     const onChangeBankAccount = async () => {
@@ -441,8 +452,6 @@ export default defineComponent({
           to_date: moment().add(59, 'days').format('YYYY-MM-DD')
         }
       }
-
-      updateDataRequest.value = requestParamsData.value
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       await fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
@@ -452,7 +461,6 @@ export default defineComponent({
     watch(
       () => requestParamsData.value,
       () => {
-        updateDataRequest.value = requestParamsData.value
         // fetch data chart
         fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
@@ -469,9 +477,9 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       dataChartFinancing,
-      updateDataRequest,
       idVisible,
-      isTabGroup,
+      tabGroup,
+      handleTab,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
