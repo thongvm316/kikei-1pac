@@ -1,6 +1,6 @@
 <template>
   <section ref="chart" class="chart">
-    <template v-if="isVisible ? isVisible : (openChart = false)">
+    <template v-if="dataChart.length > 1">
       <a-button class="btn-chart" @click="openChart = true">
         <template #icon>
           <LineChartOutlined />

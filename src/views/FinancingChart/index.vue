@@ -247,7 +247,14 @@ export default defineComponent({
         isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
         if (dateString[0] === '' && dateString[1] === '') {
           let periodCurrentFound = findCurrentPeriod(periodList.value)
-          filter.period_id = periodCurrentFound?.id || null
+          filter.period_id = periodCurrentFound?.id
+          updateParamRequestFinancing({
+            data: {
+              period_id: filter.period_id,
+              from_date: '',
+              to_date: ''
+            }
+          })
         }
         if (filter.show_by !== 0) {
           const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
