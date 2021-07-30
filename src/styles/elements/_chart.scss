@@ -184,6 +184,17 @@
             font-size: 12px;
             color: #262626;
           }
+  
+          .start-color__chart-all {
+            font-size: 12px;
+            display: flex;
+            justify-content: flex-end;
+            color: #1F1F1F;
+  
+            &:hover {
+              text-decoration: underline;
+            }
+          }
           
           .start-color {
             font-size: 12px;
