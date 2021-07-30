@@ -90,7 +90,7 @@ export default defineComponent({
       })
     }
 
-    const handleValuePieChart = (data) => {
+    const handleValuePieChart = (data = []) => {
       if (data.length < 7) return data
 
       let valueFromTop6 = null
@@ -133,8 +133,6 @@ export default defineComponent({
         hoverBorderWidth: 0
       })
 
-      // set labels
-
       // update pie chart
       window.pieChartRanking.update()
     })
@@ -175,6 +173,7 @@ $doted-colors: (
     list-style: none;
     padding-left: 0;
     margin-top: 16px;
+    width: 256px;
 
     li {
       color: $color-grey-55;

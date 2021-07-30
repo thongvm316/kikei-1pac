@@ -65,7 +65,7 @@
         @on-change-group="fetchRaking($event)"
       >
         <div class="dashboard__ranking">
-          <ranking-table :ranking-data="rankingData" />
+          <div><ranking-table :ranking-data="rankingData || []" /></div>
           <pie-chart :ranking-data="rankingData" />
         </div>
       </controller-block>
@@ -362,6 +362,8 @@ export default defineComponent({
     display: flex;
     background-color: $color-grey-100;
     padding-right: 32px;
+    min-height: 600px;
+    padding-bottom: 24px;
   }
 
   .animation-move-up,

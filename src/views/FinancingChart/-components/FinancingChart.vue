@@ -228,6 +228,7 @@ export default defineComponent({
           opacityLine(nativeElement)
 
           handleClickPoint(nativeElement).then(async (result) => {
+            console.log(result);
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
 

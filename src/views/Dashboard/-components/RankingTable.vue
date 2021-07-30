@@ -9,30 +9,35 @@
     </thead>
 
     <tbody>
-      <tr
-        v-for="(item, index) in rankingData"
-        :key="item.rankingData"
-      >
-        <td>{{ index + 1 }}</td>
-        <td>{{ item.companyName }}</td>
-        <td class="u-text-right">{{ $filters.number_with_commas(item.revenue) }}</td>
+      <template v-if="rankingData?.length > 0">
+        <tr
+          v-for="(item, index) in rankingData"
+          :key="item.rankingData"
+        >
+          <td>{{ index + 1 }}</td>
+          <td>{{ item.companyName }}</td>
+          <td class="u-text-right">{{ $filters.number_with_commas(item.revenue) }}</td>
+        </tr>
+      </template>
+      <tr v-else>
+        <td></td>
+        <td>該当するプロジェクトが見つかりませんでした。</td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'RankingTable',
 
   props: {
-    rankingData: Array
-  },
-
-  setup() {
-
+    rankingData: {
+      type: Array,
+      required: true
+    }
   }
 })
 </script>

@@ -1,14 +1,15 @@
 <template>
   <div class="canvas u-relative">
     <canvas ref="myBankLineChartRef" />
+
     <div class="chartjs-tooltip">
       <p
         v-for="item in contentTooltip"
         :key="item.index"
         class="chartjs-tooltip__item"
       >
-        <span class="u-text-weight-700">{{ item.dataset.title }}</span>
-        <span :class="`${parseInt(item.formattedValue) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ item.formattedValue }}</span>
+        <span class="u-text-weight-700">{{ item.title }}</span>
+        <span :class="`${parseInt(item.money) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ $filters.number_with_commas(item.money) }}</span>
       </p>
     </div>
   </div>
@@ -32,7 +33,7 @@ export default defineComponent({
   setup(props) {
     const myBankLineChartRef = ref()
     const { bankBalance } = toRefs(props)
-    const contentTooltip = ref()
+    const contentTooltip = ref([])
 
     const data = ref({
       labels: [],
@@ -79,37 +80,40 @@ export default defineComponent({
           display: false
         },
         tooltip: {
-          enabled: false,
-          external: function(context) {
-            nextTick(() => {
-              // Tooltip Element
-              const tooltipEl = document.querySelector('.chartjs-tooltip')
-              const { tooltip: tooltipModel } = context
-
-              // Hide if no tooltip
-              if (tooltipModel.opacity === 0) {
-                tooltipEl.style.opacity = 0
-                return
-              }
-
-              // Set content
-              const { dataPoints } = tooltipModel
-              contentTooltip.value = dataPoints
-
-              // Display, position
-              const leftTooltip = tooltipModel.x
-              const topTooltip = tooltipModel.y
-              const widthTooltip = tooltipEl.offsetWidth
-              const heightTooltip = tooltipEl.offsetHeight
-              const canvasW = myBankLineChartRef.value.clientWidth
-
-              tooltipEl.classList.add('active')
-              tooltipEl.style.opacity = 1;
-              tooltipEl.style.left = leftTooltip + widthTooltip >= canvasW ? `${leftTooltip - widthTooltip}px` : `${leftTooltip}px`
-              tooltipEl.style.top = `${topTooltip - heightTooltip}px`
-            })
-          }
+          enabled: false
         }
+      },
+
+      onHover: (_, nativeElement) => {
+        nextTick(() => {
+          const chartjsTooltip = document.querySelector('.chartjs-tooltip')
+
+          if (nativeElement.length > 0) {
+            // Set content tooltip
+            contentTooltip.value = []
+            nativeElement.forEach(item => {
+              contentTooltip.value.push({
+                title: bankBalance.value[item.datasetIndex].bankAccountName,
+                money: item.element.$context.raw
+              })
+            })
+
+            // Set position
+            const left = nativeElement[0].element.x
+            const top = nativeElement[0].element.y
+
+            const width = chartjsTooltip.offsetWidth
+            const height = chartjsTooltip.offsetHeight
+
+            const canvasW = myBankLineChartRef.value.clientWidth
+
+            chartjsTooltip.classList.add('active')
+            chartjsTooltip.style.left = left + width >= canvasW ? `${left - width - 32}px` : `${left - width/2 - 12}px`
+            chartjsTooltip.style.top = `${top - height - 16}px`
+          } else {
+            chartjsTooltip.classList.remove('active')
+          }
+        })
       }
     }
 
@@ -145,10 +149,7 @@ export default defineComponent({
             data: dataY
           }
         )
-        console.log('object');
       })
-
-      console.log(data.value.datasets);
 
       // set labels
       data.value.labels = value[0].dataByMonth.map(item => Filter.moment_yyyy_mm(item.month))
@@ -176,7 +177,6 @@ export default defineComponent({
   background-color: $color-grey-100;
 
   canvas {
-    // padding-left: 32px;
     padding-right: 32px;
   }
 
