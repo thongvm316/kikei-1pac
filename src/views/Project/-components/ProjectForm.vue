@@ -22,7 +22,7 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input :disabled="edit" v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input v-model:value="projectParams.code" :disabled="edit" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
 
       <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">

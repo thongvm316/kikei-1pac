@@ -2,56 +2,58 @@
   <section class="financing">
     <div class="financing__header">
       <div class="financing__header--top u-mx-32">
-        <!--Stages-->
-        <div class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
+        <div class="financing__header--wrap">
+          <!--Stages-->
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
-          <div class="form-select">
-            <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
-              <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
-                {{ item.name }}
-              </a-select-option>
-            </a-select>
+            <div class="form-select">
+              <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
+                <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
-        </div>
-        <!--./Stages -->
-        <!--Date From-->
-        <div class="form-group">
-          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
+          <!--./Stages -->
+          <!--Date From-->
+          <div class="form-group">
+            <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
-          <div class="form-select">
-            <a-range-picker
-              v-model:value="filter.date_from_to"
-              format="YYYY-MM-DD"
-              :style="{ width: '260px' }"
-              :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
-              @change="onChangeDate"
-            >
-              <template #suffixIcon>
-                <CalendarOutlined />
-              </template>
-            </a-range-picker>
-          </div>
-        </div>
-        <!--./Date From -->
-        <!-- Display -->
-        <div class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
-
-          <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
-              <a-radio
-                v-for="item in SHOW_BY"
-                :key="item.id"
-                :value="item.id"
-                :disabled="item.id === 1 ? isDisabledDisplay : false"
+            <div class="form-select">
+              <a-range-picker
+                v-model:value="filter.date_from_to"
+                format="YYYY-MM-DD"
+                :style="{ width: '260px' }"
+                :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                @change="onChangeDate"
               >
-                {{ $t(`financing.financing_list.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
+                <template #suffixIcon>
+                  <CalendarOutlined />
+                </template>
+              </a-range-picker>
+            </div>
           </div>
+          <!--./Date From -->
+          <!-- Display -->
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
+
+            <div class="form-checkbox">
+              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
+                <a-radio
+                  v-for="item in SHOW_BY"
+                  :key="item.id"
+                  :value="item.id"
+                  :disabled="item.id === 1 ? isDisabledDisplay : false"
+                >
+                  {{ $t(`financing.financing_list.${item.value}`) }}
+                </a-radio>
+              </a-radio-group>
+            </div>
+          </div>
+          <!-- ./Display -->
         </div>
-        <!-- ./Display -->
       </div>
       <div class="financing__header--middle">
         <a-tabs ref="tabGroup" v-model:activeKey="filter.group_id" @change="onChangeTabGroup">

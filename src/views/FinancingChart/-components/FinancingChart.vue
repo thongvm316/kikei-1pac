@@ -221,6 +221,9 @@ export default defineComponent({
             color: (context) => {
               return !context.tick.value ? '#595959' : '#D9D9D9'
             }
+          },
+          ticks: {
+            padding: 20
           }
         }
       },
