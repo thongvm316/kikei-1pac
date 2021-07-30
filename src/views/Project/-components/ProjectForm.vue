@@ -11,7 +11,7 @@
     <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
-        <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
+        <p v-if="!edit" class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
 
       <p v-if="localErrors['companyId']" class="ant-form-explain">
@@ -22,7 +22,7 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input :disabled="edit" v-model:value="projectParams.code" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
 
       <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
