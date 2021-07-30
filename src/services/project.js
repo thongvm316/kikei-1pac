@@ -22,8 +22,8 @@ export default {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.project}/${projectId}`, data })
   },
 
-  getProject(projectId) {
-    return apiCaller({ url: `${RESOURCES.project}/${projectId}` })
+  getProject(projectId, params) {
+    return apiCaller({ url: `${RESOURCES.project}/${projectId}`, params })
   },
 
   deleteProject(projectId) {
