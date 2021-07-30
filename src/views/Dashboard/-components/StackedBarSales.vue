@@ -52,7 +52,7 @@ export default defineComponent({
 
       const list = props.dataSource.statistics.map((accuracy) => {
         const _total = totalRevenue > revenueTarget ? totalRevenue : revenueTarget
-        const percent = (accuracy?.revenue / _total) * 100
+        const percent = _total ? (accuracy?.revenue / _total) * 100 : 0
         totalPercent += percent
 
         return { ...accuracy, percent }
@@ -162,6 +162,11 @@ export default defineComponent({
       border-radius: 50%;
       background-color: $color-grey-85;
       z-index: 1;
+
+      &:hover {
+        background-color: $color-primary-9;
+        color: $color-grey-100;
+      }
     }
   }
 
