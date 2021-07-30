@@ -134,7 +134,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('company.companyName'),
+          title: t('company.company_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
