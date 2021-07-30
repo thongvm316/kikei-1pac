@@ -40,7 +40,7 @@
             <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
 
             <div class="form-checkbox">
-              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
+              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy(filter.show_by)">
                 <a-radio
                   v-for="item in SHOW_BY"
                   :key="item.id"
@@ -229,18 +229,19 @@ export default defineComponent({
         const startDate = new Date(dateString[0])
         const endDate = new Date(dateString[1])
         // Calculate the day difference
-        const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
-        const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-        if (diffDays > 59) {
-          store.commit('flash/STORE_FLASH_MESSAGE', {
-            variant: 'error',
-            message: 'errors.chart_date_2m'
-          })
-          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
-          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
-        } else {
-          filter.date_from_to = dateString
+        if (filter.show_by !== 0) {
+          const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
+          const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
+          if (diffDays > 59) {
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'error',
+              message: 'errors.chart_date_2m'
+            })
+            filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+            filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+          }
         }
+        filter.date_from_to = dateString
         filter.period_id = null
         isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
         if (dateString[0] === '' && dateString[1] === '') {
@@ -259,10 +260,21 @@ export default defineComponent({
       }
     }
 
-    const onChangeShowBy = async () => {
+    const onChangeShowBy = async (evt) => {
+      filter.show_by = evt
+      if (filter.show_by === 1) {
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'error',
+          message: 'errors.chart_date_2m'
+        })
+        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+      }
       updateParamRequestFinancing({
         data: {
-          show_by: filter.show_by
+          show_by: filter.show_by,
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(59, 'days').format('YYYY-MM-DD')
         }
       })
       // save filters to store
@@ -416,7 +428,6 @@ export default defineComponent({
           isDisabledDisplay.value = true
           isDisabledBank.value = true
         }
-
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
