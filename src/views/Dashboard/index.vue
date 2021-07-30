@@ -273,7 +273,7 @@ export default defineComponent({
     }
 
     const fetchBankAccountBalance = async (groupId) => {
-      const { result } = await getBankAccountBalance({ groupId })
+      const { result } = await getBankAccountBalance(groupId)
       bankBalance.value = result?.data
     }
 

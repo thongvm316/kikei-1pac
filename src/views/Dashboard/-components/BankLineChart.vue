@@ -8,7 +8,7 @@
         class="chartjs-tooltip__item"
       >
         <span class="u-text-weight-700">{{ item.dataset.title }}</span>
-        <span :class="`${item.formattedValue < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ item.formattedValue }}</span>
+        <span :class="`${parseInt(item.formattedValue) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ item.formattedValue }}</span>
       </p>
     </div>
   </div>
@@ -18,31 +18,8 @@
 import { defineComponent, ref, onMounted, watch, toRefs, nextTick } from 'vue'
 import Chart from 'chart.js/auto'
 import Filter from '@/filters'
+import { COLOR_CHART } from '@/enums/chart-line.enum'
 
-const line1 = {
-  borderColor: 'rgba(145, 213, 255, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(145, 213, 255, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(9, 109, 217, 1)'
-}
-
-const line2 = {
-  borderColor: 'rgba(183, 235, 143, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(183, 235, 143, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(56, 158, 13, 1)'
-}
-
-const line3 = {
-  borderColor: 'rgba(255, 173, 210, 1)',
-  pointBorderColor: 'rgba(255, 255, 255, 1)',
-  pointBackgroundColor: 'rgba(255, 173, 210, 1)',
-  pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-  pointHoverBackgroundColor: 'rgba(196, 29, 127, 1)'
-
-}
 window.bankLineChart = null
 
 export default defineComponent({
@@ -61,48 +38,6 @@ export default defineComponent({
       labels: [],
       datasets: []
     })
-
-    // label
-
-
-    // data
-    // const data = {
-    //   labels,
-    //   datasets: [
-    //     {
-    //       ...line1,
-    //       fill: false,
-    //       title: 'ACB',
-    //       pointBorderWidth: 3,
-    //       pointHoverRadius: 10,
-    //       pointHoverBorderWidth: 3,
-    //       pointRadius: 10,
-    //       data: [12, 100, 90, 65, 59, 80, 24, 56, 55, 12, 16, 120]
-    //     },
-
-    //     {
-    //       ...line2,
-    //       fill: false,
-    //       title: 'TPBank',
-    //       pointBorderWidth: 3,
-    //       pointHoverRadius: 10,
-    //       pointHoverBorderWidth: 3,
-    //       pointRadius: 10,
-    //       data: [23, 43, 12, 45, 65, 76, 87, 1, 2, -4, 5, 50]
-    //     },
-
-    //     {
-    //       ...line3,
-    //       fill: false,
-    //       title: 'Sacombank',
-    //       pointBorderWidth: 3,
-    //       pointHoverRadius: 10,
-    //       pointHoverBorderWidth: 3,
-    //       pointRadius: 10,
-    //       data: [43, 12, 23, 45, 65, 12, 12, 3, 4, -56, 6, 7]
-    //     }
-    //   ]
-    // }
 
     // options
     const options = {
@@ -130,9 +65,6 @@ export default defineComponent({
         },
         y: {
           beginAtZero: true,
-          ticks: {
-            stepSize: 50
-          },
           grid: {
             drawBorder: false,
             color: (context) => {
@@ -194,26 +126,29 @@ export default defineComponent({
       data.value.datasets = []
 
       // set datasets
-      value.forEach(item => {
-        const dataY = item.dataByMonth.map(item => item.balance) // số này quá lớn
+      value.forEach((item, index) => {
+        const dataY = item.dataByMonth.map(item => item.balance)
 
         data.value.datasets.push(
           {
-            borderColor: 'rgba(255, 173, 210, 1)',
+            borderColor: COLOR_CHART[index].border,
             pointBorderColor: 'rgba(255, 255, 255, 1)',
-            pointBackgroundColor: 'rgba(255, 173, 210, 1)',
+            pointBackgroundColor: COLOR_CHART[index].pointBg,
             pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-            pointHoverBackgroundColor: 'rgba(196, 29, 127, 1)',
+            pointHoverBackgroundColor: COLOR_CHART[index].pointHoverBg,
             fill: false,
-            title: item.bankAccountName,
-            pointBorderWidth: 3,
-            pointHoverRadius: 10,
-            pointHoverBorderWidth: 3,
-            pointRadius: 10,
-            data: [43, 12, 23, 45, 65, 12, 12, 3, 4, -56, 6, 7] // số này qúa lớn sẽ crash
+            title: item.bankAccountName || item.groupName,
+            pointBorderWidth: 4,
+            pointHoverRadius: 8,
+            pointHoverBorderWidth: 4,
+            pointRadius: 8,
+            data: dataY
           }
         )
+        console.log('object');
       })
+
+      console.log(data.value.datasets);
 
       // set labels
       data.value.labels = value[0].dataByMonth.map(item => Filter.moment_yyyy_mm(item.month))
