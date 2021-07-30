@@ -10,9 +10,17 @@
   >
     <template #renderAccuracy="{ text, column, record, index }">
       <span v-if="index === 1 && column.dataIndex === 'S'">累積売上</span>
-      <router-link v-else :to="{ name: 'project' }" class="sales-table__link" @click="handleClickLink(column, record)">
+      <router-link
+        v-else-if="groupIdCurrent"
+        :to="{ name: 'project' }"
+        class="sales-table__link"
+        @click="handleClickLink(column, record)"
+      >
         {{ $filters.number_with_commas(text) }}
       </router-link>
+      <span v-else>
+        {{ $filters.number_with_commas(text) }}
+      </span>
     </template>
   </a-table>
 </template>
@@ -80,6 +88,11 @@ export default defineComponent({
       return rows
     })
 
+    const groupIdCurrent = computed(() => {
+      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
+      return blockFound?.groupId
+    })
+
     const handleClickLink = (column, record) => {
       const data = {
         accuracyId: record[`${column.dataIndex}Id`],
@@ -88,8 +101,7 @@ export default defineComponent({
         statusCode: []
       }
 
-      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
-      if (blockFound?.groupId) data.groupId = [blockFound.groupId]
+      if (groupIdCurrent.value) data.groupId = [groupIdCurrent.value]
       store.commit('project/STORE_PROJECT_FILTER', { data })
     }
 
@@ -97,6 +109,7 @@ export default defineComponent({
       columns,
       localeTable,
       dataTable,
+      groupIdCurrent,
       handleClickLink
     }
   }

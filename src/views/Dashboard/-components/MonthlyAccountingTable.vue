@@ -8,18 +8,18 @@
     :scroll="{ x: 1200 }"
     class="monthly-accounting"
   >
-    <template #renderMonth="{ text, record, column, index }">
+    <template #renderMonth="{ text, column, index }">
       <router-link
-        v-if="index + 1 !== dataTable.length"
+        v-if="index + 1 !== dataTable.length && groupIdCurrent"
         :to="{ name: 'deposit' }"
-        :class="['amonthly-accounting__link', index === 1 && 'text-color-red']"
+        :class="['monthly-accounting__link', index === 1 && 'text-color-red']"
         @click="handleSelectLink(column, index)"
       >
         {{ $filters.number_with_commas(text) }}
       </router-link>
-      <p v-else :class="[index === 2 && text < 0 && 'text-color-red']">
+      <span v-else :class="[index === 2 && text < 0 && 'text-color-red']">
         {{ $filters.number_with_commas(text) }}
-      </p>
+      </span>
     </template>
   </a-table>
 </template>
@@ -104,6 +104,11 @@ export default defineComponent({
       return rows
     })
 
+    const groupIdCurrent = computed(() => {
+      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
+      return blockFound?.groupId
+    })
+
     const handleSelectLink = (column, rowIndex) => {
       const data = {
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
@@ -111,8 +116,7 @@ export default defineComponent({
         type: rowIndex === 0 ? [10, 40] : [20, 40]
       }
 
-      const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
-      if (blockFound?.groupId) data.groupId = blockFound.groupId
+      if (groupIdCurrent.value) data.groupId = groupIdCurrent.value
 
       store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
     }
@@ -121,6 +125,7 @@ export default defineComponent({
       columns,
       localeTable,
       dataTable,
+      groupIdCurrent,
       handleSelectLink
     }
   }

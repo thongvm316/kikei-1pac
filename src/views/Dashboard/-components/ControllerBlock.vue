@@ -114,7 +114,15 @@ export default defineComponent({
     const dashboardBlocks = computed(() => store.state.dashboard.blocks)
 
     const onHandleChangeGroup = (id) => {
-      emit('on-change-group', id)
+      const allGroupId = props.groupList
+        .filter((group) => group.id !== 0)
+        .reduce((acc, group) => {
+          acc += acc ? ',' + group.id : group.id
+          return acc
+        }, '')
+
+      const params = { groupId: id > 0 ? id : allGroupId }
+      emit('on-change-group', params)
 
       // update groupId in store
       const _dashboardBlocks = dashboardBlocks.value.map((block) => ({

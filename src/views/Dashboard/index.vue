@@ -257,18 +257,18 @@ export default defineComponent({
       dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
     }
 
-    const fetchSales = async (groupId) => {
-      const salesReponse = await getRevenueStatistics(isLoadingTableSales, { groupId })
+    const fetchSales = async (params) => {
+      const salesReponse = await getRevenueStatistics(isLoadingTableSales, params)
       dataTableSales.value = salesReponse?.result?.data || []
     }
 
-    const fetchMonthlyAccounting = async (groupId) => {
-      const monthlyAccountingReponse = await getRevenueBalance(isLoadingMonthlyAccounting, { groupId })
+    const fetchMonthlyAccounting = async (params) => {
+      const monthlyAccountingReponse = await getRevenueBalance(isLoadingMonthlyAccounting, params)
       dataTableMonthly.value = monthlyAccountingReponse?.result?.data || []
     }
 
-    const fetchRaking = async (groupId) => {
-      const { result } = await getRevenue({ groupId })
+    const fetchRaking = async (params) => {
+      const { result } = await getRevenue(params)
       rankingData.value = result?.data
     }
 
@@ -298,11 +298,19 @@ export default defineComponent({
       groupIdDefault.value = groupList.value[0]?.id || 0
       if (!groupIdDefault.value) return
 
-      fetchPendingDeposits(groupIdDefault.value)
-      fetchSales(groupIdDefault.value)
-      fetchMonthlyAccounting(groupIdDefault.value)
-      fetchRaking(groupIdDefault.value)
-      fetchBankAccountBalance(groupIdDefault.value)
+      const allGroupId = groupList.value
+        .filter((group) => group.id !== 0)
+        .reduce((acc, group) => {
+          acc += acc ? ',' + group.id : group.id
+          return acc
+        }, '')
+      const params = { groupId: groupIdDefault.value > 0 ? groupIdDefault.value : allGroupId }
+
+      fetchPendingDeposits(params)
+      fetchSales(params)
+      fetchMonthlyAccounting(params)
+      fetchRaking(params)
+      fetchBankAccountBalance(params)
 
       nextTick(() => {
         // DOM is updated
