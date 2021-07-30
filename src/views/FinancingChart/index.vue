@@ -255,6 +255,8 @@ export default defineComponent({
               to_date: ''
             }
           })
+        } else {
+          filter.date_from_to = dateString
         }
         if (filter.show_by !== 0) {
           const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
@@ -285,6 +287,14 @@ export default defineComponent({
           }
         }
 
+        updateParamRequestFinancing({
+          data: {
+            period_id: filter.period_id,
+            from_date: filter.date_from_to[0],
+            to_date: filter.date_from_to[1]
+          }
+        })
+
         // save filters to store
         store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
@@ -292,27 +302,26 @@ export default defineComponent({
 
     const onChangeShowBy = async (evt) => {
       filter.show_by = evt
-      if (filter.show_by === 1) {
-        filter.period_id = null
-        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
-        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+      if (filter.show_by) {
+        filter.period_id = requestParamsData.value.data.period_id
+        filter.date_from_to[0] = requestParamsData.value.data.from_date
+        filter.date_from_to[1] = requestParamsData.value.data.to_date
         updateParamRequestFinancing({
           data: {
             show_by: filter.show_by,
-            from_date: moment().format('YYYY-MM-DD'),
-            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
           }
         })
       } else {
-        filter.date_from_to[0] = ''
-        filter.date_from_to[1] = ''
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        filter.period_id = periodCurrentFound?.id || null
+        filter.period_id = requestParamsData.value.data.period_id
+        filter.date_from_to[0] = requestParamsData.value.data.from_date
+        filter.date_from_to[1] = requestParamsData.value.data.to_date
         updateParamRequestFinancing({
           data: {
             show_by: filter.show_by,
-            from_date: '',
-            to_date: ''
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
           }
         })
       }
@@ -481,7 +490,6 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
         filter.currency_code = currencyDefault?.code || null
-
         if (requestParamsData.value.data.from_date === null && requestParamsData.value.data.from_date === null) {
           filter.period_id = null
           filter.date_from_to[0] = moment().format('YYYY-MM-DD')
@@ -493,12 +501,12 @@ export default defineComponent({
             to_date: moment().add(59, 'days').format('YYYY-MM-DD')
           }
         } else {
-          filter.period_id = null
+          filter.period_id = requestParamsData.value.data.period_id
           filter.date_from_to[0] = requestParamsData.value.data.from_date
           filter.date_from_to[1] = requestParamsData.value.data.to_date
           requestParamsData.value.data = {
             ...requestParamsData.value.data,
-            period_id: null,
+            period_id: requestParamsData.value.data.period_id,
             from_date: requestParamsData.value.data.from_date,
             to_date: requestParamsData.value.data.to_date
           }
