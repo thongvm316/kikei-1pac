@@ -245,6 +245,10 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
+      params.value = {
+        page_number: 1,
+        page_size: 50
+      }
       await fetchList(params.value)
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {

@@ -1,5 +1,5 @@
 <template>
-  <section class="chart">
+  <section ref="chart" class="chart">
     <template v-if="isVisible ? isVisible : (openChart = false)">
       <a-button class="btn-chart" @click="openChart = true">
         <template #icon>
@@ -25,93 +25,93 @@
       </div>
     </template>
 
-    <div class="canvas">
+    <div ref="canvas" class="canvas">
       <canvas ref="myChartRef" @click=";(isActive = false), (openChart = false)" />
 
-      <div ref="modalContent" :class="{ active: isActive }" class="modal-content">
-        <close-icon class="icon" @click="handleClose" />
-        <ul>
-          <li v-for="item in detailChart.data" :key="item">
-            <div v-if="dataChart.length < 2">
-              <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                <span class="left-detail">
-                  {{
-                    item.label === 'Withdrawal'
-                      ? $t('modal.chart_label_Withdrawal')
-                      : item.label === 'Deposit'
-                      ? $t('modal.chart_label_Deposit')
-                      : item.label
-                  }}
-                </span>
-              </router-link>
-            </div>
-            <div v-else>
-              <span class="left-detail_chart-all">{{ $t('modal.balance_chart') }}</span>
-            </div>
-
-            <span class="money-detail right-detail">
-              <div v-if="dataChart.length < 2" :style="item.money < 0 ? 'color: red' : 'color: black'">
-                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
-                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                    {{ item.money.toLocaleString() }}
+      <template v-if="isActive">
+        <div ref="modalContent" class="modal-content">
+          <close-icon class="icon" @click="handleClose" />
+          <ul>
+            <li v-for="item in detailChart.data" :key="item">
+              <div v-if="dataChart.length < 2">
+                <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="left-detail">
+                    {{
+                      item.label === 'Withdrawal'
+                        ? $t('modal.chart_label_Withdrawal')
+                        : item.label === 'Deposit'
+                        ? $t('modal.chart_label_Deposit')
+                        : item.label
+                    }}
                   </span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-                  </template>
-                </router-link>
-
-                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
-                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                    {{ item.money.toLocaleString() }}
-                  </span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-                  </template>
                 </router-link>
               </div>
               <div v-else>
-                <router-link
-                  v-if="dataChart.length < 2"
-                  :to="{ name: 'deposit' }"
-                  @click="handlePageRedirect(item, fullDate)"
-                >
-                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
-                    {{ item.money.toLocaleString() }}</span
-                  >
-                  <template v-if="item.warnings.length">
-                    <span class="note-money__chart-all">
-                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
-                    </span>
-                  </template>
-                </router-link>
-                <router-link v-else :to="{ name: 'financing-chart' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
-                    {{ item.money.toLocaleString() }}</span
-                  >
-                  <template v-if="item.warnings.length">
-                    <span class="note-money__chart-all">
-                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
-                    </span>
-                  </template>
-                </router-link>
+                <span class="left-detail_chart-all">{{ $t('modal.balance_chart') }}</span>
               </div>
-            </span>
-          </li>
-          <div v-if="dataChart.length < 2">
-            <hr class="dashed" />
-            <li>
-              <span class="left-detail_chart-all">{{ $t('modal.total_balance') }}</span>
-              <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
-                <span class="right-detail_chart-all" :style="totalMoney < 0 ? 'color: red' : 'color: black'">{{
-                  totalMoney
-                }}</span>
-              </router-link>
+
+              <span class="money-detail right-detail">
+                <div v-if="dataChart.length < 2" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                  <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                      {{ item.money.toLocaleString() }}
+                    </span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                    </template>
+                  </router-link>
+
+                  <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                      {{ item.money.toLocaleString() }}
+                    </span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                    </template>
+                  </router-link>
+                </div>
+                <div v-else>
+                  <router-link
+                    v-if="dataChart.length < 2"
+                    :to="{ name: 'deposit' }"
+                    @click="handlePageRedirect(item, fullDate)"
+                  >
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      {{ item.money.toLocaleString() }}</span
+                    >
+                    <template v-if="item.warnings.length">
+                      <span class="note-money__chart-all">
+                        {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                      </span>
+                    </template>
+                  </router-link>
+                  <router-link v-else :to="{ name: 'financing-chart' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color__chart-all"> {{ item.money.toLocaleString() }}</span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money__chart-all">
+                        {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                      </span>
+                    </template>
+                  </router-link>
+                </div>
+              </span>
             </li>
-          </div>
-        </ul>
-      </div>
+            <div v-if="dataChart.length < 2">
+              <hr class="dashed" />
+              <li>
+                <span class="left-detail_chart-all">{{ $t('modal.total_balance') }}</span>
+                <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
+                  <span class="right-detail_chart-all" :style="totalMoney < 0 ? 'color: red' : 'color: black'">{{
+                    totalMoney
+                  }}</span>
+                </router-link>
+              </li>
+            </div>
+          </ul>
+        </div>
+      </template>
     </div>
   </section>
 </template>
@@ -170,6 +170,9 @@ export default defineComponent({
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
+    const widthLabel = ref(60)
+    const canvas = ref()
+    const chart = ref()
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -207,7 +210,8 @@ export default defineComponent({
                 : '#000000'
             },
             beginAtZero: true,
-            autoSkip: false
+            autoSkip: false,
+            maxRotation: 0
           }
         },
         y: {
@@ -238,9 +242,9 @@ export default defineComponent({
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
 
-            await reRenderPos()
-
             if (totalMoney.value) isActive.value = true
+
+            await reRenderPos()
           })
         } else {
           forEach(data.value.datasets, (item) => {
@@ -321,6 +325,14 @@ export default defineComponent({
 
       // re render chart
       window.myLineChart.update()
+
+      // reset scroll
+      nextTick(() => {
+        chart.value.scrollLeft = 0
+
+        canvas.value.style.width =
+          data.value.labels.length === widthLabel.value ? data.value.labels.length * widthLabel.value + 'px' : 100 + '%'
+      })
     })
 
     watch(
@@ -568,6 +580,8 @@ export default defineComponent({
     return {
       myChartRef,
       modalContent,
+      canvas,
+      chart,
       isActive,
       openChart,
       plainOptions,
@@ -578,6 +592,8 @@ export default defineComponent({
       totalMoney,
       fullDate,
       groupId,
+      data,
+      widthLabel,
       onToggleIndicated,
       handleClose,
       handleBankIdRequest,
