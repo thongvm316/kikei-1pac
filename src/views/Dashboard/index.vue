@@ -272,8 +272,8 @@ export default defineComponent({
       rankingData.value = result?.data
     }
 
-    const fetchBankAccountBalance = async (groupId) => {
-      const { result } = await getBankAccountBalance(groupId)
+    const fetchBankAccountBalance = async (param) => {
+      const { result } = await getBankAccountBalance(param)
       bankBalance.value = result?.data
     }
 
