@@ -14,10 +14,14 @@ export default {
   },
 
   getRevenueStatistics(params) {
-    return apiCaller({ method: 'GET', url: '/revenue/statistics', params })
+    return apiCaller({ method: 'GET', url: `${RESOURCES.revenue}/statistics`, params })
   },
 
   getRevenueBalance(params) {
-    return apiCaller({ method: 'GET', url: '/revenue/balance', params })
+    return apiCaller({ method: 'GET', url: `${RESOURCES.revenue}/balance`, params })
+  },
+
+  getBankAccountBalance(params) {
+    return apiCaller({ method: 'GET', url: `/bankaccountbalance`, params })
   }
 }

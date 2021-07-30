@@ -50,8 +50,9 @@
         :title="'銀行残高推移'"
         :group-list="groupList"
         @on-swap-block-order="swapBlockOrder"
+        @on-change-group="fetchBankAccountBalance($event)"
       >
-        <bank-line-chart />
+        <bank-line-chart :bank-balance="bankBalance"/>
       </controller-block>
     </div>
 
@@ -91,7 +92,8 @@ import {
   getPendingDeposits,
   getRevenue,
   getRevenueStatistics,
-  getRevenueBalance
+  getRevenueBalance,
+  getBankAccountBalance
 } from './composables/useDashboard'
 import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
 import services from '@/services'
@@ -134,6 +136,9 @@ export default defineComponent({
 
     // revenue
     const rankingData = ref()
+
+    // bank balance
+    const bankBalance = ref()
 
     const dashboardBlocks = computed(() => store.state.dashboard.blocks)
 
@@ -267,6 +272,11 @@ export default defineComponent({
       rankingData.value = result?.data
     }
 
+    const fetchBankAccountBalance = async (groupId) => {
+      const { result } = await getBankAccountBalance({ groupId })
+      bankBalance.value = result?.data
+    }
+
     onBeforeMount(async () => {
       const dashboardBlocks = StorageService.get(storageKeys.dashboardBlocks)
       if (dashboardBlocks) {
@@ -292,6 +302,7 @@ export default defineComponent({
       fetchSales(groupIdDefault.value)
       fetchMonthlyAccounting(groupIdDefault.value)
       fetchRaking(groupIdDefault.value)
+      fetchBankAccountBalance(groupIdDefault.value)
 
       nextTick(() => {
         // DOM is updated
@@ -310,12 +321,14 @@ export default defineComponent({
       dataTableMonthly,
       isLoadingMonthlyAccounting,
       rankingData,
+      bankBalance,
 
       swapBlockOrder,
       fetchPendingDeposits,
       fetchSales,
       fetchMonthlyAccounting,
-      fetchRaking
+      fetchRaking,
+      fetchBankAccountBalance
     }
   }
 })
