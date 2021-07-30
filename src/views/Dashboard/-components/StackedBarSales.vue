@@ -58,12 +58,14 @@ export default defineComponent({
         return { ...accuracy, percent }
       })
 
+      // remaiming
       const remainingPercent = 100 - totalPercent
+      const remainingTarget = revenueTarget - totalRevenue
       list.push({
         accuracyId: 'remainingTarget',
         accuracyCode: '',
         accuracyName: '残り',
-        revenue: revenueTarget,
+        revenue: remainingTarget > 0 ? remainingTarget : 0,
         percent: remainingPercent > 0 ? remainingPercent : 0
       })
 

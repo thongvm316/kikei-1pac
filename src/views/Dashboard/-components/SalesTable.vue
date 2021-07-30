@@ -84,7 +84,8 @@ export default defineComponent({
       const data = {
         accuracyId: record[`${column.dataIndex}Id`],
         statisticsFrom: props.dataSource?.fromDate || null,
-        statisticsTo: props.dataSource?.toDate || null
+        statisticsTo: props.dataSource?.toDate || null,
+        statusCode: []
       }
 
       const blockFound = find(store.state.dashboard.blocks, { id: props.blockId })
