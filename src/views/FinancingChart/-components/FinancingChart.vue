@@ -192,6 +192,9 @@ export default defineComponent({
       data: {}
     })
 
+    const backgrounds = ref([])
+    const hoverBackgrounds = ref([])
+
     const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -248,16 +251,14 @@ export default defineComponent({
             if (totalMoney.value) isActive.value = true
 
             await reRenderPos()
+            await activePoint(nativeElement)
+
+            window.myLineChart.update()
           })
         } else {
-          forEach(data.value.datasets, (item) => {
-            item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
-            item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-            item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
-          })
+          handleClose()
+          window.myLineChart.update()
         }
-
-        window.myLineChart.update()
       }
     }
 
@@ -307,6 +308,8 @@ export default defineComponent({
         const labels = mapLabel(result)
         const dataY = mapDataY(result)
         const chart = find(CHART, (i) => i.data_id === item.dataId)
+        backgrounds.value = map(dataY, () => chart.pointBg)
+        hoverBackgrounds.value = map(dataY, () => chart.pointHoverBg)
 
         // set label
         data.value.labels = labels
@@ -319,9 +322,9 @@ export default defineComponent({
           pointRadius: 8,
           borderColor: chart.border,
           pointBorderColor: 'rgba(255, 255, 255, 1)',
-          pointBackgroundColor: chart.pointBg,
+          pointBackgroundColor: backgrounds.value.slice(),
           pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-          pointHoverBackgroundColor: chart.pointHoverBg,
+          pointHoverBackgroundColor: hoverBackgrounds.value.slice(),
           data: [...dataY]
         })
       })
@@ -333,8 +336,13 @@ export default defineComponent({
       nextTick(() => {
         chart.value.scrollLeft = 0
 
+        const aside = 232
+        const delta = data.value.labels.length * widthLabel.value
+
         canvas.value.style.width =
-          data.value.labels.length === widthLabel.value ? data.value.labels.length * widthLabel.value + 'px' : 100 + '%'
+          groupId.value !== 0 && delta >= window.innerWidth - aside
+            ? data.value.labels.length * widthLabel.value + 'px'
+            : 100 + '%'
       })
     })
 
@@ -354,6 +362,26 @@ export default defineComponent({
     onMounted(() => {
       window.myLineChart = createChart()
     })
+
+    const activePoint = (nativeElement) => {
+      const datasetIndex = nativeElement[0].datasetIndex
+      const index = nativeElement[0].index
+
+      forEach(checkDate.value, (item, key) => {
+        if (datasetIndex === key) {
+          // find line exactly
+          const chart = find(CHART, (i) => i.data_id === item.dataId)
+          forEach(data.value.datasets[datasetIndex].data, (value, o) => {
+            // set default background color
+            data.value.datasets[datasetIndex].pointBackgroundColor[o] = chart.pointBg
+            if (o === index) {
+              // active point when clicked
+              data.value.datasets[datasetIndex].pointBackgroundColor[index] = chart.pointHoverBg
+            }
+          })
+        }
+      })
+    }
 
     const onToggleIndicated = (e) => {
       const index = findIndex(CHART, (item) => item.data_id === e.target.value)
@@ -440,11 +468,21 @@ export default defineComponent({
 
     const handleClose = () => {
       isActive.value = false
-      forEach(data.value.datasets, (item) => {
+
+      forEach(data.value.datasets, (item, datasetIndex) => {
         item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
         item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
+
+        forEach(checkDate.value, (val, i) => {
+          if (datasetIndex === i) {
+            const chart = find(CHART, (i) => i.data_id === val.dataId)
+            forEach(item.data, (obj, index) => {
+              item.pointBackgroundColor[index] = chart.pointBg
+            })
+          }
+        })
       })
+
       window.myLineChart.update()
     }
 
@@ -460,7 +498,7 @@ export default defineComponent({
         const canvasH = myChartRef.value.clientHeight
 
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 6}px` : `${top - 6}px`
+        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 8}px` : `${top + 8}px`
       })
     }
 
@@ -473,7 +511,10 @@ export default defineComponent({
 
         item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, `${opacity})`)
         item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, `${opacity})`)
-        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, `${opacity})`)
+
+        forEach(item.data, (obj, index) => {
+          item.pointBackgroundColor[index] = item.pointBackgroundColor[index].replace(/[\d.]+\)$/g, `${opacity})`)
+        })
       })
 
       window.myLineChart.update()
@@ -517,14 +558,8 @@ export default defineComponent({
       let columnId = parseInt(id)
 
       if (dataFilters.value.bank_account_ids.length !== 0) {
-        if (columnId === 2) {
-          typeDeposit.value = null
-          moneyType.value = 2
-        }
-        if (columnId === 1) {
-          typeDeposit.value = null
-          moneyType.value = 1
-        }
+        typeDeposit.value = null
+        moneyType.value = columnId
       } else {
         typeDeposit.value = null
         moneyType.value = null

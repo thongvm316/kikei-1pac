@@ -19,5 +19,33 @@ export const CHART = [
     border: 'rgba(183, 235, 143, 1)',
     pointBg: 'rgba(183, 235, 143, 1)',
     pointHoverBg: 'rgba(56, 158, 13, 1)'
+  },
+  {
+    data_id: 4,
+    label: 'Line 4',
+    border: 'rgba(143, 235, 227, 1)',
+    pointBg: 'rgba(143, 235, 224, 1)',
+    pointHoverBg: 'rgba(13, 129, 158, 1)'
+  },
+  {
+    data_id: 5,
+    label: 'Line 5',
+    border: 'rgba(143, 155, 235, 1)',
+    pointBg: 'rgba(160, 143, 235, 1)',
+    pointHoverBg: 'rgba(86, 13, 158, 1)'
+  },
+  {
+    data_id: 6,
+    label: 'Line 6',
+    border: 'rgba(235, 143, 191, 1)',
+    pointBg: 'rgba(235, 143, 226, 1)',
+    pointHoverBg: 'rgba(131, 13, 158, 1)'
+  },
+  {
+    data_id: 7,
+    label: 'Line 7',
+    border: 'rgba(235 ,223, 143, 1)',
+    pointBg: 'rgba(235, 233, 143, 1)',
+    pointHoverBg: 'rgba(158, 156, 13, 1)'
   }
 ]
