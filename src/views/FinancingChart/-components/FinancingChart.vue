@@ -384,10 +384,14 @@ export default defineComponent({
     }
 
     const onToggleIndicated = (e) => {
-      const index = findIndex(CHART, (item) => item.data_id === e.target.value)
-      if (index > -1) {
-        data.value.datasets[index].hidden = !e.target.checked
-        window.myLineChart.update()
+      const chart = find(CHART, (item) => item.data_id === e.target.value)
+      if (chart) {
+        forEach(data.value.datasets, (item) => {
+          if (item.label === chart.label) {
+            item.hidden = !e.target.checked
+            window.myLineChart.update()
+          }
+        })
       }
       if (e) handleClose()
     }
@@ -507,7 +511,7 @@ export default defineComponent({
       let opacity = null
 
       forEach(data.value.datasets, (item, index) => {
-        opacity = index !== datasetIndex ? 0.4 : 1
+        opacity = index !== datasetIndex ? 0.2 : 1
 
         item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, `${opacity})`)
         item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, `${opacity})`)
