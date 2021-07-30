@@ -23,7 +23,7 @@ export default defineComponent({
 
     const fetchProject = async () => {
       const paramRequest = {
-        timezone: 0 - new Date().getTimezoneOffset()/60
+        timezone: 0 - new Date().getTimezoneOffset() / 60
       }
       const projectId = route.params.id
       if (!projectId) return
