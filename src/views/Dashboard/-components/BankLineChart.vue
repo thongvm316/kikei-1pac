@@ -127,7 +127,7 @@ export default defineComponent({
 
       // set datasets
       value.forEach((item, index) => {
-        const dataY = item.dataByMonth.map(item => item.balance)
+        const dataY = item.dataByMonth?.map(item => item.balance)
 
         data.value.datasets.push(
           {
