@@ -93,7 +93,7 @@ export default defineComponent({
             contentTooltip.value = []
             nativeElement.forEach(item => {
               contentTooltip.value.push({
-                title: bankBalance.value[item.datasetIndex].bankAccountName,
+                title: bankBalance.value[item.datasetIndex].bankAccountName || bankBalance.value[item.datasetIndex].groupName,
                 money: item.element.$context.raw
               })
             })
