@@ -134,7 +134,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('company.companyName'),
+          title: t('company.company_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
@@ -245,6 +245,10 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
+      params.value = {
+        page_number: 1,
+        page_size: 50
+      }
       await fetchList(params.value)
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {

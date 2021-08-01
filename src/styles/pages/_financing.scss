@@ -13,6 +13,16 @@
     &--top {
       padding: 24px 0 16px;
 
+      .financing__header--wrap {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        .form-group {
+          margin-right: 32px;
+        }
+      }
+
       .btn-download {
         border: none;
         background: transparent;

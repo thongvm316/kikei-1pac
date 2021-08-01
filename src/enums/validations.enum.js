@@ -1,10 +1,12 @@
 const dictionary = {
   en: {
-    required_custom: 'The {field} is required !!!',
+    input_required: 'Please input {field}',
+    select_required: 'Please select {field}',
     confirmed: 'Does not match new password'
   },
   ja: {
-    required_custom: '{field}は小数のみ使用できます !!!',
+    input_required: '{field}を入力してください',
+    select_required: '{field}を選択してください',
     confirmed: '新しいパスワードと一致しません'
   }
 }

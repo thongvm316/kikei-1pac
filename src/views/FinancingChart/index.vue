@@ -2,59 +2,61 @@
   <section class="financing">
     <div class="financing__header">
       <div class="financing__header--top u-mx-32">
-        <!--Stages-->
-        <div class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
+        <div class="financing__header--wrap">
+          <!--Stages-->
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
-          <div class="form-select">
-            <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
-              <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
-                {{ item.name }}
-              </a-select-option>
-            </a-select>
+            <div class="form-select">
+              <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
+                <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
-        </div>
-        <!--./Stages -->
-        <!--Date From-->
-        <div class="form-group">
-          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
+          <!--./Stages -->
+          <!--Date From-->
+          <div class="form-group">
+            <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
-          <div class="form-select">
-            <a-range-picker
-              v-model:value="filter.date_from_to"
-              format="YYYY-MM-DD"
-              :style="{ width: '260px' }"
-              :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
-              @change="onChangeDate"
-            >
-              <template #suffixIcon>
-                <CalendarOutlined />
-              </template>
-            </a-range-picker>
-          </div>
-        </div>
-        <!--./Date From -->
-        <!-- Display -->
-        <div class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
-
-          <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
-              <a-radio
-                v-for="item in SHOW_BY"
-                :key="item.id"
-                :value="item.id"
-                :disabled="item.id === 1 ? isDisabledDisplay : false"
+            <div class="form-select">
+              <a-range-picker
+                v-model:value="filter.date_from_to"
+                format="YYYY-MM-DD"
+                :style="{ width: '260px' }"
+                :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                @change="onChangeDate"
               >
-                {{ $t(`financing.financing_list.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
+                <template #suffixIcon>
+                  <CalendarOutlined />
+                </template>
+              </a-range-picker>
+            </div>
           </div>
+          <!--./Date From -->
+          <!-- Display -->
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
+
+            <div class="form-checkbox">
+              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy(filter.show_by)">
+                <a-radio
+                  v-for="item in SHOW_BY"
+                  :key="item.id"
+                  :value="item.id"
+                  :disabled="item.id === 1 ? isDisabledDisplay : false"
+                >
+                  {{ $t(`financing.financing_list.${item.value}`) }}
+                </a-radio>
+              </a-radio-group>
+            </div>
+          </div>
+          <!-- ./Display -->
         </div>
-        <!-- ./Display -->
       </div>
       <div class="financing__header--middle">
-        <a-tabs v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
+        <a-tabs ref="tabGroup" v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
           <a-tab-pane v-for="item in groupList" :key="item.id" :tab="item.name"></a-tab-pane>
         </a-tabs>
       </div>
@@ -105,7 +107,7 @@
       </div>
     </div>
 
-    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" :is-tab-group="isTabGroup" />
+    <financing-chart :data-chart="dataChartFinancing" :is-visible="idVisible" @on-tab-change="handleTab" />
   </section>
 </template>
 <script>
@@ -113,8 +115,9 @@ import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import moment from 'moment'
 
-import { isEmpty, remove } from 'lodash-es'
+import { isEmpty, remove, isEqual } from 'lodash-es'
 
 import useGetGroupListService from '@/views/FinancingChart/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/FinancingChart/composables/useGetPeriodListService'
@@ -144,12 +147,12 @@ export default defineComponent({
     const periodList = ref([])
     const bankAccountList = ref([])
     const currencyList = ref([])
-    const isTabGroup = ref(1)
+    const dataStore = ref({})
 
     // Chart
     const dataChartFinancing = ref([])
-    const updateDataRequest = ref({})
     const idVisible = ref(false)
+    const tabGroup = ref()
 
     const isLoading = ref(false)
     const isLoadingDataChart = ref(true)
@@ -209,13 +212,25 @@ export default defineComponent({
     const onChangePeriod = async (event) => {
       filter.date_from_to = []
       isDisabledDate.value = !(event === undefined || event === null)
-      updateParamRequestFinancing({
-        data: {
-          period_id: filter.period_id,
-          from_date: null,
-          to_date: null
-        }
-      })
+      if (filter.period_id === undefined) {
+        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        updateParamRequestFinancing({
+          data: {
+            period_id: filter.period_id,
+            from_date: moment().format('YYYY-MM-DD'),
+            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+          }
+        })
+      } else {
+        updateParamRequestFinancing({
+          data: {
+            period_id: filter.period_id,
+            from_date: '',
+            to_date: ''
+          }
+        })
+      }
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
@@ -227,23 +242,51 @@ export default defineComponent({
         const startDate = new Date(dateString[0])
         const endDate = new Date(dateString[1])
         // Calculate the day difference
-        const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
-        const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-        if (diffDays > 60) {
-          store.commit('flash/STORE_FLASH_MESSAGE', {
-            variant: 'error',
-            message: 'errors.chart_date_2m'
-          })
-          filter.date_from_to = dateString[0] === '' && dateString[1] === ''
-        } else {
-          filter.date_from_to = dateString
-        }
+        filter.date_from_to = dateString
         filter.period_id = null
         isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
         if (dateString[0] === '' && dateString[1] === '') {
           let periodCurrentFound = findCurrentPeriod(periodList.value)
-          filter.period_id = periodCurrentFound?.id || null
+          filter.period_id = periodCurrentFound?.id
+          updateParamRequestFinancing({
+            data: {
+              period_id: filter.period_id,
+              from_date: '',
+              to_date: ''
+            }
+          })
+        } else {
+          filter.date_from_to = dateString
         }
+        if (filter.show_by !== 0) {
+          const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
+          const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
+          if (diffDays > 59) {
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'error',
+              message: 'errors.chart_date_2m'
+            })
+            filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+            filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+            updateParamRequestFinancing({
+              data: {
+                period_id: filter.period_id,
+                from_date: filter.date_from_to[0],
+                to_date: filter.date_from_to[1]
+              }
+            })
+          } else {
+            filter.date_from_to = dateString
+            updateParamRequestFinancing({
+              data: {
+                period_id: filter.period_id,
+                from_date: filter.date_from_to[0],
+                to_date: filter.date_from_to[1]
+              }
+            })
+          }
+        }
+
         updateParamRequestFinancing({
           data: {
             period_id: filter.period_id,
@@ -251,23 +294,43 @@ export default defineComponent({
             to_date: filter.date_from_to[1]
           }
         })
+
         // save filters to store
         store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
     }
 
-    const onChangeShowBy = async () => {
-      updateParamRequestFinancing({
-        data: {
-          show_by: filter.show_by
-        }
-      })
+    const onChangeShowBy = async (evt) => {
+      filter.show_by = evt
+      if (filter.show_by) {
+        filter.period_id = requestParamsData.value.data.period_id
+        filter.date_from_to[0] = requestParamsData.value.data.from_date
+        filter.date_from_to[1] = requestParamsData.value.data.to_date
+        updateParamRequestFinancing({
+          data: {
+            show_by: filter.show_by,
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
+          }
+        })
+      } else {
+        filter.period_id = requestParamsData.value.data.period_id
+        filter.date_from_to[0] = requestParamsData.value.data.from_date
+        filter.date_from_to[1] = requestParamsData.value.data.to_date
+        updateParamRequestFinancing({
+          data: {
+            show_by: filter.show_by,
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
+          }
+        })
+      }
+
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeTabGroup = async (value) => {
-      isTabGroup.value = value
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
@@ -276,7 +339,18 @@ export default defineComponent({
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
-        updateParamRequestFinancing({ data: { group_id: filter.group_id } })
+        if (value !== 0) {
+          filter.period_id = null
+          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        }
+        updateParamRequestFinancing({
+          data: {
+            group_id: filter.group_id,
+            from_date: moment().format('YYYY-MM-DD'),
+            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+          }
+        })
       } else {
         idVisible.value = true
         filter.show_by = 0
@@ -292,6 +366,19 @@ export default defineComponent({
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+    }
+
+    const handleTab = (evt) => {
+      requestParamsData.value.data = {
+        ...evt,
+        currency_code: requestParamsData.value.data.currency_code
+      }
+
+      filter.group_id = evt.group_id
+      filter.date_from_to[0] = evt.from_date
+      filter.date_from_to[1] = evt.to_date
+
+      onChangeTabGroup(evt.group_id)
     }
 
     const onChangeBankAccount = async () => {
@@ -380,7 +467,6 @@ export default defineComponent({
       const filtersFinancingStore = store.state.financing?.filters || {}
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
         const dataFilter = await convertDataFilter(filtersFinancingStore.data)
@@ -395,17 +481,36 @@ export default defineComponent({
           await fetchPeriodList(groupID)
           await fetchBankAccounts({ group_id: groupID })
         }
-
         if (groupID === null) {
           filter.group_id = groupList?.value[groupList.value.length - 1].id
           isDisabledDisplay.value = true
           isDisabledBank.value = true
         }
-
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
         filter.currency_code = currencyDefault?.code || null
+        if (requestParamsData.value.data.from_date === null && requestParamsData.value.data.from_date === null) {
+          filter.period_id = null
+          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+          requestParamsData.value.data = {
+            ...requestParamsData.value.data,
+            period_id: null,
+            from_date: moment().format('YYYY-MM-DD'),
+            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+          }
+        } else {
+          filter.period_id = requestParamsData.value.data.period_id
+          filter.date_from_to[0] = requestParamsData.value.data.from_date
+          filter.date_from_to[1] = requestParamsData.value.data.to_date
+          requestParamsData.value.data = {
+            ...requestParamsData.value.data,
+            period_id: requestParamsData.value.data.period_id,
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
+          }
+        }
         isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default
@@ -416,14 +521,19 @@ export default defineComponent({
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
         }
-
         filter.currency_code = currencyDefault?.code || null
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         requestParamsData.value.data.group_id = filter?.group_id || null
-        requestParamsData.value.data.period_id = filter?.period_id || null
+        filter.period_id = null
+        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
+        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          period_id: null,
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+        }
       }
-
-      updateDataRequest.value = requestParamsData.value
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       await fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
@@ -433,7 +543,6 @@ export default defineComponent({
     watch(
       () => requestParamsData.value,
       () => {
-        updateDataRequest.value = requestParamsData.value
         // fetch data chart
         fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
@@ -450,9 +559,9 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       dataChartFinancing,
-      updateDataRequest,
       idVisible,
-      isTabGroup,
+      tabGroup,
+      handleTab,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,

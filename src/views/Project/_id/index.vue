@@ -22,10 +22,13 @@ export default defineComponent({
     const project = {}
 
     const fetchProject = async () => {
+      const paramRequest = {
+        timezone: 0 - new Date().getTimezoneOffset() / 60
+      }
       const projectId = route.params.id
       if (!projectId) return
 
-      project.value = await getProject(projectId)
+      project.value = await getProject(projectId, paramRequest)
     }
 
     onBeforeMount(() => {

@@ -1,6 +1,6 @@
 <template>
-  <section class="chart">
-    <template v-if="isVisible ? isVisible : (openChart = false)">
+  <section ref="chart" class="chart">
+    <template v-if="dataChart.length > 1">
       <a-button class="btn-chart" @click="openChart = true">
         <template #icon>
           <LineChartOutlined />
@@ -25,85 +25,93 @@
       </div>
     </template>
 
-    <div class="canvas">
+    <div ref="canvas" class="canvas">
       <canvas ref="myChartRef" @click=";(isActive = false), (openChart = false)" />
 
-      <div ref="modalContent" :class="{ active: isActive }" class="modal-content">
-        <close-icon class="icon" @click="handleClose" />
-        <ul>
-          <li v-for="item in detailChart.data" :key="item">
-            <div v-if="idTab">
-              <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                <span class="left-detail">
-                  {{
-                    item.label === 'Withdrawal'
-                      ? $t('modal.chart_label_Withdrawal')
-                      : item.label === 'Deposit'
-                      ? $t('modal.chart_label_Deposit')
-                      : item.label
-                  }}
-                </span>
-              </router-link>
-            </div>
-
-            <div v-else>
-              <span class="left-detail">{{ $t('modal.balance_chart') }}</span>
-            </div>
-
-            <span :style="item.money < 0 ? 'color: red' : 'color: black'" class="money-detail right-detail">
-              <div v-if="idTab">
-                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color">
-                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                    {{ item.money.toLocaleString() }}
+      <template v-if="isActive">
+        <div ref="modalContent" class="modal-content">
+          <close-icon class="icon" @click="handleClose" />
+          <ul>
+            <li v-for="item in detailChart.data" :key="item">
+              <div v-if="dataChart.length < 2">
+                <router-link :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                  <span class="left-detail">
+                    {{
+                      item.label === 'Withdrawal'
+                        ? $t('modal.chart_label_Withdrawal')
+                        : item.label === 'Deposit'
+                        ? $t('modal.chart_label_Deposit')
+                        : item.label
+                    }}
                   </span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-                  </template>
-                </router-link>
-
-                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color">
-                    <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
-                    {{ item.money.toLocaleString() }}
-                  </span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
-                  </template>
                 </router-link>
               </div>
               <div v-else>
-                <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money__chart-all">
-                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
-                    </span>
-                  </template>
-                </router-link>
-                <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
-                  <span class="start-color"> {{ item.money.toLocaleString() }}</span>
-                  <template v-if="item.warnings.length">
-                    <span class="note-money__chart-all">
-                      {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
-                    </span>
-                  </template>
-                </router-link>
+                <span class="left-detail_chart-all">{{ $t('modal.balance_chart') }}</span>
               </div>
-            </span>
-          </li>
-          <div v-if="idTab">
-            <hr class="dashed" />
-            <li>
-              <span class="left-detail">残高合計</span>
 
-              <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
-                <span class="right-detail">{{ totalMoney }}</span>
-              </router-link>
+              <span class="money-detail right-detail">
+                <div v-if="dataChart.length < 2" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                  <router-link v-if="groupId" :to="{ name: 'deposit' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                      {{ item.money.toLocaleString() }}
+                    </span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                    </template>
+                  </router-link>
+
+                  <router-link v-else :to="{ name: 'financing' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      <p v-if="item.warnings.length > 0 && item.money > 0">*</p>
+                      {{ item.money.toLocaleString() }}
+                    </span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money">{{ $filters.moment_l(item.warnings[0]) }}</span>
+                    </template>
+                  </router-link>
+                </div>
+                <div v-else>
+                  <router-link
+                    v-if="dataChart.length < 2"
+                    :to="{ name: 'deposit' }"
+                    @click="handlePageRedirect(item, fullDate)"
+                  >
+                    <span class="start-color" :style="item.money < 0 ? 'color: red' : 'color: black'">
+                      {{ item.money.toLocaleString() }}</span
+                    >
+                    <template v-if="item.warnings.length">
+                      <span class="note-money__chart-all">
+                        {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                      </span>
+                    </template>
+                  </router-link>
+                  <router-link v-else :to="{ name: 'financing-chart' }" @click="handlePageRedirect(item, fullDate)">
+                    <span class="start-color__chart-all"> {{ item.money.toLocaleString() }}</span>
+                    <template v-if="item.warnings.length">
+                      <span class="note-money__chart-all">
+                        {{ $filters.moment_l(item.warnings[0]) }} {{ $t('modal.cash_out') }}
+                      </span>
+                    </template>
+                  </router-link>
+                </div>
+              </span>
             </li>
-          </div>
-        </ul>
-      </div>
+            <div v-if="dataChart.length < 2">
+              <hr class="dashed" />
+              <li>
+                <span class="left-detail_chart-all">{{ $t('modal.total_balance') }}</span>
+                <router-link :to="{ name: 'deposit' }" @click="handleRowTotalRedirect(item, fullDate)">
+                  <span class="right-detail_chart-all" :style="totalMoney < 0 ? 'color: red' : 'color: black'">{{
+                    totalMoney
+                  }}</span>
+                </router-link>
+              </li>
+            </div>
+          </ul>
+        </div>
+      </template>
     </div>
   </section>
 </template>
@@ -144,14 +152,12 @@ export default defineComponent({
     isVisible: {
       type: Boolean,
       required: true
-    },
-    isTabGroup: {
-      type: Number,
-      required: true
     }
   },
 
-  setup(props) {
+  emits: ['on-tab-change'],
+
+  setup(props, { emit }) {
     const store = useStore()
     const myChartRef = ref()
     const element = ref()
@@ -160,11 +166,13 @@ export default defineComponent({
     const dataPoint = ref({})
     const isActive = ref(false)
     const openChart = ref(false)
-    const { dataChart, isTabGroup } = toRefs(props)
+    const { dataChart } = toRefs(props)
     const data = ref({ labels: [], datasets: [] })
     const plainOptions = ref([])
     const indicated = ref([1, 2])
-    const idTab = ref(props.isTabGroup)
+    const widthLabel = ref(60)
+    const canvas = ref()
+    const chart = ref()
 
     const detailChart = ref({})
     const detailLabels = ref([])
@@ -179,9 +187,14 @@ export default defineComponent({
     const moneyType = ref()
     const bankAccountsId = ref()
     const dataFilters = ref({})
+
     const requestDataFilter = ref({
       data: {}
     })
+
+    const backgrounds = ref([])
+    const hoverBackgrounds = ref([])
+
     const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -200,7 +213,8 @@ export default defineComponent({
                 : '#000000'
             },
             beginAtZero: true,
-            autoSkip: false
+            autoSkip: false,
+            maxRotation: 0
           }
         },
         y: {
@@ -210,6 +224,9 @@ export default defineComponent({
             color: (context) => {
               return !context.tick.value ? '#595959' : '#D9D9D9'
             }
+          },
+          ticks: {
+            padding: 20
           }
         }
       },
@@ -232,19 +249,17 @@ export default defineComponent({
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
 
-            await reRenderPos()
-
             if (totalMoney.value) isActive.value = true
+
+            await reRenderPos()
+            await activePoint(nativeElement)
+
+            window.myLineChart.update()
           })
         } else {
-          forEach(data.value.datasets, (item) => {
-            item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
-            item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-            item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
-          })
+          handleClose()
+          window.myLineChart.update()
         }
-
-        window.myLineChart.update()
       }
     }
 
@@ -272,15 +287,6 @@ export default defineComponent({
       }
     }
 
-    watch(
-      isTabGroup,
-      (value) => {
-        idTab.value = value
-        isActive.value = false
-      },
-      { immediate: true }
-    )
-
     watch(dataChart, (value) => {
       // reset dataset when switch tab group
       data.value.datasets = []
@@ -303,6 +309,8 @@ export default defineComponent({
         const labels = mapLabel(result)
         const dataY = mapDataY(result)
         const chart = find(CHART, (i) => i.data_id === item.dataId)
+        backgrounds.value = map(dataY, () => chart.pointBg)
+        hoverBackgrounds.value = map(dataY, () => chart.pointHoverBg)
 
         // set label
         data.value.labels = labels
@@ -315,15 +323,28 @@ export default defineComponent({
           pointRadius: 8,
           borderColor: chart.border,
           pointBorderColor: 'rgba(255, 255, 255, 1)',
-          pointBackgroundColor: chart.pointBg,
+          pointBackgroundColor: backgrounds.value.slice(),
           pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-          pointHoverBackgroundColor: chart.pointHoverBg,
+          pointHoverBackgroundColor: hoverBackgrounds.value.slice(),
           data: [...dataY]
         })
       })
 
       // re render chart
       window.myLineChart.update()
+
+      // reset scroll
+      nextTick(() => {
+        chart.value.scrollLeft = 0
+
+        const aside = 232
+        const delta = data.value.labels.length * widthLabel.value
+
+        canvas.value.style.width =
+          groupId.value !== 0 && delta >= window.innerWidth - aside
+            ? data.value.labels.length * widthLabel.value + 'px'
+            : 100 + '%'
+      })
     })
 
     watch(
@@ -343,11 +364,35 @@ export default defineComponent({
       window.myLineChart = createChart()
     })
 
+    const activePoint = (nativeElement) => {
+      const datasetIndex = nativeElement[0].datasetIndex
+      const index = nativeElement[0].index
+
+      forEach(checkDate.value, (item, key) => {
+        if (datasetIndex === key) {
+          // find line exactly
+          const chart = find(CHART, (i) => i.data_id === item.dataId)
+          forEach(data.value.datasets[datasetIndex].data, (value, o) => {
+            // set default background color
+            data.value.datasets[datasetIndex].pointBackgroundColor[o] = chart.pointBg
+            if (o === index) {
+              // active point when clicked
+              data.value.datasets[datasetIndex].pointBackgroundColor[index] = chart.pointHoverBg
+            }
+          })
+        }
+      })
+    }
+
     const onToggleIndicated = (e) => {
-      const index = findIndex(CHART, (item) => item.data_id === e.target.value)
-      if (index > -1) {
-        data.value.datasets[index].hidden = !e.target.checked
-        window.myLineChart.update()
+      const chart = find(CHART, (item) => item.data_id === e.target.value)
+      if (chart) {
+        forEach(data.value.datasets, (item) => {
+          if (item.label === chart.label) {
+            item.hidden = !e.target.checked
+            window.myLineChart.update()
+          }
+        })
       }
       if (e) handleClose()
     }
@@ -428,27 +473,37 @@ export default defineComponent({
 
     const handleClose = () => {
       isActive.value = false
-      forEach(data.value.datasets, (item) => {
+
+      forEach(data.value.datasets, (item, datasetIndex) => {
         item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, '1)')
         item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, '1)')
-        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, '1)')
+
+        forEach(checkDate.value, (val, i) => {
+          if (datasetIndex === i) {
+            const chart = find(CHART, (i) => i.data_id === val.dataId)
+            forEach(item.data, (obj, index) => {
+              item.pointBackgroundColor[index] = chart.pointBg
+            })
+          }
+        })
       })
+
       window.myLineChart.update()
     }
 
     const reRenderPos = () => {
-      const left = element.value[0].element.x
-      const top = element.value[0].element.y
-
       nextTick(() => {
+        const left = element.value[0].element.x
+        const top = element.value[0].element.y
+
         const width = modalContent.value.offsetWidth
         const height = modalContent.value.offsetHeight
 
         const canvasW = myChartRef.value.clientWidth
-        // const canvasH = myChartRef.value.clientHeight
+        const canvasH = myChartRef.value.clientHeight
 
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top = `${top - height - 8}px`
+        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 8}px` : `${top + 8}px`
       })
     }
 
@@ -457,11 +512,14 @@ export default defineComponent({
       let opacity = null
 
       forEach(data.value.datasets, (item, index) => {
-        opacity = index !== datasetIndex ? 0.4 : 1
+        opacity = index !== datasetIndex ? 0.2 : 1
 
         item.borderColor = item.borderColor.replace(/[\d.]+\)$/g, `${opacity})`)
         item.pointBorderColor = item.pointBorderColor.replace(/[\d.]+\)$/g, `${opacity})`)
-        item.pointBackgroundColor = item.pointBackgroundColor.replace(/[\d.]+\)$/g, `${opacity})`)
+
+        forEach(item.data, (obj, index) => {
+          item.pointBackgroundColor[index] = item.pointBackgroundColor[index].replace(/[\d.]+\)$/g, `${opacity})`)
+        })
       })
 
       window.myLineChart.update()
@@ -505,14 +563,8 @@ export default defineComponent({
       let columnId = parseInt(id)
 
       if (dataFilters.value.bank_account_ids.length !== 0) {
-        if (columnId === 2) {
-          typeDeposit.value = null
-          moneyType.value = 2
-        }
-        if (columnId === 1) {
-          typeDeposit.value = null
-          moneyType.value = 1
-        }
+        typeDeposit.value = null
+        moneyType.value = columnId
       } else {
         typeDeposit.value = null
         moneyType.value = null
@@ -534,20 +586,19 @@ export default defineComponent({
           type: typeDeposit.value,
           moneyType: moneyType.value
         }
-
         store.commit('deposit/STORE_DEPOSIT_FILTER', requestDataFilter.value)
       } else {
         requestDataFilter.value.data = {
           group_id: columnId,
           period_id: null,
-          from_date: fullDate ? moment(fullDate).startOf('month').format('YYYY-MM-DD') : null,
-          to_date: fullDate ? moment(fullDate).endOf('month').format('YYYY-MM-DD') : null,
+          from_date: fromDate.value,
+          to_date: toDate.value,
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
         }
 
-        store.commit('financing/STORE_FINANCING_FILTER', requestDataFilter.value)
+        emit('on-tab-change', requestDataFilter.value.data)
       }
     }
 
@@ -572,6 +623,8 @@ export default defineComponent({
     return {
       myChartRef,
       modalContent,
+      canvas,
+      chart,
       isActive,
       openChart,
       plainOptions,
@@ -580,9 +633,10 @@ export default defineComponent({
       detailLabels,
       detailMoney,
       totalMoney,
-      idTab,
       fullDate,
       groupId,
+      data,
+      widthLabel,
       onToggleIndicated,
       handleClose,
       handleBankIdRequest,

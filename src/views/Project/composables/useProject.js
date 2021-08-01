@@ -49,9 +49,9 @@ export const exportProject = (items) => {
   exportCSVFile(exportObj)
 }
 
-export const getProject = async (projectId) => {
+export const getProject = async (projectId, param) => {
   try {
-    const { data: response } = await ProjectService.getProject(projectId)
+    const { data: response } = await ProjectService.getProject(projectId, param)
     return response?.result?.data || {}
   } catch (e) {
     throw e
