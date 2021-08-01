@@ -12,7 +12,7 @@
         :key="accuracy.accuracyId"
         :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
         placement="bottom"
-        :overlay-class-name="['stacked-bar__chart--popover', !accuracy.accuracyCode && 'popover-last-child']"
+        :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
       >
         <template #content>
           <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
