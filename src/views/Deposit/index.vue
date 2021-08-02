@@ -68,7 +68,12 @@
         :default-active-first-option="false"
         @change="onHandleChangeBankAcountSelect"
       >
-        <a-select-option v-for="option in bankAccountList" :key="option.name" :value="option.id" :label="option.name">
+        <a-select-option
+          v-for="option in bankAccountList"
+          :key="option.name"
+          :value="option.id"
+          :label="`${option.name} (${option.currencyCode})`"
+        >
           {{ `${option.name} (${option.currencyCode})` }}
         </a-select-option>
       </a-select>
