@@ -1,8 +1,15 @@
-import { SET_CHART } from '../mutation-types'
+import { STORE_CHART_FILTER, CLEAR_CHART_FILTER } from '../mutation-types'
 
 const mutations = {
-  [SET_CHART](state, payload) {
-    state.dataChart = payload
+  [STORE_CHART_FILTER](state, payload) {
+    state.filters = {
+      ...state.filters,
+      ...payload
+    }
+  },
+
+  [CLEAR_CHART_FILTER](state) {
+    state.filters = {}
   }
 }
 

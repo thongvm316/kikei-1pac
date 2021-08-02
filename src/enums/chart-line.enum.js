@@ -119,5 +119,5 @@ export const COLOR_CHART = [
     border: '#B7EB8F',
     pointBg: '#B7EB8F',
     pointHoverBg: '#52C41A'
-  },
+  }
 ]

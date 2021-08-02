@@ -52,7 +52,7 @@
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchBankAccountBalance($event)"
       >
-        <bank-line-chart :bank-balance="bankBalance"/>
+        <bank-line-chart :bank-balance="bankBalance" />
       </controller-block>
     </div>
 

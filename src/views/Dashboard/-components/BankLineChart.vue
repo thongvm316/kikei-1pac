@@ -4,13 +4,11 @@
       <canvas ref="myBankLineChartRef" />
 
       <div class="chartjs-tooltip">
-        <p
-          v-for="item in contentTooltip"
-          :key="item.index"
-          class="chartjs-tooltip__item"
-        >
+        <p v-for="item in contentTooltip" :key="item.index" class="chartjs-tooltip__item">
           <span class="u-text-weight-700">{{ item.title }}</span>
-          <span :class="`${parseInt(item.money) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ $filters.number_with_commas(item.money) }}</span>
+          <span :class="`${parseInt(item.money) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{
+            $filters.number_with_commas(item.money)
+          }}</span>
         </p>
       </div>
     </div>
@@ -50,7 +48,7 @@ export default defineComponent({
       layout: {
         padding: {
           top: 40,
-          left: 32,
+          left: 32
         }
       },
       scales: {
@@ -93,9 +91,11 @@ export default defineComponent({
           if (nativeElement.length > 0) {
             // Set content tooltip
             contentTooltip.value = []
-            nativeElement.forEach(item => {
+            nativeElement.forEach((item) => {
               contentTooltip.value.push({
-                title: bankBalance.value[item.datasetIndex].bankAccountName || bankBalance.value[item.datasetIndex].groupName,
+                title:
+                  bankBalance.value[item.datasetIndex].bankAccountName ||
+                  bankBalance.value[item.datasetIndex].groupName,
                 money: item.element.$context.raw
               })
             })
@@ -110,7 +110,8 @@ export default defineComponent({
             const canvasW = myBankLineChartRef.value.clientWidth
 
             chartjsTooltip.classList.add('active')
-            chartjsTooltip.style.left = left + width >= canvasW ? `${left - width - 32}px` : `${left - width/2 - 12}px`
+            chartjsTooltip.style.left =
+              left + width >= canvasW ? `${left - width - 32}px` : `${left - width / 2 - 12}px`
             chartjsTooltip.style.top = `${top - height - 16}px`
           } else {
             chartjsTooltip.classList.remove('active')
@@ -133,28 +134,25 @@ export default defineComponent({
 
       // set datasets
       value.forEach((item, index) => {
-        const dataY = item.dataByMonth?.map(item => item.balance)
-
-        data.value.datasets.push(
-          {
-            borderColor: COLOR_CHART[index].border,
-            pointBorderColor: 'rgba(255, 255, 255, 1)',
-            pointBackgroundColor: COLOR_CHART[index].pointBg,
-            pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
-            pointHoverBackgroundColor: COLOR_CHART[index].pointHoverBg,
-            fill: false,
-            title: item.bankAccountName || item.groupName,
-            pointBorderWidth: 4,
-            pointHoverRadius: 8,
-            pointHoverBorderWidth: 4,
-            pointRadius: 8,
-            data: dataY
-          }
-        )
+        const dataY = item.dataByMonth?.map((item) => item.balance)
+        data.value.datasets.push({
+          borderColor: COLOR_CHART[index].border,
+          pointBorderColor: 'rgba(255, 255, 255, 1)',
+          pointBackgroundColor: COLOR_CHART[index].pointBg,
+          pointHoverBorderColor: 'rgba(255, 255, 255, 1)',
+          pointHoverBackgroundColor: COLOR_CHART[index].pointHoverBg,
+          fill: false,
+          title: item.bankAccountName || item.groupName,
+          pointBorderWidth: 4,
+          pointHoverRadius: 8,
+          pointHoverBorderWidth: 4,
+          pointRadius: 8,
+          data: dataY
+        })
       })
 
       // set labels
-      data.value.labels = value[0].dataByMonth.map(item => Filter.moment_yyyy_mm(item.month))
+      data.value.labels = value[0].dataByMonth.map((item) => Filter.moment_yyyy_mm(item.month))
 
       // update chart
       window.bankLineChart.update()
@@ -187,7 +185,7 @@ export default defineComponent({
       background-color: $color-grey-100;
       padding: 8px 16px;
       border-radius: 2px;
-      box-shadow: 0px 8px 16px 0px #3232470F, 0px 8px 8px 0px #32324714;
+      box-shadow: 0px 8px 16px 0px #3232470f, 0px 8px 8px 0px #32324714;
       position: absolute;
       background-clip: padding-box;
       border: 0;

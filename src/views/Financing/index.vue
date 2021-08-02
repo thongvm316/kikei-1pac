@@ -600,19 +600,10 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
         filter.currency_code = currencyDefault?.code || null
-        if (requestParamsData.value.data.period_id !== null) {
+        let periodCurrentFound = findCurrentPeriod(periodList.value)
+        if (requestParamsData.value.data.period_id === periodCurrentFound?.id) {
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
-          filter.date_from_to[0] = null
-          filter.date_from_to[1] = null
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: filter.period_id,
-            from_date: null,
-            to_date: null
-          }
-        } else {
-          filter.period_id = null
           filter.date_from_to[0] = requestParamsData.value.data.from_date
           filter.date_from_to[1] = requestParamsData.value.data.to_date
           requestParamsData.value.data = {
@@ -621,8 +612,21 @@ export default defineComponent({
             from_date: requestParamsData.value.data.from_date,
             to_date: requestParamsData.value.data.from_date
           }
+        } else {
+          filter.currency_code = requestParamsData.value.data.currency_code
+          filter.period_id = requestParamsData.value.data.period_id
+          filter.date_from_to[0] = requestParamsData.value.data.from_date
+          filter.date_from_to[1] = requestParamsData.value.data.to_date
+          requestParamsData.value.data = {
+            ...requestParamsData.value.data,
+            period_id: filter.period_id,
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.to_date
+          }
         }
         isDisabledCurrency.value = !!filter.bank_account_ids
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       } else {
         // Load data default
         if (groupID) {
@@ -636,11 +640,10 @@ export default defineComponent({
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         requestParamsData.value.data.group_id = filter?.group_id || null
         requestParamsData.value.data.period_id = filter?.period_id || null
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
 
-      updateDataRequest.value = requestParamsData.value
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
@@ -657,7 +660,6 @@ export default defineComponent({
     watch(
       () => requestParamsData.value,
       () => {
-        updateDataRequest.value = requestParamsData.value
         // store.getters.finanancing
         // fetch data table
         fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
@@ -665,7 +667,7 @@ export default defineComponent({
     )
     // watch to event click table financing
     watch(
-      () => store.state.financing.filters,
+      () => store.state.financing?.filters,
       () => {
         // fetch data table
         onFilterRender()

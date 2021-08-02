@@ -1,5 +1,5 @@
-const state = () => ({
-  dataChart: {}
-})
+const state = {
+  filters: {}
+}
 
 export default state
