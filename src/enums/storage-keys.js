@@ -1,3 +1,4 @@
 export default Object.freeze({
-  authProfile: '__kkAuthProfile'
+  authProfile: '__kkAuthProfile',
+  dashboardBlocks: '__kkDashboardBlocks'
 })
