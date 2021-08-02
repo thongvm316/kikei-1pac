@@ -8,7 +8,7 @@
         :is-unvisible-group-tab="true"
         @on-swap-block-order="swapBlockOrder"
       >
-        <AccoutingOperationsTable
+        <accouting-operations-table
           :is-loading-table="isLoadingAccountingOperations"
           :data-source="dataTableAccoutingOperations"
         />

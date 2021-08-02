@@ -11,7 +11,7 @@
     <template #renderGroup="{ text, column }">
       <router-link
         :to="{ name: 'deposit' }"
-        class="accounting-operations__link"
+        :class="['accounting-operations__link', text > 0 && 'u-text-additional-red-6']"
         @click="handleSelectPendingDeposits(column)"
       >
         {{ `${$filters.number_with_commas(text)} 件` }}
