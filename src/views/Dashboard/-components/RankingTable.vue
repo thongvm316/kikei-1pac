@@ -22,7 +22,7 @@
         </template>
         <tr v-else>
           <td></td>
-          <td>該当するプロジェクトが見つかりませんでした。</td>
+          <td>該当する顧客名が見つかりませんでした。</td>
         </tr>
       </tbody>
     </table>
