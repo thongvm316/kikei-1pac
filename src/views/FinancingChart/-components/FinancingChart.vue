@@ -245,7 +245,6 @@ export default defineComponent({
           opacityLine(nativeElement)
 
           handleClickPoint(nativeElement).then(async (result) => {
-            console.log(result);
             detailChart.value = { ...result.data }
             totalMoney.value = detailChart.value?.totalMoney?.toLocaleString()
 
@@ -337,13 +336,10 @@ export default defineComponent({
       nextTick(() => {
         chart.value.scrollLeft = 0
 
-        const aside = 232
+        const aside = document.getElementsByClassName('aside')[0].clientWidth
         const delta = data.value.labels.length * widthLabel.value
 
-        canvas.value.style.width =
-          groupId.value !== 0 && delta >= window.innerWidth - aside
-            ? data.value.labels.length * widthLabel.value + 'px'
-            : 100 + '%'
+        canvas.value.style.width = groupId.value !== 0 && delta >= window.innerWidth - aside ? delta + 'px' : 100 + '%'
       })
     })
 
@@ -502,8 +498,32 @@ export default defineComponent({
         const canvasW = myChartRef.value.clientWidth
         const canvasH = myChartRef.value.clientHeight
 
+        let offsetHeight = height
+
+        if (offsetHeight > canvasH) {
+          offsetHeight = canvasH - (layout.padding.top + layout.padding.bottom)
+          modalContent.value.style.height = `${offsetHeight}px`
+          modalContent.value.style.overflowY = 'auto'
+        }
+
         modalContent.value.style.left = left + width >= canvasW ? `${left - width - 8}px` : `${left + 8}px`
-        modalContent.value.style.top = top + height >= canvasH ? `${top - height - 8}px` : `${top + 8}px`
+
+        if (top + offsetHeight > canvasH) {
+          const delta = top - offsetHeight - 8
+          const centerY = (canvasH - offsetHeight) / 2
+
+          modalContent.value.style.top = delta < 0 ? `${centerY}px` : `${delta}px`
+        } else {
+          const delta = top + offsetHeight + 8
+
+          if (delta > canvasH) {
+            const pos = delta - canvasH
+
+            modalContent.value.style.top = `${top - pos}px`
+          } else {
+            modalContent.value.style.top = `${top + 8}px`
+          }
+        }
       })
     }
 
