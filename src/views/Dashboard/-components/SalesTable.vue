@@ -116,7 +116,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
@@ -127,7 +127,9 @@ export default defineComponent({
       color: $color-grey-15;
     }
   }
+}
 
+.sales-table ::v-deep(.ant-table) {
   .ant-table-placeholder {
     @include flexbox(center, center);
     height: 96px;

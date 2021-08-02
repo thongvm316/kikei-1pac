@@ -1,16 +1,18 @@
 <template>
-  <div class="canvas u-relative">
-    <canvas ref="myBankLineChartRef" />
+  <div class="bank-line-chart">
+    <div class="canvas u-relative">
+      <canvas ref="myBankLineChartRef" />
 
-    <div class="chartjs-tooltip">
-      <p
-        v-for="item in contentTooltip"
-        :key="item.index"
-        class="chartjs-tooltip__item"
-      >
-        <span class="u-text-weight-700">{{ item.title }}</span>
-        <span :class="`${parseInt(item.money) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ $filters.number_with_commas(item.money) }}</span>
-      </p>
+      <div class="chartjs-tooltip">
+        <p
+          v-for="item in contentTooltip"
+          :key="item.index"
+          class="chartjs-tooltip__item"
+        >
+          <span class="u-text-weight-700">{{ item.title }}</span>
+          <span :class="`${parseInt(item.money) < 0 ? 'chartjs-tooltip__item--red' : ''} u-ml-8`">{{ $filters.number_with_commas(item.money) }}</span>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -173,43 +175,45 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import '@/styles/shared/variables';
 
-.canvas {
-  background-color: $color-grey-100;
-
-  canvas {
-    padding-right: 32px;
-  }
-
-  .chartjs-tooltip {
+.bank-line-chart {
+  .canvas {
     background-color: $color-grey-100;
-    padding: 8px 16px;
-    border-radius: 2px;
-    box-shadow: 0px 8px 16px 0px #3232470F, 0px 8px 8px 0px #32324714;
-    position: absolute;
-    background-clip: padding-box;
-    border: 0;
-    visibility: hidden;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight: 400;
-    z-index: 10;
 
-    &__item {
-      margin-bottom: 4px;
+    canvas {
+      padding-right: 32px;
+    }
 
-      &--red {
-        color: $color-additional-red-6;
+    .chartjs-tooltip {
+      background-color: $color-grey-100;
+      padding: 8px 16px;
+      border-radius: 2px;
+      box-shadow: 0px 8px 16px 0px #3232470F, 0px 8px 8px 0px #32324714;
+      position: absolute;
+      background-clip: padding-box;
+      border: 0;
+      visibility: hidden;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+      z-index: 10;
+
+      &__item {
+        margin-bottom: 4px;
+
+        &--red {
+          color: $color-additional-red-6;
+        }
       }
-    }
 
-    &__item:last-child {
-      margin-bottom: 0;
-    }
+      &__item:last-child {
+        margin-bottom: 0;
+      }
 
-    &.active {
-      visibility: visible;
-      transition: all 0.2s ease-in;
-      opacity: 1;
+      &.active {
+        visibility: visible;
+        transition: all 0.2s ease-in;
+        opacity: 1;
+      }
     }
   }
 }
