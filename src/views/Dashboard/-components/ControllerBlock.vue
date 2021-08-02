@@ -166,6 +166,7 @@ export default defineComponent({
     color: $color-grey-15;
     font-size: 16px;
     line-height: 24px;
+    font-weight: 700;
     margin-bottom: 0;
   }
 
@@ -174,6 +175,7 @@ export default defineComponent({
     width: 18px;
     height: 24px;
     width: 24px;
+    color: $color-grey-75;
 
     &:hover {
       color: $color-grey-55;
