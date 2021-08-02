@@ -296,10 +296,10 @@ export default defineComponent({
 
     const onChangeDate = async (value, dateString) => {
       filter.period_id = null
-      isDisabledPeriod.value = !(dateString[0] === '' && dateString[1] === '')
+      isDisabledPeriod.value = !(dateString[0] === null && dateString[1] === null)
 
       filter.date_from_to = dateString
-      if (dateString[0] === '' && dateString[1] === '') {
+      if (dateString[0] === null && dateString[1] === null) {
         let periodCurrentFound = findCurrentPeriod(periodList.value)
         filter.period_id = periodCurrentFound?.id || null
       }
@@ -415,8 +415,8 @@ export default defineComponent({
     }
 
     const onSortTable = async (emitData) => {
-      let currentSortStr = ''
-      if (emitData.orderBy !== '') {
+      let currentSortStr = null
+      if (emitData.orderBy !== null) {
         currentSortStr = `${emitData.field} ${emitData.orderBy}`
       }
       updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
@@ -600,6 +600,28 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
         filter.currency_code = currencyDefault?.code || null
+        if (requestParamsData.value.data.period_id !== null) {
+          let periodCurrentFound = findCurrentPeriod(periodList.value)
+          filter.period_id = periodCurrentFound?.id || null
+          filter.date_from_to[0] = null
+          filter.date_from_to[1] = null
+          requestParamsData.value.data = {
+            ...requestParamsData.value.data,
+            period_id: filter.period_id,
+            from_date: null,
+            to_date: null
+          }
+        } else {
+          filter.period_id = null
+          filter.date_from_to[0] = requestParamsData.value.data.from_date
+          filter.date_from_to[1] = requestParamsData.value.data.to_date
+          requestParamsData.value.data = {
+            ...requestParamsData.value.data,
+            period_id: filter.period_id,
+            from_date: requestParamsData.value.data.from_date,
+            to_date: requestParamsData.value.data.from_date
+          }
+        }
         isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default
@@ -610,7 +632,6 @@ export default defineComponent({
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
         }
-
         filter.currency_code = currencyDefault?.code || null
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         requestParamsData.value.data.group_id = filter?.group_id || null
