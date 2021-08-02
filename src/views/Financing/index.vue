@@ -574,7 +574,8 @@ export default defineComponent({
       const filtersFinancingStore = store.state.financing?.filters || {}
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-
+      filter.currency_code = currencyDefault?.code || null
+      let periodCurrentFound = findCurrentPeriod(periodList.value)
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
         const dataFilter = await convertDataFilter(filtersFinancingStore.data)
@@ -599,8 +600,7 @@ export default defineComponent({
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
-        filter.currency_code = currencyDefault?.code || null
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
+
         if (requestParamsData.value.data.period_id === periodCurrentFound?.id) {
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
@@ -644,6 +644,7 @@ export default defineComponent({
         store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
 
+      updateDataRequest.value = requestParamsData.value
       await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
@@ -660,6 +661,7 @@ export default defineComponent({
     watch(
       () => requestParamsData.value,
       () => {
+        updateDataRequest.value = requestParamsData.value
         // store.getters.finanancing
         // fetch data table
         fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)

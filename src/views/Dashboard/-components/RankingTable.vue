@@ -11,10 +11,7 @@
 
       <tbody>
         <template v-if="rankingData?.length > 0">
-          <tr
-            v-for="(item, index) in rankingData"
-            :key="item.rankingData"
-          >
+          <tr v-for="(item, index) in rankingData" :key="item.rankingData">
             <td>{{ index + 1 }}</td>
             <td>{{ item.companyName }}</td>
             <td class="u-text-right">{{ $filters.number_with_commas(item.revenue) }}</td>
@@ -85,7 +82,8 @@ export default defineComponent({
       }
     }
 
-    th, td {
+    th,
+    td {
       padding: 16px;
       border-bottom: 1px solid $color-grey-75;
     }
