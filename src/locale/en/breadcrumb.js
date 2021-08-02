@@ -1,5 +1,5 @@
 export default {
-  dashboard: '経理業務',
+  dashboard: 'ダッシュボード',
   project: 'プロジェクト一覧',
   project_new_edit: 'プロジェクト一覧',
   deposit: '入出金一覧',
