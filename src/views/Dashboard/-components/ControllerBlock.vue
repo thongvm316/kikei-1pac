@@ -1,13 +1,13 @@
 <template>
   <div class="controller-block u-flex u-justify-between u-items-center u-mx-32">
-    <p class="ontroller-block__title">{{ title }}</p>
+    <p class="controller-block__title">{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
         <a-tooltip color="#fff" title="上に移動">
           <a-button
             v-if="myBlock?.order !== 0"
             type="link"
-            class="controller-block__triangle u-flex u-justify-center u-items-center"
+            class="controller-block__triangle"
             @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_UP })"
           >
             <template #icon>
@@ -20,7 +20,7 @@
           <a-button
             v-if="myBlock?.order !== dashboardBlocks?.length - 1"
             type="link"
-            class="controller-block__triangle u-flex u-justify-center u-items-center"
+            class="controller-block__triangle"
             @click="$emit('on-swap-block-order', { id: blockId, mode: ORDER_DOWN })"
           >
             <template #icon>
@@ -31,11 +31,7 @@
       </div>
 
       <a-tooltip color="#fff" :title="isShowBlockContent ? '閉じる' : '開く'">
-        <a-button
-          type="default"
-          class="u-flex u-justify-center u-items-center u-ml-32"
-          @click="handleToggleShowContent"
-        >
+        <a-button type="default" class="controller-block__toogle-icon" @click="handleToggleShowContent">
           <template #icon>
             <minus-icon v-if="isShowBlockContent" />
             <add-icon v-else />
@@ -169,14 +165,26 @@ export default defineComponent({
   &__title {
     color: $color-grey-15;
     font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 0;
   }
 
   &__triangle {
+    @include flexbox(center, center);
     width: 18px;
+    height: 24px;
+    width: 24px;
 
     &:hover {
       color: $color-grey-55;
     }
+  }
+
+  &__toogle-icon {
+    @include flexbox(center, center);
+    height: 24px;
+    width: 24px;
+    margin-left: 32px;
   }
 }
 
