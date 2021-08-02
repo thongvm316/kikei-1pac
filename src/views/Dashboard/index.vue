@@ -65,7 +65,7 @@
         @on-change-group="fetchRaking($event)"
       >
         <div class="dashboard__ranking">
-          <div><ranking-table :ranking-data="rankingData || []" /></div>
+          <ranking-table :ranking-data="rankingData || []" />
           <pie-chart :ranking-data="rankingData" />
         </div>
       </controller-block>
