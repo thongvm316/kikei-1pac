@@ -6,12 +6,6 @@
     "selector-no-qualifying-type": null,
     "selector-pseudo-element-colon-notation": "single",
     "selector-class-pattern": ".",
-    "selector-max-compound-selectors": 5,
-    "selector-pseudo-element-no-unknown": [
-      true,
-      {
-        "ignorePseudoElements": ["v-deep"]
-      }
-    ]
+    "selector-max-compound-selectors": 5
   }
 }

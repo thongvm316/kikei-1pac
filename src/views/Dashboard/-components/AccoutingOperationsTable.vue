@@ -105,7 +105,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
@@ -116,9 +116,7 @@ export default defineComponent({
       color: $color-grey-15;
     }
   }
-}
 
-.accounting-operations ::v-deep(.ant-table) {
   .ant-table-fixed-left {
     border-top: 1px solid #bfbfbf;
 
