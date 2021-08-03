@@ -152,6 +152,7 @@ import {
 } from './composables/useFinancing'
 
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
+import { convertPagination } from '@/helpers/convert-pagination'
 
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -188,6 +189,7 @@ export default defineComponent({
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
     const height = ref(0)
+    const pagination = ref({})
 
     const isLoading = ref(false)
     const isLoadingDataTable = ref(true)
@@ -212,7 +214,7 @@ export default defineComponent({
 
     const requestParamsData = ref({
       data: { ...initialDataRequest },
-      params: { pageNumber: 1, pageSize: 365 }
+      params: { pageNumber: 1, pageSize: 60 }
     })
 
     const updateParamRequestFinancing = ({ data = {}, params = {} }) => {
@@ -287,8 +289,12 @@ export default defineComponent({
           period_id: filter.period_id,
           from_date: null,
           to_date: null
+        },
+        params: {
+          pageNumber: 1
         }
       })
+      remove(dataRowsTableFinancing.value)
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
@@ -308,8 +314,13 @@ export default defineComponent({
           period_id: filter.period_id,
           from_date: filter.date_from_to[0],
           to_date: filter.date_from_to[1]
+        },
+        params: {
+          pageNumber: 1
         }
       })
+      remove(dataRowsTableFinancing.value)
+
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -318,8 +329,13 @@ export default defineComponent({
       updateParamRequestFinancing({
         data: {
           show_by: filter.show_by
+        },
+        params: {
+          pageNumber: 1
         }
       })
+      remove(dataRowsTableFinancing.value)
+
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -334,18 +350,32 @@ export default defineComponent({
         isDisabledBank.value = false
         isDisabledCurrency.value = false
 
-        updateParamRequestFinancing({ data: { group_id: filter.group_id } })
+        updateParamRequestFinancing({
+          data: { group_id: filter.group_id },
+          params: {
+            pageNumber: 1
+          }
+        })
       } else {
         filter.show_by = 0
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
         isDisabledCurrency.value = false
-        updateParamRequestFinancing({ data: { group_id: null } })
+        updateParamRequestFinancing({
+          data: { group_id: null },
+          params: {
+            pageNumber: 1
+          }
+        })
       }
       updateParamRequestFinancing({
-        data: { show_by: filter.show_by, bank_account_ids: [] }
+        data: { show_by: filter.show_by, bank_account_ids: [] },
+        params: {
+          pageNumber: 1
+        }
       })
+      remove(dataRowsTableFinancing.value)
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
@@ -358,14 +388,24 @@ export default defineComponent({
           data: {
             currency_code: filter.currency_code,
             bank_account_ids: [filter.bank_account_ids]
+          },
+          params: {
+            pageNumber: 1
           }
         })
       } else {
         isDisabledCurrency.value = false
         let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
         filter.currency_code = currencyCode.code
-        updateParamRequestFinancing({ data: { bank_account_ids: [] } })
+        updateParamRequestFinancing({
+          data: { bank_account_ids: [] },
+          params: {
+            pageNumber: 1
+          }
+        })
       }
+      remove(dataRowsTableFinancing.value)
+
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -377,7 +417,13 @@ export default defineComponent({
     }
 
     const onChangeCurrency = async () => {
-      updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
+      updateParamRequestFinancing({
+        data: { currency_code: filter.currency_code },
+        params: {
+          pageNumber: 1
+        }
+      })
+      remove(dataRowsTableFinancing.value)
     }
 
     // Fetch data group
@@ -419,7 +465,9 @@ export default defineComponent({
       if (emitData.orderBy !== null) {
         currentSortStr = `${emitData.field} ${emitData.orderBy}`
       }
-      updateParamRequestFinancing({ params: { orderBy: currentSortStr } })
+      remove(dataRowsTableFinancing.value)
+
+      updateParamRequestFinancing({ params: { orderBy: currentSortStr, pageNumber: 1 } })
     }
 
     const onFilterRender = async (data) => {
@@ -435,7 +483,12 @@ export default defineComponent({
         }
         let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
         filter.currency_code = currencyDefault?.code || null
-        updateParamRequestFinancing({ data: data })
+        updateParamRequestFinancing({
+          data: data,
+          params: {
+            pageNumber: 1
+          }
+        })
 
         await fetchDataTableFinancing(data, requestParamsData.value.params)
       }
@@ -511,15 +564,17 @@ export default defineComponent({
         const { getLists } = useGetFinancingListService(data, params)
         const { result } = await getLists()
 
-        remove(dataRowsTableFinancing.value)
+        // remove(dataRowsTableFinancing.value)
         remove(dataColumnsTableFinancing.value)
         remove(dataColumnsNameTable.value)
         dataColumns.value = result.data?.columns || []
-        dataByDates.value = result.data?.dataByDates || []
+        dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
 
         await convertDataTableHeader(dataColumns.value)
         await convertDataTableRows(dataByDates.value)
+
+        pagination.value = { ...convertPagination(result.meta) }
       } finally {
         isLoadingDataTable.value = false
       }
@@ -678,12 +733,29 @@ export default defineComponent({
     onUnmounted(() => {
       window.removeEventListener('resize', getInnerHeight)
     })
+
+    watch(dataRowsTableFinancing.value, (val) => {
+      const tableContent = document.querySelector('.ant-table-body')
+
+      if (tableContent && val.length) {
+        tableContent.addEventListener('scroll', () => {
+          // checking whether a selector is well defined
+          const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+          if (per >= 100) {
+            let pageCurrent = ++pagination.value.current
+            if (pageCurrent <= pagination.value.totalPage) {
+              updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
+            }
+          }
+        })
+      }
+    })
+
     // watch to fetch data financing
     watch(
       () => requestParamsData.value,
       () => {
         updateDataRequest.value = requestParamsData.value
-        // store.getters.finanancing
         // fetch data table
         fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
@@ -700,19 +772,22 @@ export default defineComponent({
     return {
       initialGroup,
       initialBankAccount,
+      initialStateFilter,
       groupList,
       periodList,
       bankAccountList,
       currencyList,
+      bankAccountId,
+      filter,
+      updateDataRequest,
+      scrollCustom,
+      height,
       dataColumns,
       dataByDates,
       dataColumnsNameTable,
       dataColumnsTableFinancing,
       dataRowsTableFinancing,
-      bankAccountId,
       dataExportCsv,
-      initialStateFilter,
-      filter,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,
@@ -721,10 +796,8 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       isLoadingExportCsv,
-      updateDataRequest,
-      scrollCustom,
-      height,
-      updateParamRequestFinancing,
+      SHOW_BY,
+      VIEW_MODE,
       onChangePeriod,
       onChangeDate,
       onChangeShowBy,
@@ -732,6 +805,8 @@ export default defineComponent({
       onChangeBankAccount,
       onChangeViewMode,
       onChangeCurrency,
+      onFilterRender,
+      onSortTable,
       fetchGroupList,
       fetchPeriodList,
       fetchCurrency,
@@ -739,10 +814,7 @@ export default defineComponent({
       convertDataTableHeader,
       convertDataTableRows,
       exportFinancingCsvFile,
-      onFilterRender,
-      onSortTable,
-      SHOW_BY,
-      VIEW_MODE
+      updateParamRequestFinancing
     }
   }
 })

@@ -4,6 +4,7 @@ const convertPagination = (pagination, position = 'top') => {
     defaultPageSize: 30,
     current: pagination.pageNumber,
     total: pagination.totalRecords,
+    totalPage: pagination.totalPages,
     pageSize: pagination.pageSize,
     position: position
   }

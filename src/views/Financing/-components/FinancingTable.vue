@@ -1,7 +1,6 @@
 <template>
   <a-table
     id="financing__table"
-    :loading="isLoadingDataTable"
     :columns="columnsFinancing"
     :data-source="dataFinancing"
     :locale="emptyTextHTML"
@@ -9,6 +8,7 @@
     :scroll="scrollCustom"
     :row-key="(record) => record.date"
     :pagination="false"
+    :loading="isLoadingDataTable"
     @change="changeFinancingTable"
   >
     <!-- custom column date -->
@@ -130,7 +130,10 @@ export default defineComponent({
       type: Object,
       required: true
     },
-    isLoadingDataTable: Boolean
+    isLoadingDataTable: {
+      type: Boolean,
+      default: false
+    }
   },
 
   setup(props, { emit }) {
@@ -145,7 +148,6 @@ export default defineComponent({
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
     const dataFilterRequest = ref({})
-
     emptyTextHTML.value = {
       emptyText: (
         <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.financing_list.emptyData')}</div>
@@ -288,7 +290,6 @@ export default defineComponent({
 
       emit('on-sort', emitData)
     }
-
     onMounted(() => {
       handleDateColumn()
     })
