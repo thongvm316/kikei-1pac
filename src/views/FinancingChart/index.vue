@@ -581,20 +581,35 @@ export default defineComponent({
         if (filter.bank_account_ids.length === 0) {
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
+
         filter.currency_code = currencyDefault?.code || null
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        if (requestParamsData.value.data.period_id === periodCurrentFound?.id) {
+
+        if (requestParamsData.value.data.period_id === filter.period_id) {
           filter.period_id = null
           filter.date_from_to[0] = moment().format('YYYY-MM-DD')
           filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
           requestParamsData.value.data = {
             ...requestParamsData.value.data,
-            period_id: null,
-            from_date: moment().format('YYYY-MM-DD'),
-            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
+            period_id: filter.period_id,
+            from_date: filter.date_from_to[0],
+            to_date: filter.date_from_to[1]
+          }
+          if (filtersFinancingStore.data.period_id === filter.period_id) {
+            filter.period_id = null
+            filter.currency_code =
+              requestParamsData.value.data.currency_code === null
+                ? currencyDefault?.code
+                : requestParamsData.value.data.currency_code
+            filter.date_from_to[0] = filtersFinancingStore.data.from_date
+            filter.date_from_to[1] = filtersFinancingStore.data.to_date
+            requestParamsData.value.data = {
+              ...requestParamsData.value.data,
+              period_id: filter.period_id,
+              from_date: filter.date_from_to[0],
+              to_date: filter.date_from_to[1]
+            }
           }
         } else {
-          filter.currency_code = requestParamsData.value.data.currency_code
           filter.period_id = requestParamsData.value.data.period_id
           filter.date_from_to[0] = requestParamsData.value.data.from_date
           filter.date_from_to[1] = requestParamsData.value.data.to_date
@@ -626,8 +641,6 @@ export default defineComponent({
           from_date: moment().format('YYYY-MM-DD'),
           to_date: moment().add(59, 'days').format('YYYY-MM-DD')
         }
-        // save filters to store
-        // store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
 
       await fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)

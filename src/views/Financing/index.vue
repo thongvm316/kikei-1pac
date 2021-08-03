@@ -280,7 +280,7 @@ export default defineComponent({
 
     // Handle filter
     const onChangePeriod = async (event) => {
-      filter.date_from_to = []
+      filter.date_from_to = null
       isDisabledDate.value = !(event === undefined || event === null)
       updateParamRequestFinancing({
         data: {
@@ -575,7 +575,6 @@ export default defineComponent({
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
       filter.currency_code = currencyDefault?.code || null
-      let periodCurrentFound = findCurrentPeriod(periodList.value)
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
         const dataFilter = await convertDataFilter(filtersFinancingStore.data)
@@ -601,32 +600,53 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
 
-        if (requestParamsData.value.data.period_id === periodCurrentFound?.id) {
-          let periodCurrentFound = findCurrentPeriod(periodList.value)
-          filter.period_id = periodCurrentFound?.id || null
-          filter.date_from_to[0] = requestParamsData.value.data.from_date
-          filter.date_from_to[1] = requestParamsData.value.data.to_date
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: filter.period_id,
-            from_date: requestParamsData.value.data.from_date,
-            to_date: requestParamsData.value.data.from_date
-          }
-        } else {
-          filter.currency_code = requestParamsData.value.data.currency_code
+        if (requestParamsData.value.data.period_id === null) {
           filter.period_id = requestParamsData.value.data.period_id
-          filter.date_from_to[0] = requestParamsData.value.data.from_date
-          filter.date_from_to[1] = requestParamsData.value.data.to_date
+          filter.date_from_to[0] = filtersFinancingStore.data.from_date
+          filter.date_from_to[1] = filtersFinancingStore.data.to_date
           requestParamsData.value.data = {
             ...requestParamsData.value.data,
             period_id: filter.period_id,
-            from_date: requestParamsData.value.data.from_date,
-            to_date: requestParamsData.value.data.to_date
+            from_date: filter.date_from_to[0],
+            to_date: filter.date_from_to[1]
           }
+          // save filters to store
+          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+        } else {
+          let periodCurrentFound = findCurrentPeriod(periodList.value)
+          if (requestParamsData.value.data.period_id !== periodCurrentFound?.id) {
+            filter.currency_code =
+              requestParamsData.value.data.currency_code !== null
+                ? currencyDefault?.code
+                : requestParamsData.value.data.currency_code
+            filter.period_id = periodCurrentFound?.id
+            filter.date_from_to[0] = requestParamsData.value.data.from_date
+            filter.date_from_to[1] = requestParamsData.value.data.to_date
+            requestParamsData.value.data = {
+              ...requestParamsData.value.data,
+              period_id: filter.period_id,
+              from_date: requestParamsData.value.data.from_date,
+              to_date: requestParamsData.value.data.to_date
+            }
+          } else {
+            filter.currency_code =
+              requestParamsData.value.data.currency_code === null
+                ? currencyDefault?.code
+                : requestParamsData.value.data.currency_code
+            filter.period_id = periodCurrentFound?.id
+            filter.date_from_to[0] = requestParamsData.value.data.from_date
+            filter.date_from_to[1] = requestParamsData.value.data.to_date
+            requestParamsData.value.data = {
+              ...requestParamsData.value.data,
+              period_id: filter.period_id,
+              from_date: requestParamsData.value.data.from_date,
+              to_date: requestParamsData.value.data.to_date
+            }
+          }
+          // save filters to store
+          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
         }
         isDisabledCurrency.value = !!filter.bank_account_ids
-        // save filters to store
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       } else {
         // Load data default
         if (groupID) {
@@ -636,6 +656,7 @@ export default defineComponent({
           let periodCurrentFound = findCurrentPeriod(periodList.value)
           filter.period_id = periodCurrentFound?.id || null
         }
+        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
         filter.currency_code = currencyDefault?.code || null
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         requestParamsData.value.data.group_id = filter?.group_id || null
