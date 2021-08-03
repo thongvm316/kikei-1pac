@@ -22,6 +22,6 @@ export default {
   },
 
   getBankAccountBalance(params) {
-    return apiCaller({ method: 'GET', url: `/bankaccountbalance`, params })
+    return apiCaller({ method: 'GET', url: '/bankaccountbalance', params })
   }
 }

@@ -5,10 +5,7 @@
     </div>
 
     <ul>
-      <li
-        v-for="(item, index) in explainChartText"
-        :key="item.id"
-      >
+      <li v-for="(item, index) in explainChartText" :key="item.id">
         <span :class="`doted doted--${index + 1}`"></span>{{ item.companyName }}
       </li>
     </ul>
@@ -25,16 +22,16 @@ window.pieChartRanking = null
 export default defineComponent({
   name: 'PieChart',
 
+  components: {},
+
   props: {
     rankingData: Array
   },
 
-  components: {},
-
-  setup (props) {
+  setup(props) {
     const myPieChartRef = ref()
     const dataPieChart = computed(() => {
-      return props.rankingData?.map(item => parseFloat(parseFloat(item.revenue).toFixed(0)))
+      return props.rankingData?.map((item) => parseFloat(parseFloat(item.revenue).toFixed(0)))
     })
 
     const explainChartText = computed(() => {
@@ -68,10 +65,10 @@ export default defineComponent({
           caretSize: 0,
 
           callbacks: {
-            title: function(context) {
+            title: function (context) {
               const [chartData] = context
               const sumData = dataPieChart.value.reduce((prep, next) => prep + next, 0)
-              const percentData = parseFloat(parseFloat(chartData.raw * 100 / sumData).toFixed(0))
+              const percentData = parseFloat(parseFloat((chartData.raw * 100) / sumData).toFixed(0))
 
               return `$ ${chartData.formattedValue} - ${percentData}%`
             },
@@ -113,22 +110,8 @@ export default defineComponent({
       // set datasets
       data.value.datasets.push({
         data: handleValuePieChart(value),
-        backgroundColor: [
-          '#FA8C16',
-          '#2F54EB',
-          '#13C2C2',
-          '#52C41A',
-          '#722ED1',
-          '#8C8C8C'
-        ],
-        hoverBackgroundColor: [
-          '#FFD591',
-          '#ADC6FF',
-          '#87E8DE',
-          '#B7EB8F',
-          '#D3ADF7',
-          '#BFBFBF'
-        ],
+        backgroundColor: ['#FA8C16', '#2F54EB', '#13C2C2', '#52C41A', '#722ED1', '#8C8C8C'],
+        hoverBackgroundColor: ['#FFD591', '#ADC6FF', '#87E8DE', '#B7EB8F', '#D3ADF7', '#BFBFBF'],
         borderColor: '#FFFFFF',
         hoverBorderWidth: 0
       })
@@ -153,11 +136,11 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 
 $doted-colors: (
-  '1': #FA8C16,
+  '1': #fa8c16,
   '2': $color-additional-blue-6,
-  '3': #13C2C2,
-  '4': #52C41A,
-  '5': #722ED1,
+  '3': #13c2c2,
+  '4': #52c41a,
+  '5': #722ed1,
   '6': $color-grey-55
 );
 
