@@ -10,12 +10,16 @@
   >
     <template #renderGroup="{ text, column }">
       <router-link
+        v-if="text > 0"
         :to="{ name: 'deposit' }"
-        :class="['accounting-operations__link', text > 0 && 'u-text-additional-red-6']"
+        class="accounting-operations__link"
         @click="handleSelectPendingDeposits(column)"
       >
         {{ `${$filters.number_with_commas(text)} 件` }}
       </router-link>
+      <span v-else>
+        {{ `${$filters.number_with_commas(text)} 件` }}
+      </span>
     </template>
   </a-table>
 </template>
@@ -111,9 +115,11 @@ export default defineComponent({
 
 .accounting-operations {
   &__link {
+    color: $color-additional-red-6;
+
     &:hover {
       text-decoration: underline;
-      color: $color-grey-15;
+      color: $color-additional-red-6;
     }
   }
 
@@ -148,6 +154,14 @@ export default defineComponent({
 
   .ant-table-empty .ant-table-body {
     overflow-x: hidden !important;
+  }
+
+  .ant-table-body {
+    overflow: auto !important;
+  }
+
+  .ant-table-tbody > tr:hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td:not(:first-child) {
+    background: $color-grey-100;
   }
 }
 </style>

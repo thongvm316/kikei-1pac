@@ -7,23 +7,50 @@
     </p>
 
     <div class="stacked-bar__chart">
-      <a-popover
-        v-for="accuracy in statistics"
-        :key="accuracy.accuracyId"
-        :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
-        placement="bottom"
-        :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
-      >
-        <template #content>
-          <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
-          <p v-if="accuracy.accuracyCode" class="u-text-grey-55">
-            達成率:<span class="u-text-grey-15">{{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}</span>
-          </p>
-        </template>
-        <div class="stacked-bar__item" :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }">
-          <span>{{ accuracy.accuracyCode }}</span>
+      <template v-for="accuracy in statistics" :key="accuracy.accuracyId">
+        <div
+          v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'"
+          class="stacked-bar__item"
+          :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
+        >
+          <a-popover
+            :title="
+              accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
+            "
+            placement="bottom"
+            :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+          >
+            <template #content>
+              <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
+              <p class="u-text-grey-55">
+                達成率:<span class="u-text-grey-15">
+                  {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
+                </span>
+              </p>
+            </template>
+            <span>{{ accuracy.accuracyCode }}</span>
+          </a-popover>
         </div>
-      </a-popover>
+
+        <a-popover
+          v-else
+          :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
+          :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
+          :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+        >
+          <template #content>
+            <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
+            <p class="u-text-grey-55">
+              達成率:<span class="u-text-grey-15">
+                {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
+              </span>
+            </p>
+          </template>
+          <div class="stacked-bar__item" :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }">
+            <span>{{ accuracy.accuracyCode }}</span>
+          </div>
+        </a-popover>
+      </template>
     </div>
 
     <p class="stacked-bar__target">
@@ -149,6 +176,7 @@ export default defineComponent({
     // width: 100%;
     position: relative;
     background-color: $color-grey-100;
+    transition: width 500ms linear;
 
     span {
       @include flexbox(center, center);
@@ -166,6 +194,7 @@ export default defineComponent({
       &:hover {
         background-color: $color-primary-9;
         color: $color-grey-100;
+        cursor: default;
       }
     }
   }

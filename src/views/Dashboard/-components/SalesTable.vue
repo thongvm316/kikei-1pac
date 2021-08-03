@@ -128,6 +128,10 @@ export default defineComponent({
     }
   }
 
+  .ant-table-body {
+    overflow: auto !important;
+  }
+
   .ant-table-placeholder {
     @include flexbox(center, center);
     height: 96px;

@@ -17,7 +17,7 @@
       >
         {{ $filters.number_with_commas(text) }}
       </router-link>
-      <span v-else :class="[index === 2 && text < 0 && 'text-color-red']">
+      <span v-else :class="[(index === 1 || (index === 2 && text < 0)) && 'text-color-red']">
         {{ $filters.number_with_commas(text) }}
       </span>
     </template>
@@ -63,9 +63,13 @@ export default defineComponent({
 
       if (!props?.dataSource.length) return headerList
 
+      const curentMonth = moment()
+      const formatMonth = moment.locale() === 'ja' ? 'YYYY年MMMM' : 'YYYY-MM'
       props.dataSource.forEach((item) => {
+        const isCurrentMonth = moment(item?.month).isSame(curentMonth, 'month')
+
         headerList.push({
-          title: item?.month,
+          title: `${moment(item?.month).format(formatMonth)}${isCurrentMonth ? '(当月)' : ''}`,
           dataIndex: item?.month,
           key: item?.month,
           align: 'right',
