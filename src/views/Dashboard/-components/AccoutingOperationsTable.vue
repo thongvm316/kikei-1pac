@@ -159,5 +159,9 @@ export default defineComponent({
   .ant-table-body {
     overflow: auto !important;
   }
+
+  .ant-table-tbody > tr:hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td:not(:first-child) {
+    background: $color-grey-100;
+  }
 }
 </style>
