@@ -64,7 +64,7 @@ export default defineComponent({
       if (!props?.dataSource.length) return headerList
 
       const curentMonth = moment()
-      const formatMonth = moment.locale() === 'ja' ? 'YYYY年MMMM' : 'YYYY MMMM'
+      const formatMonth = moment.locale() === 'ja' ? 'YYYY年MMMM' : 'YYYY-MM'
       props.dataSource.forEach((item) => {
         const isCurrentMonth = moment(item?.month).isSame(curentMonth, 'month')
 
