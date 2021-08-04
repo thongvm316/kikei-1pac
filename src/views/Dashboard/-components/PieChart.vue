@@ -70,7 +70,7 @@ export default defineComponent({
               const sumData = dataPieChart.value.reduce((prep, next) => prep + next, 0)
               const percentData = parseFloat(parseFloat((chartData.raw * 100) / sumData).toFixed(0))
 
-              return `$ ${chartData.formattedValue} - ${percentData}%`
+              return `¥ ${chartData.formattedValue} - ${percentData}%`
             },
 
             label: () => ''
