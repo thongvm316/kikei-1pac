@@ -6,13 +6,14 @@
       <span>{{ `${$filters.number_with_commas(dataSource?.achievementRate)}%` }}</span>
     </p>
 
-    <div class="stacked-bar__chart">
+    <div ref="stackedBarLineRef" class="stacked-bar__chart">
       <template v-for="accuracy in statistics" :key="accuracy.accuracyId">
-        <div
-          v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'"
-          class="stacked-bar__item"
-          :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
-        >
+        <template v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'">
+          <div
+            class="stacked-bar__item"
+            :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
+          ></div>
+
           <a-popover
             :title="
               accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
@@ -28,28 +29,55 @@
                 </span>
               </p>
             </template>
-            <span>{{ accuracy.accuracyCode }}</span>
+            <div class="stacked-bar__point">
+              <span>{{ accuracy.accuracyCode }}</span>
+            </div>
           </a-popover>
-        </div>
+        </template>
 
-        <a-popover
-          v-else
-          :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
-          :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
-          :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
-        >
-          <template #content>
-            <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
-            <p class="u-text-grey-55">
-              達成率:<span class="u-text-grey-15">
-                {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
-              </span>
-            </p>
-          </template>
-          <div class="stacked-bar__item" :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }">
-            <span>{{ accuracy.accuracyCode }}</span>
-          </div>
-        </a-popover>
+        <template v-else>
+          <a-popover
+            :title="
+              accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
+            "
+            :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
+            :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+          >
+            <template #content>
+              <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
+              <p class="u-text-grey-55">
+                達成率:<span class="u-text-grey-15">
+                  {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
+                </span>
+              </p>
+            </template>
+            <div
+              class="stacked-bar__item"
+              :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
+            ></div>
+          </a-popover>
+
+          <a-popover
+            v-if="accuracy.accuracyCode"
+            :title="
+              accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
+            "
+            :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
+            :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+          >
+            <template #content>
+              <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
+              <p class="u-text-grey-55">
+                達成率:<span class="u-text-grey-15">
+                  {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
+                </span>
+              </p>
+            </template>
+            <div class="stacked-bar__point">
+              <span>{{ accuracy.accuracyCode }}</span>
+            </div>
+          </a-popover>
+        </template>
       </template>
     </div>
 
@@ -60,7 +88,8 @@
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref, onUpdated } from 'vue'
+import { findLast } from 'lodash-es'
 
 export default defineComponent({
   name: 'StackedBarSales',
@@ -70,6 +99,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const stackedBarLineRef = ref()
+
     const statistics = computed(() => {
       if (!props?.dataSource?.statistics) return {}
 
@@ -99,8 +130,74 @@ export default defineComponent({
       return list
     })
 
+    onUpdated(() => {
+      if (!stackedBarLineRef.value) return
+      const pointElements = stackedBarLineRef.value.querySelectorAll('.stacked-bar__point')
+      if (pointElements.length <= 1) return
+
+      pointElements.forEach((el, index) => {
+        el.addEventListener('mouseenter', () => {
+          const stackedBarLineWidth = stackedBarLineRef.value?.offsetWidth || 0
+          const pointWidth = stackedBarLineRef.value.querySelector('.stacked-bar__point span')?.offsetWidth || 0
+          const pointPercent = (pointWidth / stackedBarLineWidth) * 100
+          let _groups = []
+
+          const lineItems = stackedBarLineRef.value?.querySelectorAll('.stacked-bar__item')
+          const statistics = lineItems ? [...lineItems].map((el) => parseFloat(el?.style?.width || 0)) : []
+
+          const pointGroups = statistics.map((item, index) => {
+            const obj = {
+              index,
+              group: []
+            }
+
+            if (
+              (index < statistics.length - 1 &&
+                item >= pointPercent &&
+                statistics[index + 1] < pointPercent &&
+                _groups.length === 0) ||
+              (item < pointPercent && _groups.length === 0) ||
+              (index > 0 &&
+                index < statistics.length - 1 &&
+                statistics[index - 1] < pointPercent &&
+                item >= pointPercent &&
+                statistics[index + 1] < pointPercent)
+            ) {
+              _groups = [index]
+            } else if (item < pointPercent && _groups.length > 0) {
+              _groups.push(index)
+            } else {
+              _groups = []
+            }
+
+            obj.group = [..._groups]
+            return obj
+          })
+
+          const pointGroupFound = findLast(pointGroups, (point) => point.group.indexOf(index) !== -1)
+          const groups = pointGroupFound?.group || []
+          if (groups.length < 2) return
+
+          groups.forEach((item) => {
+            if (
+              (item === statistics.length - 2 && statistics[statistics.length - 1] < pointPercent) ||
+              !pointElements[item]?.querySelector('span')
+            )
+              return
+
+            pointElements[item].querySelector('span').classList.add('move-point')
+
+            setTimeout(() => {
+              pointElements[item].querySelector('span').classList.remove('move-point')
+            }, 4000)
+          })
+        })
+      })
+    })
+
     return {
-      statistics
+      statistics,
+      stackedBarLineRef
     }
   }
 })
@@ -173,18 +270,21 @@ export default defineComponent({
 
   &__item {
     height: 100%;
-    // width: 100%;
     position: relative;
     background-color: $color-grey-100;
-    transition: width 500ms linear;
+    transition: all 400ms linear;
+  }
+
+  &__point {
+    position: relative;
 
     span {
       @include flexbox(center, center);
 
       position: absolute;
       content: '';
-      top: -6px;
-      right: -12px;
+      top: -12px;
+      left: -12px;
       height: 24px;
       width: 24px;
       border-radius: 50%;
@@ -196,6 +296,12 @@ export default defineComponent({
         color: $color-grey-100;
         cursor: default;
       }
+    }
+
+    .move-point {
+      position: relative;
+      top: 0;
+      left: auto;
     }
   }
 
@@ -213,6 +319,7 @@ export default defineComponent({
     }
 
     span {
+      color: $color-grey-100;
       background-color: $color-additional-blue-6;
     }
   }
@@ -228,10 +335,6 @@ export default defineComponent({
 
     .ant-popover-title {
       color: $color-additional-red-6;
-    }
-
-    span {
-      display: none;
     }
   }
 }
