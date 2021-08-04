@@ -51,7 +51,6 @@ export default defineComponent({
     color: $color-grey-15;
     border: 1px solid $color-grey-75;
     width: 431px;
-    cursor: pointer;
 
     thead {
       background-color: $color-grey-92;
