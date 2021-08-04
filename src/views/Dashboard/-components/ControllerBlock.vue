@@ -3,7 +3,7 @@
     <p class="controller-block__title">{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
-        <a-tooltip color="#fff" title="上に移動">
+        <div class="button-order">
           <a-button
             v-if="myBlock?.order !== 0"
             type="link"
@@ -14,9 +14,11 @@
               <triangle-up-icon />
             </template>
           </a-button>
-        </a-tooltip>
 
-        <a-tooltip color="#fff" title="下に移動">
+          <span class="button-order__tooltip">上に移動</span>
+        </div>
+
+        <div class="button-order">
           <a-button
             v-if="myBlock?.order !== dashboardBlocks?.length - 1"
             type="link"
@@ -27,7 +29,9 @@
               <triangle-down-icon />
             </template>
           </a-button>
-        </a-tooltip>
+
+          <span class="button-order__tooltip">下に移動</span>
+        </div>
       </div>
 
       <a-tooltip color="#fff" :title="isShowBlockContent ? '閉じる' : '開く'">
@@ -174,7 +178,7 @@ export default defineComponent({
     @include flexbox(center, center);
     width: 18px;
     height: 24px;
-    width: 24px;
+    width: 20px;
     color: $color-grey-75;
 
     &:hover {
@@ -208,5 +212,38 @@ export default defineComponent({
 
 .controller-collapse.ant-collapse-borderless {
   background-color: transparent;
+}
+
+.button-order {
+  position: relative;
+
+  &:hover &__tooltip {
+    display: inline-block
+  }
+
+  &__tooltip {
+    @include x-centered();
+    bottom: calc(100% + 4px);
+    display: inline-block;
+    padding: 6px 8px;
+    white-space: nowrap;
+    background-color: $color-grey-100;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+    border-radius: 2px;
+    z-index: 200;
+    display: none;
+
+    &:before {
+      @include x-centered();
+      content: '';
+      width: 5px;
+      height: 5px;
+      background-color: $color-grey-100;
+      box-shadow: 3px 3px 7px rgb(0 0 0 / 7%);
+      transform: translateX(-50%) rotate(45deg);
+      top: calc(100% - 3px);
+      z-index: 200;
+    }
+  }
 }
 </style>
