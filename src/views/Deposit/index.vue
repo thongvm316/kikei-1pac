@@ -151,7 +151,7 @@ import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncCompon
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { merge, find, isEmpty } from 'lodash-es'
+import { merge, find, isEmpty, omit } from 'lodash-es'
 import moment from 'moment'
 
 import {
@@ -268,9 +268,10 @@ export default defineComponent({
 
     const fetchDatatableDeposit = async (dataRequest, paramsRequest) => {
       isLoadingDataTable.value = true
+      const dataRequestNew = omit(dataRequest, ['skipQuickSelectMonth'])
 
       try {
-        const { data = {} } = await getDeposit(dataRequest, paramsRequest)
+        const { data = {} } = await getDeposit(dataRequestNew, paramsRequest)
 
         dataDeposit.value = createDataTableFormat(data.result?.data || [], bankAccountId.value || null)
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
@@ -668,9 +669,13 @@ export default defineComponent({
       () => paramRequestDataDeposit.value,
       () => {
         // uncheck quick select date
-        const { fromDate = null, toDate = null } = paramRequestDataDeposit.value?.data || {}
-        const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
-        checkedListFilterMonth.value = objFound ? objFound.value : ''
+        const { fromDate = null, toDate = null, skipQuickSelectMonth } = paramRequestDataDeposit.value?.data || {}
+        if (skipQuickSelectMonth) {
+          checkedListFilterMonth.value = ''
+        } else {
+          const objFound = find(filterMonthList.value, { value: { fromDate, toDate } })
+          checkedListFilterMonth.value = objFound ? objFound.value : ''
+        }
 
         // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
