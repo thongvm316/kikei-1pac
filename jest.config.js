@@ -16,6 +16,9 @@ module.exports = {
     'vue'
   ],
   setupFilesAfterEnv: ['<rootDir>/src/test/unit/jest.setup.js'],
+  setupFiles: [
+    '<rootDir>/src/test/unit/configGlobal.js'
+  ],
   testEnvironment: 'jsdom',
   testMatch: [
     '**/?(*.)+(spec|test).js',

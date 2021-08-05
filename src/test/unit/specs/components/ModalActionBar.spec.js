@@ -11,10 +11,6 @@ describe('ModalActionBar', () => {
       global: {
         stubs:{
           AButton: true
-        },
-
-        mocks: {
-          $t: text => text
         }
       }
     })
