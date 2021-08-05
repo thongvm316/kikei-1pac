@@ -1,11 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ModalActionBar should render ModalActionBar.vue 1`] = `
+exports[`ModalActionBar when ModalActionBar.vue mounted should render correctly 1`] = `
 <div class="box-btn modal-actions">
-  <a-button-stub type="default"></a-button-stub>
-  <a-button-stub type="default"></a-button-stub>
+  <a-button-stub data-test="goToEditButton" type="default"></a-button-stub>
+  <a-button-stub data-test="goToCopyButton" type="default"></a-button-stub>
   <!--v-if-->
-  <a-button-stub type="default" disabled="false"></a-button-stub>
+  <a-button-stub data-test="goToDeleteButton" type="default" disabled="false"></a-button-stub>
+  <a-button-stub type="link" ghost="" class="modal-actions__close-btn"></a-button-stub>
+</div>
+`;
+
+exports[`ModalActionBar when ModalActionBar.vue mounted should render goToDeposit button 1`] = `
+<div class="box-btn modal-actions">
+  <a-button-stub data-test="goToEditButton" type="default"></a-button-stub>
+  <a-button-stub data-test="goToCopyButton" type="default"></a-button-stub>
+  <a-button-stub data-test="goToDepositButton" type="default"></a-button-stub>
+  <a-button-stub data-test="goToDeleteButton" type="default" disabled="false"></a-button-stub>
   <a-button-stub type="link" ghost="" class="modal-actions__close-btn"></a-button-stub>
 </div>
 `;
