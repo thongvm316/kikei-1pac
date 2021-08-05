@@ -199,6 +199,7 @@ export default {
     const updateDataFilterRequest = ({ data = {} }) => {
       dataFilterRequest.value = { ...dataFilterRequest.value, ...data }
     }
+
     // Handle filter
     const onChangePeriod = async (event) => {
       filter.date_from_to = null
