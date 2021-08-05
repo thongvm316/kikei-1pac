@@ -135,6 +135,7 @@ export default defineComponent({
       default: false
     }
   },
+
   emits: ['onFilterTables'],
 
   setup(props, { emit }) {
@@ -218,7 +219,6 @@ export default defineComponent({
       let typeDeposit = null
       let moneyType = null
       let groupId = parseInt(columnId)
-
       if (dataFilterRequest.value.group_id) {
         groupId = dataFilterRequest.value.group_id
       }
@@ -234,6 +234,7 @@ export default defineComponent({
       }
 
       handleDateFilterRequest(record)
+
       handleBankIdFilterRequest(columnId)
 
       const data = {

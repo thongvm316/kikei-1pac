@@ -2,6 +2,7 @@
   <section class="financing">
     <financing-filter
       :is-loading-export-csv="isLoadingExportCsv"
+      :data-filter-table="dataFilterTable"
       @on-filter-request="onDataFilterRequest"
       @on-export-csv="exportFinancingCsvFile"
     />
@@ -14,7 +15,6 @@
       :data-request="updateDataRequest"
       :scroll-custom="scrollCustom"
       @on-sort="onSortTable"
-      @on-filter-tables="onFilterTablesRender"
     />
   </section>
 </template>
@@ -30,7 +30,7 @@ import useGetFinancingListService from '@/views/Financing/composables/useGetFina
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
 import FinancingFilter from '@/views/Financing/-components/FinancingFilter'
 
-import { convertDataByDates, convertDataByMonth, convertDataCsv, convertDataFilter } from './composables/useFinancing'
+import { convertDataByDates, convertDataByMonth, convertDataCsv } from './composables/useFinancing'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -60,6 +60,7 @@ export default defineComponent({
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
+    const dataFilterTable = ref({})
     const height = ref(0)
     const pagination = ref({})
 
@@ -131,12 +132,10 @@ export default defineComponent({
     const dataExportCsv = reactive({ ...initialExportCSV })
 
     const onDataFilterRequest = (data) => {
-      console.log('onDataFilterRequest', data)
       updateParamRequestFinancing({
         data: data,
         params: { pageNumber: 1 }
       })
-      console.log('requestParamsData:', requestParamsData)
     }
 
     const onSortTable = async (data) => {
@@ -149,27 +148,11 @@ export default defineComponent({
       updateParamRequestFinancing({ params: { orderBy: currentSortStr, pageNumber: 1 } })
     }
 
-    const onFilterTablesRender = async (data) => {
-      if (data) {
-        const dataFilter = convertDataFilter(data)
-        Object.assign(filter, dataFilter)
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        filter.value.period_id = null
-        isDisabledPeriod.value = true
-        if (filter.value.bank_account_ids.length === 0) {
-          filter.value.bank_account_ids = bankAccountList?.value[0]?.id
-        }
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.value.currency_code = currencyDefault?.code || null
-        updateParamRequestFinancing({
-          data: data,
-          params: {
-            pageNumber: 1
-          }
-        })
-
-        await fetchDataTableFinancing(data, requestParamsData.value.params)
+    const onFilterTablesRender = async () => {
+      dataFilterTable.value = {
+        disabledDisplay: false,
+        disabledBank: false,
+        disabledPeriod: true
       }
     }
 
@@ -300,16 +283,19 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    onBeforeMount(async () => {})
+    onBeforeMount(async () => {
+      // Get filters financing from store
+      const filtersFinancingStore = store.getters['financing/filters']?.data || {}
+      if (filtersFinancingStore) {
+        Object.assign(requestParamsData.value.data, filtersFinancingStore)
+      }
+      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+    })
 
     onMounted(async () => {
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
-      // fetch data financing
-      updateDataRequest.value = requestParamsData.value
-      console.log('requestParamsData:', requestParamsData.value)
-      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
     onUnmounted(() => {
@@ -334,21 +320,9 @@ export default defineComponent({
       }
     })
 
-    // watch to event click filter financing
-    // watch(
-    //   () => onDataFilterRequest,
-    //   () => {
-    //     remove(dataRowsTableFinancing.value)
-    //     updateParamRequestFinancing({
-    //       params: { pageNumber: 1 }
-    //     })
-    //     onDataFilterRequest()
-    //   }
-    // )
-
     // watch to event click table financing
     watch(
-      () => store.state.financing?.filters,
+      () => store.state.financing.filters,
       () => {
         remove(dataRowsTableFinancing.value)
         updateParamRequestFinancing({
@@ -356,7 +330,7 @@ export default defineComponent({
             pageNumber: 1
           }
         })
-        onDataFilterRequest()
+        // onDataFilterRequest()
         onFilterTablesRender()
       }
     )
@@ -382,6 +356,7 @@ export default defineComponent({
       dataColumnsTableFinancing,
       dataRowsTableFinancing,
       dataExportCsv,
+      dataFilterTable,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,

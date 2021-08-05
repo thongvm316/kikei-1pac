@@ -53,7 +53,6 @@
         </div>
         <!-- ./Display -->
       </div>
-
       <!-- Download CSV -->
       <a-tooltip placement="topLeft" title="CSV ファイルダウンロード">
         <a-button type="link" class="btn-download" :loading="isLoadingExportCsv" @click="onExportFinancingCsv">
@@ -144,6 +143,10 @@ export default {
   },
 
   props: {
+    dataFilterTable: {
+      type: [Object, Array],
+      required: true
+    },
     isLoadingExportCsv: {
       type: Boolean,
       required: true
@@ -202,7 +205,7 @@ export default {
 
     // Handle filter
     const onChangePeriod = async (event) => {
-      filter.date_from_to = null
+      filter.date_from_to = [null, null]
       isDisabledDate.value = !(event === undefined || event === null)
 
       updateDataFilterRequest({
@@ -217,11 +220,10 @@ export default {
     const onChangeDate = async (value, dateString) => {
       filter.period_id = null
       isDisabledPeriod.value = !(dateString[0] === null && dateString[1] === null)
-
       filter.date_from_to = dateString
-      if (dateString[0] === null && dateString[1] === null) {
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        filter.period_id = periodCurrentFound?.id || null
+      if (dateString[0] === '' && dateString[1] === '') {
+        periodDefault.value = findCurrentPeriod(periodList.value)
+        filter.period_id = periodDefault.value?.id || null
       }
       updateDataFilterRequest({
         data: {
@@ -329,17 +331,6 @@ export default {
       currencyList.value = result?.data
     }
 
-    const handlePeriodDefault = (periodID) => {
-      if (periodID) {
-        filter.period_id = periodID
-      } else {
-        if (periodList.value) {
-          periodDefault.value = findCurrentPeriod(periodList.value)
-          filter.period_id = periodDefault.value?.id || null
-        }
-      }
-    }
-
     const handleGroupDefault = async (groupID) => {
       if (groupID === null) {
         await fetchPeriodList(1)
@@ -354,11 +345,28 @@ export default {
       }
     }
 
+    const handlePeriodDefault = (periodID) => {
+      if (periodID) {
+        filter.period_id = periodID
+      } else {
+        if (periodList.value) {
+          periodDefault.value = findCurrentPeriod(periodList.value)
+          filter.period_id = periodDefault.value?.id || null
+        }
+      }
+    }
+
     const handleBankAccountDefault = (bankAccountIds) => {
       if (bankAccountIds === null || bankAccountIds.length === 0) {
         filter.bank_account_ids = bankAccountList?.value[0]?.id
       } else {
         isDisabledCurrency.value = !!bankAccountIds
+      }
+    }
+
+    const handleDateFromTo = (dateFromTo) => {
+      if (dateFromTo[0] !== '' && dateFromTo[1] !== '') {
+        filter.period_id = null
       }
     }
 
@@ -373,46 +381,43 @@ export default {
       }
     }
 
-    const handleViewMore = () => {
-      let flagChart = JSON.parse(localStorage.getItem('flagChart'))
-      let periodCurrentFound = findCurrentPeriod(periodList.value)
-      filter.period_id =
-        localStorage.getItem('flagChart') === null || !flagChart
-          ? periodCurrentFound?.id
-          : dataFilterRequest.value.period_id
-    }
-
-    onBeforeMount(async () => {
-      await fetchGroupList()
-      await fetchCurrency()
-
-      // Load  group default
+    const handleLoadingData = async () => {
       let groupID = filter?.group_id || null
-      await handleGroupDefault(groupID)
-      // Load period default
       let periodID = filter?.period_id || null
-      handlePeriodDefault(periodID)
-      // Load bank account default
       let bankAccountIds = filter.bank_account_ids
-      handleBankAccountDefault(bankAccountIds)
-      // Load currency default
       let currencyCode = filter.currency_code
-      handleCurrencyDefault(currencyCode)
-
       // Get filters financing from store
       const filtersFinancingStore = store.getters['financing/filters']?.data || {}
-      console.log('filtersFinancingStore:', filtersFinancingStore)
 
       // Load data by filter store
-      if (!isEmpty(filtersFinancingStore)) {
-        const dataFilter = convertDataFilter(filtersFinancingStore)
+      if (isEmpty(filtersFinancingStore)) {
+        // Load  group default
+        await handleGroupDefault(groupID)
 
+        // Load period default
+        handlePeriodDefault(periodID)
+
+        // Load bank account default
+        handleBankAccountDefault(bankAccountIds)
+
+        // Load currency default
+        handleCurrencyDefault(currencyCode)
+      } else {
+        const dataFilter = convertDataFilter(filtersFinancingStore)
         Object.assign(filter, dataFilter)
         Object.assign(dataFilterRequest.value, filtersFinancingStore)
 
         // Set group ID id by store
         groupID = filtersFinancingStore.group_id
         await handleGroupDefault(groupID)
+
+        // Set period ID id by store
+        periodID = filtersFinancingStore.period_id
+        handlePeriodDefault(periodID)
+
+        // Check dateFromTo
+        let dateFromTo = filter.date_from_to
+        handleDateFromTo(dateFromTo)
 
         // Set bank account id by store
         bankAccountIds = filtersFinancingStore.bank_account_ids
@@ -421,10 +426,19 @@ export default {
         // Set currency id by store
         currencyCode = filtersFinancingStore.currency_code
         handleCurrencyDefault(currencyCode)
-
-        // Check  period id id by store
-        // handleViewMore()
       }
+
+      if (props.dataFilterTable) {
+        isDisabledBank.value = props.dataFilterTable.disabledBank
+        isDisabledDisplay.value = props.dataFilterTable.disabledDisplay
+        isDisabledPeriod.value = props.dataFilterTable.disabledPeriod
+      }
+    }
+
+    onBeforeMount(async () => {
+      await fetchGroupList()
+      await fetchCurrency()
+      await handleLoadingData()
     })
 
     watch(
@@ -438,7 +452,7 @@ export default {
     watch(
       () => store.state.financing.filters,
       () => {
-        console.log('store.state.financing.filters', store.state.financing.filters)
+        handleLoadingData()
         emit('onFilterRequest', dataFilterRequest.value)
       }
     )
