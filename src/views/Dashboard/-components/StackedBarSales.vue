@@ -7,7 +7,7 @@
     </p>
 
     <div ref="stackedBarLineRef" class="stacked-bar__chart">
-      <template v-for="accuracy in statistics" :key="accuracy.accuracyId">
+      <template v-for="(accuracy, accuracyIndex) in statistics" :key="accuracy.accuracyId">
         <template v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'">
           <div
             class="stacked-bar__item"
@@ -29,7 +29,7 @@
                 </span>
               </p>
             </template>
-            <div class="stacked-bar__point">
+            <div class="stacked-bar__point" :data-point-index="accuracyIndex">
               <span>{{ accuracy.accuracyCode }}</span>
             </div>
           </a-popover>
@@ -73,7 +73,7 @@
                 </span>
               </p>
             </template>
-            <div class="stacked-bar__point">
+            <div class="stacked-bar__point" :data-point-index="accuracyIndex">
               <span>{{ accuracy.accuracyCode }}</span>
             </div>
           </a-popover>
@@ -89,7 +89,7 @@
 
 <script>
 import { defineComponent, computed, ref, onUpdated } from 'vue'
-import { findLast } from 'lodash-es'
+import { findLast, parseInt } from 'lodash-es'
 
 export default defineComponent({
   name: 'StackedBarSales',
@@ -130,68 +130,75 @@ export default defineComponent({
       return list
     })
 
+    const handlePointsOverlap = (event) => {
+      const pointIndex = parseInt(event?.target.getAttribute('data-point-index') || -1)
+      const pointElements = stackedBarLineRef.value.querySelectorAll('.stacked-bar__point')
+      const stackedBarLineWidth = stackedBarLineRef.value?.offsetWidth || 0
+      const pointWidth = stackedBarLineRef.value.querySelector('.stacked-bar__point span')?.offsetWidth || 0
+      const pointPercent = (pointWidth / stackedBarLineWidth) * 100
+      const lineItems = stackedBarLineRef.value?.querySelectorAll('.stacked-bar__item')
+      const statistics = lineItems ? [...lineItems].map((el) => parseFloat(el?.style?.width || 0)) : []
+
+      let _groups = []
+      const pointGroups = statistics.map((item, index) => {
+        const obj = {
+          index,
+          group: []
+        }
+
+        if (
+          (index < statistics.length - 1 &&
+            item >= pointPercent &&
+            statistics[index + 1] < pointPercent &&
+            _groups.length === 0) ||
+          (item < pointPercent && _groups.length === 0) ||
+          (index > 0 &&
+            index < statistics.length - 1 &&
+            statistics[index - 1] < pointPercent &&
+            item >= pointPercent &&
+            statistics[index + 1] < pointPercent)
+        ) {
+          _groups = [index]
+        } else if (item < pointPercent && _groups.length > 0) {
+          _groups.push(index)
+        } else {
+          _groups = []
+        }
+
+        obj.group = [..._groups]
+        return obj
+      })
+
+      const pointGroupFound = findLast(pointGroups, (point) => point.group.indexOf(pointIndex) !== -1)
+      const groups = pointGroupFound?.group || []
+      if (groups.length < 2) return
+
+      groups.forEach((item) => {
+        if (
+          (item === statistics.length - 2 && statistics[statistics.length - 1] < pointPercent) ||
+          !pointElements[item]?.querySelector('span')
+        )
+          return
+
+        pointElements[item].querySelector('span').classList.add('move-point')
+
+        setTimeout(() => {
+          pointElements[item].querySelector('span').classList.remove('move-point')
+        }, 5000)
+      })
+    }
+
     onUpdated(() => {
       if (!stackedBarLineRef.value) return
       const pointElements = stackedBarLineRef.value.querySelectorAll('.stacked-bar__point')
       if (pointElements.length <= 1) return
 
-      pointElements.forEach((el, index) => {
-        el.addEventListener('mouseenter', () => {
-          const stackedBarLineWidth = stackedBarLineRef.value?.offsetWidth || 0
-          const pointWidth = stackedBarLineRef.value.querySelector('.stacked-bar__point span')?.offsetWidth || 0
-          const pointPercent = (pointWidth / stackedBarLineWidth) * 100
-          let _groups = []
+      pointElements.forEach((el) => {
+        // reset class
+        el.querySelector('span').classList.remove('move-point')
 
-          const lineItems = stackedBarLineRef.value?.querySelectorAll('.stacked-bar__item')
-          const statistics = lineItems ? [...lineItems].map((el) => parseFloat(el?.style?.width || 0)) : []
-
-          const pointGroups = statistics.map((item, index) => {
-            const obj = {
-              index,
-              group: []
-            }
-
-            if (
-              (index < statistics.length - 1 &&
-                item >= pointPercent &&
-                statistics[index + 1] < pointPercent &&
-                _groups.length === 0) ||
-              (item < pointPercent && _groups.length === 0) ||
-              (index > 0 &&
-                index < statistics.length - 1 &&
-                statistics[index - 1] < pointPercent &&
-                item >= pointPercent &&
-                statistics[index + 1] < pointPercent)
-            ) {
-              _groups = [index]
-            } else if (item < pointPercent && _groups.length > 0) {
-              _groups.push(index)
-            } else {
-              _groups = []
-            }
-
-            obj.group = [..._groups]
-            return obj
-          })
-
-          const pointGroupFound = findLast(pointGroups, (point) => point.group.indexOf(index) !== -1)
-          const groups = pointGroupFound?.group || []
-          if (groups.length < 2) return
-
-          groups.forEach((item) => {
-            if (
-              (item === statistics.length - 2 && statistics[statistics.length - 1] < pointPercent) ||
-              !pointElements[item]?.querySelector('span')
-            )
-              return
-
-            pointElements[item].querySelector('span').classList.add('move-point')
-
-            setTimeout(() => {
-              pointElements[item].querySelector('span').classList.remove('move-point')
-            }, 4000)
-          })
-        })
+        el.addEventListener('mouseenter', handlePointsOverlap)
+        el.addEventListener('touchstart', handlePointsOverlap)
       })
     })
 
@@ -272,7 +279,7 @@ export default defineComponent({
     height: 100%;
     position: relative;
     background-color: $color-grey-100;
-    transition: all 400ms linear;
+    transition: width 400ms linear;
   }
 
   &__point {
@@ -298,7 +305,7 @@ export default defineComponent({
       }
     }
 
-    .move-point {
+    move-point {
       position: relative;
       top: 0;
       left: auto;
