@@ -148,10 +148,6 @@ export default defineComponent({
       type: [Array, Object],
       required: true,
       default: () => []
-    },
-    isVisible: {
-      type: Boolean,
-      required: true
     }
   },
 

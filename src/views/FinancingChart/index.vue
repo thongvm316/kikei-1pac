@@ -172,14 +172,12 @@ export default defineComponent({
     }
 
     const requestParamsData = ref({
-      data: { ...initialDataRequest },
-      params: { pageNumber: 1, pageSize: 100 }
+      data: { ...initialDataRequest }
     })
 
-    const updateParamRequestFinancing = ({ data = {}, params = {} }) => {
+    const updateParamRequestFinancing = ({ data = {} }) => {
       requestParamsData.value = {
-        data: { ...requestParamsData.value.data, ...data },
-        params: { ...requestParamsData.value.params, ...params }
+        data: { ...requestParamsData.value.data, ...data }
       }
     }
 
@@ -294,12 +292,12 @@ export default defineComponent({
             })
           }
         } else {
-          filter.period_id = requestParamsData.value.data.period_id
+          filter.period_id = null
           filter.date_from_to[0] = dateString[0] || null
           filter.date_from_to[1] = dateString[1] || null
           updateParamRequestFinancing({
             data: {
-              period_id: requestParamsData.value.data.period_id,
+              period_id: filter.period_id,
               from_date: dateString[0] || null,
               to_date: dateString[1] || null
             }
@@ -395,9 +393,10 @@ export default defineComponent({
           filter.period_id = requestParamsData.value.data.period_id
           filter.date_from_to[0] = requestParamsData.value.data.from_date
           filter.date_from_to[1] = requestParamsData.value.data.to_date
+          filter.show_by = requestParamsData.value.data.show_by
           updateParamRequestFinancing({
             data: {
-              show_by: requestParamsData.value.data.show_by,
+              show_by: filter.show_by,
               period_id: requestParamsData.value.data.period_id,
               group_id: value,
               from_date: requestParamsData.value.data.from_date,
@@ -425,39 +424,43 @@ export default defineComponent({
               }
             })
           } else {
-            filter.show_by = requestParamsData.value.data.show_by
+            filter.show_by = !filter.show_by ? requestParamsData.value.data.show_by : 1
             filter.group_id = value
             filter.period_id = requestParamsData.value.data.period_id
             filter.date_from_to[0] = requestParamsData.value.data.from_date
             filter.date_from_to[1] = requestParamsData.value.data.to_date
+            filter.bank_account_ids = 0
             updateParamRequestFinancing({
               data: {
-                show_by: requestParamsData.value.data.show_by,
-                group_id: value,
-                period_id: requestParamsData.value.data.period_id,
-                from_date: requestParamsData.value.data.from_date,
-                to_date: requestParamsData.value.data.to_date
+                bank_account_ids: [],
+                show_by: filter.show_by,
+                group_id: filter.group_id,
+                period_id: filter.period_id,
+                from_date: filter.date_from_to[0],
+                to_date: filter.date_from_to[1]
               }
             })
           }
         }
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       } else {
         idVisible.value = true
         filter.show_by = 0
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
-        isDisabledCurrency.value = false
-        updateParamRequestFinancing({
-          data: {
-            group_id: null,
-            show_by: filter.show_by
-          }
-        })
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          group_id: null,
+          show_by: filter.show_by
+        }
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       }
 
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+      isDisabledCurrency.value = false
+
     }
 
     const handleTab = (evt) => {
@@ -549,6 +552,90 @@ export default defineComponent({
       } finally {
         isLoadingDataChart.value = false
       }
+
+      localStorage.setItem('flagChart', true)
+    }
+
+    const resetFilterChart = async () => {
+      let flagChart = JSON.parse(localStorage.getItem('flagChart'))
+      let initialDataRequest = {
+        group_id: 1,
+        period_id: null,
+        from_date: null,
+        to_date: null,
+        show_by: 1,
+        bank_account_ids: [],
+        currency_code: null
+      }
+      let groupID = filter?.group_id || null
+      if (groupID === null) {
+        await fetchPeriodList(1)
+        await fetchBankAccounts({ group_id: 1 })
+      } else {
+        await fetchPeriodList(groupID)
+        await fetchBankAccounts({ group_id: groupID })
+      }
+      if (groupID === null) {
+        filter.group_id = groupList?.value[groupList.value.length - 1].id
+        isDisabledDisplay.value = true
+        isDisabledBank.value = true
+      }
+      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+      filter.currency_code = currencyDefault?.code || null
+      if (filter.bank_account_ids.length === 0) {
+        filter.bank_account_ids = bankAccountList?.value[0]?.id
+      }
+
+      isDisabledCurrency.value = !!filter.bank_account_ids
+
+      if (localStorage.getItem('flagChart') === null || !flagChart) {
+        filter.period_id = null
+        filter.date_from_to = [moment().format('YYYY-MM-DD'), moment().add(59, 'days').format('YYYY-MM-DD')]
+        filter.group_id = 1
+        filter.bank_account_ids = 0
+        filter.show_by = 1
+
+        initialDataRequest = {
+          group_id: 1,
+          period_id: null,
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(59, 'days').format('YYYY-MM-DD'),
+          show_by: 1,
+          bank_account_ids: [],
+          currency_code: null
+        }
+
+        requestParamsData.value.data = {...initialDataRequest}
+
+        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
+        const { result } = await getDataChart()
+
+        remove(dataChartFinancing.value)
+        dataChartFinancing.value = result?.data?.data
+
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+      } else {
+        filter.currency_code =
+          requestParamsData.value.data.currency_code === null
+            ? currencyDefault?.code
+            : requestParamsData.value.data.currency_code
+        filter.period_id = requestParamsData.value.data.period_id
+        filter.date_from_to[0] = requestParamsData.value.data.from_date
+        filter.date_from_to[1] = requestParamsData.value.data.to_date
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          period_id: filter.period_id,
+          from_date: requestParamsData.value.data.from_date,
+          to_date: requestParamsData.value.data.to_date
+        }
+        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
+        const { result } = await getDataChart()
+
+        remove(dataChartFinancing.value)
+        dataChartFinancing.value = result?.data?.data
+
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+      }
     }
 
     onBeforeMount(async () => {
@@ -557,74 +644,22 @@ export default defineComponent({
 
       // get filters financing from store
       const filtersFinancingStore = store.state.financing?.filters || {}
-      let groupID = filter?.group_id || null
-      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
         const dataFilter = await convertDataFilter(filtersFinancingStore.data)
 
         Object.assign(filter, dataFilter)
         Object.assign(requestParamsData.value, filtersFinancingStore)
-        groupID = filter?.group_id || null
-        if (groupID === null) {
-          await fetchPeriodList(1)
-          await fetchBankAccounts({ group_id: 1 })
-        } else {
-          await fetchPeriodList(groupID)
-          await fetchBankAccounts({ group_id: groupID })
-        }
-        if (groupID === null) {
-          filter.group_id = groupList?.value[groupList.value.length - 1].id
-          isDisabledDisplay.value = true
-          isDisabledBank.value = true
-        }
-        if (filter.bank_account_ids.length === 0) {
-          filter.bank_account_ids = bankAccountList?.value[0]?.id
-        }
 
-        filter.currency_code = currencyDefault?.code || null
+        // reset default chart
+        await resetFilterChart()
 
-        if (requestParamsData.value.data.period_id === filter.period_id) {
-          filter.period_id = null
-          filter.date_from_to[0] = moment().format('YYYY-MM-DD')
-          filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: filter.period_id,
-            from_date: filter.date_from_to[0],
-            to_date: filter.date_from_to[1]
-          }
-          if (filtersFinancingStore.data.period_id === filter.period_id) {
-            filter.period_id = null
-            filter.currency_code =
-              requestParamsData.value.data.currency_code === null
-                ? currencyDefault?.code
-                : requestParamsData.value.data.currency_code
-            filter.date_from_to[0] = filtersFinancingStore.data.from_date
-            filter.date_from_to[1] = filtersFinancingStore.data.to_date
-            requestParamsData.value.data = {
-              ...requestParamsData.value.data,
-              period_id: filter.period_id,
-              from_date: filter.date_from_to[0],
-              to_date: filter.date_from_to[1]
-            }
-          }
-        } else {
-          filter.period_id = requestParamsData.value.data.period_id
-          filter.date_from_to[0] = requestParamsData.value.data.from_date
-          filter.date_from_to[1] = requestParamsData.value.data.to_date
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: requestParamsData.value.data.period_id,
-            from_date: requestParamsData.value.data.from_date,
-            to_date: requestParamsData.value.data.to_date
-          }
-          // save filters to store
-          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-        }
-        isDisabledCurrency.value = !!filter.bank_account_ids
       } else {
         // Load data default
+        localStorage.removeItem('flagChart')
+        let groupID = filter?.group_id || null
+        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
         if (groupID) {
           await fetchPeriodList(groupID)
           await fetchBankAccounts({ group_id: groupID })
@@ -641,9 +676,12 @@ export default defineComponent({
           from_date: moment().format('YYYY-MM-DD'),
           to_date: moment().add(59, 'days').format('YYYY-MM-DD')
         }
-      }
+        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
+        const { result } = await getDataChart()
 
-      await fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
+        remove(dataChartFinancing.value)
+        dataChartFinancing.value = result?.data?.data
+      }
     })
 
     // watch to fetch data financing
@@ -651,7 +689,7 @@ export default defineComponent({
       () => requestParamsData.value,
       () => {
         // fetch data chart
-        fetchDataChartFinancing(requestParamsData.value.data, requestParamsData.value.params)
+        fetchDataChartFinancing(requestParamsData.value.data)
       }
     )
 

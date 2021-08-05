@@ -424,6 +424,7 @@ export default defineComponent({
         }
       })
       remove(dataRowsTableFinancing.value)
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     // Fetch data group
@@ -655,55 +656,17 @@ export default defineComponent({
           filter.bank_account_ids = bankAccountList?.value[0]?.id
         }
 
-        if (requestParamsData.value.data.period_id === null) {
-          filter.period_id = requestParamsData.value.data.period_id
-          filter.date_from_to[0] = filtersFinancingStore.data.from_date
-          filter.date_from_to[1] = filtersFinancingStore.data.to_date
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: filter.period_id,
-            from_date: filter.date_from_to[0],
-            to_date: filter.date_from_to[1]
-          }
-          // save filters to store
-          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-        } else {
-          let periodCurrentFound = findCurrentPeriod(periodList.value)
-          if (requestParamsData.value.data.period_id !== periodCurrentFound?.id) {
-            filter.currency_code =
-              requestParamsData.value.data.currency_code !== null
-                ? currencyDefault?.code
-                : requestParamsData.value.data.currency_code
-            filter.period_id = periodCurrentFound?.id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = requestParamsData.value.data.to_date
-            requestParamsData.value.data = {
-              ...requestParamsData.value.data,
-              period_id: filter.period_id,
-              from_date: requestParamsData.value.data.from_date,
-              to_date: requestParamsData.value.data.to_date
-            }
-          } else {
-            filter.currency_code =
-              requestParamsData.value.data.currency_code === null
-                ? currencyDefault?.code
-                : requestParamsData.value.data.currency_code
-            filter.period_id = periodCurrentFound?.id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = requestParamsData.value.data.to_date
-            requestParamsData.value.data = {
-              ...requestParamsData.value.data,
-              period_id: filter.period_id,
-              from_date: requestParamsData.value.data.from_date,
-              to_date: requestParamsData.value.data.to_date
-            }
-          }
-          // save filters to store
-          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-        }
+        let flagChart = JSON.parse(localStorage.getItem('flagChart'))
+        let periodCurrentFound = findCurrentPeriod(periodList.value)
+        filter.period_id = localStorage.getItem('flagChart') === null || !flagChart ? periodCurrentFound?.id : requestParamsData.value.data.period_id
+        updateParamRequestFinancing({data: { period_id: filter.period_id}})
+
         isDisabledCurrency.value = !!filter.bank_account_ids
+        // save filters to store
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
       } else {
         // Load data default
+        localStorage.removeItem('flagChart')
         if (groupID) {
           await fetchPeriodList(groupID)
           await fetchBankAccounts({ group_id: groupID })
