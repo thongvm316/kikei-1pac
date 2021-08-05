@@ -135,6 +135,7 @@ export default defineComponent({
       default: false
     }
   },
+  emits: ['onFilterTables'],
 
   setup(props, { emit }) {
     const { t } = useI18n()
@@ -258,7 +259,7 @@ export default defineComponent({
           currency_code: null
         }
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-        emit('on-filter', data)
+        emit('onFilterTables', data)
       }
     }
 
