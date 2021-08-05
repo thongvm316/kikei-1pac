@@ -678,7 +678,8 @@ export default defineComponent({
       /* ------------------- get all datas --------------------------- */
       dataAccounts.value = await useAccountList({ type: [0, 2], active: true })
       // groups
-      const { data: groups } = await useGroupList()
+      const paramsGroup = { allGroup: true }
+      const { data: groups } = await useGroupList(paramsGroup)
       dataGroups.value = groups
 
       dataGroups.value.forEach((group) => {
