@@ -1,3 +1,5 @@
+const esModules = ['lodash'].join('|');
+
 module.exports = {
   clearMocks: true,
   collectCoverage: true,
@@ -19,7 +21,7 @@ module.exports = {
     '**/?(*.)+(spec|test).js',
   ],
   testPathIgnorePatterns: [
-    '\\\\node_modules\\\\'
+    'node_modules'
   ],
   testURL: 'http://localhost',
   transform: {
@@ -27,7 +29,7 @@ module.exports = {
     '.*\\.(vue)$': 'vue-jest',
     '^.+\\.svg$': '<rootDir>/src/test/unit/fileTransformer.js',
   },
-  transformIgnorePatterns: ['/node_modules/'],
+  transformIgnorePatterns: [`/node_modules/(?!${esModules})`],
   coverageThreshold: {
     global: {
       branches: 90,
