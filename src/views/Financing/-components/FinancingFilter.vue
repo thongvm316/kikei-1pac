@@ -398,6 +398,7 @@ export default {
 
       // Load data by filter store
       if (isEmpty(filtersFinancingStore)) {
+        localStorage.removeItem('flag_chart')
         // Load  group default
         await handleGroupDefault(groupID)
 

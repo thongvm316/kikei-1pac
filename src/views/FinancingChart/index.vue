@@ -216,6 +216,14 @@ export default defineComponent({
       return newDate.add(days, 'days').format(format)
     }
 
+    const getDiffDays = (start, end, oneDay = 24 * 60 * 60 * 1000) => {
+      let diffDays = null
+      let startDate = new Date(start)
+      let endDate = new Date(end)
+      diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
+      return diffDays
+    }
+
     // Handle filter
     const onChangePeriod = async (event) => {
       isDisabledDate.value = !(event === undefined || event === null)
@@ -237,10 +245,6 @@ export default defineComponent({
     }
 
     const onChangeDate = async (value, dateString) => {
-      const startDate = new Date(dateString[0])
-      const endDate = new Date(dateString[1])
-      const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
-      const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
       let periodCurrentFound = findCurrentPeriod(periodList.value)
       if (dateString.length > 1) {
         if (!filter.show_by) {
@@ -250,7 +254,7 @@ export default defineComponent({
           filter.date_from_to[0] = checkDateUndefined ? null : currentDate(dateString[0])
           filter.date_from_to[1] = checkDateUndefined ? null : currentDate(dateString[1])
         } else {
-          if (diffDays > 59) {
+          if (getDiffDays(dateString[0], dateString[1]) > 59) {
             store.commit('flash/STORE_FLASH_MESSAGE', {
               variant: 'error',
               message: 'errors.chart_date_2m'
@@ -259,7 +263,10 @@ export default defineComponent({
 
           filter.period_id = !dateString[0] && !dateString[1] ? periodCurrentFound?.id : null
           filter.date_from_to[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
-          filter.date_from_to[1] = diffDays > 59 ? addDaysInCurrentDate(dateString[0], 59) : currentDate(dateString[1])
+          filter.date_from_to[1] =
+            getDiffDays(dateString[0], dateString[1]) > 59
+              ? addDaysInCurrentDate(dateString[0], 59)
+              : currentDate(dateString[1])
 
           if (!dateString[0] && !dateString[1]) filter.date_from_to[1] = null
         }
@@ -280,11 +287,8 @@ export default defineComponent({
     const onChangeShowBy = async (value) => {
       let startPiker = requestParamsData.value.data.from_date
       let endPiker = requestParamsData.value.data.to_date
-      const startDate = new Date(requestParamsData.value.data.from_date)
-      const endDate = new Date(requestParamsData.value.data.to_date)
-      const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
-      const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-      if (diffDays > 59) {
+
+      if (getDiffDays(startPiker, endPiker) > 59) {
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'error',
           message: 'errors.chart_date_2m'
@@ -293,7 +297,8 @@ export default defineComponent({
       }
 
       filter.date_from_to[0] = currentDate(startPiker)
-      filter.date_from_to[1] = diffDays > 59 ? addDaysInCurrentDate(startPiker, 59) : currentDate(endPiker)
+      filter.date_from_to[1] =
+        getDiffDays(startPiker, endPiker) > 59 ? addDaysInCurrentDate(startPiker, 59) : currentDate(endPiker)
 
       updateParamRequestFinancing({
         data: {
@@ -323,9 +328,9 @@ export default defineComponent({
         }
       })
 
-      idVisible.value = value !== 0 ? false : true
-      isDisabledDisplay.value = value !== 0 ? false : true
-      isDisabledBank.value = value !== 0 ? false : true
+      idVisible.value = value === 0
+      isDisabledDisplay.value = value === 0
+      isDisabledBank.value = value === 0
       isDisabledCurrency.value = false
 
       // save filters to store
@@ -348,12 +353,16 @@ export default defineComponent({
     const onChangeBankAccount = async () => {
       let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
 
-      filter.currency_code = currencyCode.code
-      filter.bank_account_ids = filter.bank_account_ids !== 0 ? filter.bank_account_ids : null
+      filter.currency_code = filter.bank_account_ids !== 0 ? null : currencyCode.code
 
-      updateParamRequestFinancing({ data: { bank_account_ids: [filter.bank_account_ids] } })
+      updateParamRequestFinancing({
+        data: {
+          bank_account_ids: filter.bank_account_ids !== 0 ? [filter.bank_account_ids] : [],
+          currency_code: filter.currency_code
+        }
+      })
 
-      isDisabledCurrency.value = filter.bank_account_ids !== 0 ? true : false
+      isDisabledCurrency.value = filter.bank_account_ids !== 0
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -416,11 +425,11 @@ export default defineComponent({
         isLoadingDataChart.value = false
       }
 
-      localStorage.setItem('flagChart', true)
+      localStorage.setItem('flag_chart', true)
     }
 
     const resetFilterChart = async () => {
-      let flagChart = JSON.parse(localStorage.getItem('flagChart'))
+      let flagChart = JSON.parse(localStorage.getItem('flag_chart'))
       let initialDataRequest = {
         group_id: 1,
         period_id: null,
@@ -446,17 +455,14 @@ export default defineComponent({
         isDisabledBank.value = true
       }
 
-      if (filter.bank_account_ids.length === 0) {
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-      }
+      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
 
-      isDisabledCurrency.value = !!filter.bank_account_ids
-
-      if (localStorage.getItem('flagChart') === null || !flagChart) {
+      if (localStorage.getItem('flag_chart') === null || !flagChart) {
+        filter.currency_code = currencyDefault?.code
         filter.period_id = null
         filter.date_from_to = [currentDate(), addDaysInCurrentDate(null, 59)]
         filter.group_id = 1
-        filter.bank_account_ids = 0
+        filter.bank_account_ids = bankAccountList?.value[0]?.id
         filter.show_by = 1
 
         initialDataRequest = {
@@ -471,22 +477,26 @@ export default defineComponent({
 
         requestParamsData.value.data = { ...initialDataRequest }
       } else {
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-
-        filter.currency_code =
-          requestParamsData.value.data.currency_code === null
-            ? currencyDefault?.code
-            : requestParamsData.value.data.currency_code
-        filter.period_id = requestParamsData.value.data.period_id
+        filter.period_id = null
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
+        filter.bank_account_ids =
+          requestParamsData.value.data.bank_account_ids.length === 0 ? 0 : requestParamsData.value.data.bank_account_ids
+        filter.currency_code =
+          requestParamsData.value.data.bank_account_ids.length === 0
+            ? currencyDefault?.code
+            : requestParamsData.value.data.currency_code
 
         requestParamsData.value.data = {
           ...requestParamsData.value.data,
+          currency_code: filter.currency_code,
+          bank_account_ids: filter.bank_account_ids !== 0 ? filter.bank_account_ids : [],
           period_id: filter.period_id,
           from_date: requestParamsData.value.data.from_date,
           to_date: requestParamsData.value.data.to_date
         }
+
+        isDisabledCurrency.value = filter.bank_account_ids !== 0
       }
 
       const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
@@ -499,7 +509,7 @@ export default defineComponent({
     }
 
     const loadDataDefault = async () => {
-      localStorage.removeItem('flagChart')
+      localStorage.removeItem('flag_chart')
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
       if (groupID) {
