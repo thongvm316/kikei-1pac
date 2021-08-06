@@ -499,7 +499,6 @@ export default defineComponent({
     }
 
     const loadDataDefault = async () => {
-      console.log('2')
       localStorage.removeItem('flagChart')
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
