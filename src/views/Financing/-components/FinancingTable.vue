@@ -260,7 +260,6 @@ export default defineComponent({
           currency_code: null
         }
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-        emit('onFilterTables', data)
       }
     }
 

@@ -143,10 +143,6 @@ export default {
   },
 
   props: {
-    dataFilterTable: {
-      type: [Object, Array],
-      required: true
-    },
     isLoadingExportCsv: {
       type: Boolean,
       required: true
@@ -251,7 +247,6 @@ export default {
         isDisabledDisplay.value = false
         isDisabledBank.value = false
         isDisabledCurrency.value = false
-
         updateDataFilterRequest({ data: { group_id: filter.group_id } })
       } else {
         filter.show_by = 0
@@ -259,6 +254,7 @@ export default {
         isDisabledDisplay.value = true
         isDisabledBank.value = true
         isDisabledCurrency.value = false
+
         updateDataFilterRequest({ data: { group_id: null } })
       }
 
@@ -272,7 +268,7 @@ export default {
         isDisabledCurrency.value = true
         updateDataFilterRequest({
           data: {
-            currency_code: filter.currency_code,
+            currency_code: null,
             bank_account_ids: [filter.bank_account_ids]
           }
         })
@@ -340,6 +336,9 @@ export default {
         isDisabledDisplay.value = true
         isDisabledBank.value = true
       } else {
+        isDisabledDisplay.value = false
+        isDisabledBank.value = false
+
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
       }
@@ -365,13 +364,13 @@ export default {
     }
 
     const handleDateFromTo = (dateFromTo) => {
-      if (dateFromTo[0] !== '' && dateFromTo[1] !== '') {
+      if (dateFromTo[0] && dateFromTo[1]) {
         filter.period_id = null
       }
     }
 
     const handleCurrencyDefault = (currencyCode) => {
-      if (currencyCode !== null) {
+      if (currencyCode) {
         filter.currency_code = currencyCode
       } else {
         if (currencyList.value) {
@@ -386,6 +385,7 @@ export default {
       let periodID = filter?.period_id || null
       let bankAccountIds = filter.bank_account_ids
       let currencyCode = filter.currency_code
+
       // Get filters financing from store
       const filtersFinancingStore = store.getters['financing/filters']?.data || {}
 
@@ -426,12 +426,6 @@ export default {
         // Set currency id by store
         currencyCode = filtersFinancingStore.currency_code
         handleCurrencyDefault(currencyCode)
-      }
-
-      if (props.dataFilterTable) {
-        isDisabledBank.value = props.dataFilterTable.disabledBank
-        isDisabledDisplay.value = props.dataFilterTable.disabledDisplay
-        isDisabledPeriod.value = props.dataFilterTable.disabledPeriod
       }
     }
 
