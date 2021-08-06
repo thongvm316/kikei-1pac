@@ -5,7 +5,7 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getGroups() {
-    return apiCaller({ method: 'GET', url: RESOURCES.group })
+  getGroups(params = {}) {
+    return apiCaller({ method: 'GET', url: RESOURCES.group, params })
   }
 }

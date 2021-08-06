@@ -289,7 +289,8 @@ export default defineComponent({
       // accounts
       dataAccounts.value = await useAccountList({ type: [0, 2] })
       // groups
-      const { data: groups } = await useGroupList()
+      const paramsGroup = { allGroup: true }
+      const { data: groups } = await useGroupList(paramsGroup)
       dataGroups.value = groups
       // statuses
       const { data: statuses } = await getProjectStatuses()
