@@ -143,6 +143,7 @@ export default {
   },
 
   props: {
+    // eslint-disable-next-line vue/require-default-prop
     dataFilterTable: {
       type: [Object, Array],
       required: false
@@ -197,7 +198,15 @@ export default {
 
     const filter = reactive({ ...initialStateFilter })
 
-    const dataFilterRequest = ref({})
+    const dataFilterRequest = ref({
+      group_id: 1,
+      period_id: null,
+      from_date: null,
+      to_date: null,
+      show_by: 1,
+      bank_account_ids: [],
+      currency_code: null
+    })
 
     const updateDataFilterRequest = ({ data = {} }) => {
       dataFilterRequest.value = { ...dataFilterRequest.value, ...data }
@@ -363,7 +372,7 @@ export default {
     }
 
     const handleBankAccountDefault = (bankAccountIds) => {
-      if (bankAccountIds === null || bankAccountIds.length === 0) {
+      if (bankAccountIds.length === 0) {
         filter.bank_account_ids = bankAccountList?.value[0]?.id
       } else {
         isDisabledCurrency.value = !!bankAccountIds
