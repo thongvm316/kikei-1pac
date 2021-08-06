@@ -446,9 +446,6 @@ export default defineComponent({
         isDisabledBank.value = true
       }
 
-      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-      filter.currency_code = currencyDefault?.code || null
-
       if (filter.bank_account_ids.length === 0) {
         filter.bank_account_ids = bankAccountList?.value[0]?.id
       }
@@ -474,13 +471,16 @@ export default defineComponent({
 
         requestParamsData.value.data = { ...initialDataRequest }
       } else {
-        filter.currency_code = requestParamsData.value.data.currency_code
-        requestParamsData.value.data.currency_code === null
-          ? currencyDefault?.code
-          : requestParamsData.value.data.currency_code
+        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+
+        filter.currency_code =
+          requestParamsData.value.data.currency_code === null
+            ? currencyDefault?.code
+            : requestParamsData.value.data.currency_code
         filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
+
         requestParamsData.value.data = {
           ...requestParamsData.value.data,
           period_id: filter.period_id,
@@ -499,6 +499,7 @@ export default defineComponent({
     }
 
     const loadDataDefault = async () => {
+      console.log('2')
       localStorage.removeItem('flagChart')
       let groupID = filter?.group_id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
