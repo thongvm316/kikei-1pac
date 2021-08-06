@@ -5,7 +5,7 @@
       <tbody>
         <tr>
           <td>Gumi Vietnam</td>
-          <td><a-checkbox v-model:checked="checked">アクセスを許可する</a-checkbox></td>
+          <td><a-checkbox v-model:checked="checkedBox">アクセスを許可する</a-checkbox></td>
           <td>
             <div class="btn-dropdown" style="display:">
               <a-button
@@ -89,7 +89,7 @@
 
         <tr>
           <td>VAND</td>
-          <td><a-checkbox v-model:checked="checked">アクセスを許可する</a-checkbox></td>
+          <td><a-checkbox v-model:checked="checkedBox">アクセスを許可する</a-checkbox></td>
           <td style="display:">
             <div class="btn-dropdown">
               <a-button
@@ -105,6 +105,7 @@
 
         <tr style="display:">
           <td colspan="3">
+            <!-- table level 2 -->
             <table class="has-border">
               <thead>
                 <tr>
@@ -189,9 +190,11 @@ export default defineComponent({
 
   setup() {
     const checked = ref(10)
+    const checkedBox = ref()
 
     return {
-      checked
+      checked,
+      checkedBox
     }
   }
 })

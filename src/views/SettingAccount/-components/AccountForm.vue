@@ -24,27 +24,6 @@
           </div>
         </Field>
       </div>
-      <!-- Password -->
-      <div v-if="isHiddenField" class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('account.password') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                :disabled="isDisableEditField"
-                @change="handleChange"
-              />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
-                {{ replaceField(message, 'password') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
 
       <!-- Full name -->
       <div class="form-group">
@@ -65,6 +44,31 @@
             </div>
           </div>
         </Field>
+      </div>
+
+      <!-- Password -->
+      <div v-if="isHiddenField" class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('account.password') }}</label>
+            <div class="form-input">
+              <a-input
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                class="w-300"
+                :disabled="isDisableEditField"
+                @change="handleChange"
+              />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                {{ replaceField(message, 'password') }}
+              </ErrorMessage>
+            </div>
+          </div>
+        </Field>
+        <div class="u-ml-16 u-mt-12">
+          <a-checkbox v-model:checked="autoGeneratePassW">パスワードを自動生成する</a-checkbox>
+        </div>
       </div>
 
       <!-- Status -->
@@ -136,7 +140,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -166,6 +170,8 @@ export default defineComponent({
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
 
+    const autoGeneratePassW = ref(false)
+
     let form = ref({
       account_group_id: 1,
       username: '',
@@ -185,6 +191,10 @@ export default defineComponent({
       } else {
         isHiddenField.value = true
       }
+    })
+
+    watch(autoGeneratePassW, (value) => {
+      value ? form.value.password = Math.random().toString(36).slice(-8) : form.value.password = ''
     })
 
     const handleCancel = () => {
@@ -258,6 +268,7 @@ export default defineComponent({
       ACTIVE,
       isHiddenField,
       isDisableEditField,
+      autoGeneratePassW,
       onSubmit,
       handleCancel,
       updateAccount,
