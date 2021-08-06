@@ -218,7 +218,7 @@ export default defineComponent({
   position: relative;
 
   &:hover &__tooltip {
-    display: inline-block
+    display: inline-block;
   }
 
   &__tooltip {

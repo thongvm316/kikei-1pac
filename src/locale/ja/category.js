@@ -4,7 +4,8 @@ export default {
   status: 'ステータス',
   subcategory: '中分類',
   note: '大分類名より検索します',
-  categoryName: '大分類',
+  category_name: '大分類',
+  error_category_name: '「大分類」',
   categoryOther: '項目記入例',
   category_division: '区分',
   key_word: '項目名',
@@ -26,5 +27,7 @@ export default {
   medium_classification: '中分類種類',
   input: '通常(テキスト入力)',
   group: 'グループ',
-  report: '管理会計に含む'
+  report: '管理会計に含む',
+  category_subcategory: 'この大分類は中分類で使用しているため、削除できません',
+  category_deposit: 'この大分類は入出金で使用しているため、削除できません'
 }

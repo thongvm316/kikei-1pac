@@ -4,19 +4,20 @@
     <form @submit="onSubmit">
       <!-- Category name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="categoryName" rules="required">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.name" name="category_name" rules="input_required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('category.categoryName') }}</label>
+            <label class="form-label required">{{ $t('category.category_name') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="categoryName" class="errors">
-                {{ replaceField(message, 'categoryName') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="category_name" class="errors">
+                {{ replaceField(message, 'category_name') }}
               </ErrorMessage>
             </div>
           </div>
@@ -132,6 +133,7 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCategoryService from '@/views/Category/composables/useUpdateCategoryService'
 import useCreateCategoryService from '@/views/Category/composables/useCreateCategoryService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CategoryForm',
@@ -149,10 +151,15 @@ export default defineComponent({
       show_in_report: true
     })
     const isOpen = ref(false)
+    const store = useStore()
     const router = useRouter()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
+
+    const categoryEnums = ref({
+      category_name: t('category.error_category_name')
+    })
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'category-edit') {
@@ -185,6 +192,13 @@ export default defineComponent({
       } catch (err) {
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createCategory = async (data) => {
@@ -200,16 +214,18 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
       for (let item in err.response.data.errors) {
         locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
+          ? (err.response.data.errors[item] = `${categoryEnums.value[item]} existed`)
+          : (err.response.data.errors[item] = `${categoryEnums.value[item]}が存在しました`)
         setFieldError(item, err.response.data.errors[item])
       }
     }
 
     const replaceField = (text, field) => {
-      return text.replace(field, t(`category.${field}`))
+      return text.replace(field, t(`category.error_${field}`))
     }
 
     return {
