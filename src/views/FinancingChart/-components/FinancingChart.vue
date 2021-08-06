@@ -431,7 +431,7 @@ export default defineComponent({
         const filters = store.state.financing?.filters
 
         dataPoint.value = {
-          ...filters.data,
+          ...filters,
           from_date: fullDate.value,
           to_date: fullDate.value,
           data_id: dataId
