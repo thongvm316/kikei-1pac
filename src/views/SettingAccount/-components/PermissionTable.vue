@@ -7,15 +7,51 @@
           <td>Gumi Vietnam</td>
           <td><a-checkbox v-model:checked="checkedBox">アクセスを許可する</a-checkbox></td>
           <td>
-            <div class="btn-dropdown" style="display:">
-              <a-button
-                size="small"
-                type="link"
-              >
-                テンプレートを保存する
-              </a-button>
-              <span class="btn-icon"><ArrowDownIcon /></span>
-            </div>
+            <a-dropdown :trigger="['click']">
+              <a class="ant-dropdown-link" @click.prevent>
+                <span class="u-flex u-justify-between u-items-center">
+                  テンプレートを保存する
+                  <ArrowDownIcon />
+                </span>
+              </a>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="0">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-12 u-text-additional-blue-6">Mansadasdasdager</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                  <a-menu-item key="1">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-additional-blue-6 u-text-12">Design</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                  <a-menu-item key="3">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-additional-blue-6 u-text-12">Admin</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </td>
         </tr>
 
@@ -91,15 +127,15 @@
           <td>VAND</td>
           <td><a-checkbox v-model:checked="checkedBox">アクセスを許可する</a-checkbox></td>
           <td style="display:">
-            <div class="btn-dropdown">
-              <a-button
-                size="small"
-                type="link"
-              >
+            <a-dropdown :trigger="['click']">
+              <a class="ant-dropdown-link" @click.prevent>
                 テンプレートを保存する
-              </a-button>
-              <span class="btn-icon"><ArrowDownIcon /></span>
-            </div>
+                <ArrowDownIcon />
+              </a>
+              <template #overlay>
+                nghia
+              </template>
+            </a-dropdown>
           </td>
         </tr>
 
@@ -179,13 +215,15 @@
 import { defineComponent, ref } from 'vue'
 import SaveIcon from '@/assets/icons/ico_save.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
+import DeleteIcon from '@/assets/icons/ico_delete.svg'
 
 export default defineComponent({
   name: 'PermissionTable',
 
   components: {
     SaveIcon,
-    ArrowDownIcon
+    ArrowDownIcon,
+    DeleteIcon
   },
 
   setup() {
@@ -274,5 +312,9 @@ export default defineComponent({
       text-decoration: underline;
     }
   }
+}
+
+.ant-btn-link.btn-delete {
+  color: $color-additional-red-5;
 }
 </style>
