@@ -198,7 +198,7 @@ export default {
 
     const filter = reactive({ ...initialStateFilter })
 
-    const dataFilterRequest = ref({
+    const initialDataRequest = ref({
       group_id: 1,
       period_id: null,
       from_date: null,
@@ -208,8 +208,19 @@ export default {
       currency_code: null
     })
 
-    const updateDataFilterRequest = ({ data = {} }) => {
-      dataFilterRequest.value = { ...dataFilterRequest.value, ...data }
+    // const updateDataFilterRequest = ({ data = {} }) => {
+    //   dataFilterRequest.value = { ...dataFilterRequest.value, ...data }
+    // }
+    const dataFilterRequest = ref({
+      data: { ...initialDataRequest },
+      params: { pageNumber: 1 }
+    })
+
+    const updateDataFilterRequest = ({ data = {}, params = {} }) => {
+      dataFilterRequest.value = {
+        data: { ...dataFilterRequest.value.data, ...data },
+        params: { ...dataFilterRequest.value.params, ...params }
+      }
     }
 
     // Handle filter
@@ -292,6 +303,11 @@ export default {
     }
 
     const onChangeViewMode = async (mode) => {
+      console.log('mode:', mode)
+      if (mode === 0) {
+        updateDataFilterRequest({ params: { pageNumber: 1 } })
+      }
+
       if (mode) {
         await router.push({ name: 'financing-chart' })
       }
@@ -372,7 +388,7 @@ export default {
     }
 
     const handleBankAccountDefault = (bankAccountIds) => {
-      if (bankAccountIds.length === 0) {
+      if (!bankAccountIds || bankAccountIds.length === 0) {
         filter.bank_account_ids = bankAccountList?.value[0]?.id
       } else {
         isDisabledCurrency.value = !!bankAccountIds
@@ -403,8 +419,7 @@ export default {
       let currencyCode = filter.currency_code
 
       // Get filters financing from store
-      const filtersFinancingStore = store.getters['financing/filters']?.data || {}
-
+      const filtersFinancingStore = store.getters['financing/filters'] || {}
       // Load data by filter store
       if (isEmpty(filtersFinancingStore)) {
         localStorage.removeItem('flag_chart')
@@ -423,7 +438,6 @@ export default {
         const dataFilter = convertDataFilter(filtersFinancingStore)
         Object.assign(filter, dataFilter)
         Object.assign(dataFilterRequest.value, filtersFinancingStore)
-
         // Set group ID id by store
         groupID = filtersFinancingStore.group_id
         await handleGroupDefault(groupID)

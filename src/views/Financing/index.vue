@@ -132,10 +132,10 @@ export default defineComponent({
 
     const dataExportCsv = reactive({ ...initialExportCSV })
 
-    const onDataFilterRequest = (data) => {
+    const onDataFilterRequest = (filter) => {
       updateParamRequestFinancing({
-        data: data,
-        params: { pageNumber: 1 }
+        data: filter.data,
+        params: filter.params
       })
     }
 
@@ -228,6 +228,9 @@ export default defineComponent({
         // remove(dataRowsTableFinancing.value)
         remove(dataColumnsTableFinancing.value)
         remove(dataColumnsNameTable.value)
+        remove(dataColumns.value)
+        remove(dataByDates.value)
+
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
@@ -284,17 +287,18 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // Get filters financing from store
-      const filtersFinancingStore = store.getters['financing/filters']?.data || {}
-      if (filtersFinancingStore) {
-        Object.assign(requestParamsData.value.data, filtersFinancingStore)
-      }
-      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
     onMounted(async () => {
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
+
+      // const filtersFinancingStore = store.getters['financing/filters']?.data || {}
+      // if (filtersFinancingStore) {
+      //   Object.assign(requestParamsData.value.data, filtersFinancingStore)
+      //   debugger
+      // }
     })
 
     onUnmounted(() => {
@@ -310,8 +314,8 @@ export default defineComponent({
           // checking whether a selector is well defined
           const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
           if (per >= 100) {
-            let pageCurrent = ++pagination.value.current
-            if (pageCurrent <= pagination.value.totalPage) {
+            let pageCurrent = pagination.value.current + 1
+            if (pagination.value.totalPage >= pageCurrent) {
               updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
             }
           }
@@ -323,7 +327,6 @@ export default defineComponent({
     watch(
       () => store.state.financing.filters,
       () => {
-        remove(dataRowsTableFinancing.value)
         updateParamRequestFinancing({
           params: {
             pageNumber: 1
