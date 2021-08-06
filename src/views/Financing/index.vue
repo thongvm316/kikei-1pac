@@ -2,7 +2,6 @@
   <section class="financing">
     <financing-filter
       :is-loading-export-csv="isLoadingExportCsv"
-      :data-filter-table="dataFilterTable"
       @on-filter-request="onDataFilterRequest"
       @on-export-csv="exportFinancingCsvFile"
     />
@@ -60,7 +59,6 @@ export default defineComponent({
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
-    const dataFilterTable = ref({})
     const height = ref(0)
     const pagination = ref({})
 
@@ -146,14 +144,6 @@ export default defineComponent({
       remove(dataRowsTableFinancing.value)
 
       updateParamRequestFinancing({ params: { orderBy: currentSortStr, pageNumber: 1 } })
-    }
-
-    const onFilterTablesRender = async () => {
-      dataFilterTable.value = {
-        disabledDisplay: false,
-        disabledBank: false,
-        disabledPeriod: true
-      }
     }
 
     const convertDataTableHeader = async (data) => {
@@ -330,8 +320,6 @@ export default defineComponent({
             pageNumber: 1
           }
         })
-        // onDataFilterRequest()
-        onFilterTablesRender()
       }
     )
 
@@ -356,7 +344,6 @@ export default defineComponent({
       dataColumnsTableFinancing,
       dataRowsTableFinancing,
       dataExportCsv,
-      dataFilterTable,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,
@@ -366,7 +353,6 @@ export default defineComponent({
       isDisabledCurrency,
       isLoadingExportCsv,
       onDataFilterRequest,
-      onFilterTablesRender,
       onSortTable,
       fetchDataTableFinancing,
       convertDataTableHeader,
