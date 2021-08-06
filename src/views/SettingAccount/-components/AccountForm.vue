@@ -67,7 +67,22 @@
         </Field>
       </div>
 
-      <!-- Sales -->
+      <!-- Status -->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('account.status') }}</label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.active">
+              <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">{{
+                $t(`account.${item.value}`)
+              }}</a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type -->
       <div class="form-group">
         <div class="form-content">
           <label class="form-label">{{ $t('account.sales') }}</label>
@@ -87,42 +102,23 @@
           <div class="form-content">
             <label class="form-label">{{ $t('account.memo') }}</label>
             <div class="form-input">
-              <a-input
+              <a-textarea
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                class="w-300"
+                style="width: 300px; height: 160px"
                 @change="handleChange"
               />
             </div>
           </div>
         </Field>
       </div>
-      <!-- Status -->
-      <div class="form-group">
-        <div class="form-content">
-          <label class="form-label">{{ $t('account.status') }}</label>
 
-          <div class="form-input">
-            <a-radio-group v-model:value="form.active">
-              <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">{{
-                $t(`account.${item.value}`)
-              }}</a-radio>
-            </a-radio-group>
-          </div>
-        </div>
-      </div>
-      <!-- Authority-->
+      <!-- Permission -->
       <div class="form-group">
         <div class="form-content">
           <label class="form-label">{{ $t('account.authority') }}</label>
 
-          <div class="form-input">
-            <a-radio-group v-model:value="form.is_admin">
-              <a-radio v-for="item in AUTHORITY" :key="item.id" :value="item.id"
-                >{{ $t(`account.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
-          </div>
+          <PermissionTable />
         </div>
       </div>
 
@@ -145,15 +141,20 @@ import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
-import { TYPE, ACTIVE, AUTHORITY } from '@/enums/account.enum'
+import { useStore } from 'vuex'
+import { TYPE, ACTIVE } from '@/enums/account.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
-import { useStore } from 'vuex'
+import PermissionTable from './PermissionTable.vue'
 
 export default defineComponent({
   name: 'AccountForm',
+
+  components: {
+    PermissionTable
+  },
 
   setup() {
     const router = useRouter()
@@ -255,7 +256,6 @@ export default defineComponent({
       form,
       TYPE,
       ACTIVE,
-      AUTHORITY,
       isHiddenField,
       isDisableEditField,
       onSubmit,
