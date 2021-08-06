@@ -129,11 +129,47 @@
           <td style="display:">
             <a-dropdown :trigger="['click']">
               <a class="ant-dropdown-link" @click.prevent>
-                テンプレートを保存する
-                <ArrowDownIcon />
+                <span class="u-flex u-justify-between u-items-center">
+                  テンプレートを保存する
+                  <ArrowDownIcon />
+                </span>
               </a>
               <template #overlay>
-                nghia
+                <a-menu>
+                  <a-menu-item key="0">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-12 u-text-additional-blue-6">Mansadasdasdager</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                  <a-menu-item key="1">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-additional-blue-6 u-text-12">Design</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                  <a-menu-item key="3">
+                    <div class="u-flex u-justify-between u-items-center">
+                      <span class="u-text-additional-blue-6 u-text-12">Admin</span>
+                      <a-button class="btn-delete u-text-12" type="link" danger>
+                        <template #icon>
+                          <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                        </template>
+                        削除
+                      </a-button>
+                    </div>
+                  </a-menu-item>
+                </a-menu>
               </template>
             </a-dropdown>
           </td>
