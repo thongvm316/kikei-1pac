@@ -41,14 +41,14 @@ export default {
 
   category_0000: 'エラーが見つかりません',
   category_0001: '大分類が見つかりません',
-  category_0002: '大分類が無効です',
-  category_0003: '大分類が存在しました',
+  category_0002: '大分類が存在しました',
+  category_0003: '大分類が無効です',
   category_0004: '入力が無効です',
 
   subcategory_0000: 'エラーが見つかりません',
   subcategory_0001: '中分類が見つかりません',
-  subcategory_0002: '中分類が無効です',
-  subcategory_0003: '中分類が存在しました',
+  subcategory_0002: '中分類が存在しました',
+  subcategory_0003: '中分類が無効です',
   subcategory_0004: '入力が無効です',
 
   currency_0000: 'エラーが見つかりません',

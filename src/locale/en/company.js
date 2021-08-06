@@ -14,7 +14,7 @@ export default {
   note: 'Search by company name and company code',
   description: 'Description',
   company_name: 'Company Name',
-  error_company_name: 'company name',
+  error_company_name: 'Company name',
   company_code: 'Company Code',
   title_search_modal: 'Company List',
   key_word: 'Item Name',
@@ -24,9 +24,9 @@ export default {
   confirm: 'Confirm',
   company: 'Company',
   company_code_project: 'Company Code Project',
-  error_company_code_project: 'company code',
+  error_company_code_project: 'Company code',
   company_slack_code: 'Company Code Slack',
-  error_company_slack_code: 'slack code',
+  error_company_slack_code: 'Slack code',
   add_company: 'Add',
   next_month_end: 'Next month-end payment',
   end_of_month_after_next: 'Payment end of month after next',
@@ -34,5 +34,8 @@ export default {
   clear: 'Clear',
   customer: 'Customer',
   partner: 'Partner',
-  both: 'Both'
+  both: 'Both',
+  company_project: 'This company being used in project and cannot be deleted',
+  company_project_order: 'This company being used in project order and cannot be deleted',
+  company_deposit: 'This company being used in deposit and cannot be deleted'
 }

@@ -70,6 +70,7 @@ import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 import { forEach, includes, isArray, keys, map } from 'lodash-es'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -139,7 +140,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('subcategory.subcategoryName'),
+          title: t('subcategory.subcategory_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
@@ -249,19 +250,43 @@ export default defineComponent({
       try {
         const { deleteSubCategory } = useDeleteSubCategoryService(recordVisible.value.id)
         await deleteSubCategory()
-      } catch (error) {
-        console.log(error)
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message:
+            locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
+        })
+      } catch (err) {
+        checkErrorsApi(err)
+        throw err
       }
       openDelete.value = false
       recordVisible.value.visible = false
+      params.value = {
+        page_number: 1,
+        page_size: 50
+      }
       await fetchList(params.value, queryDelete.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
-      })
+    }
+
+    const subcategoryEnums = ref({
+      subcategory_deposit: t('subcategory.subcategory_deposit')
+    })
+
+    const checkErrorsApi = (err) => {
+      openDelete.value = false
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        setTimeout(() => {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            duration: 5,
+            message: locale.value === 'en' ? `${subcategoryEnums.value[item]}` : `${subcategoryEnums.value[item]}`
+          })
+        }, 1000)
+      }
     }
 
     // Close ActionBar

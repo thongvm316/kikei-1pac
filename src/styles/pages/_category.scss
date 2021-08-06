@@ -25,6 +25,15 @@
           .ant-table-placeholder {
             height: calc(100vh - 176px);
           }
+          .ant-table-body {
+            .number_category {
+              color: #1F1F1F;
+              
+              &:hover{
+                text-decoration-line: underline;
+              }
+            }
+          }
         }
       }
     }

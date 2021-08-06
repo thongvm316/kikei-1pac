@@ -241,6 +241,7 @@ import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCompanyService from '@/views/Company/composables/useUpdateCompanyService'
 import useCreateCompanyService from '@/views/Company/composables/useCreateCompanyService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CompanyForm',
@@ -259,6 +260,7 @@ export default defineComponent({
       description: ''
     })
     const router = useRouter()
+    const store = useStore()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
@@ -302,6 +304,13 @@ export default defineComponent({
         checkErrorsApi(err)
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createCompany = async (data) => {
