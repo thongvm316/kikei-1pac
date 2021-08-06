@@ -204,31 +204,33 @@ export default defineComponent({
 
     const filter = reactive({ ...initialStateFilter })
 
+    const currentDate = (value, format = 'YYYY-MM-DD') => {
+      let newDate = null
+      newDate = value ? moment(value) : moment()
+      return newDate.format(format)
+    }
+
+    const addDaysInCurrentDate = (value, days, format = 'YYYY-MM-DD') => {
+      let newDate = null
+      newDate = value ? moment(value) : moment()
+      return newDate.add(days, 'days').format(format)
+    }
+
     // Handle filter
     const onChangePeriod = async (event) => {
       isDisabledDate.value = !(event === undefined || event === null)
-      if (filter.period_id === undefined) {
-        filter.period_id = null
-        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
-        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
-        updateParamRequestFinancing({
-          data: {
-            period_id: filter.period_id,
-            from_date: moment().format('YYYY-MM-DD'),
-            to_date: moment().add(59, 'days').format('YYYY-MM-DD')
-          }
-        })
-      } else {
-        filter.date_from_to[0] = null
-        filter.date_from_to[1] = null
-        updateParamRequestFinancing({
-          data: {
-            period_id: filter.period_id,
-            from_date: null,
-            to_date: null
-          }
-        })
-      }
+      if (filter.period_id === undefined) filter.period_id = null
+
+      filter.date_from_to[0] = filter.period_id === null ? currentDate() : null
+      filter.date_from_to[1] = filter.period_id === null ? addDaysInCurrentDate(null, 59) : null
+
+      updateParamRequestFinancing({
+        data: {
+          period_id: filter.period_id,
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
+        }
+      })
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
@@ -242,102 +244,42 @@ export default defineComponent({
       let periodCurrentFound = findCurrentPeriod(periodList.value)
       if (dateString.length > 1) {
         if (!filter.show_by) {
-          if (!filter.show_by) {
-            if (filter.date_from_to[0] === undefined && filter.date_from_to[1] === undefined) {
-              filter.period_id = periodCurrentFound?.id || null
-              filter.date_from_to[0] = null
-              filter.date_from_to[1] = null
-              updateParamRequestFinancing({
-                data: {
-                  period_id: filter.period_id,
-                  from_date: null,
-                  to_date: null
-                }
-              })
-            } else {
-              if (diffDays <= 60) {
-                filter.period_id = null
-                filter.date_from_to[0] = dateString[0] || null
-                filter.date_from_to[1] = moment(dateString[0]).add(59, 'days').format('MM') || null
-                updateParamRequestFinancing({
-                  data: {
-                    period_id: filter.period_id,
-                    from_date: moment(dateString[0]).format('YYYY-MM-DD') || null,
-                    to_date: moment(dateString[0]).add(59, 'days').format('MM') || null
-                  }
-                })
-              } else {
-                filter.period_id = null
-                filter.date_from_to[0] = dateString[0] || null
-                filter.date_from_to[1] = dateString[1] || null
-                updateParamRequestFinancing({
-                  data: {
-                    period_id: filter.period_id,
-                    from_date: moment(dateString[0]).format('YYYY-MM-DD') || null,
-                    to_date: moment(dateString[1]).format('YYYY-MM-DD') || null
-                  }
-                })
-              }
-            }
-          } else {
-            filter.period_id = null
-            filter.date_from_to[0] = dateString[0] || null
-            filter.date_from_to[1] = dateString[1] || null
-            updateParamRequestFinancing({
-              data: {
-                period_id: filter.period_id,
-                from_date: moment(dateString[0]).format('YYYY-MM-DD') || null,
-                to_date: moment(dateString[1]).format('YYYY-MM-DD') || null
-              }
-            })
-          }
+          let checkDateUndefined = filter.date_from_to[0] === undefined && filter.date_from_to[1] === undefined
+
+          filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
+          filter.date_from_to[0] = checkDateUndefined ? null : currentDate(dateString[0])
+          filter.date_from_to[1] = checkDateUndefined ? null : currentDate(dateString[1])
         } else {
-          filter.period_id = null
-          filter.date_from_to[0] = dateString[0] || null
-          filter.date_from_to[1] = dateString[1] || null
-          updateParamRequestFinancing({
-            data: {
-              period_id: filter.period_id,
-              from_date: dateString[0] || null,
-              to_date: dateString[1] || null
-            }
-          })
           if (diffDays > 59) {
             store.commit('flash/STORE_FLASH_MESSAGE', {
               variant: 'error',
               message: 'errors.chart_date_2m'
             })
-            filter.period_id = requestParamsData.value.data.period_id
-            filter.date_from_to[0] = dateString[0] || null
-            filter.date_from_to[1] = moment(dateString[0]).add(59, 'days').format('YYYY-MM-DD') || null
-            updateParamRequestFinancing({
-              data: {
-                period_id: requestParamsData.value.data.period_id,
-                from_date: moment(dateString[0]).format('YYYY-MM-DD') || null,
-                to_date: moment(dateString[0]).add(59, 'days').format('YYYY-MM-DD') || null
-              }
-            })
           }
-          if (!dateString[0] && !dateString[1]) {
-            filter.period_id = periodCurrentFound?.id || null
-            filter.date_from_to[0] = null
-            filter.date_from_to[1] = null
-            updateParamRequestFinancing({
-              data: {
-                period_id: filter.period_id,
-                from_date: null,
-                to_date: null
-              }
-            })
-          }
+
+          filter.period_id = !dateString[0] && !dateString[1] ? periodCurrentFound?.id : null
+          filter.date_from_to[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
+          filter.date_from_to[1] = diffDays > 59 ? addDaysInCurrentDate(dateString[0], 59) : currentDate(dateString[1])
+
+          if (!dateString[0] && !dateString[1]) filter.date_from_to[1] = null
         }
 
-        // save filters to store
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
+        updateParamRequestFinancing({
+          data: {
+            period_id: filter.period_id,
+            from_date: filter.date_from_to[0],
+            to_date: filter.date_from_to[1]
+          }
+        })
       }
+
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeShowBy = async (value) => {
+      let startPiker = requestParamsData.value.data.from_date
+      let endPiker = requestParamsData.value.data.to_date
       const startDate = new Date(requestParamsData.value.data.from_date)
       const endDate = new Date(requestParamsData.value.data.to_date)
       const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
@@ -347,120 +289,47 @@ export default defineComponent({
           variant: 'error',
           message: 'errors.chart_date_2m'
         })
-        filter.period_id = requestParamsData.value.data.period_id
         filter.show_by = value
-        filter.date_from_to[0] = requestParamsData.value.data.from_date
-        filter.date_from_to[1] = moment(requestParamsData.value.data.from_date).add(59, 'days').format('YYYY-MM-DD')
-        updateParamRequestFinancing({
-          data: {
-            show_by: value,
-            from_date: requestParamsData.value.data.from_date,
-            to_date: moment(requestParamsData.value.data.from_date).add(59, 'days').format('YYYY-MM-DD')
-          }
-        })
-      } else {
-        filter.period_id = requestParamsData.value.data.period_id
-        filter.show_by = value
-        filter.date_from_to[0] = requestParamsData.value.data.from_date
-        filter.date_from_to[1] = requestParamsData.value.data.to_date
-        updateParamRequestFinancing({
-          data: {
-            show_by: value,
-            from_date: requestParamsData.value.data.from_date,
-            to_date: requestParamsData.value.data.to_date
-          }
-        })
       }
+
+      filter.date_from_to[0] = currentDate(startPiker)
+      filter.date_from_to[1] = diffDays > 59 ? addDaysInCurrentDate(startPiker, 59) : currentDate(endPiker)
+
+      updateParamRequestFinancing({
+        data: {
+          show_by: filter.show_by,
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
+        }
+      })
 
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeTabGroup = async (value) => {
-      const startDate = new Date(requestParamsData.value.data.from_date)
-      const endDate = new Date(requestParamsData.value.data.to_date)
-      const oneDay = 24 * 60 * 60 * 1000 // hours*minutes*seconds*milliseconds
-      const diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
       // Check show tab all
-      if (value !== 0) {
-        await fetchBankAccounts({ group_id: value })
-        idVisible.value = false
-        filter.bank_account_ids = bankAccountList.value[0].id
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        if (!filter.show_by) {
-          filter.show_by = requestParamsData.value.data.show_by
-          filter.period_id = requestParamsData.value.data.period_id
-          filter.date_from_to[0] = requestParamsData.value.data.from_date
-          filter.date_from_to[1] = requestParamsData.value.data.to_date
-          filter.show_by = requestParamsData.value.data.show_by
-          updateParamRequestFinancing({
-            data: {
-              show_by: filter.show_by,
-              period_id: requestParamsData.value.data.period_id,
-              group_id: value,
-              from_date: requestParamsData.value.data.from_date,
-              to_date: requestParamsData.value.data.to_date
-            }
-          })
-        } else {
-          if (diffDays > 59) {
-            store.commit('flash/STORE_FLASH_MESSAGE', {
-              variant: 'error',
-              message: 'errors.chart_date_2m'
-            })
-            filter.show_by = requestParamsData.value.data.show_by
-            filter.group_id = value
-            filter.period_id = requestParamsData.value.data.period_id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = moment(requestParamsData.value.data.from_date).add(59, 'days').format('YYYY-MM-DD')
-            updateParamRequestFinancing({
-              data: {
-                show_by: requestParamsData.value.data.show_by,
-                group_id: value,
-                period_id: requestParamsData.value.data.period_id,
-                from_date: requestParamsData.value.data.from_date,
-                to_date: moment(requestParamsData.value.data.from_date).add(59, 'days').format('YYYY-MM-DD')
-              }
-            })
-          } else {
-            filter.show_by = !filter.show_by ? requestParamsData.value.data.show_by : 1
-            filter.group_id = value
-            filter.period_id = requestParamsData.value.data.period_id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = requestParamsData.value.data.to_date
-            filter.bank_account_ids = 0
-            updateParamRequestFinancing({
-              data: {
-                bank_account_ids: [],
-                show_by: filter.show_by,
-                group_id: filter.group_id,
-                period_id: filter.period_id,
-                from_date: filter.date_from_to[0],
-                to_date: filter.date_from_to[1]
-              }
-            })
-          }
-        }
-        // save filters to store
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-      } else {
-        idVisible.value = true
-        filter.show_by = 0
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-        isDisabledDisplay.value = true
-        isDisabledBank.value = true
-        requestParamsData.value.data = {
-          ...requestParamsData.value.data,
-          group_id: null,
-          show_by: filter.show_by
-        }
-        // save filters to store
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-      }
+      if (value !== 0) await fetchBankAccounts({ group_id: value })
 
+      filter.show_by = value !== 0 ? 1 : 0
+      filter.group_id = value !== 0 ? value : null
+      filter.bank_account_ids = bankAccountList?.value[0]?.id
+
+      updateParamRequestFinancing({
+        data: {
+          group_id: filter.group_id,
+          show_by: filter.show_by,
+          bank_account_ids: []
+        }
+      })
+
+      idVisible.value = value !== 0 ? false : true
+      isDisabledDisplay.value = value !== 0 ? false : true
+      isDisabledBank.value = value !== 0 ? false : true
       isDisabledCurrency.value = false
 
+      // save filters to store
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const handleTab = (evt) => {
@@ -477,20 +346,14 @@ export default defineComponent({
     }
 
     const onChangeBankAccount = async () => {
-      if (filter.bank_account_ids !== 0) {
-        isDisabledCurrency.value = true
-        updateParamRequestFinancing({
-          data: {
-            currency_code: filter.currency_code,
-            bank_account_ids: [filter.bank_account_ids]
-          }
-        })
-      } else {
-        isDisabledCurrency.value = false
-        let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.currency_code = currencyCode.code
-        updateParamRequestFinancing({ data: { bank_account_ids: [] } })
-      }
+      let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
+
+      filter.currency_code = currencyCode.code
+      filter.bank_account_ids = filter.bank_account_ids !== 0 ? filter.bank_account_ids : null
+
+      updateParamRequestFinancing({ data: { bank_account_ids: [filter.bank_account_ids] } })
+
+      isDisabledCurrency.value = filter.bank_account_ids !== 0 ? true : false
       // save filters to store
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -568,6 +431,7 @@ export default defineComponent({
         currency_code: null
       }
       let groupID = filter?.group_id || null
+
       if (groupID === null) {
         await fetchPeriodList(1)
         await fetchBankAccounts({ group_id: 1 })
@@ -575,13 +439,16 @@ export default defineComponent({
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
       }
+
       if (groupID === null) {
         filter.group_id = groupList?.value[groupList.value.length - 1].id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
       }
+
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
       filter.currency_code = currencyDefault?.code || null
+
       if (filter.bank_account_ids.length === 0) {
         filter.bank_account_ids = bankAccountList?.value[0]?.id
       }
@@ -590,7 +457,7 @@ export default defineComponent({
 
       if (localStorage.getItem('flagChart') === null || !flagChart) {
         filter.period_id = null
-        filter.date_from_to = [moment().format('YYYY-MM-DD'), moment().add(59, 'days').format('YYYY-MM-DD')]
+        filter.date_from_to = [currentDate(), addDaysInCurrentDate(null, 59)]
         filter.group_id = 1
         filter.bank_account_ids = 0
         filter.show_by = 1
@@ -598,27 +465,19 @@ export default defineComponent({
         initialDataRequest = {
           group_id: 1,
           period_id: null,
-          from_date: moment().format('YYYY-MM-DD'),
-          to_date: moment().add(59, 'days').format('YYYY-MM-DD'),
+          from_date: currentDate(),
+          to_date: addDaysInCurrentDate(null, 59),
           show_by: 1,
           bank_account_ids: [],
           currency_code: null
         }
 
-        requestParamsData.value.data = {...initialDataRequest}
-
-        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
-        const { result } = await getDataChart()
-
-        remove(dataChartFinancing.value)
-        dataChartFinancing.value = result?.data?.data
-
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+        requestParamsData.value.data = { ...initialDataRequest }
       } else {
-        filter.currency_code =
-          requestParamsData.value.data.currency_code === null
-            ? currencyDefault?.code
-            : requestParamsData.value.data.currency_code
+        filter.currency_code = requestParamsData.value.data.currency_code
+        requestParamsData.value.data.currency_code === null
+          ? currencyDefault?.code
+          : requestParamsData.value.data.currency_code
         filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
@@ -628,14 +487,41 @@ export default defineComponent({
           from_date: requestParamsData.value.data.from_date,
           to_date: requestParamsData.value.data.to_date
         }
-        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
-        const { result } = await getDataChart()
-
-        remove(dataChartFinancing.value)
-        dataChartFinancing.value = result?.data?.data
-
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
       }
+
+      const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
+      const { result } = await getDataChart()
+
+      remove(dataChartFinancing.value)
+      dataChartFinancing.value = result?.data?.data
+
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+    }
+
+    const loadDataDefault = async () => {
+      localStorage.removeItem('flagChart')
+      let groupID = filter?.group_id || null
+      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+      if (groupID) {
+        await fetchPeriodList(groupID)
+        await fetchBankAccounts({ group_id: groupID })
+      }
+      filter.currency_code = currencyDefault?.code || null
+      filter.bank_account_ids = bankAccountList?.value[0]?.id
+      filter.period_id = null
+      filter.date_from_to[0] = currentDate()
+      filter.date_from_to[1] = addDaysInCurrentDate(null, 59)
+      requestParamsData.value.data = {
+        ...requestParamsData.value.data,
+        period_id: filter.period_id,
+        from_date: filter.date_from_to[0],
+        to_date: filter.date_from_to[1]
+      }
+      const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
+      const { result } = await getDataChart()
+
+      remove(dataChartFinancing.value)
+      dataChartFinancing.value = result?.data?.data
     }
 
     onBeforeMount(async () => {
@@ -654,33 +540,9 @@ export default defineComponent({
 
         // reset default chart
         await resetFilterChart()
-
       } else {
         // Load data default
-        localStorage.removeItem('flagChart')
-        let groupID = filter?.group_id || null
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-        if (groupID) {
-          await fetchPeriodList(groupID)
-          await fetchBankAccounts({ group_id: groupID })
-        }
-        filter.currency_code = currencyDefault?.code || null
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-        requestParamsData.value.data.group_id = filter?.group_id || null
-        filter.period_id = null
-        filter.date_from_to[0] = moment().format('YYYY-MM-DD')
-        filter.date_from_to[1] = moment().add(59, 'days').format('YYYY-MM-DD')
-        requestParamsData.value.data = {
-          ...requestParamsData.value.data,
-          period_id: null,
-          from_date: moment().format('YYYY-MM-DD'),
-          to_date: moment().add(59, 'days').format('YYYY-MM-DD')
-        }
-        const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
-        const { result } = await getDataChart()
-
-        remove(dataChartFinancing.value)
-        dataChartFinancing.value = result?.data?.data
+        await loadDataDefault()
       }
     })
 
@@ -720,4 +582,3 @@ export default defineComponent({
   }
 })
 </script>
-<style scoped lang="scss"></style>
