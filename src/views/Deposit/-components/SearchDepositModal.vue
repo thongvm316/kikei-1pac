@@ -228,6 +228,11 @@ export default defineComponent({
         projectId: null
       }
 
+      if (isNeedSubmit.value) {
+        const { skipQuickSelectMonth } = store.state.deposit?.filters?.data || {}
+        skipQuickSelectMonth && (searchDataDeposit.skipQuickSelectMonth = false)
+      }
+
       emit('updateParamRequestDeposit', { data: searchDataDeposit, params: { pageNumber: 1 } })
 
       visible.value = false

@@ -117,7 +117,11 @@ export default defineComponent({
       const data = {
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null,
-        type: rowIndex === 0 ? [10, 40] : [20, 40]
+        type: rowIndex === 0 ? [10, 40] : [20, 40],
+        moneyType: rowIndex === 0 ? 1 : 2,
+        fromDate: null,
+        toDate: null,
+        skipQuickSelectMonth: true
       }
 
       if (groupIdCurrent.value) data.groupId = groupIdCurrent.value

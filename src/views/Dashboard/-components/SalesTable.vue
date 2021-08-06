@@ -21,6 +21,9 @@
       <span v-else>
         {{ $filters.number_with_commas(text) }}
       </span>
+      <p v-if="index === 1 && column.dataIndex !== 'S'" class="mb-0 text-grey-55">
+        {{ record[`${column.dataIndex}formula`] }}
+      </p>
     </template>
   </a-table>
 </template>
@@ -76,13 +79,16 @@ export default defineComponent({
       ]
 
       const accuracyIdAccumulated = []
+      const accumulatedText = []
       props.dataSource.statistics.forEach((accuracy) => {
         accuracyIdAccumulated.push(accuracy.accuracyId)
+        accumulatedText.push(accuracy.accuracyCode)
 
         rows[0][accuracy.accuracyCode] = accuracy.revenue
         rows[0][`${accuracy.accuracyCode}Id`] = [accuracy.accuracyId]
         rows[1][accuracy.accuracyCode] = accuracy.accumulate
         rows[1][`${accuracy.accuracyCode}Id`] = [...accuracyIdAccumulated]
+        rows[1][`${accuracy.accuracyCode}formula`] = `= ${[...accumulatedText].join(' + ')}`
       })
 
       return rows
@@ -102,7 +108,10 @@ export default defineComponent({
       }
 
       if (groupIdCurrent.value) data.groupId = [groupIdCurrent.value]
-      store.commit('project/STORE_PROJECT_FILTER', { data })
+
+      const params = { orderBy: 'ADProjectAccuracy.order desc' }
+
+      store.commit('project/STORE_PROJECT_FILTER', { data, params })
     }
 
     return {
