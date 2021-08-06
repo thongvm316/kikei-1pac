@@ -6,14 +6,13 @@
       <span>{{ `${$filters.number_with_commas(dataSource?.achievementRate)}%` }}</span>
     </p>
 
-    <div ref="stackedBarLineRef" class="stacked-bar__chart">
-      <template v-for="(accuracy, accuracyIndex) in statistics" :key="accuracy.accuracyId">
-        <template v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'">
-          <div
-            class="stacked-bar__item"
-            :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
-          ></div>
-
+    <div class="stacked-bar__chart">
+      <template v-for="accuracy in statistics" :key="accuracy.accuracyId">
+        <div
+          v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'"
+          class="stacked-bar__item"
+          :style="{ width: `${$filters.number_with_commas(accuracy.percentVisible, 2)}%` }"
+        >
           <a-popover
             :title="
               accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
@@ -29,55 +28,31 @@
                 </span>
               </p>
             </template>
-            <div class="stacked-bar__point" :data-point-index="accuracyIndex">
-              <span>{{ accuracy.accuracyCode }}</span>
-            </div>
+            <span>{{ accuracy.accuracyCode }}</span>
           </a-popover>
-        </template>
+        </div>
 
-        <template v-else>
-          <a-popover
-            :title="
-              accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
-            "
-            :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
-            :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+        <a-popover
+          v-else
+          :title="accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName"
+          :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
+          :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
+        >
+          <template #content>
+            <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
+            <p class="u-text-grey-55">
+              達成率:<span class="u-text-grey-15">
+                {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
+              </span>
+            </p>
+          </template>
+          <div
+            class="stacked-bar__item"
+            :style="{ width: `${$filters.number_with_commas(accuracy.percentVisible, 2)}%` }"
           >
-            <template #content>
-              <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
-              <p class="u-text-grey-55">
-                達成率:<span class="u-text-grey-15">
-                  {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
-                </span>
-              </p>
-            </template>
-            <div
-              class="stacked-bar__item"
-              :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
-            ></div>
-          </a-popover>
-
-          <a-popover
-            v-if="accuracy.accuracyCode"
-            :title="
-              accuracy.accuracyCode ? `${accuracy.accuracyCode} (${accuracy.accuracyName})` : accuracy.accuracyName
-            "
-            :placement="accuracy.accuracyCode === 'S' ? 'bottomLeft' : 'bottomRight'"
-            :overlay-class-name="`stacked-bar__chart--popover${!accuracy.accuracyCode ? ' popover-last-child' : ''}`"
-          >
-            <template #content>
-              <p>{{ $filters.number_with_commas(accuracy.revenue) }}</p>
-              <p class="u-text-grey-55">
-                達成率:<span class="u-text-grey-15">
-                  {{ ` ${$filters.number_with_commas(accuracy.percent, 2)}%` }}
-                </span>
-              </p>
-            </template>
-            <div class="stacked-bar__point" :data-point-index="accuracyIndex">
-              <span>{{ accuracy.accuracyCode }}</span>
-            </div>
-          </a-popover>
-        </template>
+            <span v-if="accuracy.accuracyCode">{{ accuracy.accuracyCode }}</span>
+          </div>
+        </a-popover>
       </template>
     </div>
 
@@ -88,8 +63,8 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, onUpdated } from 'vue'
-import { findLast, parseInt } from 'lodash-es'
+import { defineComponent, computed, ref, onUpdated, onMounted, onUnmounted } from 'vue'
+import { debounce } from 'lodash-es'
 
 export default defineComponent({
   name: 'StackedBarSales',
@@ -99,7 +74,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const stackedBarLineRef = ref()
+    const pointPercent = ref(0)
 
     const statistics = computed(() => {
       if (!props?.dataSource?.statistics) return {}
@@ -108,103 +83,56 @@ export default defineComponent({
       const revenueTarget = props.dataSource?.revenueTarget || 0
       const totalRevenue = props.dataSource.statistics.reduce((acc, currentVal) => acc + currentVal.revenue, 0)
 
-      const list = props.dataSource.statistics.map((accuracy) => {
+      const list = props.dataSource.statistics.map((accuracy, accuracyIndex) => {
         const _total = totalRevenue > revenueTarget ? totalRevenue : revenueTarget
         const percent = _total ? (accuracy?.revenue / _total) * 100 : 0
-        totalPercent += percent
 
-        return { ...accuracy, percent }
+        const percentVisible = accuracyIndex !== 0 && percent < pointPercent.value ? pointPercent.value * 0.7 : percent
+        totalPercent += percentVisible
+
+        return { ...accuracy, percent, percentVisible }
       })
 
-      // remaiming
-      const remainingPercent = 100 - totalPercent
+      // remaiming point
+      const remainingPercent = 100 - totalPercent > 0 ? 100 - totalPercent : 0
       const remainingTarget = revenueTarget - totalRevenue
       list.push({
         accuracyId: 'remainingTarget',
         accuracyCode: '',
         accuracyName: '残り',
         revenue: remainingTarget > 0 ? remainingTarget : 0,
-        percent: remainingPercent > 0 ? remainingPercent : 0
+        percent: remainingPercent,
+        percentVisible: remainingPercent
       })
-
       return list
     })
 
-    const handlePointsOverlap = (event) => {
-      const pointIndex = parseInt(event?.target.getAttribute('data-point-index') || -1)
-      const pointElements = stackedBarLineRef.value.querySelectorAll('.stacked-bar__point')
-      const stackedBarLineWidth = stackedBarLineRef.value?.offsetWidth || 0
-      const pointWidth = stackedBarLineRef.value.querySelector('.stacked-bar__point span')?.offsetWidth || 0
-      const pointPercent = (pointWidth / stackedBarLineWidth) * 100
-      const lineItems = stackedBarLineRef.value?.querySelectorAll('.stacked-bar__item')
-      const statistics = lineItems ? [...lineItems].map((el) => parseFloat(el?.style?.width || 0)) : []
+    const calculatePercentagePoint = () => {
+      const stackedBarEl = document.querySelector('.stacked-bar__chart')
+      if (!stackedBarEl) {
+        pointPercent.value = 0
+        return
+      }
 
-      let _groups = []
-      const pointGroups = statistics.map((item, index) => {
-        const obj = {
-          index,
-          group: []
-        }
-
-        if (
-          (index < statistics.length - 1 &&
-            item >= pointPercent &&
-            statistics[index + 1] < pointPercent &&
-            _groups.length === 0) ||
-          (item < pointPercent && _groups.length === 0) ||
-          (index > 0 &&
-            index < statistics.length - 1 &&
-            statistics[index - 1] < pointPercent &&
-            item >= pointPercent &&
-            statistics[index + 1] < pointPercent)
-        ) {
-          _groups = [index]
-        } else if (item < pointPercent && _groups.length > 0) {
-          _groups.push(index)
-        } else {
-          _groups = []
-        }
-
-        obj.group = [..._groups]
-        return obj
-      })
-
-      const pointGroupFound = findLast(pointGroups, (point) => point.group.indexOf(pointIndex) !== -1)
-      const groups = pointGroupFound?.group || []
-      if (groups.length < 2) return
-
-      groups.forEach((item) => {
-        if (
-          (item === statistics.length - 2 && statistics[statistics.length - 1] < pointPercent) ||
-          !pointElements[item]?.querySelector('span')
-        )
-          return
-
-        pointElements[item].querySelector('span').classList.add('move-point')
-
-        setTimeout(() => {
-          pointElements[item].querySelector('span').classList.remove('move-point')
-        }, 5000)
-      })
+      const stackedBarLineWidth = stackedBarEl.offsetWidth || 0
+      const pointWidth = stackedBarEl.querySelector('.stacked-bar__item span')?.offsetWidth || 0
+      pointPercent.value = (pointWidth / stackedBarLineWidth) * 100
     }
 
     onUpdated(() => {
-      if (!stackedBarLineRef.value) return
-      const pointElements = stackedBarLineRef.value.querySelectorAll('.stacked-bar__point')
-      if (pointElements.length <= 1) return
+      calculatePercentagePoint()
+    })
 
-      pointElements.forEach((el) => {
-        // reset class
-        el.querySelector('span').classList.remove('move-point')
+    onMounted(() => {
+      window.addEventListener('resize', debounce(calculatePercentagePoint, 500))
+    })
 
-        el.addEventListener('mouseenter', handlePointsOverlap)
-        el.addEventListener('touchstart', handlePointsOverlap)
-      })
+    onUnmounted(() => {
+      window.removeEventListener('resize', calculatePercentagePoint)
     })
 
     return {
-      statistics,
-      stackedBarLineRef
+      statistics
     }
   }
 })
@@ -277,21 +205,18 @@ export default defineComponent({
 
   &__item {
     height: 100%;
+    width: 100%;
     position: relative;
     background-color: $color-grey-100;
     transition: width 400ms linear;
-  }
-
-  &__point {
-    position: relative;
 
     span {
       @include flexbox(center, center);
 
       position: absolute;
       content: '';
-      top: -12px;
-      left: -12px;
+      top: -6px;
+      right: -12px;
       height: 24px;
       width: 24px;
       border-radius: 50%;
@@ -303,12 +228,6 @@ export default defineComponent({
         color: $color-grey-100;
         cursor: default;
       }
-    }
-
-    move-point {
-      position: relative;
-      top: 0;
-      left: auto;
     }
   }
 
