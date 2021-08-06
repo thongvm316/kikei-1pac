@@ -136,6 +136,8 @@ export default defineComponent({
     }
   },
 
+  emits: ['onFilterTables'],
+
   setup(props, { emit }) {
     const { t } = useI18n()
     const router = useRouter()
@@ -217,7 +219,6 @@ export default defineComponent({
       let typeDeposit = null
       let moneyType = null
       let groupId = parseInt(columnId)
-
       if (dataFilterRequest.value.group_id) {
         groupId = dataFilterRequest.value.group_id
       }
@@ -233,6 +234,7 @@ export default defineComponent({
       }
 
       handleDateFilterRequest(record)
+
       handleBankIdFilterRequest(columnId)
 
       const data = {
@@ -258,7 +260,7 @@ export default defineComponent({
           currency_code: null
         }
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-        emit('on-filter', data)
+        emit('onFilterTables', data)
       }
     }
 
