@@ -143,6 +143,10 @@ export default {
   },
 
   props: {
+    dataFilterTable: {
+      type: [Object, Array],
+      required: false
+    },
     isLoadingExportCsv: {
       type: Boolean,
       required: true
@@ -328,7 +332,7 @@ export default {
     }
 
     const handleGroupDefault = async (groupID) => {
-      if (groupID === null) {
+      if (!groupID) {
         await fetchPeriodList(1)
         await fetchBankAccounts({ group_id: 1 })
 
@@ -351,6 +355,9 @@ export default {
         if (periodList.value) {
           periodDefault.value = findCurrentPeriod(periodList.value)
           filter.period_id = periodDefault.value?.id || null
+          updateDataFilterRequest({
+            data: { period_id: filter.period_id }
+          })
         }
       }
     }
@@ -446,8 +453,16 @@ export default {
     watch(
       () => store.state.financing.filters,
       () => {
-        handleLoadingData()
         emit('onFilterRequest', dataFilterRequest.value)
+      }
+    )
+
+    watch(
+      () => props.dataFilterTable,
+      () => {
+        if (props.dataFilterTable) {
+          handleLoadingData()
+        }
       }
     )
 
