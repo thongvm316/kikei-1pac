@@ -477,7 +477,7 @@ export default defineComponent({
 
         requestParamsData.value.data = { ...initialDataRequest }
       } else {
-        filter.period_id = null
+        filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
         filter.bank_account_ids =
@@ -497,6 +497,7 @@ export default defineComponent({
         }
 
         isDisabledCurrency.value = filter.bank_account_ids !== 0
+        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
       }
 
       const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
@@ -504,8 +505,6 @@ export default defineComponent({
 
       remove(dataChartFinancing.value)
       dataChartFinancing.value = result?.data?.data
-
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
     }
 
     const loadDataDefault = async () => {

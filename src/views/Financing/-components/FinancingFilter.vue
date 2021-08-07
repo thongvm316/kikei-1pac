@@ -22,7 +22,7 @@
           <div class="form-select">
             <a-range-picker
               v-model:value="filter.date_from_to"
-              format="YYYY-MM-DD"
+              :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
               :style="{ width: '260px' }"
               :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
               @change="onChangeDate"
@@ -167,6 +167,8 @@ export default {
     const bankAccountId = ref([])
     const currencyList = ref([])
     const currencyDefault = ref()
+    const fromDateRangePicker = ref()
+    const toDateRangePicker = ref()
 
     const isLoadingDataTable = ref(true)
     const isDisabledPeriod = ref(false)
@@ -198,7 +200,7 @@ export default {
 
     const filter = reactive({ ...initialStateFilter })
 
-    const initialDataRequest = ref({
+    const initialDataRequest = {
       group_id: 1,
       period_id: null,
       from_date: null,
@@ -206,14 +208,11 @@ export default {
       show_by: 1,
       bank_account_ids: [],
       currency_code: null
-    })
+    }
 
-    // const updateDataFilterRequest = ({ data = {} }) => {
-    //   dataFilterRequest.value = { ...dataFilterRequest.value, ...data }
-    // }
     const dataFilterRequest = ref({
       data: { ...initialDataRequest },
-      params: { pageNumber: 1 }
+      params: {}
     })
 
     const updateDataFilterRequest = ({ data = {}, params = {} }) => {
@@ -238,18 +237,28 @@ export default {
     }
 
     const onChangeDate = async (value, dateString) => {
+      filter.date_from_to = dateString
+      fromDateRangePicker.value = filter.date_from_to[0]
+      toDateRangePicker.value = filter.date_from_to[1]
+
+      if (filter.show_by === 0) {
+        fromDateRangePicker.value = value[0].startOf('month').format('YYYY-MM-DD')
+        toDateRangePicker.value = value[1].startOf('month').format('YYYY-MM-DD')
+      }
+
       filter.period_id = null
       isDisabledPeriod.value = !(dateString[0] === null && dateString[1] === null)
-      filter.date_from_to = dateString
+
       if (dateString[0] === '' && dateString[1] === '') {
         periodDefault.value = findCurrentPeriod(periodList.value)
         filter.period_id = periodDefault.value?.id || null
       }
+
       updateDataFilterRequest({
         data: {
           period_id: filter.period_id,
-          from_date: filter.date_from_to[0],
-          to_date: filter.date_from_to[1]
+          from_date: fromDateRangePicker.value,
+          to_date: toDateRangePicker.value
         }
       })
     }
@@ -303,11 +312,6 @@ export default {
     }
 
     const onChangeViewMode = async (mode) => {
-      console.log('mode:', mode)
-      if (mode === 0) {
-        updateDataFilterRequest({ params: { pageNumber: 1 } })
-      }
-
       if (mode) {
         await router.push({ name: 'financing-chart' })
       }
@@ -365,6 +369,7 @@ export default {
         isDisabledDisplay.value = true
         isDisabledBank.value = true
       } else {
+        filter.group_id = groupID
         isDisabledDisplay.value = false
         isDisabledBank.value = false
 
@@ -380,9 +385,6 @@ export default {
         if (periodList.value) {
           periodDefault.value = findCurrentPeriod(periodList.value)
           filter.period_id = periodDefault.value?.id || null
-          updateDataFilterRequest({
-            data: { period_id: filter.period_id }
-          })
         }
       }
     }
@@ -397,6 +399,8 @@ export default {
 
     const handleDateFromTo = (dateFromTo) => {
       if (dateFromTo[0] && dateFromTo[1]) {
+        filter.from_date = dateFromTo[0]
+        filter.to_date = dateFromTo[1]
         filter.period_id = null
       }
     }
@@ -419,7 +423,7 @@ export default {
       let currencyCode = filter.currency_code
 
       // Get filters financing from store
-      const filtersFinancingStore = store.getters['financing/filters'] || {}
+      const filtersFinancingStore = store.getters['financing/filters'].data || {}
       // Load data by filter store
       if (isEmpty(filtersFinancingStore)) {
         localStorage.removeItem('flag_chart')
@@ -437,7 +441,8 @@ export default {
       } else {
         const dataFilter = convertDataFilter(filtersFinancingStore)
         Object.assign(filter, dataFilter)
-        Object.assign(dataFilterRequest.value, filtersFinancingStore)
+        Object.assign(dataFilterRequest.value.data, filtersFinancingStore)
+
         // Set group ID id by store
         groupID = filtersFinancingStore.group_id
         await handleGroupDefault(groupID)
@@ -469,7 +474,7 @@ export default {
     watch(
       () => dataFilterRequest.value,
       () => {
-        const data = Object.assign({}, dataFilterRequest.value)
+        const data = Object.assign({}, dataFilterRequest.value.data)
         store.commit('financing/STORE_FINANCING_FILTER', { data })
       }
     )

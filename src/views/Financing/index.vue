@@ -287,18 +287,18 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // Get filters financing from store
+      const filtersFinancingStore = store.getters['financing/filters'] || {}
+      if (filtersFinancingStore) {
+        Object.assign(requestParamsData.value, filtersFinancingStore)
+        // fetch data table
+        await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+      }
     })
 
     onMounted(async () => {
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
-
-      // const filtersFinancingStore = store.getters['financing/filters']?.data || {}
-      // if (filtersFinancingStore) {
-      //   Object.assign(requestParamsData.value.data, filtersFinancingStore)
-      //   debugger
-      // }
     })
 
     onUnmounted(() => {
@@ -306,16 +306,17 @@ export default defineComponent({
     })
 
     // watch to event scroll table financing
-    watch(dataRowsTableFinancing.value, (val) => {
+    watch(dataRowsTableFinancing.value, () => {
       const tableContent = document.querySelector('.ant-table-body')
 
-      if (tableContent && val.length) {
+      if (tableContent) {
         tableContent.addEventListener('scroll', () => {
           // checking whether a selector is well defined
           const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-          if (per >= 100) {
-            let pageCurrent = pagination.value.current + 1
-            if (pagination.value.totalPage >= pageCurrent) {
+          if (per >= 100 && !isLoadingDataTable.value) {
+            const pageCurrent = pagination.value.current + 1
+
+            if (pageCurrent <= pagination.value.totalPage) {
               updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
             }
           }
@@ -327,6 +328,7 @@ export default defineComponent({
     watch(
       () => store.state.financing.filters,
       () => {
+        remove(dataRowsTableFinancing.value)
         updateParamRequestFinancing({
           params: {
             pageNumber: 1
