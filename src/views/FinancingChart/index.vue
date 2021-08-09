@@ -115,7 +115,6 @@ import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import moment from 'moment'
 
 import { isEmpty, remove } from 'lodash-es'
 
@@ -125,7 +124,13 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import { convertDataFilter, findCurrentPeriod } from './composables/useFinancing'
+import {
+  convertDataFilter,
+  findCurrentPeriod,
+  currentDate,
+  addDaysInCurrentDate,
+  getDiffDays
+} from './composables/useFinancing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
@@ -204,26 +209,6 @@ export default defineComponent({
 
     const filter = reactive({ ...initialStateFilter })
 
-    const currentDate = (value, format = 'YYYY-MM-DD') => {
-      let newDate = null
-      newDate = value ? moment(value) : moment()
-      return newDate.format(format)
-    }
-
-    const addDaysInCurrentDate = (value, days, format = 'YYYY-MM-DD') => {
-      let newDate = null
-      newDate = value ? moment(value) : moment()
-      return newDate.add(days, 'days').format(format)
-    }
-
-    const getDiffDays = (start, end, oneDay = 24 * 60 * 60 * 1000) => {
-      let diffDays = null
-      let startDate = new Date(start)
-      let endDate = new Date(end)
-      diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-      return diffDays
-    }
-
     // Handle filter
     const onChangePeriod = async (event) => {
       isDisabledDate.value = !(event === undefined || event === null)
@@ -251,8 +236,8 @@ export default defineComponent({
           let checkDateUndefined = filter.date_from_to[0] === undefined && filter.date_from_to[1] === undefined
 
           filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
-          filter.date_from_to[0] = checkDateUndefined ? null : currentDate(dateString[0])
-          filter.date_from_to[1] = checkDateUndefined ? null : currentDate(dateString[1])
+          filter.date_from_to[0] = checkDateUndefined ? null : currentDate(value[0])
+          filter.date_from_to[1] = checkDateUndefined ? null : currentDate(value[1])
         } else {
           if (getDiffDays(dateString[0], dateString[1]) > 59) {
             store.commit('flash/STORE_FLASH_MESSAGE', {
