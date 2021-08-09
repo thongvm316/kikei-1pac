@@ -4,11 +4,13 @@ import moment from 'moment'
 export const convertDataByDates = (array, key, key_prefix, value) => {
   let keyField = '',
     valueField = ''
-  return array.reduce((obj, item) => {
-    key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
-    value === '' ? (valueField = item) : (valueField = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
-    return { ...obj, [keyField]: valueField }
-  }, {})
+  if (array) {
+    return array.reduce((obj, item) => {
+      key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+      value === '' ? (valueField = item) : (valueField = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
+      return { ...obj, [keyField]: valueField }
+    }, {})
+  }
 }
 
 export const convertDataByMonth = (array, key, key_prefix, value) => {
@@ -28,27 +30,32 @@ export const convertDataByMonth = (array, key, key_prefix, value) => {
 export const convertDataCsv = (array, key, key_prefix, value) => {
   let keyField = '',
     valueField = ''
-  return array.reduce((obj, item) => {
-    key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
-    value === '' ? (valueField = item) : (valueField = item[value])
-    return { ...obj, [keyField]: valueField }
-  }, {})
+
+  if (array) {
+    return array.reduce((obj, item) => {
+      key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+      value === '' ? (valueField = item) : (valueField = item[value])
+      return { ...obj, [keyField]: valueField }
+    }, {})
+  }
 }
 
 export const convertDataFilter = (dataFilter) => {
   let arrayDate = []
-  return Object.keys(dataFilter).reduce((accumulator, key) => {
-    // Copy all except from_Date & to_date
-    if (key === 'from_date') {
-      arrayDate.push(dataFilter[key])
-    } else if (key === 'to_date') {
-      arrayDate.push(dataFilter[key])
-    } else {
-      accumulator[key] = dataFilter[key]
-    }
-    accumulator['date_from_to'] = arrayDate
-    return accumulator
-  }, {})
+  if (dataFilter) {
+    return Object.keys(dataFilter).reduce((accumulator, key) => {
+      // Copy all except from_Date & to_date
+      if (key === 'from_date') {
+        arrayDate.push(dataFilter[key])
+      } else if (key === 'to_date') {
+        arrayDate.push(dataFilter[key])
+      } else {
+        accumulator[key] = dataFilter[key]
+      }
+      accumulator['date_from_to'] = arrayDate
+      return accumulator
+    }, {})
+  }
 }
 
 // set period current

@@ -293,6 +293,7 @@ export default defineComponent({
         // fetch data table
         await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
+      updateDataRequest.value = requestParamsData.value
     })
 
     onMounted(async () => {
