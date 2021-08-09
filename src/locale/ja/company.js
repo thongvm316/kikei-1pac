@@ -35,5 +35,8 @@ export default {
   clear: 'クリア',
   customer: '顧客',
   partner: 'パートナー',
-  both: '顧客及、パートナー'
+  both: '顧客及、パートナー',
+  company_project: 'この企業はプロジェクトで使用しているため、削除できません',
+  company_project_order: 'この企業は外注で使用しているため、削除できません',
+  company_deposit: 'この企業は入出金で使用しているため、削除できません'
 }
