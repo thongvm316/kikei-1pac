@@ -22,7 +22,12 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input v-model:value="projectParams.code" :disabled="edit" style="width: 300px" placeholder="GXX-YYYY-ZZZ" />
+      <a-input
+        v-model:value="projectParams.code"
+        :disabled="edit"
+        :style="{ width: '300px' }"
+        placeholder="GXX-YYYY-ZZZ"
+      />
       <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
 
       <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
@@ -33,7 +38,7 @@
 
     <!-- name -->
     <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
-      <a-input v-model:value="projectParams.name" placeholder="入力してください" style="width: 300px" />
+      <a-input v-model:value="projectParams.name" placeholder="入力してください" :style="{ width: '300px' }" />
 
       <p v-if="localErrors['name']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['name']}`) }}</p>
     </a-form-item>
@@ -41,7 +46,11 @@
 
     <!-- clientInCharge -->
     <a-form-item name="clientInCharge" label="顧客担当">
-      <a-input v-model:value="projectParams.clientInCharge" placeholder="入力してください" style="width: 300px" />
+      <a-input
+        v-model:value="projectParams.clientInCharge"
+        placeholder="入力してください"
+        :style="{ width: '300px' }"
+      />
     </a-form-item>
     <!-- clientInCharge -->
 
@@ -56,7 +65,7 @@
 
     <!-- status -->
     <a-form-item name="statusId" label="ステータス" :class="{ 'has-error': localErrors['statusId'] }">
-      <a-select v-model:value="projectParams.statusId" placeholder="選択してください" style="width: 164px">
+      <a-select v-model:value="projectParams.statusId" placeholder="選択してください" :style="{ width: '164px' }">
         <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
           {{ status.name }}
         </a-select-option>
@@ -70,7 +79,7 @@
 
     <!-- accuracy -->
     <a-form-item name="accuracyId" label="受注確度" :class="{ 'has-error': localErrors['statusId'] }">
-      <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" style="width: 164px">
+      <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" :style="{ width: '164px' }">
         <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
           {{ accuracy.code }} ({{ accuracy.name }})
         </a-select-option>
@@ -97,7 +106,7 @@
     >
       <a-month-picker
         v-model:value="projectParams.statisticsMonth"
-        style="width: 164px"
+        :style="{ width: '164px' }"
         format="YYYY/MM"
         placeholder="YYYY/MM"
       >
@@ -119,7 +128,7 @@
     >
       <a-range-picker
         v-model:value="projectParams.statisticsMonths"
-        style="width: 300px"
+        :style="{ width: '300px' }"
         format="YYYY/MM"
         :mode="['month', 'month']"
         :placeholder="['YYYY/MM', 'YYYY/MM']"
@@ -138,7 +147,7 @@
 
     <!-- groupID -->
     <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
-      <a-select v-model:value="projectParams.groupId" placeholder="選択してください" style="width: 164px">
+      <a-select v-model:value="projectParams.groupId" placeholder="選択してください" :style="{ width: '164px' }">
         <a-select-option
           v-for="group in dataGroups"
           :key="group.id"
@@ -156,13 +165,13 @@
 
     <!-- director -->
     <a-form-item name="director" label="ディレクタ（予定）">
-      <a-input v-model:value="projectParams.director" placeholder="入力してください" style="width: 300px" />
+      <a-input v-model:value="projectParams.director" placeholder="入力してください" :style="{ width: '300px' }" />
     </a-form-item>
     <!-- director -->
 
     <!-- accountID -->
     <a-form-item name="accountId" label="営業担当" :class="{ 'has-error': localErrors['accountId'] }">
-      <a-select v-model:value="projectParams.accountId" placeholder="入力してください" style="width: 164px">
+      <a-select v-model:value="projectParams.accountId" placeholder="入力してください" :style="{ width: '164px' }">
         <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
           {{ account.fullname }}
         </a-select-option>
@@ -180,13 +189,13 @@
         placeholder="入力してください"
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
         :precision="0"
-        style="width: 300px"
+        :style="{ width: '300px' }"
       />
       <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
       <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
         <a-button type="link" @click="isHistoryMoneyModalOpen = true">
           <template #icon>
-            <span style="height: 16px" class="btn-icon"><history-icon /></span>
+            <span :style="{ height: '16px' }" class="btn-icon"><history-icon /></span>
           </template>
         </a-button>
       </a-tooltip>
@@ -219,7 +228,7 @@
                     placeholder="入力してください"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :precision="0"
-                    style="width: 164px"
+                    :style="{ width: '164px' }"
                   />
                 </td>
 
@@ -268,23 +277,26 @@
       <a-input
         v-model:value="valueTag"
         placeholder="タグを入力してください"
-        style="width: 300px"
+        :style="{ width: '300px', border: 0, zIndex: 1 }"
         @pressEnter="createTag"
       />
+
+      <div v-if="projectParams.tags.length > 0" class="tags-container">
+        <a-tooltip
+          v-for="(tag, index) in projectParams.tags"
+          :key="index"
+          :title="tag"
+          overlay-class-name="project-form-tags__tooltip"
+        >
+          <a-tag closable @close="removeTag($event, index)">
+            {{ tag }}
+          </a-tag>
+        </a-tooltip>
+      </div>
+
+      <p class="text-grey-55 u-mt-2">※タグを入力して「Enter」を押してください</p>
     </a-form-item>
 
-    <div v-if="projectParams.tags.length > 0" class="tags-container u-mb-12">
-      <a-tooltip
-        v-for="(tag, index) in projectParams.tags"
-        :key="index"
-        :title="tag"
-        overlay-class-name="project-form-tags__tooltip"
-      >
-        <a-tag closable @close="removeTag($event, index)">
-          {{ tag }}
-        </a-tag>
-      </a-tooltip>
-    </div>
     <!-- tag  -->
 
     <!-- memo -->
@@ -292,14 +304,14 @@
       <a-textarea
         v-model:value="projectParams.memo"
         placeholder="入力してください"
-        style="width: 300px; height: 160px"
+        :style="{ width: '300px', height: '160px' }"
       />
     </a-form-item>
     <!-- memo -->
 
     <a-form-item>
       <a-button type="default" @click="$router.go(-1)">キャンセル</a-button>
-      <a-button type="primary" :loading="loading" style="margin-left: 8px" @click="onSubmit">登録</a-button>
+      <a-button type="primary" :loading="loading" :style="{ marginLeft: '8px' }" @click="onSubmit">登録</a-button>
     </a-form-item>
   </a-form>
 
@@ -804,10 +816,10 @@ export default defineComponent({
 
   .tags-container {
     width: 300px;
-    padding: 12px 12px 0;
+    padding: 4px 10px 0 12px;
     background-color: $color-grey-100;
-    border: 1px solid $color-grey-85;
-    border-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 
     .ant-tag {
       background-color: $color-grey-85;
