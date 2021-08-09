@@ -196,7 +196,7 @@ export default defineComponent({
       for (let item in err.response.data.errors) {
         locale.value === 'en'
           ? (err.response.data.errors[item] = `${subcategoryEnums.value[item]} existed`)
-          : (err.response.data.errors[item] = `${subcategoryEnums.value[item]}を入力してください`)
+          : (err.response.data.errors[item] = `${subcategoryEnums.value[item]}が存在しました`)
         setFieldError(item, err.response.data.errors[item])
       }
     }

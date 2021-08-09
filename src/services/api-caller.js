@@ -5,6 +5,9 @@ import store from '@/store'
 import router from '@/router'
 import storageKeys from '@/enums/storage-keys'
 import StorageService from './storage'
+import { includes } from 'lodash-es'
+
+const NAME_PAGE = ['company.0002', 'category.0002', 'subcategory.0002']
 
 axios.defaults.baseURL = process.env.VUE_APP_API_ENDPOINT
 axios.defaults.headers.common['Accept'] = 'application/json'
@@ -41,12 +44,14 @@ axios.interceptors.response.use(
       error.response = deepCopy(humps.camelizeKeys(error.response))
       const { data } = error.response
       const errorMessage = data.error_message || data.errorMessage || 'fall.back.error'
-      // clear flash message in store first
-      store.commit('auth/CLEAR_AUTH_PROFILE')
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'error',
-        message: `errors.${errorMessage.replaceAll('.', '_')}`
-      })
+      if (!includes(NAME_PAGE, errorMessage)) {
+        // clear flash message in store first
+        store.commit('auth/CLEAR_AUTH_PROFILE')
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'error',
+          message: `errors.${errorMessage.replaceAll('.', '_')}`
+        })
+      }
     }
 
     // clear all aut profile & global state when logout
