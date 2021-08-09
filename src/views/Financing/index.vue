@@ -132,10 +132,10 @@ export default defineComponent({
 
     const dataExportCsv = reactive({ ...initialExportCSV })
 
-    const onDataFilterRequest = (data) => {
+    const onDataFilterRequest = (filter) => {
       updateParamRequestFinancing({
-        data: data,
-        params: { pageNumber: 1 }
+        data: filter.data,
+        params: filter.params
       })
     }
 
@@ -228,6 +228,9 @@ export default defineComponent({
         // remove(dataRowsTableFinancing.value)
         remove(dataColumnsTableFinancing.value)
         remove(dataColumnsNameTable.value)
+        remove(dataColumns.value)
+        remove(dataByDates.value)
+
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
@@ -284,11 +287,12 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // Get filters financing from store
-      const filtersFinancingStore = store.getters['financing/filters']?.data || {}
+      const filtersFinancingStore = store.getters['financing/filters'] || {}
       if (filtersFinancingStore) {
-        Object.assign(requestParamsData.value.data, filtersFinancingStore)
+        Object.assign(requestParamsData.value, filtersFinancingStore)
+        // fetch data table
+        await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
-      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
     })
 
     onMounted(async () => {
@@ -302,15 +306,16 @@ export default defineComponent({
     })
 
     // watch to event scroll table financing
-    watch(dataRowsTableFinancing.value, (val) => {
+    watch(dataRowsTableFinancing.value, () => {
       const tableContent = document.querySelector('.ant-table-body')
 
-      if (tableContent && val.length) {
+      if (tableContent) {
         tableContent.addEventListener('scroll', () => {
           // checking whether a selector is well defined
           const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-          if (per >= 100) {
-            let pageCurrent = ++pagination.value.current
+          if (per >= 100 && !isLoadingDataTable.value) {
+            const pageCurrent = pagination.value.current + 1
+
             if (pageCurrent <= pagination.value.totalPage) {
               updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
             }
