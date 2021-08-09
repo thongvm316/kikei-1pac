@@ -31,7 +31,7 @@ import useGetFinancingListService from '@/views/Financing/composables/useGetFina
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
 import FinancingFilter from '@/views/Financing/-components/FinancingFilter'
 
-import { convertDataByDates, convertDataByMonth, convertDataCsv } from './composables/useFinancing'
+import { convertDataByDates, convertDataByMonth, convertDataCsv } from '@/helpers/extend-financing'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'

@@ -130,7 +130,7 @@ import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodL
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
-import { convertDataFilter, findCurrentPeriod } from '@/views/Financing/composables/useFinancing'
+import { convertDataFilter, findCurrentPeriod } from '@/helpers/extend-financing'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { SHOW_BY, VIEW_MODE } from '@/enums/financing.enum'
