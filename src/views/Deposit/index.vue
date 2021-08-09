@@ -14,12 +14,12 @@
         <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
           <a-button type="link" :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
             <template #icon>
-              <span class="btn-icon" style="height: 28px"><line-down-icon /></span>
+              <span class="btn-icon" :style="{ height: '28px' }"><line-down-icon /></span>
             </template>
           </a-button>
         </a-tooltip>
 
-        <a-button type="primary" class="u-ml-16" @click="$router.push({ name: 'deposit-new' })">
+        <a-button type="primary" class="u-ml-16" @click="onAddRecordDeposit">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
@@ -108,7 +108,7 @@
       v-click-outside="handleClickOutsideTable"
       :is-visible-modal-action-bar="isVisibleModalActionBar"
       class="-mx-32"
-      @on-open-deposit-buttons-float="onOpenDepositButtonsFloat"
+      @on-open-deposit-buttons-float="onClickRowRecord"
       @on-open-confirm-deposit-record-modal="onOpenConfirmDepositRecordModal($event, 'confirmOne')"
       @handle-open-unconfirm-modal="handleOpenUnconfirmModal"
       @on-sort="onSortTable"
@@ -370,9 +370,9 @@ export default defineComponent({
       let objectData = {}
 
       data.forEach((item) => {
-        ;(objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit),
-        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_withdrawal`] = item.withdrawal),
-        (objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_balance`] = item.balance)
+        objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_deposit`] = item.deposit
+        objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_withdrawal`] = item.withdrawal
+        objectData[`${item.name.replaceAll(' ', '').toLowerCase()}_balance`] = item.balance
       })
 
       return objectData
@@ -416,7 +416,7 @@ export default defineComponent({
     /* --------------------- handle export CSV ------------------- */
 
     /* --------------------- handle edit/copy/delete deposit ------------------- */
-    const onOpenDepositButtonsFloat = (record) => {
+    const onClickRowRecord = (record) => {
       const depositId = currentSelectedRecord.value?.id || ''
       const recordId = record?.id || ''
 
@@ -429,6 +429,13 @@ export default defineComponent({
         isDisableDelete.value = record.confirmed
         isVisibleModalActionBar.value = true
       }
+    }
+
+    const onAddRecordDeposit = () => {
+      // save filters search to store
+      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
+
+      router.push({ name: 'deposit-new' })
     }
 
     const onOpenDeleteDepositModal = () => {
@@ -717,7 +724,7 @@ export default defineComponent({
       onHandleChangeBankAcountSelect,
       onHandleChangeTabGroup,
       handleChangePage,
-      onOpenDepositButtonsFloat,
+      onClickRowRecord,
       onOpenDeleteDepositModal,
       onEditRecordDeposit,
       onDeleteDepositRecord,
@@ -730,7 +737,8 @@ export default defineComponent({
       handleOpenUnconfirmModal,
       handleClickOutsideTable,
       onCloseModalAction,
-      handleChangeFilterMonth
+      handleChangeFilterMonth,
+      onAddRecordDeposit
     }
   }
 })
