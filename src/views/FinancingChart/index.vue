@@ -124,7 +124,7 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from './composables/useFinancing'
+import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 

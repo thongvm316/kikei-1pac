@@ -70,3 +70,26 @@ export const findCurrentPeriod = (data) => {
     return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
   })
 }
+
+// set current date
+export const currentDate = (value, format = 'YYYY-MM-DD') => {
+  let newDate = null
+  newDate = value ? moment(value) : moment()
+  return newDate.format(format)
+}
+
+// set date add 59days
+export const addDaysInCurrentDate = (value, days, format = 'YYYY-MM-DD') => {
+  let newDate = null
+  newDate = value ? moment(value) : moment()
+  return newDate.add(days, 'days').format(format)
+}
+
+// get diffdays
+export const getDiffDays = (start, end, oneDay = 24 * 60 * 60 * 1000) => {
+  let diffDays = null
+  let startDate = new Date(start)
+  let endDate = new Date(end)
+  diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
+  return diffDays
+}
