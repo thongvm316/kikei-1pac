@@ -152,6 +152,7 @@ export default defineComponent({
     const onFilterTablesRender = (data) => {
       if (data) {
         dataFilterTable.value = data
+        updateParamRequestFinancing({ data: { ...data } })
       }
     }
 
@@ -230,7 +231,6 @@ export default defineComponent({
         remove(dataColumnsNameTable.value)
         remove(dataColumns.value)
         remove(dataByDates.value)
-
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)

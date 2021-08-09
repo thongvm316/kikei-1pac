@@ -226,6 +226,8 @@ export default {
     // Handle filter
     const onChangePeriod = async (event) => {
       filter.date_from_to = [null, null]
+      fromDateRangePicker.value = null
+      toDateRangePicker.value = null
       isDisabledDate.value = !(event === undefined || event === null)
 
       updateDataFilterRequest({
@@ -241,9 +243,10 @@ export default {
       filter.date_from_to = dateString
       fromDateRangePicker.value = filter.date_from_to[0]
       toDateRangePicker.value = filter.date_from_to[1]
+
       if (filter.show_by === 0) {
-        fromDateRangePicker.value = value[0].startOf('month').format('YYYY-MM-DD')
-        toDateRangePicker.value = value[1].endOf('month').format('YYYY-MM-DD')
+        fromDateRangePicker.value = value.length > 0 ? value[0].startOf('month').format('YYYY-MM-DD') : null
+        toDateRangePicker.value = value.length > 0 ? value[1].endOf('month').format('YYYY-MM-DD') : null
       }
 
       filter.period_id = null
@@ -266,11 +269,13 @@ export default {
     const onChangeShowBy = async (evt) => {
       let fromDateBytMonth = fromDateRangePicker.value
       let toDateBytMonth = toDateRangePicker.value
-      debugger
+
       filter.date_from_to = [fromDateBytMonth, toDateBytMonth]
       if (evt.target.value === 0) {
-        fromDateBytMonth = moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
-        toDateBytMonth = moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD')
+        fromDateBytMonth = fromDateBytMonth
+          ? moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
+          : null
+        toDateBytMonth = toDateBytMonth ? moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD') : null
       }
       updateDataFilterRequest({
         data: {
@@ -285,7 +290,6 @@ export default {
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
-        filter.show_by = 1
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
@@ -488,12 +492,6 @@ export default {
       () => {
         const data = Object.assign({}, dataFilterRequest.value.data)
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-      }
-    )
-
-    watch(
-      () => store.state.financing.filters,
-      () => {
         emit('onFilterRequest', dataFilterRequest.value)
       }
     )
