@@ -4,7 +4,7 @@
     <table>
       <tbody>
         <template v-for="group in mockDataTable" :key="group.id" :bordered="false">
-          <tr class="u-flex">
+          <tr :class="['permission-table__header', activeKeyCollapse.indexOf(`${group.id}`) !== -1 && 'is-active']">
             <td>{{ group.groupName }}</td>
             <td>
               <a-checkbox
@@ -214,8 +214,17 @@ export default defineComponent({
 
 <style lang="scss">
 @import '@/styles/shared/variables';
+@import '@/styles/shared/mixins';
 
 .permission-table {
+  &__header {
+    @include flexbox(null, null);
+  }
+
+  &__header.is-active {
+    background-color: $color-primary-1;
+  }
+
   table {
     font-size: 14px;
     line-height: 22px;
