@@ -123,13 +123,14 @@ import { useStore } from 'vuex'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { isEmpty, remove } from 'lodash-es'
 import { useRouter } from 'vue-router'
+import moment from 'moment'
 
 import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
-import { convertDataFilter, findCurrentPeriod } from '@/views/Financing/composables/useFinancing'
+import { convertDataFilter, findCurrentPeriod } from '@/helpers/extend-financing'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { SHOW_BY, VIEW_MODE } from '@/enums/financing.enum'
@@ -243,7 +244,7 @@ export default {
 
       if (filter.show_by === 0) {
         fromDateRangePicker.value = value[0].startOf('month').format('YYYY-MM-DD')
-        toDateRangePicker.value = value[1].startOf('month').format('YYYY-MM-DD')
+        toDateRangePicker.value = value[1].endOf('month').format('YYYY-MM-DD')
       }
 
       filter.period_id = null
@@ -263,10 +264,19 @@ export default {
       })
     }
 
-    const onChangeShowBy = async () => {
+    const onChangeShowBy = async (evt) => {
+      let fromDateBytMonth = fromDateRangePicker.value
+      let toDateBytMonth = toDateRangePicker.value
+      filter.date_from_to = [fromDateBytMonth, toDateBytMonth]
+      if (evt.target.value === 0) {
+        fromDateBytMonth = moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
+        toDateBytMonth = moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD')
+      }
       updateDataFilterRequest({
         data: {
-          show_by: filter.show_by
+          show_by: filter.show_by,
+          from_date: fromDateBytMonth,
+          to_date: toDateBytMonth
         }
       })
     }
