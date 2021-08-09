@@ -4,12 +4,12 @@
       <div class="project-memo-modal__content">
         <div class="project-memo-modal__label">メモ:</div>
         <div class="project-memo-modal__text">
-          <p v-if="toggleShow && initMemo?.length > 175" style="white-space: pre-line">
+          <p v-if="toggleShow && initMemo?.length > 175" style="white-space: pre-line; word-break: break-word;">
             {{ initMemo?.slice(0, 175) }}...<span class="project-memo-modal__toggle-btn" @click="toggleShow = false"
               >もっと見る</span
             >
           </p>
-          <p v-else style="white-space: pre-line">
+          <p v-else style="white-space: pre-line; word-break: break-word;">
             {{ initMemo }}
             <span v-if="initMemo?.length > 175" class="project-memo-modal__toggle-btn" @click="toggleShow = true"
               >表示を縮小</span
