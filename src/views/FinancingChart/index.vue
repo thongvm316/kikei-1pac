@@ -124,13 +124,7 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import {
-  convertDataFilter,
-  findCurrentPeriod,
-  currentDate,
-  addDaysInCurrentDate,
-  getDiffDays
-} from './composables/useFinancing'
+import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from './composables/useFinancing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
@@ -527,9 +521,7 @@ export default defineComponent({
 
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
-        const dataFilter = await convertDataFilter(filtersFinancingStore.data)
-
-        Object.assign(filter, dataFilter)
+        Object.assign(filter, filtersFinancingStore.data)
         Object.assign(requestParamsData.value, filtersFinancingStore)
 
         // reset default chart
