@@ -124,6 +124,12 @@ export default defineComponent({
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
 
+    const companyEnums = ref({
+      company_project: t('company.company_project'),
+      company_project_order: t('company.company_project_order'),
+      company_deposit: t('company.company_deposit')
+    })
+
     const rowSelection = computed(() => {
       return {
         selectedRowKeys: state.selectedRowKeys,
@@ -259,12 +265,6 @@ export default defineComponent({
       }
       await fetchList(params.value)
     }
-
-    const companyEnums = ref({
-      company_project: t('company.company_project'),
-      company_project_order: t('company.company_project_order'),
-      company_deposit: t('company.company_deposit')
-    })
 
     const checkErrorsApi = (err) => {
       openDelete.value = false

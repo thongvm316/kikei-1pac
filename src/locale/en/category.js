@@ -29,5 +29,6 @@ export default {
   group: 'Group',
   report: 'Show data in report',
   category_subcategory: 'This category being used in sub cate and cannot be deleted',
-  category_deposit: 'This category being used in deposit and cannot be deleted'
+  category_deposit: 'This category being used in deposit and cannot be deleted',
+  emptyData: 'The category was not found'
 }
