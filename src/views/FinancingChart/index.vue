@@ -503,7 +503,6 @@ export default defineComponent({
       const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
       const { result } = await getDataChart()
 
-      remove(dataChartFinancing.value)
       dataChartFinancing.value = result?.data?.data
     }
 
@@ -529,8 +528,9 @@ export default defineComponent({
       const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
       const { result } = await getDataChart()
 
-      remove(dataChartFinancing.value)
       dataChartFinancing.value = result?.data?.data
+
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
     }
 
     onBeforeMount(async () => {
