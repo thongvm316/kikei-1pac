@@ -241,7 +241,6 @@ export default {
       filter.date_from_to = dateString
       fromDateRangePicker.value = filter.date_from_to[0]
       toDateRangePicker.value = filter.date_from_to[1]
-
       if (filter.show_by === 0) {
         fromDateRangePicker.value = value[0].startOf('month').format('YYYY-MM-DD')
         toDateRangePicker.value = value[1].endOf('month').format('YYYY-MM-DD')
@@ -267,6 +266,7 @@ export default {
     const onChangeShowBy = async (evt) => {
       let fromDateBytMonth = fromDateRangePicker.value
       let toDateBytMonth = toDateRangePicker.value
+      debugger
       filter.date_from_to = [fromDateBytMonth, toDateBytMonth]
       if (evt.target.value === 0) {
         fromDateBytMonth = moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
@@ -411,6 +411,8 @@ export default {
       if (dateFromTo[0] && dateFromTo[1]) {
         filter.from_date = dateFromTo[0]
         filter.to_date = dateFromTo[1]
+        fromDateRangePicker.value = dateFromTo[0]
+        toDateRangePicker.value = dateFromTo[1]
         filter.period_id = null
       }
     }
