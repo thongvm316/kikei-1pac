@@ -339,7 +339,7 @@ export default {
       const { getPeriods } = useGetPeriodListService(groupID)
       const { result } = await getPeriods()
 
-      periodList.value = result?.data
+      periodList.value = result?.data || []
     }
 
     // Fetch bank accounts
@@ -348,7 +348,7 @@ export default {
       const { getBankAccounts } = useGetBankAccountsService(groupID)
       const { result } = await getBankAccounts()
 
-      bankAccountList.value = result?.data
+      bankAccountList.value = result?.data || []
       bankAccountList.value.unshift(initialBankAccount)
     }
 
@@ -357,7 +357,7 @@ export default {
       const { getCurrency } = useGetCurrencyService()
       const { result } = await getCurrency()
 
-      currencyList.value = result?.data
+      currencyList.value = result?.data || []
     }
 
     const handleGroupDefault = async (groupID) => {
