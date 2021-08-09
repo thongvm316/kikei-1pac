@@ -20,6 +20,7 @@
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
+      :locale="emptyTextHTML"
       :pagination="{
         ...pagination,
         showTotal: showTotal
@@ -125,9 +126,18 @@ export default defineComponent({
     const height = ref(0)
     const modalActionRef = ref()
     const queryDelete = ref({})
+    const emptyTextHTML = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
+    emptyTextHTML.value = {
+      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description"> {t('subcategory.emptyData')}</div>
+    }
+
+    const subcategoryEnums = ref({
+      subcategory_deposit: t('subcategory.subcategory_deposit')
+    })
 
     const rowSelection = computed(() => {
       return {
@@ -270,10 +280,6 @@ export default defineComponent({
       await fetchList(params.value, queryDelete.value)
     }
 
-    const subcategoryEnums = ref({
-      subcategory_deposit: t('subcategory.subcategory_deposit')
-    })
-
     const checkErrorsApi = (err) => {
       openDelete.value = false
       err.response.data.errors = camelToSnakeCase(err.response.data.errors)
@@ -370,6 +376,7 @@ export default defineComponent({
       params,
       filter,
       modalActionRef,
+      emptyTextHTML,
       handleCreate,
       handleBack,
       handleCloseRecord,

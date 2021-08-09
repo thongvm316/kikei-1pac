@@ -29,5 +29,6 @@ export default {
   group: 'グループ',
   report: '管理会計に含む',
   category_subcategory: 'この大分類は中分類で使用しているため、削除できません',
-  category_deposit: 'この大分類は入出金で使用しているため、削除できません'
+  category_deposit: 'この大分類は入出金で使用しているため、削除できません',
+  emptyData: '該当する大分類が見つかりませんでした。'
 }
