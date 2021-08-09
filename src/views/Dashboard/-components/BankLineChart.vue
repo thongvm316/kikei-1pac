@@ -152,7 +152,7 @@ export default defineComponent({
       })
 
       // set labels
-      data.value.labels = value[0].dataByMonth.map((item) => Filter.moment_yyyy_mm(item.month))
+      data.value.labels = value[0]?.dataByMonth.map((item) => Filter.moment_yyyy_mm(item.month))
 
       // update chart
       window.bankLineChart.update()
