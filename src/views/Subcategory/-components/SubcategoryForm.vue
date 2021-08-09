@@ -27,19 +27,25 @@
 
       <!-- subcategory name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="subcategoryName" rules="required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.name"
+          name="subcategory_name"
+          rules="input_required"
+        >
           <div class="form-content">
-            <label class="form-label required">{{ $t('subcategory.subcategoryName') }}</label>
+            <label class="form-label required">{{ $t('subcategory.subcategory_name') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="subcategoryName" class="errors">
-                {{ replaceField(message, 'subcategoryName') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="subcategory_name" class="errors">
+                {{ replaceField(message, 'subcategory_name') }}
               </ErrorMessage>
             </div>
           </div>
@@ -102,6 +108,7 @@ import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateSubCategoryService from '@/views/Subcategory/composables/useUpdateSubcategoryService'
 import useCreateSubCategoryService from '@/views/Subcategory/composables/useCreateSubcategoryService'
 import { INUSE } from '@/enums/subcategory.enum'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'SubCategoryForm',
@@ -116,8 +123,13 @@ export default defineComponent({
 
     const router = useRouter()
     const route = useRoute()
+    const store = useStore()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
+
+    const subcategoryEnums = ref({
+      subcategory_name: t('subcategory.error_subcategory_name')
+    })
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'subcategory-edit') {
@@ -157,6 +169,13 @@ export default defineComponent({
       } catch (err) {
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createSubCategory = async (data) => {
@@ -172,16 +191,18 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
       for (let item in err.response.data.errors) {
         locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
+          ? (err.response.data.errors[item] = `${subcategoryEnums.value[item]} existed`)
+          : (err.response.data.errors[item] = `${subcategoryEnums.value[item]}が存在しました`)
         setFieldError(item, err.response.data.errors[item])
       }
     }
 
     const replaceField = (text, field) => {
-      return text.replace(field, t(`subcategory.${field}`))
+      return text.replace(field, t(`subcategory.error_${field}`))
     }
 
     return {

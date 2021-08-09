@@ -4,7 +4,8 @@ export default {
   status: 'Status',
   subcategory: 'Subcategory',
   note: 'Search by company name and company code',
-  categoryName: 'Category',
+  category_name: 'Category',
+  error_category_name: 'Category',
   categoryOther: 'Other',
   category_division: 'Division',
   key_word: 'Item Name',
@@ -26,5 +27,8 @@ export default {
   medium_classification: 'Medium classification',
   input: 'Text Input',
   group: 'Group',
-  report: 'Show data in report'
+  report: 'Show data in report',
+  category_subcategory: 'This category being used in sub cate and cannot be deleted',
+  category_deposit: 'This category being used in deposit and cannot be deleted',
+  emptyData: 'The category was not found'
 }

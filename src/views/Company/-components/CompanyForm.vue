@@ -4,7 +4,7 @@
     <form @submit="onSubmit">
       <!-- Company name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="company_name" rules="input_required">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.name" name="company_name" rules="input_required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.company_name') }}</label>
             <div class="form-input">
@@ -12,6 +12,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -40,7 +41,12 @@
 
       <!-- Company code -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.code" name="company_code_project" rules="input_required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.code"
+          name="company_code_project"
+          rules="input_required"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('company.company_code_project') }}</label>
             <div class="form-input">
@@ -48,6 +54,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -62,7 +69,7 @@
       <!-- Slack code -->
       <div class="form-group">
         <Field
-          v-slot="{ field, handleChange }"
+          v-slot="{ field, handleChange, errors }"
           v-model="form.slack_code"
           name="company_slack_code"
           rules="input_required"
@@ -74,6 +81,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -87,7 +95,12 @@
 
       <!-- Country -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.country_id" name="country" rules="select_required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.country_id"
+          name="country"
+          rules="select_required"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('company.country') }}</label>
             <div class="form-input">
@@ -95,6 +108,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="country in COUNTRY" :key="country.id" :value="country.id">
@@ -113,7 +127,7 @@
       <!-- Currency -->
       <div class="form-group">
         <Field
-          v-slot="{ field, handleChange }"
+          v-slot="{ field, handleChange, errors }"
           v-model="form.currency_id"
           name="trading_currency"
           rules="select_required"
@@ -125,6 +139,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="currency in CURRENCY" :key="currency.id" :value="currency.id">
@@ -142,7 +157,12 @@
 
       <!-- Payment Site -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.payment_term" name="payment_site" rules="select_required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.payment_term"
+          name="payment_site"
+          rules="select_required"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('company.payment_site') }}</label>
             <div class="form-input">
@@ -150,6 +170,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="payment in PAYMENT" :key="payment.id" :value="payment.id">
@@ -241,6 +262,7 @@ import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCompanyService from '@/views/Company/composables/useUpdateCompanyService'
 import useCreateCompanyService from '@/views/Company/composables/useCreateCompanyService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CompanyForm',
@@ -259,6 +281,7 @@ export default defineComponent({
       description: ''
     })
     const router = useRouter()
+    const store = useStore()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
@@ -302,6 +325,13 @@ export default defineComponent({
         checkErrorsApi(err)
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'success',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createCompany = async (data) => {

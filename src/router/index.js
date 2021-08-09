@@ -101,7 +101,7 @@ const routes = [
         path: '/financing/chart',
         name: 'financing-chart',
         component: lazyLoadRoute('FinancingChart'),
-        meta: { title: `FinancingChart Report | ${APP_NAME}` }
+        meta: { title: `Financing Report | ${APP_NAME}` }
       },
 
       {

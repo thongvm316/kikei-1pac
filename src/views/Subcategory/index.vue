@@ -20,6 +20,7 @@
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
+      :locale="emptyTextHTML"
       :pagination="{
         ...pagination,
         showTotal: showTotal
@@ -70,6 +71,7 @@ import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 import { forEach, includes, isArray, keys, map } from 'lodash-es'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -124,9 +126,18 @@ export default defineComponent({
     const height = ref(0)
     const modalActionRef = ref()
     const queryDelete = ref({})
+    const emptyTextHTML = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
+    emptyTextHTML.value = {
+      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description"> {t('subcategory.emptyData')}</div>
+    }
+
+    const subcategoryEnums = ref({
+      subcategory_deposit: t('subcategory.subcategory_deposit')
+    })
 
     const rowSelection = computed(() => {
       return {
@@ -139,7 +150,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('subcategory.subcategoryName'),
+          title: t('subcategory.subcategory_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
@@ -249,19 +260,39 @@ export default defineComponent({
       try {
         const { deleteSubCategory } = useDeleteSubCategoryService(recordVisible.value.id)
         await deleteSubCategory()
-      } catch (error) {
-        console.log(error)
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message:
+            locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
+        })
+      } catch (err) {
+        checkErrorsApi(err)
+        throw err
       }
       openDelete.value = false
       recordVisible.value.visible = false
+      params.value = {
+        page_number: 1,
+        page_size: 50
+      }
       await fetchList(params.value, queryDelete.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
-      })
+    }
+
+    const checkErrorsApi = (err) => {
+      openDelete.value = false
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        setTimeout(() => {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            duration: 5,
+            message: locale.value === 'en' ? `${subcategoryEnums.value[item]}` : `${subcategoryEnums.value[item]}`
+          })
+        }, 1000)
+      }
     }
 
     // Close ActionBar
@@ -345,6 +376,7 @@ export default defineComponent({
       params,
       filter,
       modalActionRef,
+      emptyTextHTML,
       handleCreate,
       handleBack,
       handleCloseRecord,

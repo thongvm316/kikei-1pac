@@ -20,5 +20,7 @@ export default {
   text_input: 'Text Input',
   use_distinction: 'Use distinction',
   input: 'Text Input',
-  back: 'Back'
+  back: 'Back',
+  subcategory_deposit: 'This subcategory being used in deposit and cannot be deleted',
+  emptyData: 'The subcate was not found'
 }

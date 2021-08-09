@@ -65,6 +65,7 @@ import CompanySearchForm from '@/views/Company/-components/CompanySearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -96,7 +97,7 @@ export default defineComponent({
       ...body
     }
 
-    const { getLists } = await useGetCompanyListService(query, body)
+    const { getLists } = useGetCompanyListService(query, body)
     const { result } = await getLists()
     to.meta['lists'] = result.data
     to.meta['pagination'] = { ...convertPagination(result.meta) }
@@ -122,6 +123,12 @@ export default defineComponent({
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
+    const companyEnums = ref({
+      company_project: t('company.company_project'),
+      company_project_order: t('company.company_project_order'),
+      company_deposit: t('company.company_deposit')
+    })
 
     const rowSelection = computed(() => {
       return {
@@ -240,8 +247,15 @@ export default defineComponent({
       try {
         const { deleteCompany } = useDeleteCompanyService(recordVisible.value.id)
         await deleteCompany()
-      } catch (error) {
-        console.log(error)
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message:
+            locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
+        })
+      } catch (err) {
+        checkErrorsApi(err)
+        throw err
       }
       openDelete.value = false
       recordVisible.value.visible = false
@@ -250,13 +264,21 @@ export default defineComponent({
         page_size: 50
       }
       await fetchList(params.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
-      })
+    }
+
+    const checkErrorsApi = (err) => {
+      openDelete.value = false
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        setTimeout(() => {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            duration: 5,
+            message: locale.value === 'en' ? `${companyEnums.value[item]}` : `${companyEnums.value[item]}`
+          })
+        }, 1000)
+      }
     }
 
     // Close ActionBar

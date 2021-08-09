@@ -16,6 +16,7 @@
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
+      :locale="emptyTextHTML"
       :pagination="{
         ...pagination,
         showTotal: showTotal
@@ -43,7 +44,10 @@
       </template>
 
       <template #action="{ text: action, record }">
-        <a @click="handleSelectNumber(record)">{{ record.subcategoryKind === 10 ? action : '-' }}</a>
+        <template v-if="record.subcategoryKind === 10">
+          <a class="number_category" @click="handleSelectNumber(record)">{{ action }}</a>
+        </template>
+        <template v-else> - </template>
       </template>
 
       <template #inUse="{ text: inUse }">
@@ -85,6 +89,7 @@ import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -139,9 +144,19 @@ export default defineComponent({
     const modalActionRef = ref()
     const height = ref(0)
     let idSelected = ref({})
+    const emptyTextHTML = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
+    emptyTextHTML.value = {
+      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description"> {t('category.emptyData')}</div>
+    }
+
+    const categoryEnums = ref({
+      category_deposit: t('category.category_deposit'),
+      category_subcategory: t('category.category_subcategory')
+    })
 
     const rowSelection = computed(() => {
       return {
@@ -154,7 +169,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('category.categoryName'),
+          title: t('category.category_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
@@ -264,19 +279,39 @@ export default defineComponent({
       try {
         const { deleteCategory } = useDeleteCategoryService(recordVisible.value.id)
         await deleteCategory()
-      } catch (error) {
-        console.log(error)
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message:
+            locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
+        })
+      } catch (err) {
+        checkErrorsApi(err)
+        throw err
       }
       openDelete.value = false
       recordVisible.value.visible = false
+      params.value = {
+        page_number: 1,
+        page_size: 50
+      }
       await fetchList(params.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
-      })
+    }
+
+    const checkErrorsApi = (err) => {
+      openDelete.value = false
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        setTimeout(() => {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            duration: 5,
+            message: locale.value === 'en' ? `${categoryEnums.value[item]}` : `${categoryEnums.value[item]}`
+          })
+        }, 1000)
+      }
     }
 
     // Close ActionBar
@@ -377,6 +412,7 @@ export default defineComponent({
       height,
       params,
       modalActionRef,
+      emptyTextHTML,
       handleDeleteRecord,
       handleCloseRecord,
       handleClickOutdideTable,
