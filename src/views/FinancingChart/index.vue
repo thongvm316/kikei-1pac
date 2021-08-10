@@ -292,7 +292,7 @@ export default defineComponent({
       if (value !== 0) await fetchBankAccounts({ group_id: value })
 
       filter.currency_code = currencyCode === null ? currencyDefault?.code : currencyCode
-      filter.show_by = value !== 0 ? 1 : 0
+      filter.show_by = value !== 0 ? requestParamsData.value.data.show_by : 0
       filter.bank_account_ids = bankAccountList?.value[0]?.id
 
       updateParamRequestFinancing({
@@ -472,7 +472,6 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const loadDataDefault = async () => {
@@ -498,8 +497,6 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     onBeforeMount(async () => {

@@ -1,6 +1,6 @@
 <template>
   <section class="subcategory">
-    <subcategory-search-form :filter="filter" @filter-changed="onFilterChange($event)" />
+    <subcategory-search-form @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
       <a-button class="bnt-back" type="default" @click="handleBack">
@@ -95,6 +95,18 @@ export default defineComponent({
       })
     }
 
+    if (keys(from.query).length > 0) {
+      forEach(from.query, (value, key) => {
+        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+          if (isArray(value)) {
+            body[key] = map([...value], (i) => Number(i))
+          } else {
+            body[key] = value
+          }
+        }
+      })
+    }
+
     const query = {
       page_number: 1,
       page_size: 50,
@@ -119,7 +131,7 @@ export default defineComponent({
     const openDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({ key_search: '' })
+    const filter = ref({})
     const isLoading = ref(false)
     const recordVisible = ref({})
     const params = ref({})
@@ -127,6 +139,7 @@ export default defineComponent({
     const modalActionRef = ref()
     const queryDelete = ref({})
     const emptyTextHTML = ref({})
+    let idSelected = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -168,15 +181,6 @@ export default defineComponent({
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
       queryDelete.value = { ...route.meta['queryDelete'] }
-
-      // Back Form
-      tempRow = [parseInt(await route.params.id)]
-      if (tempRow[0] === parseInt(await route.params.id)) {
-        state.selectedRowKeys = [parseInt(await route.params.id)]
-        tempRow = [parseInt(await route.params.id)]
-        recordVisible.value.id = route.params.id
-        recordVisible.value.visible = true
-      }
 
       // get inner height
       getInnerHeight()
@@ -228,7 +232,11 @@ export default defineComponent({
     }
 
     const onFilterChange = async (evt) => {
-      filter.value = { ...deleteEmptyValue(evt) }
+      queryDelete.value = {
+        ...queryDelete.value,
+        key_search: evt.key_search === '' ? '' : queryDelete.value.key_search
+      }
+      filter.value = evt.key_search === '' ? queryDelete.value : { ...deleteEmptyValue(evt) }
       await fetchList({ page_number: 1, page_size: 50 }, filter.value)
     }
 
@@ -249,10 +257,16 @@ export default defineComponent({
     }
 
     const handleCreate = () => {
+      idSelected.value = {
+        key_search: filter.value.key_search,
+        category_id: [parseInt(route.query.id)],
+        name: route.query.name,
+        id: route.query.id
+      }
       router.push({
         name: 'subcategory-new',
         params: route.params,
-        query: route.query
+        query: { ...idSelected.value }
       })
     }
 
@@ -316,6 +330,12 @@ export default defineComponent({
     }
 
     const handleEditRecord = () => {
+      idSelected.value = {
+        key_search: route.query.key_search,
+        category_id: [parseInt(route.query.id)],
+        name: route.query.name,
+        id: route.query.id
+      }
       router.push({
         name: 'subcategory-edit',
         params: {
@@ -323,7 +343,7 @@ export default defineComponent({
           category_id: route.params.category_id,
           name: route.params.name
         },
-        query: { ...route.query, ...params.value, ...filter.value }
+        query: { ...idSelected.value, ...params.value, ...filter.value }
       })
     }
 
@@ -374,7 +394,6 @@ export default defineComponent({
       recordVisible,
       height,
       params,
-      filter,
       modalActionRef,
       emptyTextHTML,
       handleCreate,
