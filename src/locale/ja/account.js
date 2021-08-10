@@ -19,5 +19,8 @@ export default {
   note: 'ログインID、氏名より検索します',
   keyword: 'キーワード',
   clear: 'クリア',
-  search: '検索'
+  search: '検索',
+  permission_edit: '編集可',
+  permission_view: '閲覧のみ',
+  permission_none: 'アクセス不可'
 }

@@ -122,7 +122,7 @@
         <div class="form-content">
           <label class="form-label">{{ $t('account.authority') }}</label>
 
-          <PermissionTable />
+          <PermissionTable :permissions="form.permissions" @handleChangePermission="handleChangePermission" />
         </div>
       </div>
 
@@ -151,7 +151,7 @@ import { TYPE, ACTIVE } from '@/enums/account.enum'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
-import PermissionTable from './PermissionTable.vue'
+import PermissionTable from './PermissionTable'
 
 export default defineComponent({
   name: 'AccountForm',
@@ -194,7 +194,7 @@ export default defineComponent({
     })
 
     watch(autoGeneratePassW, (value) => {
-      value ? form.value.password = Math.random().toString(36).slice(-8) : form.value.password = ''
+      value ? (form.value.password = Math.random().toString(36).slice(-8)) : (form.value.password = '')
     })
 
     const handleCancel = () => {
@@ -262,6 +262,10 @@ export default defineComponent({
       return text.replace(field, t(`account.${field}`))
     }
 
+    const handleChangePermission = ({ groupId, pageId, value }) => {
+      console.log(groupId, pageId, value)
+    }
+
     return {
       form,
       TYPE,
@@ -273,7 +277,8 @@ export default defineComponent({
       handleCancel,
       updateAccount,
       createAccount,
-      replaceField
+      replaceField,
+      handleChangePermission
     }
   }
 })

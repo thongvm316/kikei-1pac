@@ -19,5 +19,8 @@ export default {
   note: 'Search by username',
   keyword: 'Keyword',
   clear: 'Clear',
-  search: 'Search'
+  search: 'Search',
+  permission_edit: 'Edit',
+  permission_view: 'View',
+  permission_none: 'None'
 }

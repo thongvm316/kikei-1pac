@@ -3,7 +3,7 @@
     <!-- table level 1 -->
     <table>
       <tbody>
-        <template v-for="group in mockDataTable" :key="group.id" :bordered="false">
+        <template v-for="group in dataTablePermission" :key="group.id" :bordered="false">
           <tr :class="['permission-table__header', activeKeyCollapse.indexOf(`${group.id}`) !== -1 && 'is-active']">
             <td>{{ group.groupName }}</td>
             <td>
@@ -13,6 +13,8 @@
                 >アクセスを許可する</a-checkbox
               >
             </td>
+
+            <!-- template -->
             <td>
               <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                 <a class="ant-dropdown-link" @click.prevent>
@@ -28,7 +30,7 @@
                         <span class="u-text-12 u-text-additional-blue-6">Mansadasdasdager</span>
                         <a-button class="btn-delete u-text-12" type="link" danger>
                           <template #icon>
-                            <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                           </template>
                           削除
                         </a-button>
@@ -39,7 +41,7 @@
                         <span class="u-text-additional-blue-6 u-text-12">Design</span>
                         <a-button class="btn-delete u-text-12" type="link" danger>
                           <template #icon>
-                            <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                           </template>
                           削除
                         </a-button>
@@ -50,7 +52,7 @@
                         <span class="u-text-additional-blue-6 u-text-12">Admin</span>
                         <a-button class="btn-delete u-text-12" type="link" danger>
                           <template #icon>
-                            <span class="btn-icon" style="height: 18px"><delete-icon /></span>
+                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                           </template>
                           削除
                         </a-button>
@@ -71,47 +73,21 @@
                     <thead>
                       <tr>
                         <th></th>
-                        <th>編集可</th>
-                        <th>閲覧のみ</th>
-                        <th>アクセス不可</th>
+                        <th v-for="permissionKey in PERMISSION_KEYS" :key="permissionKey.id">
+                          {{ $t(permissionKey.text) }}
+                        </th>
                       </tr>
                     </thead>
 
                     <tbody>
-                      <tr>
-                        <td>プロジェクト</td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="a">
-                            <a-radio :value="10"></a-radio>
-                          </a-radio-group>
-                        </td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="a">
-                            <a-radio :value="20"></a-radio>
-                          </a-radio-group>
-                        </td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="a">
-                            <a-radio :value="30"></a-radio>
-                          </a-radio-group>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>入出金</td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="b">
-                            <a-radio :value="10"></a-radio>
-                          </a-radio-group>
-                        </td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="b">
-                            <a-radio :value="20"></a-radio>
-                          </a-radio-group>
-                        </td>
-                        <td>
-                          <a-radio-group v-model:value="checked" name="b">
-                            <a-radio :value="30"></a-radio>
-                          </a-radio-group>
+                      <tr v-for="page in group.permissionAccesses" :key="page.id">
+                        <td>{{ page.name }}</td>
+                        <td v-for="permissionKey in PERMISSION_KEYS" :key="permissionKey.id">
+                          <a-radio
+                            :checked="permissionKey.value === page.permission"
+                            :value="permissionKey.value"
+                            @change="handleChangePermission(group.id, page.id, permissionKey.value)"
+                          ></a-radio>
                         </td>
                       </tr>
                     </tbody>
@@ -136,47 +112,15 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { find, parseInt } from 'lodash-es'
+
+import { ACCOUNT_PERMISSION, PERMISSION_KEYS } from '@/enums/account.enum'
 
 import SaveIcon from '@/assets/icons/ico_save.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
-
-const mockDataTable = [
-  {
-    id: 1,
-    templateType: 1,
-    groupName: 'gumiVietnam',
-    permissionAccess: {
-      プロジェクト: 2,
-      入出金: 1,
-      資金繰り: 2,
-      管理会計: 0
-    }
-  },
-  {
-    id: 2,
-    templateType: 1,
-    groupName: 'VAND',
-    permissionAccess: {
-      プロジェクト: 2,
-      入出金: 1,
-      資金繰り: 2,
-      管理会計: 0
-    }
-  },
-  {
-    id: 3,
-    templateType: 1,
-    groupName: 'VAND creative',
-    permissionAccess: {
-      プロジェクト: 2,
-      入出金: 1,
-      資金繰り: 2,
-      管理会計: 0
-    }
-  }
-]
 
 export default defineComponent({
   name: 'PermissionTable',
@@ -187,10 +131,38 @@ export default defineComponent({
     DeleteIcon
   },
 
-  setup() {
+  props: {
+    permissions: {
+      validator: (value) => ['object', 'undefined'].indexOf(typeof value) !== -1,
+      required: true
+    }
+  },
+
+  setup(props, { emit }) {
+    const { t } = useI18n()
+
     const checked = ref(10)
     const checkedBox = ref()
     const activeKeyCollapse = ref(['1'])
+
+    const dataTablePermission = computed(() => {
+      const rows = (props?.permissions || []).map((permission) => {
+        const groupName = permission.groupId
+
+        const permissionAccesses = Object.keys(permission?.permissionAccesses || {}).map((pageId) => {
+          const pageFound = find(ACCOUNT_PERMISSION, { value: parseInt(pageId) })
+
+          return {
+            id: pageId,
+            name: pageFound ? t(pageFound.text) : pageId,
+            permission: permission.permissionAccesses[pageId]
+          }
+        })
+
+        return { ...permission, groupName, permissionAccesses }
+      })
+      return rows
+    })
 
     const handleToggleCollapse = (key) => {
       const keyStr = `${key}`
@@ -201,12 +173,19 @@ export default defineComponent({
           : activeKeyCollapse.value.filter((item) => item !== keyStr)
     }
 
+    const handleChangePermission = (groupId, pageId, value) => {
+      emit('handleChangePermission', { groupId, pageId, value })
+    }
+
     return {
       checked,
       checkedBox,
       activeKeyCollapse,
-      mockDataTable,
-      handleToggleCollapse
+      dataTablePermission,
+      PERMISSION_KEYS,
+
+      handleToggleCollapse,
+      handleChangePermission
     }
   }
 })
