@@ -31,51 +31,54 @@ export const AUTHORITY = [
   }
 ]
 
-export const ACCOUNT_PERMISSION = [
+export const PAGE_PERMISSIONS = [
   {
     id: 1,
     value: 1,
-    text: 'sidebar.project'
+    text: 'sidebar.project',
+    isGroupPermission: true
   },
   {
     id: 2,
     value: 2,
-    text: 'sidebar.deposit'
+    text: 'sidebar.deposit',
+    isGroupPermission: true
   },
   {
     id: 3,
     value: 3,
-    text: 'sidebar.financing'
+    text: 'sidebar.financing',
+    isGroupPermission: true
   },
   {
     id: 4,
     value: 4,
-    text: 'sidebar.accounting'
+    text: 'sidebar.accounting',
+    isGroupPermission: true
   },
   {
     id: 5,
     value: 5,
-    text: 'sidebar.company'
+    text: 'sidebar.company',
+    isGroupPermission: false
   },
   {
     id: 6,
     value: 6,
-    text: 'sidebar.category'
+    text: 'sidebar.category',
+    isGroupPermission: false
   },
   {
     id: 7,
     value: 7,
-    text: 'sidebar.account'
+    text: 'sidebar.account',
+    isGroupPermission: false
   },
   {
-    id: 8,
-    value: 8,
-    text: 'sidebar.bank'
-  },
-  {
-    id: 9,
-    value: 9,
-    text: 'sidebar.bankAccount'
+    id: 10,
+    value: 10,
+    text: 'sidebar.logs',
+    isGroupPermission: false
   }
 ]
 

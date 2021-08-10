@@ -120,11 +120,12 @@
       <!-- Permission Group-->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('account.authority') }}</label>
+          <label class="form-label">{{ $t('account.group_permissions') }}</label>
 
           <PermissionTable
             :permissions="form.permissions"
             :is-group-permission="true"
+            :group-list="groupList"
             @handleChangePermission="handleChangePermission"
           />
         </div>
@@ -133,11 +134,12 @@
       <!-- Permission Setting-->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('account.authority') }}</label>
+          <label class="form-label">{{ $t('account.setting_permissions') }}</label>
 
           <PermissionTable
             :permissions="form.permissions"
             :is-group-permission="false"
+            :group-list="groupList"
             @handleChangePermission="handleChangePermission"
           />
         </div>
@@ -163,12 +165,15 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { TYPE, ACTIVE } from '@/enums/account.enum'
 import { findIndex, cloneDeep } from 'lodash-es'
+
+import { TYPE, ACTIVE } from '@/enums/account.enum'
+import { PAGE_PERMISSIONS } from '@/enums/account.enum'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
+import { getGroups } from '../composables/useGroupService'
 import PermissionTable from './PermissionTable'
 
 export default defineComponent({
@@ -190,6 +195,8 @@ export default defineComponent({
 
     const autoGeneratePassW = ref(false)
 
+    const groupList = ref([])
+
     let form = ref({
       account_group_id: 1,
       username: '',
@@ -203,11 +210,54 @@ export default defineComponent({
       permissions: []
     })
 
-    onMounted(() => {
+    onMounted(async () => {
+      const groupReponse = await getGroups()
+      groupList.value = groupReponse?.result?.data || []
+
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       } else {
+        const permissions = []
+        const permissionDefault = null
+
+        const permissionAccessesGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).reduce(
+          (acc, page) => {
+            acc[page.value] = permissionDefault
+            return acc
+          },
+          {}
+        )
+        const permissionAccessesSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).reduce(
+          (acc, page) => {
+            acc[page.value] = permissionDefault
+            return acc
+          },
+          {}
+        )
+
+        // group page
+        groupList.value.forEach((group) => {
+          permissions.push({
+            id: group.id,
+            groupId: group.id,
+            permissionAccesses: permissionAccessesGroup,
+            templateName: '',
+            displayTemplateType: 1
+          })
+        })
+
+        // setting page
+        permissions.push({
+          id: null,
+          groupId: null,
+          permissionAccesses: permissionAccessesSetting,
+          templateName: '',
+          displayTemplateType: 2
+        })
+
+        form.value = { ...form.value, permissions }
+
         isHiddenField.value = true
       }
     })
@@ -297,6 +347,7 @@ export default defineComponent({
       isHiddenField,
       isDisableEditField,
       autoGeneratePassW,
+      groupList,
       onSubmit,
       handleCancel,
       updateAccount,

@@ -19,7 +19,7 @@
               <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                 <a class="ant-dropdown-link" @click.prevent>
                   <span class="u-flex u-justify-between u-items-center text-grey-55">
-                    テンプレートを保存する
+                    {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
                     <ArrowDownIcon />
                   </span>
                 </a>
@@ -112,12 +112,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { find, parseInt } from 'lodash-es'
 
-import { ACCOUNT_PERMISSION, PERMISSION_KEYS } from '@/enums/account.enum'
-import { getGroups } from '../composables/useGroupService'
+import { PAGE_PERMISSIONS, PERMISSION_KEYS } from '@/enums/account.enum'
 
 import SaveIcon from '@/assets/icons/ico_save.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
@@ -137,7 +136,8 @@ export default defineComponent({
       validator: (value) => ['object', 'undefined'].indexOf(typeof value) !== -1,
       required: true
     },
-    isGroupPermission: Boolean
+    isGroupPermission: Boolean,
+    groupList: Array
   },
 
   emits: ['handleChangePermission'],
@@ -148,27 +148,31 @@ export default defineComponent({
     const checked = ref(10)
     const checkedBox = ref()
     const activeKeyCollapse = ref(['1'])
-    const groupList = ref([])
 
     const dataTablePermission = computed(() => {
+      const displayTemplateType = props.isGroupPermission ? 1 : 2
+
       const rows = (props?.permissions || [])
-        .filter((permision) => (props.isGroupPermission ? permision.groupId : !permision.groupId))
+        .filter((permision) => parseInt(permision.displayTemplateType) === displayTemplateType)
         .map((permission) => {
-          const groupFound = find(groupList.value, { id: permission.groupId })
+          const groupFound = find(props.groupList, { id: permission.groupId })
           const groupName = groupFound?.name || ''
 
-          const permissionAccesses = Object.keys(permission?.permissionAccesses || {}).map((pageId) => {
-            const pageFound = find(ACCOUNT_PERMISSION, { value: parseInt(pageId) })
+          const permissionAccesses = Object.keys(permission?.permissionAccesses || {})
+            .map((pageId) => {
+              const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(pageId) })
 
-            return {
-              id: pageId,
-              name: pageFound ? t(pageFound.text) : pageId,
-              permission: permission.permissionAccesses[pageId]
-            }
-          })
+              return {
+                id: pageId,
+                name: pageFound ? t(pageFound.text) : null,
+                permission: permission.permissionAccesses[pageId]
+              }
+            })
+            .filter((page) => !!page.name)
 
           return { ...permission, groupName, permissionAccesses }
         })
+
       return rows
     })
 
@@ -184,11 +188,6 @@ export default defineComponent({
     const handleChangePermission = (groupId, pageId, value) => {
       emit('handleChangePermission', { groupId, pageId, value })
     }
-
-    onBeforeMount(async () => {
-      const groupReponse = await getGroups()
-      groupList.value = groupReponse?.result?.data || []
-    })
 
     return {
       checked,

@@ -6,7 +6,6 @@ export default {
   full_name: '氏名',
   email: 'Email',
   sales: '職種',
-  authority: 'グループ権限',
   type_sales: '営業',
   type_accounting: '会計',
   is_admin: '管理者',
@@ -20,6 +19,8 @@ export default {
   keyword: 'キーワード',
   clear: 'クリア',
   search: '検索',
+  group_permissions: 'グループ権限',
+  setting_permissions: '設定権限',
   permission_edit: '編集可',
   permission_view: '閲覧のみ',
   permission_none: 'アクセス不可'
