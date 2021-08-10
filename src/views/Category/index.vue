@@ -205,15 +205,6 @@ export default defineComponent({
       dataSource.value = [...route.meta['lists']]
       pagination.value = { ...route.meta['pagination'] }
 
-      // Back Form
-      tempRow = [parseInt(await route.params.id)]
-      if (tempRow[0] === parseInt(await route.params.id)) {
-        state.selectedRowKeys = [parseInt(await route.params.id)]
-        tempRow = [parseInt(await route.params.id)]
-        recordVisible.value.id = route.params.id
-        recordVisible.value.visible = true
-      }
-
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
