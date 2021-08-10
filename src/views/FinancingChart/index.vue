@@ -472,7 +472,6 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const loadDataDefault = async () => {
@@ -498,8 +497,6 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     onBeforeMount(async () => {
