@@ -178,6 +178,7 @@ export default defineComponent({
       requestParamsData.value = {
         data: { ...requestParamsData.value.data, ...data }
       }
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const initialGroup = {
@@ -218,9 +219,6 @@ export default defineComponent({
           to_date: filter.date_from_to[1]
         }
       })
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeDate = async (value, dateString) => {
@@ -258,9 +256,6 @@ export default defineComponent({
           }
         })
       }
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeShowBy = async (value) => {
@@ -288,9 +283,6 @@ export default defineComponent({
           to_date: filter.date_from_to[1]
         }
       })
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeTabGroup = async (value) => {
@@ -305,7 +297,7 @@ export default defineComponent({
 
       updateParamRequestFinancing({
         data: {
-          group_id: value !== 0 ? filter.group_id : null,
+          group_id: value !== 0 ? value : null,
           show_by: filter.show_by,
           bank_account_ids: []
         }
@@ -315,9 +307,6 @@ export default defineComponent({
       isDisabledDisplay.value = value === 0
       isDisabledBank.value = value === 0
       isDisabledCurrency.value = false
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const handleTab = (evt) => {
@@ -327,6 +316,7 @@ export default defineComponent({
       }
 
       filter.group_id = evt.group_id
+      filter.period_id = evt.period_id
       filter.date_from_to[0] = evt.from_date
       filter.date_from_to[1] = evt.to_date
 
@@ -346,8 +336,6 @@ export default defineComponent({
       })
 
       isDisabledCurrency.value = filter.bank_account_ids !== 0
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeViewMode = async (mode) => {
@@ -358,7 +346,6 @@ export default defineComponent({
 
     const onChangeCurrency = async () => {
       updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     // Fetch data group
@@ -465,7 +452,7 @@ export default defineComponent({
         filter.bank_account_ids =
           requestParamsData.value.data.bank_account_ids.length === 0 ? 0 : requestParamsData.value.data.bank_account_ids
         filter.currency_code =
-          requestParamsData.value.data.bank_account_ids.length === 0
+          requestParamsData.value.data.currency_code === null
             ? currencyDefault?.code
             : requestParamsData.value.data.currency_code
 
@@ -474,8 +461,8 @@ export default defineComponent({
           currency_code: filter.currency_code,
           bank_account_ids: filter.bank_account_ids !== 0 ? filter.bank_account_ids : [],
           period_id: filter.period_id,
-          from_date: requestParamsData.value.data.from_date,
-          to_date: requestParamsData.value.data.to_date
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
         }
 
         isDisabledCurrency.value = filter.bank_account_ids !== 0
@@ -485,7 +472,7 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const loadDataDefault = async () => {
@@ -512,7 +499,7 @@ export default defineComponent({
 
       dataChartFinancing.value = result?.data?.data
 
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     onBeforeMount(async () => {

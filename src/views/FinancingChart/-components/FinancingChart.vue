@@ -430,8 +430,18 @@ export default defineComponent({
 
         const filters = store.state.financing?.filters
 
+        let initialDataRequest = {
+          group_id: 1,
+          period_id: null,
+          show_by: 1,
+          bank_account_ids: [],
+          currency_code: null
+        }
+
+        let filter = filters.data === undefined ? { ...initialDataRequest } : filters.data
+
         dataPoint.value = {
-          ...filters,
+          ...filter,
           from_date: fullDate.value,
           to_date: fullDate.value,
           data_id: dataId
@@ -439,15 +449,9 @@ export default defineComponent({
 
         // eslint-disable-next-line no-useless-catch
         try {
-          const { getDetailChart } = useGetDetailChartService(dataPoint.value, filters.params)
+          const { getDetailChart } = useGetDetailChartService(dataPoint.value)
           const { result } = await getDetailChart()
           resolve(result)
-          if (result.data === null) {
-            store.commit('flash/STORE_FLASH_MESSAGE', {
-              variant: 'error',
-              message: 'errors.data_chart_null'
-            })
-          }
         } catch (e) {
           reject(e)
         }
@@ -655,8 +659,6 @@ export default defineComponent({
       widthLabel,
       onToggleIndicated,
       handleClose,
-      handleBankIdRequest,
-      handleDateRequest,
       handlePageRedirect,
       handleRowTotalRedirect
     }
