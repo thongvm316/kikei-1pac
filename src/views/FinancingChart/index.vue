@@ -316,6 +316,7 @@ export default defineComponent({
       }
 
       filter.group_id = evt.group_id
+      filter.period_id = evt.period_id
       filter.date_from_to[0] = evt.from_date
       filter.date_from_to[1] = evt.to_date
 
