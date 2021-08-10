@@ -109,7 +109,7 @@
               <a-textarea
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                style="width: 300px; height: 160px"
+                :style="{ width: '300px', height: '160px' }"
                 @change="handleChange"
               />
             </div>
@@ -117,12 +117,29 @@
         </Field>
       </div>
 
-      <!-- Permission -->
+      <!-- Permission Group-->
       <div class="form-group">
         <div class="form-content">
           <label class="form-label">{{ $t('account.authority') }}</label>
 
-          <PermissionTable :permissions="form.permissions" @handleChangePermission="handleChangePermission" />
+          <PermissionTable
+            :permissions="form.permissions"
+            :is-group-permission="true"
+            @handleChangePermission="handleChangePermission"
+          />
+        </div>
+      </div>
+
+      <!-- Permission Setting-->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('account.authority') }}</label>
+
+          <PermissionTable
+            :permissions="form.permissions"
+            :is-group-permission="false"
+            @handleChangePermission="handleChangePermission"
+          />
         </div>
       </div>
 
@@ -147,6 +164,7 @@ import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { TYPE, ACTIVE } from '@/enums/account.enum'
+import { findIndex, cloneDeep } from 'lodash-es'
 
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
@@ -181,7 +199,8 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      is_admin: false
+      is_admin: false,
+      permissions: []
     })
 
     onMounted(() => {
@@ -263,7 +282,12 @@ export default defineComponent({
     }
 
     const handleChangePermission = ({ groupId, pageId, value }) => {
-      console.log(groupId, pageId, value)
+      const permissionIndex = findIndex(form.value.permissions, { groupId: groupId })
+      if (permissionIndex === -1) return
+
+      const formNew = cloneDeep(form.value)
+      formNew.permissions[permissionIndex].permissionAccesses[pageId] = value
+      form.value = formNew
     }
 
     return {

@@ -112,11 +112,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { find, parseInt } from 'lodash-es'
 
 import { ACCOUNT_PERMISSION, PERMISSION_KEYS } from '@/enums/account.enum'
+import { getGroups } from '../composables/useGroupService'
 
 import SaveIcon from '@/assets/icons/ico_save.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
@@ -135,8 +136,11 @@ export default defineComponent({
     permissions: {
       validator: (value) => ['object', 'undefined'].indexOf(typeof value) !== -1,
       required: true
-    }
+    },
+    isGroupPermission: Boolean
   },
+
+  emits: ['handleChangePermission'],
 
   setup(props, { emit }) {
     const { t } = useI18n()
@@ -144,23 +148,27 @@ export default defineComponent({
     const checked = ref(10)
     const checkedBox = ref()
     const activeKeyCollapse = ref(['1'])
+    const groupList = ref([])
 
     const dataTablePermission = computed(() => {
-      const rows = (props?.permissions || []).map((permission) => {
-        const groupName = permission.groupId
+      const rows = (props?.permissions || [])
+        .filter((permision) => (props.isGroupPermission ? permision.groupId : !permision.groupId))
+        .map((permission) => {
+          const groupFound = find(groupList.value, { id: permission.groupId })
+          const groupName = groupFound?.name || ''
 
-        const permissionAccesses = Object.keys(permission?.permissionAccesses || {}).map((pageId) => {
-          const pageFound = find(ACCOUNT_PERMISSION, { value: parseInt(pageId) })
+          const permissionAccesses = Object.keys(permission?.permissionAccesses || {}).map((pageId) => {
+            const pageFound = find(ACCOUNT_PERMISSION, { value: parseInt(pageId) })
 
-          return {
-            id: pageId,
-            name: pageFound ? t(pageFound.text) : pageId,
-            permission: permission.permissionAccesses[pageId]
-          }
+            return {
+              id: pageId,
+              name: pageFound ? t(pageFound.text) : pageId,
+              permission: permission.permissionAccesses[pageId]
+            }
+          })
+
+          return { ...permission, groupName, permissionAccesses }
         })
-
-        return { ...permission, groupName, permissionAccesses }
-      })
       return rows
     })
 
@@ -176,6 +184,11 @@ export default defineComponent({
     const handleChangePermission = (groupId, pageId, value) => {
       emit('handleChangePermission', { groupId, pageId, value })
     }
+
+    onBeforeMount(async () => {
+      const groupReponse = await getGroups()
+      groupList.value = groupReponse?.result?.data || []
+    })
 
     return {
       checked,
@@ -204,7 +217,7 @@ export default defineComponent({
     background-color: $color-primary-1;
 
     td {
-      border-bottom: none;
+      border-bottom: 0;
     }
   }
 
