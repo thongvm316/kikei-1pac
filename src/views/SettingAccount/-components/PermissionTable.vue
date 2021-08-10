@@ -223,6 +223,10 @@ export default defineComponent({
 
   &__header.is-active {
     background-color: $color-primary-1;
+
+    td {
+      border-bottom: none;
+    }
   }
 
   table {
