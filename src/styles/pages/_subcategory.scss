@@ -6,19 +6,19 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 16px;
-    
+
     .btn-modal {
       width: auto;
       border-radius: 2px;
       text-align: center;
       display: flex;
       align-items: center;
-      
+
       .add-icon {
         margin-right: 10.33px;
       }
     }
-    
+
     .bnt-back {
       width: auto;
       border-radius: 2px;
@@ -28,12 +28,19 @@
       border: 0;
       color: #808080;
       background-color: transparent;
-      
+      padding: 0;
+
       .arrow-icon {
         transform: rotate(270deg);
       }
+
+      span {
+        line-height: normal;
+        margin-top: 3px;
+      }
+      
     }
-    
+
     .bnt-back:hover {
       width: auto;
       border-radius: 2px;
@@ -43,7 +50,7 @@
       border: 0;
       color: #1890ff;
       background-color: transparent;
-      
+
       .arrow-icon {
         transform: rotate(270deg);
       }
