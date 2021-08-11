@@ -4,25 +4,18 @@
     <form @submit="onSubmit">
       <!-- category Name-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.category_name" name="categoryName">
-          <div class="form-content">
-            <label class="form-label">{{ $t('subcategory.category') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                max-length="20"
-                class="w-300"
-                :disabled="true"
-                @change="handleChange"
-              ></a-input>
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="categoryName" class="errors">
-                {{ replaceField(message, 'categoryName') }}
-              </ErrorMessage>
-            </div>
+        <div class="form-content">
+          <label class="form-label">{{ $t('subcategory.category') }}</label>
+          <div class="form-input">
+            <a-input
+              v-model:value="$route.query.name"
+              max-length="20"
+              class="w-300"
+              :disabled="true"
+              :placeholder="$t('common.please_enter')"
+            />
           </div>
-        </Field>
+        </div>
       </div>
 
       <!-- subcategory name -->
@@ -126,6 +119,7 @@ export default defineComponent({
     const store = useStore()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
+    let idSelected = ref({})
 
     const subcategoryEnums = ref({
       subcategory_name: t('subcategory.error_subcategory_name')
@@ -141,10 +135,16 @@ export default defineComponent({
     })
 
     const handleCancel = () => {
+      idSelected.value = {
+        key_search: route.query.key_search,
+        category_id: route.query.category_id,
+        name: route.query.name,
+        id: route.query.id
+      }
       router.push({
         name: 'subcategory',
         params: route.params,
-        query: route.query
+        query: idSelected.value
       })
     }
 

@@ -340,7 +340,7 @@ export default defineComponent({
 
       idSelected.value = {
         key_search: '',
-        category_id: [parseInt(record.id)],
+        category_id: parseInt(record.id),
         name: record.name,
         id: record.id
       }
