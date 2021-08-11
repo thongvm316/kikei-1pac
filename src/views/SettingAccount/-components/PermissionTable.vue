@@ -18,57 +18,39 @@
             <td>
               <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                 <a class="ant-dropdown-link" @click.prevent>
-                  <span class="u-flex u-justify-between u-items-center text-grey-55">
+                  <span class="u-flex u-justify-end u-items-center text-grey-55">
                     {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
-                    <ArrowDownIcon />
+                    <ArrowDownIcon class="u-ml-6"/>
                   </span>
                 </a>
                 <template #overlay>
-                  <a-menu>
-                    <a-menu-item key="0">
-                      <div class="u-flex u-justify-between u-items-center">
-                        <span class="u-text-12 u-text-additional-blue-6">Mansadasdasdager</span>
+                  <div class="permission-template__body">
+                    <div
+                      v-for="item in teplatePermission"
+                      :key="item.id"
+                      class="permission-template__item"
+                    >
+                      <template v-if="!item.groupId || item.groupId === group.id">
+                        <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
                         <a-button class="btn-delete u-text-12" type="link" danger>
                           <template #icon>
                             <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                           </template>
                           削除
                         </a-button>
-                      </div>
-                    </a-menu-item>
-                    <a-menu-item key="1">
-                      <div class="u-flex u-justify-between u-items-center">
-                        <span class="u-text-additional-blue-6 u-text-12">Design</span>
-                        <a-button class="btn-delete u-text-12" type="link" danger>
-                          <template #icon>
-                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
-                          </template>
-                          削除
-                        </a-button>
-                      </div>
-                    </a-menu-item>
-                    <a-menu-item key="3">
-                      <div class="u-flex u-justify-between u-items-center">
-                        <span class="u-text-additional-blue-6 u-text-12">Admin</span>
-                        <a-button class="btn-delete u-text-12" type="link" danger>
-                          <template #icon>
-                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
-                          </template>
-                          削除
-                        </a-button>
-                      </div>
-                    </a-menu-item>
-                  </a-menu>
+                      </template>
+                    </div>
+                  </div>
                 </template>
               </a-dropdown>
             </td>
           </tr>
 
-          <a-collapse v-model:activeKey="activeKeyCollapse" :bordered="false" class="permission-table__collapse">
-            <a-collapse-panel :key="`${group.id}`">
-              <tr>
-                <td colspan="3">
-                  <!-- table level 2 -->
+          <!-- collaplse body -->
+          <tr :class="activeKeyCollapse.indexOf(`${group.id}`) === -1 ? 'd-hidden' : ''">
+            <td colspan="3">
+              <a-collapse v-model:activeKey="activeKeyCollapse" :bordered="false" class="permission-table__collapse">
+                <a-collapse-panel :key="`${group.id}`">
                   <table class="has-border">
                     <thead>
                       <tr>
@@ -101,10 +83,10 @@
                       テンプレートを保存する
                     </a-button>
                   </div>
-                </td>
-              </tr>
-            </a-collapse-panel>
-          </a-collapse>
+                </a-collapse-panel>
+              </a-collapse>
+            </td>
+          </tr>
         </template>
       </tbody>
     </table>
@@ -137,7 +119,8 @@ export default defineComponent({
       required: true
     },
     isGroupPermission: Boolean,
-    groupList: Array
+    groupList: Array,
+    templatesPermission: Array
   },
 
   emits: ['handleChangePermission'],
@@ -176,6 +159,12 @@ export default defineComponent({
       return rows
     })
 
+    const teplatePermission = computed(() => {
+      const displayTemplateType = props.isGroupPermission ? 1 : 2
+
+      return props?.templatesPermission.filter(item => item.templateType === displayTemplateType)
+    })
+
     const handleToggleCollapse = (key) => {
       const keyStr = `${key}`
 
@@ -186,7 +175,19 @@ export default defineComponent({
     }
 
     const handleChangePermission = (groupId, pageId, value) => {
-      emit('handleChangePermission', { groupId, pageId, value })
+      const IS_CHANGE_TEMPLATE = false
+      emit('handleChangePermission', { groupId, pageId, value, IS_CHANGE_TEMPLATE })
+    }
+
+    const chooseTemplatePermission = (groupId, permissions, templateName) => {
+      const IS_CHANGE_TEMPLATE = true
+      let permissionObj = {}
+
+      permissions.forEach(item => {
+        permissionObj[item.featureKey] = item.permissionKey
+      })
+
+      emit('handleChangePermission', { groupId, permissionObj, templateName, IS_CHANGE_TEMPLATE })
     }
 
     return {
@@ -195,9 +196,11 @@ export default defineComponent({
       activeKeyCollapse,
       dataTablePermission,
       PERMISSION_KEYS,
+      teplatePermission,
 
       handleToggleCollapse,
-      handleChangePermission
+      handleChangePermission,
+      chooseTemplatePermission
     }
   }
 })
@@ -209,7 +212,7 @@ export default defineComponent({
 
 .permission-table {
   &__header {
-    @include flexbox(null, null);
+    // @include flexbox(null, null);
   }
 
   &__header.is-active {
@@ -220,11 +223,16 @@ export default defineComponent({
     }
   }
 
+  .ant-collapse-content {
+    background-color: $color-grey-100 !important;
+  }
+
   table {
     font-size: 14px;
     line-height: 22px;
     color: $color-grey-15;
     border: 1px solid $color-grey-75;
+    border-bottom: 0;
     min-width: 500px;
     background-color: $color-grey-100;
 
@@ -307,8 +315,38 @@ export default defineComponent({
 }
 
 .permission-template {
+  &__body {
+    min-width: 166px;
+    background-color: $color-grey-100;
+    border-radius: 2px;
+    padding: 8px;
+    box-shadow: 0px 16px 32px -12px #33363C26;
+    max-height: 176px;
+    overflow-y: scroll;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding-left: 8px;
+    border-radius: 2px;
+  }
+
   .btn-delete {
     color: $color-additional-red-5;
+  }
+
+  p {
+    margin-bottom: 0;
+    color: $color-additional-blue-6;
+    font-size: 12px;
+    line-height: 18px;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 </style>

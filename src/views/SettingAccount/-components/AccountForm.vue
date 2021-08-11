@@ -126,6 +126,7 @@
             :permissions="form.permissions"
             :is-group-permission="true"
             :group-list="groupList"
+            :templates-permission="templatesPermission"
             @handleChangePermission="handleChangePermission"
           />
         </div>
@@ -140,6 +141,7 @@
             :permissions="form.permissions"
             :is-group-permission="false"
             :group-list="groupList"
+            :templates-permission="templatesPermission"
             @handleChangePermission="handleChangePermission"
           />
         </div>
@@ -174,6 +176,7 @@ import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
 import { getGroups } from '../composables/useGroupService'
+import { usePermission } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 
 export default defineComponent({
@@ -197,6 +200,8 @@ export default defineComponent({
 
     const groupList = ref([])
 
+    const templatesPermission = ref()
+
     let form = ref({
       account_group_id: 1,
       username: '',
@@ -211,6 +216,10 @@ export default defineComponent({
     })
 
     onMounted(async () => {
+      // template permissions
+      const templateRes = await usePermission()
+      templatesPermission.value = templateRes.data.result.data
+
       const groupReponse = await getGroups()
       groupList.value = groupReponse?.result?.data || []
 
@@ -331,12 +340,19 @@ export default defineComponent({
       return text.replace(field, t(`account.${field}`))
     }
 
-    const handleChangePermission = ({ groupId, pageId, value }) => {
+    const handleChangePermission = ({ groupId, pageId, value, templateName, permissionObj, IS_CHANGE_TEMPLATE }) => {
       const permissionIndex = findIndex(form.value.permissions, { groupId: groupId })
       if (permissionIndex === -1) return
 
       const formNew = cloneDeep(form.value)
-      formNew.permissions[permissionIndex].permissionAccesses[pageId] = value
+      if (IS_CHANGE_TEMPLATE) {
+        formNew.permissions[permissionIndex].permissionAccesses = permissionObj
+        formNew.permissions[permissionIndex].templateName = templateName
+      } else {
+        formNew.permissions[permissionIndex].permissionAccesses[pageId] = value
+        formNew.permissions[permissionIndex].templateName = ''
+      }
+
       form.value = formNew
     }
 
@@ -348,6 +364,7 @@ export default defineComponent({
       isDisableEditField,
       autoGeneratePassW,
       groupList,
+      templatesPermission,
       onSubmit,
       handleCancel,
       updateAccount,
