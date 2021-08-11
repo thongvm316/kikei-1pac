@@ -172,7 +172,6 @@ import { findIndex, cloneDeep } from 'lodash-es'
 import { TYPE, ACTIVE } from '@/enums/account.enum'
 import { PAGE_PERMISSIONS } from '@/enums/account.enum'
 
-import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
 import { getGroups } from '../composables/useGroupService'
@@ -243,7 +242,7 @@ export default defineComponent({
           groupPermissions.push({
             id: group.id,
             groupId: group.id,
-            permissions: permissionGroup,
+            permissions: cloneDeep(permissionGroup),
             templateName: '',
             displayTemplateType: 1
           })
@@ -359,8 +358,6 @@ export default defineComponent({
       }
 
       form.value = formNew
-
-      // console.log('form new', form.value)
     }
 
     return {
