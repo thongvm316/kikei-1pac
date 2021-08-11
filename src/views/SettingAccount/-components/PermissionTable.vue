@@ -16,33 +16,35 @@
 
             <!-- template -->
             <td>
-              <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
-                <a class="ant-dropdown-link" @click.prevent>
-                  <span class="u-flex u-justify-end u-items-center text-grey-55">
-                    {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
-                    <ArrowDownIcon class="u-ml-6"/>
-                  </span>
-                </a>
-                <template #overlay>
-                  <div class="permission-template__body">
-                    <div
-                      v-for="item in teplatePermission"
-                      :key="item.id"
-                      class="permission-template__item"
-                    >
-                      <template v-if="!item.groupId || item.groupId === group.id">
-                        <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
-                        <a-button class="btn-delete u-text-12" type="link" danger>
-                          <template #icon>
-                            <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
-                          </template>
-                          削除
-                        </a-button>
-                      </template>
+              <div v-show="activeKeyCollapse.indexOf(`${group.id}`) !== -1">
+                <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
+                  <a class="ant-dropdown-link" @click.prevent>
+                    <span class="u-flex u-justify-end u-items-center text-grey-55">
+                      {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
+                      <ArrowDownIcon class="u-ml-6"/>
+                    </span>
+                  </a>
+                  <template #overlay>
+                    <div class="permission-template__body">
+                      <div
+                        v-for="item in teplatePermission"
+                        :key="item.id"
+                        class="permission-template__item"
+                      >
+                        <template v-if="!item.groupId || item.groupId === group.id">
+                          <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
+                          <a-button class="btn-delete u-text-12" type="link" danger>
+                            <template #icon>
+                              <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
+                            </template>
+                            削除
+                          </a-button>
+                        </template>
+                      </div>
                     </div>
-                  </div>
-                </template>
-              </a-dropdown>
+                  </template>
+                </a-dropdown>
+              </div>
             </td>
           </tr>
 
