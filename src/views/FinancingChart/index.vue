@@ -25,7 +25,7 @@
                 v-model:value="filter.date_from_to"
                 :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
                 :style="{ width: '260px' }"
-                :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
+                :placeholder="filter.show_by ? ['YYYY/MM/DD', 'YYYY/MM/DD'] : ['YYYY/MM', 'YYYY/MM']"
                 @change="onChangeDate"
               >
                 <template #suffixIcon>

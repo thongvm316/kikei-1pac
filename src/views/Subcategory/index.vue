@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, reactive, onMounted } from 'vue'
+import { defineComponent, computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -62,7 +62,6 @@ import { useStore } from 'vuex'
 import useGetSubCategoryListService from '@/views/Subcategory/composables/useGetSubcategoryListService'
 import useDeleteSubCategoryService from '@/views/Subcategory/composables/useDeleteSubcategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 
 import Table from '@/mixins/table.mixin'
 import SubcategorySearchForm from '@/views/Subcategory/-components/SubcategorySearchForm'
@@ -83,7 +82,7 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const body = {}
 
-    if (keys(to.query).length > 0) {
+    if (isArray(to.query.category_id)) {
       forEach(to.query, (value, key) => {
         if (!includes(['order_by', 'page_number', 'page_size'], key)) {
           if (isArray(value)) {
@@ -95,7 +94,7 @@ export default defineComponent({
       })
     }
 
-    if (keys(from.query).length > 0) {
+    if (isArray(from.query.category_id)) {
       forEach(from.query, (value, key) => {
         if (!includes(['order_by', 'page_number', 'page_size'], key)) {
           if (isArray(value)) {
@@ -232,12 +231,24 @@ export default defineComponent({
     }
 
     const onFilterChange = async (evt) => {
-      queryDelete.value = {
-        ...queryDelete.value,
-        key_search: evt.key_search === '' ? '' : queryDelete.value.key_search
+      let filter = {}
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (isArray(value)) {
+            filter[key] = map([...value], (i) => Number(i))
+          } else if (key === 'category_id' && typeof value === 'string') {
+            filter[key] = map([value], (i) => Number(i))
+          } else {
+            filter[key] = value
+          }
+        })
       }
-      filter.value = evt.key_search === '' ? queryDelete.value : { ...deleteEmptyValue(evt) }
-      await fetchList({ page_number: 1, page_size: 50 }, filter.value)
+      queryDelete.value = {
+        ...filter,
+        key_search: evt.key_search === '' ? '' : evt.key_search
+      }
+      await router.push({ name: 'subcategory', query: queryDelete.value })
+      await fetchList({ page_number: 1, page_size: 50, order_by: 'name asc' }, queryDelete.value)
     }
 
     const handleBack = () => {
@@ -258,15 +269,15 @@ export default defineComponent({
 
     const handleCreate = () => {
       idSelected.value = {
-        key_search: filter.value.key_search,
-        category_id: [parseInt(route.query.id)],
+        key_search: route.query.key_search,
+        category_id: parseInt(route.query.id),
         name: route.query.name,
         id: route.query.id
       }
       router.push({
         name: 'subcategory-new',
         params: route.params,
-        query: { ...idSelected.value }
+        query: { ...idSelected.value, ...params.value, ...filter.value }
       })
     }
 
@@ -332,7 +343,7 @@ export default defineComponent({
     const handleEditRecord = () => {
       idSelected.value = {
         key_search: route.query.key_search,
-        category_id: [parseInt(route.query.id)],
+        category_id: parseInt(route.query.id),
         name: route.query.name,
         id: route.query.id
       }
@@ -382,6 +393,26 @@ export default defineComponent({
         }
       }
     }
+
+    onBeforeMount(async () => {
+      let params = {
+        page_number: 1,
+        page_size: 50,
+        order_by: 'name asc',
+        ...route.query
+      }
+      let filter = {}
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (key === 'category_id' && typeof value === 'string') {
+            filter[key] = map([value], (i) => Number(i))
+          } else {
+            filter[key] = value
+          }
+        })
+      }
+      await fetchList(params, filter)
+    })
 
     return {
       dataSource,
