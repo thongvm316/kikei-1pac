@@ -33,7 +33,7 @@
                       >
                         <template v-if="!item.groupId || item.groupId === group.id">
                           <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
-                          <a-button class="btn-delete u-text-12" type="link" danger>
+                          <a-button @click="deleteTemplatePermission" class="btn-delete u-text-12" type="link" danger>
                             <template #icon>
                               <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                             </template>
@@ -78,7 +78,7 @@
                   </table>
 
                   <div class="u-flex u-justify-end u-mt-12">
-                    <a-button size="small" type="link" class="btn-save">
+                    <a-button @click="saveNewTemplatePermission(group.id)" size="small" type="link" class="btn-save">
                       <template #icon>
                         <span class="btn-icon"><save-icon /></span>
                       </template>
@@ -93,12 +93,17 @@
       </tbody>
     </table>
   </div>
+
+  <confirm-create-template-permission
+    v-model:visible="isVisibleCreateTemplateModal"
+    @handle-save-template="handleSaveTemplate($event)"
+  />
 </template>
 
 <script>
 import { defineComponent, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { find, parseInt } from 'lodash-es'
+import { find, parseInt, findIndex } from 'lodash-es'
 
 import { PAGE_PERMISSIONS, PERMISSION_KEYS } from '@/enums/account.enum'
 
@@ -106,13 +111,16 @@ import SaveIcon from '@/assets/icons/ico_save.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
 
+import ConfirmCreateTemplatePermission from './ConfirmCreateTemplatePermission.vue'
+
 export default defineComponent({
   name: 'PermissionTable',
 
   components: {
     SaveIcon,
     ArrowDownIcon,
-    DeleteIcon
+    DeleteIcon,
+    ConfirmCreateTemplatePermission
   },
 
   props: {
@@ -133,12 +141,16 @@ export default defineComponent({
     const checked = ref(10)
     const checkedBox = ref()
     const activeKeyCollapse = ref(['1'])
+    const isVisibleCreateTemplateModal = ref()
+    const newTemplate = ref()
+
+    const displayTemplateType = computed(() => {
+      return props.isGroupPermission ? 1 : 2
+    })
 
     const dataTablePermission = computed(() => {
-      const displayTemplateType = props.isGroupPermission ? 1 : 2
-
       const rows = (props?.permissions || [])
-        .filter((permision) => parseInt(permision.displayTemplateType) === displayTemplateType)
+        .filter((permision) => parseInt(permision.displayTemplateType) === displayTemplateType.value)
         .map((permission) => {
           const groupFound = find(props.groupList, { id: permission.groupId })
           const groupName = groupFound?.name || ''
@@ -162,9 +174,7 @@ export default defineComponent({
     })
 
     const teplatePermission = computed(() => {
-      const displayTemplateType = props.isGroupPermission ? 1 : 2
-
-      return props?.templatesPermission.filter(item => item.templateType === displayTemplateType)
+      return props?.templatesPermission.filter(item => item.templateType === displayTemplateType.value)
     })
 
     const handleToggleCollapse = (key) => {
@@ -192,6 +202,41 @@ export default defineComponent({
       emit('handleChangePermission', { groupId, permissionObj, templateName, IS_CHANGE_TEMPLATE })
     }
 
+    const deleteTemplatePermission = () => {
+      console.log('delete')
+    }
+
+    const saveNewTemplatePermission = (groupId) => {
+      isVisibleCreateTemplateModal.value = true
+
+      let newPermission
+
+      if (displayTemplateType.value === 1) {
+        const permissionIndex = findIndex(props?.permissions, { groupId: groupId })
+        if (permissionIndex === -1) return
+
+        newPermission = props.permissions[permissionIndex].permissionAccesses
+      } else {
+        const permissionIndex = findIndex(props?.permissions, { displayTemplateType: 2 })
+        if (permissionIndex === -1) return
+
+        newPermission = props.permissions[permissionIndex].permissionAccesses
+      }
+
+      newTemplate.value = {
+        groupId,
+        templateName: '',
+        templateType: displayTemplateType.value,
+        permissions: newPermission
+      }
+
+      console.log(newTemplate.value);
+    }
+
+    const handleSaveTemplate = (name) => {
+      console.log(name)
+    }
+
     return {
       checked,
       checkedBox,
@@ -199,10 +244,14 @@ export default defineComponent({
       dataTablePermission,
       PERMISSION_KEYS,
       teplatePermission,
+      isVisibleCreateTemplateModal,
 
       handleToggleCollapse,
       handleChangePermission,
-      chooseTemplatePermission
+      chooseTemplatePermission,
+      deleteTemplatePermission,
+      saveNewTemplatePermission,
+      handleSaveTemplate
     }
   }
 })
@@ -213,10 +262,6 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .permission-table {
-  &__header {
-    // @include flexbox(null, null);
-  }
-
   &__header.is-active {
     background-color: $color-primary-1;
 
