@@ -362,7 +362,6 @@ export default defineComponent({
     display: flex;
     background-color: $color-grey-100;
     padding-right: 32px;
-    min-height: 600px;
     padding-bottom: 24px;
   }
 

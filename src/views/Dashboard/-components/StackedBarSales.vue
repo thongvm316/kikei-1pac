@@ -145,7 +145,7 @@ export default defineComponent({
 .stacked-bar {
   @include flexbox(center, flex-end);
   flex-direction: column;
-  margin: 12px 32px;
+  margin: 32px 32px 12px;
 
   &__chart {
     @include flexbox(center, center);
