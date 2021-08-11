@@ -35,7 +35,7 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: 1200, y: height - 236 }"
+      :scroll="{ x: 1400, y: height - 236 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
@@ -197,7 +197,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt'
         },
-        sorter: true
+        sorter: true,
+        width: 120
       },
       {
         dataIndex: 'ADCompany.name',
@@ -229,7 +230,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectAccuracy'
         },
-        sorter: true
+        sorter: true,
+        width: 100
       },
       {
         title: t('project.release_date'),
@@ -238,7 +240,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectReleaseDate'
         },
-        sorter: true
+        sorter: true,
+        width: 120
       },
       {
         dataIndex: 'money',

@@ -123,13 +123,14 @@ import { useStore } from 'vuex'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { isEmpty, remove } from 'lodash-es'
 import { useRouter } from 'vue-router'
+import moment from 'moment'
 
 import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
-import { convertDataFilter, findCurrentPeriod } from '@/views/Financing/composables/useFinancing'
+import { convertDataFilter, findCurrentPeriod } from '@/helpers/extend-financing'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { SHOW_BY, VIEW_MODE } from '@/enums/financing.enum'
@@ -225,6 +226,8 @@ export default {
     // Handle filter
     const onChangePeriod = async (event) => {
       filter.date_from_to = [null, null]
+      fromDateRangePicker.value = null
+      toDateRangePicker.value = null
       isDisabledDate.value = !(event === undefined || event === null)
 
       updateDataFilterRequest({
@@ -242,8 +245,8 @@ export default {
       toDateRangePicker.value = filter.date_from_to[1]
 
       if (filter.show_by === 0) {
-        fromDateRangePicker.value = value[0].startOf('month').format('YYYY-MM-DD')
-        toDateRangePicker.value = value[1].startOf('month').format('YYYY-MM-DD')
+        fromDateRangePicker.value = value.length > 0 ? value[0].startOf('month').format('YYYY-MM-DD') : null
+        toDateRangePicker.value = value.length > 0 ? value[1].endOf('month').format('YYYY-MM-DD') : null
       }
 
       filter.period_id = null
@@ -263,10 +266,22 @@ export default {
       })
     }
 
-    const onChangeShowBy = async () => {
+    const onChangeShowBy = async (evt) => {
+      let fromDateBytMonth = fromDateRangePicker.value
+      let toDateBytMonth = toDateRangePicker.value
+
+      filter.date_from_to = [fromDateBytMonth, toDateBytMonth]
+      if (evt.target.value === 0) {
+        fromDateBytMonth = fromDateBytMonth
+          ? moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
+          : null
+        toDateBytMonth = toDateBytMonth ? moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD') : null
+      }
       updateDataFilterRequest({
         data: {
-          show_by: filter.show_by
+          show_by: filter.show_by,
+          from_date: fromDateBytMonth,
+          to_date: toDateBytMonth
         }
       })
     }
@@ -275,7 +290,6 @@ export default {
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
-        filter.show_by = 1
         filter.bank_account_ids = bankAccountList.value[0].id
         isDisabledDisplay.value = false
         isDisabledBank.value = false
@@ -401,6 +415,8 @@ export default {
       if (dateFromTo[0] && dateFromTo[1]) {
         filter.from_date = dateFromTo[0]
         filter.to_date = dateFromTo[1]
+        fromDateRangePicker.value = dateFromTo[0]
+        toDateRangePicker.value = dateFromTo[1]
         filter.period_id = null
       }
     }
@@ -476,12 +492,6 @@ export default {
       () => {
         const data = Object.assign({}, dataFilterRequest.value.data)
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-      }
-    )
-
-    watch(
-      () => store.state.financing.filters,
-      () => {
         emit('onFilterRequest', dataFilterRequest.value)
       }
     )

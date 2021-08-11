@@ -31,7 +31,7 @@ import useGetFinancingListService from '@/views/Financing/composables/useGetFina
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
 import FinancingFilter from '@/views/Financing/-components/FinancingFilter'
 
-import { convertDataByDates, convertDataByMonth, convertDataCsv } from './composables/useFinancing'
+import { convertDataByDates, convertDataByMonth, convertDataCsv } from '@/helpers/extend-financing'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -152,6 +152,7 @@ export default defineComponent({
     const onFilterTablesRender = (data) => {
       if (data) {
         dataFilterTable.value = data
+        updateParamRequestFinancing({ data: { ...data } })
       }
     }
 
@@ -230,7 +231,6 @@ export default defineComponent({
         remove(dataColumnsNameTable.value)
         remove(dataColumns.value)
         remove(dataByDates.value)
-
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
@@ -293,6 +293,7 @@ export default defineComponent({
         // fetch data table
         await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
+      updateDataRequest.value = requestParamsData.value
     })
 
     onMounted(async () => {

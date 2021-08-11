@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="financing__header--middle">
-        <a-tabs ref="tabGroup" v-model:activeKey="filter.group_id" @change="onChangeTabGroup">
+        <a-tabs v-model:activeKey="filter.group_id" default-active-key="1" :animated="false" @change="onChangeTabGroup">
           <a-tab-pane v-for="item in groupList" :key="item.id" :tab="item.name"></a-tab-pane>
         </a-tabs>
       </div>
@@ -115,7 +115,6 @@ import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import moment from 'moment'
 
 import { isEmpty, remove } from 'lodash-es'
 
@@ -125,7 +124,7 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import { convertDataFilter, findCurrentPeriod } from './composables/useFinancing'
+import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
@@ -179,6 +178,7 @@ export default defineComponent({
       requestParamsData.value = {
         data: { ...requestParamsData.value.data, ...data }
       }
+      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const initialGroup = {
@@ -204,26 +204,6 @@ export default defineComponent({
 
     const filter = reactive({ ...initialStateFilter })
 
-    const currentDate = (value, format = 'YYYY-MM-DD') => {
-      let newDate = null
-      newDate = value ? moment(value) : moment()
-      return newDate.format(format)
-    }
-
-    const addDaysInCurrentDate = (value, days, format = 'YYYY-MM-DD') => {
-      let newDate = null
-      newDate = value ? moment(value) : moment()
-      return newDate.add(days, 'days').format(format)
-    }
-
-    const getDiffDays = (start, end, oneDay = 24 * 60 * 60 * 1000) => {
-      let diffDays = null
-      let startDate = new Date(start)
-      let endDate = new Date(end)
-      diffDays = Math.abs((endDate.getTime() - startDate.getTime()) / oneDay)
-      return diffDays
-    }
-
     // Handle filter
     const onChangePeriod = async (event) => {
       isDisabledDate.value = !(event === undefined || event === null)
@@ -239,9 +219,6 @@ export default defineComponent({
           to_date: filter.date_from_to[1]
         }
       })
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeDate = async (value, dateString) => {
@@ -251,8 +228,8 @@ export default defineComponent({
           let checkDateUndefined = filter.date_from_to[0] === undefined && filter.date_from_to[1] === undefined
 
           filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
-          filter.date_from_to[0] = checkDateUndefined ? null : currentDate(dateString[0])
-          filter.date_from_to[1] = checkDateUndefined ? null : currentDate(dateString[1])
+          filter.date_from_to[0] = checkDateUndefined ? null : currentDate(value[0])
+          filter.date_from_to[1] = checkDateUndefined ? null : currentDate(value[1])
         } else {
           if (getDiffDays(dateString[0], dateString[1]) > 59) {
             store.commit('flash/STORE_FLASH_MESSAGE', {
@@ -279,26 +256,25 @@ export default defineComponent({
           }
         })
       }
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeShowBy = async (value) => {
       let startPiker = requestParamsData.value.data.from_date
       let endPiker = requestParamsData.value.data.to_date
 
-      if (getDiffDays(startPiker, endPiker) > 59) {
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'error',
-          message: 'errors.chart_date_2m'
-        })
-        filter.show_by = value
-      }
+      if (filter.period_id === null) {
+        if (getDiffDays(startPiker, endPiker) > 59) {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            message: 'errors.chart_date_2m'
+          })
+          filter.show_by = value
+        }
 
-      filter.date_from_to[0] = currentDate(startPiker)
-      filter.date_from_to[1] =
-        getDiffDays(startPiker, endPiker) > 59 ? addDaysInCurrentDate(startPiker, 59) : currentDate(endPiker)
+        filter.date_from_to[0] = currentDate(startPiker)
+        filter.date_from_to[1] =
+          getDiffDays(startPiker, endPiker) > 59 ? addDaysInCurrentDate(startPiker, 59) : currentDate(endPiker)
+      }
 
       updateParamRequestFinancing({
         data: {
@@ -307,22 +283,21 @@ export default defineComponent({
           to_date: filter.date_from_to[1]
         }
       })
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeTabGroup = async (value) => {
-      // Check show tab all
+      let currencyCode = requestParamsData.value.data.currency_code
+      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+
       if (value !== 0) await fetchBankAccounts({ group_id: value })
 
-      filter.show_by = value !== 0 ? 1 : 0
-      filter.group_id = value !== 0 ? value : null
+      filter.currency_code = currencyCode === null ? currencyDefault?.code : currencyCode
+      filter.show_by = value !== 0 ? requestParamsData.value.data.show_by : 0
       filter.bank_account_ids = bankAccountList?.value[0]?.id
 
       updateParamRequestFinancing({
         data: {
-          group_id: filter.group_id,
+          group_id: value !== 0 ? value : null,
           show_by: filter.show_by,
           bank_account_ids: []
         }
@@ -332,9 +307,6 @@ export default defineComponent({
       isDisabledDisplay.value = value === 0
       isDisabledBank.value = value === 0
       isDisabledCurrency.value = false
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const handleTab = (evt) => {
@@ -344,6 +316,7 @@ export default defineComponent({
       }
 
       filter.group_id = evt.group_id
+      filter.period_id = evt.period_id
       filter.date_from_to[0] = evt.from_date
       filter.date_from_to[1] = evt.to_date
 
@@ -363,8 +336,6 @@ export default defineComponent({
       })
 
       isDisabledCurrency.value = filter.bank_account_ids !== 0
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     const onChangeViewMode = async (mode) => {
@@ -375,7 +346,6 @@ export default defineComponent({
 
     const onChangeCurrency = async () => {
       updateParamRequestFinancing({ data: { currency_code: filter.currency_code } })
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
     // Fetch data group
@@ -400,8 +370,8 @@ export default defineComponent({
       remove(bankAccountList.value)
       const { getBankAccounts } = useGetBankAccountsService(groupID)
       const { result } = await getBankAccounts()
-      bankAccountList.value = result?.data
-      bankAccountList.value.unshift(initialBankAccount)
+      bankAccountList.value = result?.data || []
+      bankAccountList?.value?.unshift(initialBankAccount)
     }
 
     // Fetch currency
@@ -449,12 +419,6 @@ export default defineComponent({
         await fetchBankAccounts({ group_id: groupID })
       }
 
-      if (groupID === null) {
-        filter.group_id = groupList?.value[groupList.value.length - 1].id
-        isDisabledDisplay.value = true
-        isDisabledBank.value = true
-      }
-
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
 
       if (localStorage.getItem('flag_chart') === null || !flagChart) {
@@ -477,13 +441,18 @@ export default defineComponent({
 
         requestParamsData.value.data = { ...initialDataRequest }
       } else {
+        if (groupID === null) {
+          filter.group_id = groupList?.value[groupList.value.length - 1].id
+          isDisabledDisplay.value = true
+          isDisabledBank.value = true
+        }
         filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
         filter.bank_account_ids =
           requestParamsData.value.data.bank_account_ids.length === 0 ? 0 : requestParamsData.value.data.bank_account_ids
         filter.currency_code =
-          requestParamsData.value.data.bank_account_ids.length === 0
+          requestParamsData.value.data.currency_code === null
             ? currencyDefault?.code
             : requestParamsData.value.data.currency_code
 
@@ -492,12 +461,11 @@ export default defineComponent({
           currency_code: filter.currency_code,
           bank_account_ids: filter.bank_account_ids !== 0 ? filter.bank_account_ids : [],
           period_id: filter.period_id,
-          from_date: requestParamsData.value.data.from_date,
-          to_date: requestParamsData.value.data.to_date
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
         }
 
         isDisabledCurrency.value = filter.bank_account_ids !== 0
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
       }
 
       const { getDataChart } = useGetDataChartService(requestParamsData.value.data)
@@ -529,8 +497,6 @@ export default defineComponent({
       const { result } = await getDataChart()
 
       dataChartFinancing.value = result?.data?.data
-
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value.data)
     }
 
     onBeforeMount(async () => {
@@ -542,9 +508,7 @@ export default defineComponent({
 
       // Load data by filter store
       if (!isEmpty(filtersFinancingStore)) {
-        const dataFilter = await convertDataFilter(filtersFinancingStore.data)
-
-        Object.assign(filter, dataFilter)
+        Object.assign(filter, filtersFinancingStore.data)
         Object.assign(requestParamsData.value, filtersFinancingStore)
 
         // reset default chart
