@@ -10,8 +10,9 @@
               <a-checkbox
                 :checked="activeKeyCollapse.indexOf(`${group.id}`) !== -1"
                 @change="handleToggleCollapse(group.id)"
-                >アクセスを許可する</a-checkbox
               >
+                アクセスを許可する
+              </a-checkbox>
             </td>
 
             <!-- template -->
@@ -64,13 +65,13 @@
                     </thead>
 
                     <tbody>
-                      <tr v-for="page in group.permissionAccesses" :key="page.id">
+                      <tr v-for="page in group.permissions" :key="page.featureKey">
                         <td>{{ page.name }}</td>
                         <td v-for="permissionKey in PERMISSION_KEYS" :key="permissionKey.id">
                           <a-radio
-                            :checked="permissionKey.value === page.permission"
+                            :checked="permissionKey.value === page.permissionKey"
                             :value="permissionKey.value"
-                            @change="handleChangePermission(group.id, page.id, permissionKey.value)"
+                            @change="handleChangePermission(group.id, page.featureKey, permissionKey.value)"
                           ></a-radio>
                         </td>
                       </tr>
@@ -124,7 +125,7 @@ export default defineComponent({
   },
 
   props: {
-    permissions: {
+    groupPermissions: {
       validator: (value) => ['object', 'undefined'].indexOf(typeof value) !== -1,
       required: true
     },
@@ -149,25 +150,24 @@ export default defineComponent({
     })
 
     const dataTablePermission = computed(() => {
-      const rows = (props?.permissions || [])
-        .filter((permision) => parseInt(permision.displayTemplateType) === displayTemplateType.value)
-        .map((permission) => {
-          const groupFound = find(props.groupList, { id: permission.groupId })
+      const rows = (props?.groupPermissions || [])
+        .filter((groupPermission) => parseInt(groupPermission.displayTemplateType) === displayTemplateType.value)
+        .map((groupPermission) => {
+          const groupFound = find(props.groupList, { id: groupPermission.groupId })
           const groupName = groupFound?.name || ''
 
-          const permissionAccesses = Object.keys(permission?.permissionAccesses || {})
-            .map((pageId) => {
-              const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(pageId) })
+          const permissions = (groupPermission?.permissions || {})
+            .map((page) => {
+              const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(page.featureKey) })
 
               return {
-                id: pageId,
-                name: pageFound ? t(pageFound.text) : null,
-                permission: permission.permissionAccesses[pageId]
+                ...page,
+                name: pageFound ? t(pageFound.text) : null
               }
             })
             .filter((page) => !!page.name)
 
-          return { ...permission, groupName, permissionAccesses }
+          return { ...groupPermission, groupName, permissions }
         })
 
       return rows
@@ -186,12 +186,12 @@ export default defineComponent({
           : activeKeyCollapse.value.filter((item) => item !== keyStr)
     }
 
-    const handleChangePermission = (groupId, pageId, value) => {
+    const handleChangePermission = (groupPermissionId, featureKey, value) => {
       const IS_CHANGE_TEMPLATE = false
-      emit('handleChangePermission', { groupId, pageId, value, IS_CHANGE_TEMPLATE })
+      emit('handleChangePermission', { groupPermissionId, featureKey, value, IS_CHANGE_TEMPLATE })
     }
 
-    const chooseTemplatePermission = (groupId, permissions, templateName) => {
+    const chooseTemplatePermission = (groupPermissionId, permissions, templateName) => {
       const IS_CHANGE_TEMPLATE = true
       let permissionObj = {}
 
@@ -199,7 +199,7 @@ export default defineComponent({
         permissionObj[item.featureKey] = item.permissionKey
       })
 
-      emit('handleChangePermission', { groupId, permissionObj, templateName, IS_CHANGE_TEMPLATE })
+      emit('handleChangePermission', { groupPermissionId, permissionObj, templateName, IS_CHANGE_TEMPLATE })
     }
 
     const deleteTemplatePermission = () => {

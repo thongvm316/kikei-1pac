@@ -1,12 +1,30 @@
 <template>
   <section class="account-wrap">
-    <account-search-form @filter-changed="onFilterChange($event)" />
+    <div class="u-flex u-justify-between u-items-center u-mt-24 u-mb-16 u-mx-32">
+      <!-- Keyword -->
+      <a-input-search
+        v-model:value="filter.key_search"
+        :placeholder="$t('account.search_input_placeholder')"
+        :style="{ width: '222px' }"
+        @search="onFilterChange"
+      />
 
-    <div class="box-create">
-      <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new', query: $route.query })">
-        <add-icon class="add-icon" />
-        {{ $t('account.add_account') }}
-      </a-button>
+      <div class="u-flex u-items-center">
+        <!-- csv -->
+        <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
+          <a-button class="u-mr-16" type="link" :loading="isLoadingExportCsv" @click="exportToCsvFile">
+            <template #icon>
+              <span class="btn-icon" :style="{ height: '28px' }"><line-down-icon /></span>
+            </template>
+          </a-button>
+        </a-tooltip>
+
+        <!-- add account -->
+        <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'account-new', query: $route.query })">
+          <add-icon class="add-icon" />
+          {{ $t('account.add_account') }}
+        </a-button>
+      </div>
     </div>
 
     <a-table
@@ -54,12 +72,9 @@ import { useStore } from 'vuex'
 import { forEach, isArray, keys, map, includes } from 'lodash-es'
 
 import { convertPagination } from '@/helpers/convert-pagination'
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import useGetAccountListService from '@/views/SettingAccount/composables/useGetAccountListService'
 import useDeleteAccountService from '@/views/SettingAccount/composables/useDeleteAccountService'
 import useResetPasswordAccountService from '@/views/SettingAccount/composables/useResetPasswordAccountService'
-
-import AccountSearchForm from '@/views/SettingAccount/-components/AccountSearchForm'
 
 import Table from '@/mixins/table.mixin'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
@@ -69,6 +84,8 @@ import ModalReset from '@/components/ModalReset'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
 
+import LineDownIcon from '@/assets/icons/ico_line-down.svg'
+
 const defaultParam = {
   type: []
 }
@@ -77,7 +94,7 @@ const StorageService = Services.get('StorageService')
 export default defineComponent({
   name: 'Index',
 
-  components: { ModalAction, AccountSearchForm, AddIcon, ModalDelete, ModalReset },
+  components: { ModalAction, AddIcon, ModalDelete, ModalReset, LineDownIcon },
 
   mixins: [Table],
 
@@ -120,13 +137,18 @@ export default defineComponent({
     const openReset = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
-    const filter = ref({})
+    const filter = ref({
+      key_search: ''
+    })
     const isLoading = ref(false)
     const recordVisible = ref({})
     const modalActionRef = ref()
     const isShowResetPass = ref(false)
     const params = ref({})
     const height = ref(0)
+
+    // CSV
+    const isLoadingExportCsv = ref(false)
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
@@ -217,8 +239,8 @@ export default defineComponent({
       await fetchList(params.value, { ...filter.value })
     }
 
-    const onFilterChange = async (evt) => {
-      filter.value = { ...deleteEmptyValue(evt) }
+    const onFilterChange = async (searchValue) => {
+      // filter.value = { ...deleteEmptyValue(searchValue) }
 
       params.value = {
         page_number: 1,
@@ -331,12 +353,16 @@ export default defineComponent({
       recordVisible.value.visible = false
       state.selectedRowKeys = []
     }
+
+    const exportToCsvFile = () => {
+      //...
+    }
+
     return {
       dataSource,
       pagination,
       columns,
       isLoading,
-      t,
       openDelete,
       openReset,
       state,
@@ -346,6 +372,9 @@ export default defineComponent({
       isShowResetPass,
       height,
       params,
+      filter,
+      isLoadingExportCsv,
+
       handleDeleteRecord,
       handleEditRecord,
       handleResetPassword,
@@ -354,7 +383,8 @@ export default defineComponent({
       customRow,
       handleChange,
       onFilterChange,
-      fetchList
+      fetchList,
+      exportToCsvFile
     }
   }
 })

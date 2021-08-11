@@ -123,7 +123,7 @@
           <label class="form-label">{{ $t('account.group_permissions') }}</label>
 
           <PermissionTable
-            :permissions="form.permissions"
+            :group-permissions="form.groupPermissions"
             :is-group-permission="true"
             :group-list="groupList"
             :templates-permission="templatesPermission"
@@ -138,7 +138,7 @@
           <label class="form-label">{{ $t('account.setting_permissions') }}</label>
 
           <PermissionTable
-            :permissions="form.permissions"
+            :group-permissions="form.groupPermissions"
             :is-group-permission="false"
             :group-list="groupList"
             :templates-permission="templatesPermission"
@@ -212,7 +212,7 @@ export default defineComponent({
       memo: '',
       active: true,
       is_admin: false,
-      permissions: []
+      groupPermissions: []
     })
 
     onMounted(async () => {
@@ -225,47 +225,40 @@ export default defineComponent({
 
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
-        form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
+        form.value = { ...form.value, ...route.meta['detail'] }
       } else {
-        const permissions = []
+        const groupPermissions = []
         const permissionDefault = null
-
-        const permissionAccessesGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).reduce(
-          (acc, page) => {
-            acc[page.value] = permissionDefault
-            return acc
-          },
-          {}
-        )
-        const permissionAccessesSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).reduce(
-          (acc, page) => {
-            acc[page.value] = permissionDefault
-            return acc
-          },
-          {}
-        )
+        const permissionGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).map((page) => ({
+          featureKey: page.value,
+          permissionKey: permissionDefault
+        }))
+        const permissionSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).map((page) => ({
+          featureKey: page.value,
+          permissionKey: permissionDefault
+        }))
 
         // group page
         groupList.value.forEach((group) => {
-          permissions.push({
+          groupPermissions.push({
             id: group.id,
             groupId: group.id,
-            permissionAccesses: permissionAccessesGroup,
+            permissions: permissionGroup,
             templateName: '',
             displayTemplateType: 1
           })
         })
 
         // setting page
-        permissions.push({
+        groupPermissions.push({
           id: null,
           groupId: null,
-          permissionAccesses: permissionAccessesSetting,
+          permissions: permissionSetting,
           templateName: '',
           displayTemplateType: 2
         })
 
-        form.value = { ...form.value, permissions }
+        form.value = { ...form.value, groupPermissions }
 
         isHiddenField.value = true
       }
@@ -340,20 +333,34 @@ export default defineComponent({
       return text.replace(field, t(`account.${field}`))
     }
 
-    const handleChangePermission = ({ groupId, pageId, value, templateName, permissionObj, IS_CHANGE_TEMPLATE }) => {
-      const permissionIndex = findIndex(form.value.permissions, { groupId: groupId })
-      if (permissionIndex === -1) return
+    const handleChangePermission = ({
+      groupPermissionId,
+      featureKey,
+      value,
+      templateName,
+      permissionObj,
+      IS_CHANGE_TEMPLATE
+    }) => {
+      const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
+      if (groupIndex === -1) return
 
       const formNew = cloneDeep(form.value)
       if (IS_CHANGE_TEMPLATE) {
-        formNew.permissions[permissionIndex].permissionAccesses = permissionObj
-        formNew.permissions[permissionIndex].templateName = templateName
+        formNew.groupPermissions[groupIndex].permissions = permissionObj
+        formNew.groupPermissions[groupIndex].templateName = templateName
       } else {
-        formNew.permissions[permissionIndex].permissionAccesses[pageId] = value
-        formNew.permissions[permissionIndex].templateName = ''
+        const permissionIndex = findIndex(form.value.groupPermissions[groupIndex].permissions, {
+          featureKey: featureKey
+        })
+        if (permissionIndex === -1) return
+
+        formNew.groupPermissions[groupIndex].permissions[permissionIndex].permissionKey = value
+        formNew.groupPermissions[groupIndex].templateName = ''
       }
 
       form.value = formNew
+
+      // console.log('form new', form.value)
     }
 
     return {

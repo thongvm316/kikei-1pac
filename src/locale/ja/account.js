@@ -23,5 +23,6 @@ export default {
   setting_permissions: '設定権限',
   permission_edit: '編集可',
   permission_view: '閲覧のみ',
-  permission_none: 'アクセス不可'
+  permission_none: 'アクセス不可',
+  search_input_placeholder: 'ログインID、氏名'
 }
