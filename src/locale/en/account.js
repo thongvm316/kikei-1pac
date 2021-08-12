@@ -23,5 +23,8 @@ export default {
   setting_permissions: '設定権限',
   permission_edit: 'Edit',
   permission_view: 'View',
-  permission_none: 'None'
+  permission_none: 'None',
+  search_input_placeholder: 'ログインID、氏名',
+  created_at: '登録日',
+  all_group: 'All group'
 }

@@ -256,7 +256,7 @@ export default defineComponent({
         groupPermissions.push({
           id: null,
           groupId: null,
-          permissions: permissionSetting,
+          permissions: cloneDeep(permissionSetting),
           templateName: '',
           displayTemplateType: 2
         })

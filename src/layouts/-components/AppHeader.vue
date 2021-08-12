@@ -49,7 +49,6 @@ export default defineComponent({
       'project',
       'company',
       'category',
-      'account',
       'subcategory',
       'logs'
     ]

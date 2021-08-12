@@ -24,5 +24,7 @@ export default {
   permission_edit: '編集可',
   permission_view: '閲覧のみ',
   permission_none: 'アクセス不可',
-  search_input_placeholder: 'ログインID、氏名'
+  search_input_placeholder: 'ログインID、氏名',
+  created_at: '登録日',
+  all_group: 'グループ全体'
 }
