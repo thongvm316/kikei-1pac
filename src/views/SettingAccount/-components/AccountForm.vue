@@ -218,52 +218,85 @@ export default defineComponent({
       groupPermissions: []
     })
 
+    const createPermissionDefault = () => {
+      const groupPermissionsDefault = []
+      const permissionGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).map((page) => ({
+        featureKey: page.value,
+        permissionKey: null
+      }))
+      const permissionSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).map((page) => ({
+        featureKey: page.value,
+        permissionKey: null
+      }))
+
+      // template type: 1
+      groupList.value.forEach((group) => {
+        groupPermissionsDefault.push({
+          id: group.id,
+          groupId: group.id,
+          permissions: cloneDeep(permissionGroup),
+          templateName: '',
+          displayTemplateType: 1
+        })
+      })
+
+      // template type: 2
+      groupPermissionsDefault.push({
+        id: 0,
+        groupId: null,
+        permissions: cloneDeep(permissionSetting),
+        templateName: '',
+        displayTemplateType: 2
+      })
+
+      return groupPermissionsDefault
+    }
+
+    const mergeGroupPermission = (objValue, srcValue) => {
+      const groupPermissionMerged = [...objValue]
+
+      srcValue.forEach((group) => {
+        const groupIndexFound = findIndex(groupPermissionMerged, { groupId: group.groupId })
+
+        if (groupIndexFound === -1) {
+          groupPermissionMerged.push(group)
+        } else {
+          const permissions = [...groupPermissionMerged[groupIndexFound]?.permissions]
+
+          ;(group?.permissions || []).forEach((page) => {
+            const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
+            if (pageIndexFound === -1) permissions.push(page)
+          })
+
+          groupPermissionMerged[groupIndexFound].permissions = permissions
+        }
+
+        return group
+      })
+
+      return groupPermissionMerged
+    }
+
     onMounted(async () => {
       // template permissions
       const templateRes = await getPermissionTemplate()
       templatesPermission.value = templateRes.data.result.data
 
+      // fetch group
       const groupReponse = await getGroups()
       groupList.value = groupReponse?.result?.data || []
 
+      // permission list
+      const groupPermissionsDefault = createPermissionDefault()
+      const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
+      const groupPermissionsMerged = mergeGroupPermission(groupPermissionsRequested, groupPermissionsDefault)
+
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
-        form.value = { ...form.value, ...route.meta['detail'] }
+        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsMerged }
       } else {
-        const groupPermissions = []
-        const permissionDefault = null
-        const permissionGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).map((page) => ({
-          featureKey: page.value,
-          permissionKey: permissionDefault
-        }))
-        const permissionSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).map((page) => ({
-          featureKey: page.value,
-          permissionKey: permissionDefault
-        }))
-
-        // group page
-        groupList.value.forEach((group) => {
-          groupPermissions.push({
-            id: group.id,
-            groupId: group.id,
-            permissions: cloneDeep(permissionGroup),
-            templateName: '',
-            displayTemplateType: 1
-          })
-        })
-
-        // setting page
-        groupPermissions.push({
-          id: null,
-          groupId: null,
-          permissions: cloneDeep(permissionSetting),
-          templateName: '',
-          displayTemplateType: 2
-        })
-
-        form.value = { ...form.value, groupPermissions }
-
         isHiddenField.value = true
+        form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
       }
     })
 
@@ -369,7 +402,7 @@ export default defineComponent({
     }
 
     const deletePermissionTemplate = (templateId) => {
-      templatesPermission.value = templatesPermission.value.filter(item => item.id !== templateId)
+      templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
     }
 
     return {

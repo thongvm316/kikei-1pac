@@ -22,19 +22,22 @@
                   <a class="ant-dropdown-link" @click.prevent>
                     <span class="u-flex u-justify-end u-items-center text-grey-55">
                       {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
-                      <ArrowDownIcon class="u-ml-6"/>
+                      <ArrowDownIcon class="u-ml-6" />
                     </span>
                   </a>
                   <template #overlay>
                     <div class="permission-template__body">
-                      <div
-                        v-for="item in teplatePermission"
-                        :key="item.id"
-                        class="permission-template__item"
-                      >
+                      <div v-for="item in teplatePermission" :key="item.id" class="permission-template__item">
                         <template v-if="!item.groupId || item.groupId === group.id">
-                          <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
-                          <a-button @click="deleteTemplatePermission(item.id)" class="btn-delete u-text-12" type="link" danger>
+                          <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">
+                            {{ item.templateName }}
+                          </p>
+                          <a-button
+                            class="btn-delete u-text-12"
+                            type="link"
+                            danger
+                            @click="deleteTemplatePermission(item.id)"
+                          >
                             <template #icon>
                               <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                             </template>
@@ -79,7 +82,13 @@
                   </table>
 
                   <div class="u-flex u-justify-end u-mt-12">
-                    <a-button @click="openModalSaveTemplatePermission(group.id)" :disabled="!!group.templateName" size="small" type="link" class="btn-save">
+                    <a-button
+                      :disabled="!!group.templateName"
+                      size="small"
+                      type="link"
+                      class="btn-save"
+                      @click="openModalSaveTemplatePermission(group.id)"
+                    >
                       <template #icon>
                         <span class="btn-icon"><save-icon /></span>
                       </template>
@@ -103,7 +112,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, toRefs } from 'vue'
+import { defineComponent, ref, computed, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { find, parseInt, findIndex } from 'lodash-es'
 
@@ -143,7 +152,7 @@ export default defineComponent({
 
     const checked = ref(10)
     const checkedBox = ref()
-    const activeKeyCollapse = ref(['1'])
+    const activeKeyCollapse = ref([])
     const isVisibleCreateTemplateModal = ref()
     const newTemplate = ref()
     const { templatesPermission, groupPermissions, isGroupPermission, groupList } = toRefs(props)
@@ -177,7 +186,7 @@ export default defineComponent({
     })
 
     const teplatePermission = computed(() => {
-      return templatesPermission.value.filter(item => item.templateType === displayTemplateType.value)
+      return templatesPermission.value.filter((item) => item.templateType === displayTemplateType.value)
     })
 
     const handleToggleCollapse = (key) => {
@@ -241,6 +250,15 @@ export default defineComponent({
     const clearTemplateTmp = () => {
       newTemplate.value = {}
     }
+
+    watch(
+      () => dataTablePermission.value,
+      () => {
+        activeKeyCollapse.value = dataTablePermission.value
+          .filter((item) => item.permissions.some((page) => page.permissionKey !== null))
+          .map((item) => `${item.id}`)
+      }
+    )
 
     return {
       checked,
@@ -373,7 +391,7 @@ export default defineComponent({
     background-color: $color-grey-100;
     border-radius: 2px;
     padding: 8px;
-    box-shadow: 0px 16px 32px -12px #33363C26;
+    box-shadow: 0 16px 32px -12px #33363c26;
     max-height: 176px;
     overflow-y: scroll;
   }
