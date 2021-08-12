@@ -6,7 +6,7 @@
         <a-typography-title>{{ $t('user.title') }}</a-typography-title>
         <p class="activate-account__desc">
           Hi <span class="activate-account__mail">abc@xyz.com</span>, your account has been successfully created. Please
-          create a password to coontinue.
+          create a password to continue.
         </p>
         <!--New  Password -->
         <div class="form-group">
@@ -58,7 +58,12 @@
             :key="item"
             :class="error && error[item] === true ? 'valid' : error && error[item] === false ? 'invalid' : ''"
           >
-            {{ $t(`set_password.${item}`) }}
+            <template v-if="item === 'special'">
+              {{ $t(`set_password.${item}`) + '~`!@#$%^&*()-_+={}[]|\;:"<>,./?' }}
+            </template>
+            <template v-else>
+              {{ $t(`set_password.${item}`) }}
+            </template>
           </li>
         </ul>
 

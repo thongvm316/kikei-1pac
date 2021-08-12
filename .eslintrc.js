@@ -26,6 +26,7 @@ module.exports = {
   rules: {
     'vue/no-multiple-template-root': 'off',
     'vue/no-unused-vars': 'error',
+    'vue/no-parsing-error': ['error', { 'invalid-first-character-of-tag-name': false }],
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off', // allow debugger during development
     indent: [
       'error',
