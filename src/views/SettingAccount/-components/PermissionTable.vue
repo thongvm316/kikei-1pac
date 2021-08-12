@@ -34,7 +34,7 @@
                       >
                         <template v-if="!item.groupId || item.groupId === group.id">
                           <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">{{ item.templateName }}</p>
-                          <a-button @click="deleteTemplatePermission" class="btn-delete u-text-12" type="link" danger>
+                          <a-button @click="deleteTemplatePermission(item.id)" class="btn-delete u-text-12" type="link" danger>
                             <template #icon>
                               <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
                             </template>
@@ -79,7 +79,7 @@
                   </table>
 
                   <div class="u-flex u-justify-end u-mt-12">
-                    <a-button @click="saveNewTemplatePermission(group.id)" size="small" type="link" class="btn-save">
+                    <a-button @click="openModalSaveTemplatePermission(group.id)" :disabled="!!group.templateName" size="small" type="link" class="btn-save">
                       <template #icon>
                         <span class="btn-icon"><save-icon /></span>
                       </template>
@@ -98,11 +98,12 @@
   <confirm-create-template-permission
     v-model:visible="isVisibleCreateTemplateModal"
     @handle-save-template="handleSaveTemplate($event)"
+    @clear-template-tmp="clearTemplateTmp"
   />
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { find, parseInt, findIndex } from 'lodash-es'
 
@@ -113,6 +114,7 @@ import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
 
 import ConfirmCreateTemplatePermission from './ConfirmCreateTemplatePermission.vue'
+import { createPermissionTemplate, deletePermissionTemplate } from '../composables/usePermissionService'
 
 export default defineComponent({
   name: 'PermissionTable',
@@ -134,7 +136,7 @@ export default defineComponent({
     templatesPermission: Array
   },
 
-  emits: ['handleChangePermission'],
+  emits: ['handleChangePermission', 'handleTemplateList', 'deletePermissionTemplate'],
 
   setup(props, { emit }) {
     const { t } = useI18n()
@@ -144,16 +146,17 @@ export default defineComponent({
     const activeKeyCollapse = ref(['1'])
     const isVisibleCreateTemplateModal = ref()
     const newTemplate = ref()
+    const { templatesPermission, groupPermissions, isGroupPermission, groupList } = toRefs(props)
 
     const displayTemplateType = computed(() => {
-      return props.isGroupPermission ? 1 : 2
+      return isGroupPermission.value ? 1 : 2
     })
 
     const dataTablePermission = computed(() => {
-      const rows = (props?.groupPermissions || [])
+      const rows = (groupPermissions.value || [])
         .filter((groupPermission) => parseInt(groupPermission.displayTemplateType) === displayTemplateType.value)
         .map((groupPermission) => {
-          const groupFound = find(props.groupList, { id: groupPermission.groupId })
+          const groupFound = find(groupList.value, { id: groupPermission.groupId })
           const groupName = groupFound?.name || ''
 
           const permissions = (groupPermission?.permissions || {})
@@ -174,7 +177,7 @@ export default defineComponent({
     })
 
     const teplatePermission = computed(() => {
-      return props?.templatesPermission.filter(item => item.templateType === displayTemplateType.value)
+      return templatesPermission.value.filter(item => item.templateType === displayTemplateType.value)
     })
 
     const handleToggleCollapse = (key) => {
@@ -193,34 +196,30 @@ export default defineComponent({
 
     const chooseTemplatePermission = (groupPermissionId, permissions, templateName) => {
       const IS_CHANGE_TEMPLATE = true
-      let permissionObj = {}
 
-      permissions.forEach(item => {
-        permissionObj[item.featureKey] = item.permissionKey
-      })
-
-      emit('handleChangePermission', { groupPermissionId, permissionObj, templateName, IS_CHANGE_TEMPLATE })
+      emit('handleChangePermission', { groupPermissionId, permissions, templateName, IS_CHANGE_TEMPLATE })
     }
 
-    const deleteTemplatePermission = () => {
-      console.log('delete')
+    const deleteTemplatePermission = async (id) => {
+      await deletePermissionTemplate(id)
+      emit('deletePermissionTemplate', id)
     }
 
-    const saveNewTemplatePermission = (groupId) => {
+    const openModalSaveTemplatePermission = (groupId) => {
       isVisibleCreateTemplateModal.value = true
 
       let newPermission
 
       if (displayTemplateType.value === 1) {
-        const permissionIndex = findIndex(props?.permissions, { groupId: groupId })
-        if (permissionIndex === -1) return
+        const groupIndex = findIndex(groupPermissions.value, { groupId: groupId })
+        if (groupIndex === -1) return
 
-        newPermission = props.permissions[permissionIndex].permissionAccesses
+        newPermission = groupPermissions.value[groupIndex].permissions
       } else {
-        const permissionIndex = findIndex(props?.permissions, { displayTemplateType: 2 })
-        if (permissionIndex === -1) return
+        const groupIndex = findIndex(groupPermissions.value, { displayTemplateType: 2 })
+        if (groupIndex === -1) return
 
-        newPermission = props.permissions[permissionIndex].permissionAccesses
+        newPermission = groupPermissions.value[groupIndex].permissions
       }
 
       newTemplate.value = {
@@ -229,12 +228,18 @@ export default defineComponent({
         templateType: displayTemplateType.value,
         permissions: newPermission
       }
-
-      console.log(newTemplate.value);
     }
 
-    const handleSaveTemplate = (name) => {
-      console.log(name)
+    const handleSaveTemplate = async (name) => {
+      const newPermission = { ...newTemplate.value, templateName: name }
+
+      const { result } = await createPermissionTemplate(newPermission)
+      emit('handleTemplateList', result.data)
+      isVisibleCreateTemplateModal.value = false
+    }
+
+    const clearTemplateTmp = () => {
+      newTemplate.value = {}
     }
 
     return {
@@ -250,8 +255,9 @@ export default defineComponent({
       handleChangePermission,
       chooseTemplatePermission,
       deleteTemplatePermission,
-      saveNewTemplatePermission,
-      handleSaveTemplate
+      openModalSaveTemplatePermission,
+      handleSaveTemplate,
+      clearTemplateTmp
     }
   }
 })

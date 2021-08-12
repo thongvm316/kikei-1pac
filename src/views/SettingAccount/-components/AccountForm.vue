@@ -127,7 +127,9 @@
             :is-group-permission="true"
             :group-list="groupList"
             :templates-permission="templatesPermission"
-            @handleChangePermission="handleChangePermission"
+            @handle-change-permission="handleChangePermission"
+            @handle-template-list="handleTemplateList($event)"
+            @delete-permission-template="deletePermissionTemplate($event)"
           />
         </div>
       </div>
@@ -142,7 +144,9 @@
             :is-group-permission="false"
             :group-list="groupList"
             :templates-permission="templatesPermission"
-            @handleChangePermission="handleChangePermission"
+            @handle-change-permission="handleChangePermission"
+            @handle-template-list="handleTemplateList($event)"
+            @delete-permission-template="deletePermissionTemplate($event)"
           />
         </div>
       </div>
@@ -175,7 +179,7 @@ import { PAGE_PERMISSIONS } from '@/enums/account.enum'
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
 import { getGroups } from '../composables/useGroupService'
-import { usePermission } from '../composables/usePermissionService'
+import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 
 export default defineComponent({
@@ -216,7 +220,7 @@ export default defineComponent({
 
     onMounted(async () => {
       // template permissions
-      const templateRes = await usePermission()
+      const templateRes = await getPermissionTemplate()
       templatesPermission.value = templateRes.data.result.data
 
       const groupReponse = await getGroups()
@@ -337,7 +341,7 @@ export default defineComponent({
       featureKey,
       value,
       templateName,
-      permissionObj,
+      permissions,
       IS_CHANGE_TEMPLATE
     }) => {
       const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
@@ -345,7 +349,7 @@ export default defineComponent({
 
       const formNew = cloneDeep(form.value)
       if (IS_CHANGE_TEMPLATE) {
-        formNew.groupPermissions[groupIndex].permissions = permissionObj
+        formNew.groupPermissions[groupIndex].permissions = permissions
         formNew.groupPermissions[groupIndex].templateName = templateName
       } else {
         const permissionIndex = findIndex(form.value.groupPermissions[groupIndex].permissions, {
@@ -358,6 +362,14 @@ export default defineComponent({
       }
 
       form.value = formNew
+    }
+
+    const handleTemplateList = (template) => {
+      templatesPermission.value.push(template)
+    }
+
+    const deletePermissionTemplate = (templateId) => {
+      templatesPermission.value = templatesPermission.value.filter(item => item.id !== templateId)
     }
 
     return {
@@ -374,7 +386,9 @@ export default defineComponent({
       updateAccount,
       createAccount,
       replaceField,
-      handleChangePermission
+      handleChangePermission,
+      handleTemplateList,
+      deletePermissionTemplate
     }
   }
 })

@@ -17,20 +17,19 @@ import { defineComponent, ref } from 'vue'
 export default defineComponent({
   name: 'ConfirmCreateTemplatePermission',
 
-  props: {
-
-  },
-
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const visible = ref()
     const templateName = ref('')
 
     const handleCancel = () => {
+      templateName.value = ''
       emit('update:visible', false)
+      emit('clearTemplateTmp')
     }
 
     const handleOk = () => {
       emit('handleSaveTemplate', templateName.value)
+      templateName.value = ''
     }
 
     return {
