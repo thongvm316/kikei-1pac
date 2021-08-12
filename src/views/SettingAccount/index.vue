@@ -89,7 +89,7 @@ import { defineComponent, computed, ref, reactive, onMounted, onUnmounted, watch
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { forEach, isArray, keys, map, includes, find, cloneDeep, parseInt } from 'lodash-es'
+import { forEach, isArray, keys, map, includes, find, cloneDeep, parseInt, isEqual } from 'lodash-es'
 import humps from 'humps'
 import moment from 'moment'
 
@@ -143,6 +143,7 @@ export default defineComponent({
     // group
     const activeKeyGroup = ref()
     const groupList = ref([])
+    const GROUP_ID_ALL = -1
 
     // CSV
     const isLoadingExportCsv = ref(false)
@@ -206,70 +207,6 @@ export default defineComponent({
         slots: { customRender: 'active' }
       }
     ]
-
-    onMounted(async () => {
-      // get inner height
-      getInnerHeight()
-      window.addEventListener('resize', getInnerHeight)
-
-      // check account admin
-      StorageService.get(storageKeys.authProfile).isAdmin
-        ? (isShowResetPass.value = true)
-        : (isShowResetPass.value = false)
-
-      // group list
-      const groupsReponse = await getGroups()
-      const groupsListData = groupsReponse?.result?.data || []
-      if (groupsListData.length > 1) {
-        // add item
-        groupsListData.push({
-          id: 0,
-          name: t('account.all_group')
-        })
-      }
-      groupList.value = groupsListData
-
-      // get param from query
-      const paramsRequest = {}
-      const dataRequest = {}
-      if (keys(route.query).length > 0) {
-        forEach(route.query, (value, key) => {
-          const keyCamelize = humps.camelize(key)
-
-          if (includes(['pageNumber', 'pageSize'], keyCamelize)) {
-            paramsRequest[keyCamelize] = Number(value)
-          } else if (includes(['orderBy'], keyCamelize)) {
-            paramsRequest[keyCamelize] = value
-          } else {
-            if (isArray(value)) {
-              dataRequest[keyCamelize] = map(value, (i) => Number(i))
-            } else {
-              dataRequest[keyCamelize] = keyCamelize === 'groupId' && value !== 'all' ? [Number(value)] : value
-            }
-          }
-        })
-      }
-
-      // get group
-      if (!dataRequest.groupId) {
-        const groupId = groupList.value[0]?.id ? [groupList.value[0].id] : []
-        dataRequest.groupId = groupId
-
-        groupId.length > 0 && (activeKeyGroup.value = groupId[0])
-      } else if (dataRequest.groupId === 'all') {
-        dataRequest.groupId = []
-        activeKeyGroup.value = groupList.value[groupList.value.length - 1].id
-      } else if (dataRequest.groupId.length === 1) {
-        const groupFound = find(groupList.value, { id: dataRequest.groupId[0] })
-        groupFound && (activeKeyGroup.value = groupFound.id)
-      }
-
-      updateParamRequestAccount({ params: paramsRequest, data: dataRequest })
-    })
-
-    onUnmounted(() => {
-      window.removeEventListener('resize', getInnerHeight)
-    })
 
     const getInnerHeight = () => {
       height.value = window.innerHeight
@@ -440,9 +377,79 @@ export default defineComponent({
     }
 
     const handleChangeGroup = (val) => {
-      const groupId = val ? [val] : []
+      const groupId =
+        val !== GROUP_ID_ALL
+          ? [val]
+          : groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id) // FIXME: get all group ???
+
       updateParamRequestAccount({ data: { groupId }, params: { pageNumber: 1 } })
     }
+
+    onMounted(async () => {
+      // get inner height
+      getInnerHeight()
+      window.addEventListener('resize', getInnerHeight)
+
+      // check account admin
+      StorageService.get(storageKeys.authProfile).isAdmin
+        ? (isShowResetPass.value = true)
+        : (isShowResetPass.value = false)
+
+      // group list
+      const groupsReponse = await getGroups()
+      const groupsListData = groupsReponse?.result?.data || []
+      if (groupsListData.length > 1) {
+        // add item
+        groupsListData.push({
+          id: GROUP_ID_ALL,
+          name: t('account.all_group')
+        })
+      }
+      groupList.value = groupsListData
+
+      // get param from query
+      const paramsRequest = {}
+      const dataRequest = {}
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          const keyCamelize = humps.camelize(key)
+
+          if (includes(['pageNumber', 'pageSize'], keyCamelize)) {
+            paramsRequest[keyCamelize] = Number(value)
+          } else if (includes(['orderBy'], keyCamelize)) {
+            paramsRequest[keyCamelize] = value
+          } else {
+            if (isArray(value)) {
+              dataRequest[keyCamelize] = map(value, (i) => Number(i))
+            } else {
+              dataRequest[keyCamelize] = keyCamelize === 'groupId' && value !== 'all' ? [Number(value)] : value
+            }
+          }
+        })
+      }
+
+      // get group
+      if (!dataRequest.groupId) {
+        // default is first group
+        const groupId = groupList.value[0]?.id ? [groupList.value[0].id] : []
+        dataRequest.groupId = groupId
+        groupId.length > 0 && (activeKeyGroup.value = groupId[0])
+      } else if (dataRequest.groupId === 'all') {
+        // from query
+        dataRequest.groupId = groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id)
+        activeKeyGroup.value = groupList.value[groupList.value.length - 1].id
+      } else if (dataRequest.groupId.length === 1) {
+        // from query
+        const groupFound = find(groupList.value, { id: dataRequest.groupId[0] })
+        groupFound && (activeKeyGroup.value = groupFound.id)
+      }
+
+      updateParamRequestAccount({ params: paramsRequest, data: dataRequest })
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', getInnerHeight)
+    })
 
     // watch to fetch data financing
     watch(
@@ -452,8 +459,9 @@ export default defineComponent({
         fetchDataTableAccount()
 
         // save params to query
-        const groupId =
-          requestParamsData.value.data?.groupId?.length === 0 ? 'all' : [requestParamsData.value.data?.groupId]
+        const allGroupId = groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id)
+        const isGroupAll = isEqual(allGroupId, requestParamsData.value.data?.groupId)
+        const groupId = isGroupAll ? 'all' : [requestParamsData.value.data?.groupId]
         const query = { ...requestParamsData.value.params, ...requestParamsData.value.data, groupId }
         delete query.totalRecords
 
