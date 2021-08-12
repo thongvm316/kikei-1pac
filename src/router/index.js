@@ -30,6 +30,20 @@ const routes = [
   },
 
   {
+    path: '/activate-account',
+    meta: { title: `Activate Account | ${APP_NAME}` },
+    component: lazyLoadLayout('AuthLayout'),
+    children: [
+      {
+        path: '',
+        name: 'activate-account',
+        component: lazyLoadRoute('Auth/ActivateAccount'),
+        meta: { title: `Activate Account | ${APP_NAME}` }
+      }
+    ]
+  },
+
+  {
     path: '/',
     component: lazyLoadLayout('MainLayout'),
     children: [
@@ -252,14 +266,16 @@ const router = createRouter({
 })
 
 // pager guard
-const ROUTING_FREE = ['login']
+const ROUTING_FREE = ['login', 'activate-account']
 
 router.beforeEach((to, _, next) => {
   // set head title
   document.title = to.meta.title
 
   const isRouteFree = ROUTING_FREE.indexOf(to.name) >= 0
+  console.log(isRouteFree)
   const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
+  console.log(authProfile)
   // eslint-disable-next-line no-extra-boolean-cast
   if (!!authProfile) {
     // store data to state if need
@@ -267,15 +283,20 @@ router.beforeEach((to, _, next) => {
       store.commit('auth/STORE_AUTH_PROFILE', authProfile)
     }
 
+    console.log(isRouteFree)
     if (isRouteFree) {
+      console.log('1')
       next('/')
     } else {
+      console.log('2')
       next()
     }
   } else {
     if (isRouteFree) {
+      console.log('3')
       next()
     } else {
+      console.log('4')
       next('/login')
     }
   }
