@@ -252,14 +252,12 @@ export default defineComponent({
     }
 
     const handleEditRecord = () => {
-      const query = { ...requestParamsData.value.params, ...requestParamsData.value.data }
-
       router.push({
         name: 'account-edit',
         params: {
           id: recordVisible.value.id
         },
-        query: { ...deleteEmptyValue(query) }
+        query: route.query
       })
     }
 
@@ -422,7 +420,8 @@ export default defineComponent({
             if (isArray(value)) {
               dataRequest[keyCamelize] = map(value, (i) => Number(i))
             } else {
-              dataRequest[keyCamelize] = keyCamelize === 'groupId' && value !== 'all' ? [Number(value)] : value
+              const isGroupAll = keyCamelize === 'groupId' && value === 'all'
+              dataRequest[keyCamelize] = isGroupAll ? value : [Number(value)]
             }
           }
         })
@@ -438,7 +437,7 @@ export default defineComponent({
         // from query
         dataRequest.groupId = groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id)
         activeKeyGroup.value = groupList.value[groupList.value.length - 1].id
-      } else if (dataRequest.groupId.length === 1) {
+      } else {
         // from query
         const groupFound = find(groupList.value, { id: dataRequest.groupId[0] })
         groupFound && (activeKeyGroup.value = groupFound.id)
