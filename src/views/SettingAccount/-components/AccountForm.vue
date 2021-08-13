@@ -100,6 +100,7 @@
           </div>
         </div>
       </div>
+
       <!-- Memo -->
       <div class="form-group">
         <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
@@ -123,6 +124,7 @@
           <label class="form-label">{{ $t('account.group_permissions') }}</label>
 
           <PermissionTable
+            v-model:group-list-allowed-access="groupListAllowedAccess"
             :group-permissions="form.groupPermissions"
             :is-group-permission="true"
             :group-list="groupList"
@@ -140,6 +142,7 @@
           <label class="form-label">{{ $t('account.setting_permissions') }}</label>
 
           <PermissionTable
+            v-model:group-list-allowed-access="groupListAllowedAccess"
             :group-permissions="form.groupPermissions"
             :is-group-permission="false"
             :group-list="groupList"
@@ -171,7 +174,7 @@ import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { findIndex, cloneDeep } from 'lodash-es'
+import { findIndex, cloneDeep, find } from 'lodash-es'
 
 import { TYPE, ACTIVE } from '@/enums/account.enum'
 import { PAGE_PERMISSIONS } from '@/enums/account.enum'
@@ -202,11 +205,12 @@ export default defineComponent({
     const autoGeneratePassW = ref(false)
 
     const groupList = ref([])
+    const groupListAllowedAccess = ref([])
 
     const templatesPermission = ref()
 
     let form = ref({
-      account_group_id: 1,
+      accountGroupId: 1,
       username: '',
       password: '',
       email: '',
@@ -214,7 +218,7 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      is_admin: false,
+      isAdmin: false,
       groupPermissions: []
     })
 
@@ -236,6 +240,7 @@ export default defineComponent({
           groupId: group.id,
           permissions: cloneDeep(permissionGroup),
           templateName: '',
+          templateId: null,
           displayTemplateType: 1
         })
       })
@@ -246,6 +251,7 @@ export default defineComponent({
         groupId: null,
         permissions: cloneDeep(permissionSetting),
         templateName: '',
+        templateId: null,
         displayTemplateType: 2
       })
 
@@ -261,7 +267,7 @@ export default defineComponent({
         if (groupIndexFound === -1) {
           groupPermissionMerged.push(group)
         } else {
-          const permissions = [...groupPermissionMerged[groupIndexFound]?.permissions]
+          const permissions = [...(groupPermissionMerged[groupIndexFound]?.permissions || [])]
 
           ;(group?.permissions || []).forEach((page) => {
             const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
@@ -310,7 +316,44 @@ export default defineComponent({
 
     const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
-      data = { ...deleteEmptyValue(data) }
+      delete data.id
+
+      // check group permission
+      const groupPermissions = data.groupPermissions
+        .filter((group) => {
+          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
+          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
+
+          const isPermisionEmpty = group.permissions.every((page) => page.permissionKey === null)
+          const isTempalteEmpty = group.templateId
+          const isGroupAllow = isGroupAllowAccess && !(isPermisionEmpty && isTempalteEmpty)
+
+          return isGroupAllow
+        })
+        .map((group) => {
+          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
+          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
+          const isPermisionNotEmpty = group.permissions.some((page) => page.permissionKey !== null)
+          const isTemplatePermission = group?.templateId || null
+
+          const permissions =
+            !isTemplatePermission && isGroupAllowAccess && isPermisionNotEmpty
+              ? group.permissions.filter((page) => page.permissionKey !== null)
+              : null
+
+          const groupModified = {
+            ...group,
+            permissions
+          }
+
+          // remove fields
+          delete groupModified.id
+          delete groupModified.templateName
+
+          return groupModified
+        })
+
+      data.groupPermissions = groupPermissions
 
       if (route.name === 'account-edit') {
         updateAccount(data)
@@ -331,7 +374,7 @@ export default defineComponent({
           duration: 5,
           message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
         })
-        await router.push({ name: 'account' }).catch((err) => err)
+        await router.push({ name: 'account', query: route.query }).catch((err) => err)
       } catch (err) {
         throw err
       }
@@ -340,6 +383,7 @@ export default defineComponent({
     const createAccount = async (data) => {
       // eslint-disable-next-line no-useless-catch
       try {
+        console.log('create', data)
         const { createAccount } = useCreateAccountService(data)
         await createAccount()
         //show notification
@@ -349,7 +393,7 @@ export default defineComponent({
           message:
             locale.value === 'en' ? data.username + 'created account success' : data.username + ' が追加されました'
         })
-        await router.push({ name: 'account' })
+        await router.push({ name: 'account', query: route.query })
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -373,8 +417,9 @@ export default defineComponent({
       groupPermissionId,
       featureKey,
       value,
-      templateName,
-      permissions,
+      templateName = '',
+      templateId = null,
+      permissions = null,
       IS_CHANGE_TEMPLATE
     }) => {
       const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
@@ -384,6 +429,7 @@ export default defineComponent({
       if (IS_CHANGE_TEMPLATE) {
         formNew.groupPermissions[groupIndex].permissions = permissions
         formNew.groupPermissions[groupIndex].templateName = templateName
+        formNew.groupPermissions[groupIndex].templateId = templateId
       } else {
         const permissionIndex = findIndex(form.value.groupPermissions[groupIndex].permissions, {
           featureKey: featureKey
@@ -392,6 +438,7 @@ export default defineComponent({
 
         formNew.groupPermissions[groupIndex].permissions[permissionIndex].permissionKey = value
         formNew.groupPermissions[groupIndex].templateName = ''
+        formNew.groupPermissions[groupIndex].templateId = null
       }
 
       form.value = formNew
@@ -414,6 +461,8 @@ export default defineComponent({
       autoGeneratePassW,
       groupList,
       templatesPermission,
+      groupListAllowedAccess,
+
       onSubmit,
       handleCancel,
       updateAccount,

@@ -1,9 +1,7 @@
 <template>
-  <a-modal class="modal-save-template" v-model:visible="visible" centered title="テンプレート保存" width="388px">
+  <a-modal v-model:visible="visible" class="modal-save-template" centered title="テンプレート保存" width="388px">
     <template #footer>
-      <a-input
-        v-model:value="templateName"
-      />
+      <a-input v-model:value="templateName" />
       <p class="modal-save-template__description">※テンプレート名を入力してください</p>
       <a-button type="default" @click="handleCancel">キャンセル</a-button>
       <a-button type="primary" :disabled="!templateName" @click="handleOk">削除</a-button>

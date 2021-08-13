@@ -29,7 +29,11 @@
                     <div class="permission-template__body">
                       <div v-for="item in teplatePermission" :key="item.id" class="permission-template__item">
                         <template v-if="!item.groupId || item.groupId === group.id">
-                          <p @click="chooseTemplatePermission(item.groupId, item.permissions, item.templateName)">
+                          <p
+                            @click="
+                              chooseTemplatePermission(item.groupId, item.permissions, item.templateName, item.id)
+                            "
+                          >
                             {{ item.templateName }}
                           </p>
                           <a-button
@@ -142,10 +146,11 @@ export default defineComponent({
     },
     isGroupPermission: Boolean,
     groupList: Array,
-    templatesPermission: Array
+    templatesPermission: Array,
+    groupListAllowedAccess: Array
   },
 
-  emits: ['handleChangePermission', 'handleTemplateList', 'deletePermissionTemplate'],
+  emits: ['handleChangePermission', 'handleTemplateList', 'deletePermissionTemplate', 'update:groupListAllowedAccess'],
 
   setup(props, { emit }) {
     const { t } = useI18n()
@@ -167,6 +172,8 @@ export default defineComponent({
         .map((groupPermission) => {
           const groupFound = find(groupList.value, { id: groupPermission.groupId })
           const groupName = groupFound?.name || ''
+
+          // FIXME: apply template id
 
           const permissions = (groupPermission?.permissions || {})
             .map((page) => {
@@ -203,10 +210,10 @@ export default defineComponent({
       emit('handleChangePermission', { groupPermissionId, featureKey, value, IS_CHANGE_TEMPLATE })
     }
 
-    const chooseTemplatePermission = (groupPermissionId, permissions, templateName) => {
+    const chooseTemplatePermission = (groupPermissionId, permissions, templateName, templateId) => {
       const IS_CHANGE_TEMPLATE = true
 
-      emit('handleChangePermission', { groupPermissionId, permissions, templateName, IS_CHANGE_TEMPLATE })
+      emit('handleChangePermission', { groupPermissionId, permissions, templateName, templateId, IS_CHANGE_TEMPLATE })
     }
 
     const deleteTemplatePermission = async (id) => {
@@ -254,9 +261,36 @@ export default defineComponent({
     watch(
       () => dataTablePermission.value,
       () => {
+        const _activeKeyCollapse = [...activeKeyCollapse.value]
         activeKeyCollapse.value = dataTablePermission.value
-          .filter((item) => item.permissions.some((page) => page.permissionKey !== null))
+          .filter(
+            (item) =>
+              !!item.templateName || // FIXME: check id: !!item.templateId
+              _activeKeyCollapse.indexOf(`${item.id}`) !== -1 ||
+              item.permissions.some((page) => page.permissionKey !== null)
+          )
           .map((item) => `${item.id}`)
+      }
+    )
+
+    watch(
+      () => activeKeyCollapse.value,
+      () => {
+        activeKeyCollapse.value.forEach((id) => {
+          const groupListAllowedAccess = [...props.groupListAllowedAccess]
+          const groupIndexFound = findIndex(groupListAllowedAccess, { id: parseInt(id) })
+
+          if (groupIndexFound === -1) {
+            groupListAllowedAccess.push({
+              id: parseInt(id),
+              isAllow: false
+            })
+          } else {
+            groupListAllowedAccess[groupIndexFound].isAllow = true
+          }
+
+          emit('update:groupListAllowedAccess', groupListAllowedAccess)
+        })
       }
     )
 
