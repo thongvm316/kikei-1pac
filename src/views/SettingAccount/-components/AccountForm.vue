@@ -257,29 +257,34 @@ export default defineComponent({
       return groupPermissionsDefault
     }
 
-    const mergeGroupPermission = (objValue, srcValue) => {
-      const groupPermissionMerged = [...objValue]
+    const updateGroupPermissionsDefault = (groupPermissionsDefault, groupPermissionsRequested) => {
+      const groupPermissionsModify = cloneDeep(groupPermissionsDefault)
 
-      srcValue.forEach((group) => {
-        const groupIndexFound = findIndex(groupPermissionMerged, { groupId: group.groupId })
+      groupPermissionsRequested.forEach((group) => {
+        const groupIndexFound = findIndex(groupPermissionsModify, { groupId: group.groupId })
 
         if (groupIndexFound === -1) {
-          groupPermissionMerged.push(group)
+          groupPermissionsModify.push(group)
         } else {
-          const permissions = [...(groupPermissionMerged[groupIndexFound]?.permissions || [])]
-
+          // update permissions
+          const permissions = cloneDeep(groupPermissionsModify[groupIndexFound]?.permissions || [])
           ;(group?.permissions || []).forEach((page) => {
             const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
-            if (pageIndexFound === -1) permissions.push(page)
+            if (pageIndexFound !== -1) {
+              groupPermissionsModify[groupIndexFound].permissions[pageIndexFound].permissionKey =
+                page?.permissionKey || null
+            }
           })
 
-          groupPermissionMerged[groupIndexFound].permissions = permissions
+          // update templates
+          groupPermissionsModify[groupIndexFound].templateId = group.templateId
+          groupPermissionsModify[groupIndexFound].templateName = group.templateName
         }
 
         return group
       })
 
-      return groupPermissionMerged
+      return groupPermissionsModify
     }
 
     onMounted(async () => {
@@ -294,11 +299,11 @@ export default defineComponent({
       // permission list
       const groupPermissionsDefault = createPermissionDefault()
       const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
-      const groupPermissionsMerged = mergeGroupPermission(groupPermissionsRequested, groupPermissionsDefault)
+      const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
 
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
-        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsMerged }
+        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsModify }
       } else {
         isHiddenField.value = true
         form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
