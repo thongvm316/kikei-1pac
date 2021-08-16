@@ -366,9 +366,9 @@ export default defineComponent({
       if (route.name === 'account-edit') {
         updateAccount(data)
       } else {
-        isMissingPermission.value = data.groupPermissions.length < 1
-        if(data.groupPermissions.length < 1) return
-
+        const templateType1 = data.groupPermissions.filter(item => item.displayTemplateType === 1)
+        isMissingPermission.value = templateType1.length < 1
+        if(templateType1.length < 1) return
         createAccount(data)
       }
     })
