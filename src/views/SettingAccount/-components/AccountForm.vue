@@ -261,6 +261,7 @@ export default defineComponent({
 
     const updateGroupPermissionsDefault = (groupPermissionsDefault, groupPermissionsRequested) => {
       const groupPermissionsModify = cloneDeep(groupPermissionsDefault)
+      let listAllowedAccess = []
 
       groupPermissionsRequested.forEach((group) => {
         const groupIndexFound = findIndex(groupPermissionsModify, { groupId: group.groupId })
@@ -270,21 +271,39 @@ export default defineComponent({
         } else {
           // update permissions
           const permissions = cloneDeep(groupPermissionsModify[groupIndexFound]?.permissions || [])
-          ;(group?.permissions || []).forEach((page) => {
+          let permissionsRequested = group?.permissions || []
+          let isAllow = false
+
+          if (!!group.templateId && permissionsRequested.length === 0) {
+            const templateFound = find(templatesPermission.value, { id: group.templateId })
+            templateFound && (permissionsRequested = templateFound?.permissions || [])
+          }
+
+          permissionsRequested.forEach((page) => {
             const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
             if (pageIndexFound !== -1) {
-              groupPermissionsModify[groupIndexFound].permissions[pageIndexFound].permissionKey =
-                page?.permissionKey || null
+              const permissionKey = page?.permissionKey || null
+              groupPermissionsModify[groupIndexFound].permissions[pageIndexFound].permissionKey = permissionKey
+
+              if (!!permissionKey && !isAllow) isAllow = true
             }
           })
 
           // update templates
           groupPermissionsModify[groupIndexFound].templateId = group.templateId
           groupPermissionsModify[groupIndexFound].templateName = group.templateName
+
+          // update Group List Allowed Access
+          listAllowedAccess.push({
+            id: groupPermissionsModify[groupIndexFound].id,
+            isAllow: isAllow
+          })
         }
 
         return group
       })
+
+      groupListAllowedAccess.value = listAllowedAccess
 
       return groupPermissionsModify
     }
@@ -300,11 +319,13 @@ export default defineComponent({
 
       // permission list
       const groupPermissionsDefault = createPermissionDefault()
-      const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
-      const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
 
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
+
+        const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
+        const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
+
         form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsModify }
       } else {
         isHiddenField.value = true
@@ -322,7 +343,6 @@ export default defineComponent({
 
     const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
-      delete data.id
 
       // check group permission
       const groupPermissions = data.groupPermissions
@@ -362,13 +382,14 @@ export default defineComponent({
         })
 
       data.groupPermissions = groupPermissions
+      delete data.id
 
       if (route.name === 'account-edit') {
         updateAccount(data)
       } else {
-        const templateType1 = data.groupPermissions.filter(item => item.displayTemplateType === 1)
-        isMissingPermission.value = templateType1.length < 1
-        if(templateType1.length < 1) return
+        isMissingPermission.value = data.groupPermissions.filter((group) => group.displayTemplateType === 1).length < 1
+        if (isMissingPermission.value) return
+
         createAccount(data)
       }
     })
@@ -457,10 +478,13 @@ export default defineComponent({
 
     const handleTemplateList = (template) => {
       templatesPermission.value.push(template)
+      // FIXME: set tempalte name
     }
 
     const deletePermissionTemplate = (templateId) => {
       templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
+      // FIXME: remove template name if using
+      // FIXME: error if all permission using this tempalteId ???
     }
 
     return {

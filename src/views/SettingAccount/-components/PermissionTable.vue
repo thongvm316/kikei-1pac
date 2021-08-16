@@ -27,20 +27,25 @@
                   </a>
                   <template #overlay>
                     <div class="permission-template__body">
-                      <div v-for="item in teplatePermission" :key="item.id" class="permission-template__item">
-                        <template v-if="!item.groupId || item.groupId === group.id">
+                      <div v-for="template in templatePermission" :key="template.id" class="permission-template__item">
+                        <template v-if="!template.groupId || template.groupId === group.id">
                           <p
                             @click="
-                              chooseTemplatePermission(item.groupId, item.permissions, item.templateName, item.id)
+                              chooseTemplatePermission(
+                                template.groupId,
+                                template.permissions,
+                                template.templateName,
+                                template.id
+                              )
                             "
                           >
-                            {{ item.templateName }}
+                            {{ template.templateName }}
                           </p>
                           <a-button
                             class="btn-delete u-text-12"
                             type="link"
                             danger
-                            @click="deleteTemplatePermission(item.id)"
+                            @click="deleteTemplatePermission(template.id)"
                           >
                             <template #icon>
                               <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
@@ -118,7 +123,7 @@
 <script>
 import { defineComponent, ref, computed, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { find, parseInt, findIndex } from 'lodash-es'
+import { find, parseInt, findIndex, cloneDeep } from 'lodash-es'
 
 import { PAGE_PERMISSIONS, PERMISSION_KEYS } from '@/enums/account.enum'
 
@@ -157,10 +162,19 @@ export default defineComponent({
 
     const checked = ref(10)
     const checkedBox = ref()
-    const activeKeyCollapse = ref([])
     const isVisibleCreateTemplateModal = ref()
     const newTemplate = ref()
-    const { templatesPermission, groupPermissions, isGroupPermission, groupList } = toRefs(props)
+    const {
+      templatesPermission,
+      groupPermissions,
+      isGroupPermission,
+      groupList,
+      groupListAllowedAccess = []
+    } = toRefs(props)
+
+    const activeKeyCollapse = computed(() => {
+      return groupListAllowedAccess.value.filter((group) => group.isAllow).map((group) => `${group.id}`)
+    })
 
     const displayTemplateType = computed(() => {
       return isGroupPermission.value ? 1 : 2
@@ -197,17 +211,28 @@ export default defineComponent({
       return rows
     })
 
-    const teplatePermission = computed(() => {
+    const templatePermission = computed(() => {
       return templatesPermission.value.filter((item) => item.templateType === displayTemplateType.value)
     })
 
-    const handleToggleCollapse = (key) => {
-      const keyStr = `${key}`
+    const handleToggleCollapse = (id) => {
+      const keyStr = `${id}`
+      const isExpand = activeKeyCollapse.value.indexOf(keyStr) === -1
 
-      activeKeyCollapse.value =
-        activeKeyCollapse.value.indexOf(keyStr) === -1
-          ? [...activeKeyCollapse.value, keyStr]
-          : activeKeyCollapse.value.filter((item) => item !== keyStr)
+      // update allow access list
+      const groupListAllowedAccess = cloneDeep(props.groupListAllowedAccess)
+      const groupIndexFound = findIndex(groupListAllowedAccess, { id: parseInt(id) })
+
+      if (groupIndexFound === -1) {
+        groupListAllowedAccess.push({
+          id: parseInt(id),
+          isAllow: isExpand
+        })
+      } else {
+        groupListAllowedAccess[groupIndexFound].isAllow = isExpand
+      }
+
+      emit('update:groupListAllowedAccess', groupListAllowedAccess)
     }
 
     const handleChangePermission = (groupPermissionId, featureKey, value) => {
@@ -263,49 +288,13 @@ export default defineComponent({
       newTemplate.value = {}
     }
 
-    watch(
-      () => dataTablePermission.value,
-      () => {
-        const _activeKeyCollapse = [...activeKeyCollapse.value]
-        activeKeyCollapse.value = dataTablePermission.value
-          .filter(
-            (item) =>
-              !!item.templateId ||
-              _activeKeyCollapse.indexOf(`${item.id}`) !== -1 ||
-              item.permissions.some((page) => page.permissionKey !== null)
-          )
-          .map((item) => `${item.id}`)
-      }
-    )
-
-    watch(
-      () => activeKeyCollapse.value,
-      () => {
-        activeKeyCollapse.value.forEach((id) => {
-          const groupListAllowedAccess = [...props.groupListAllowedAccess]
-          const groupIndexFound = findIndex(groupListAllowedAccess, { id: parseInt(id) })
-
-          if (groupIndexFound === -1) {
-            groupListAllowedAccess.push({
-              id: parseInt(id),
-              isAllow: false
-            })
-          } else {
-            groupListAllowedAccess[groupIndexFound].isAllow = true
-          }
-
-          emit('update:groupListAllowedAccess', groupListAllowedAccess)
-        })
-      }
-    )
-
     return {
       checked,
       checkedBox,
       activeKeyCollapse,
       dataTablePermission,
       PERMISSION_KEYS,
-      teplatePermission,
+      templatePermission,
       isVisibleCreateTemplateModal,
 
       handleToggleCollapse,

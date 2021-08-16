@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import Services from '@/services'
 const Permission = Services.get('Permission')
 
