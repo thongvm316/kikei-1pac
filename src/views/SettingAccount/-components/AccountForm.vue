@@ -170,7 +170,6 @@
 <script>
 import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -321,16 +320,18 @@ export default defineComponent({
       // check group permission
       const groupPermissions = data.groupPermissions
         .filter((group) => {
+          // check group checked and not empty
           const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
           const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
 
-          const isPermisionEmpty = group.permissions.every((page) => page.permissionKey === null)
-          const isTempalteEmpty = group.templateId
-          const isGroupAllow = isGroupAllowAccess && !(isPermisionEmpty && isTempalteEmpty)
+          const isPermisionNotEmpty = !group.permissions.every((page) => page.permissionKey === null)
+          const isTempalteNotEmpty = !!group.templateId
+          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || (isGroupAllowAccess && isTempalteNotEmpty)
 
-          return isGroupAllow
+          return isGroupAllow || false
         })
         .map((group) => {
+          // select templateId or permissions
           const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
           const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
           const isPermisionNotEmpty = group.permissions.some((page) => page.permissionKey !== null)

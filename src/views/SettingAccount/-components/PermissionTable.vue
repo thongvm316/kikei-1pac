@@ -170,13 +170,18 @@ export default defineComponent({
       const rows = (groupPermissions.value || [])
         .filter((groupPermission) => parseInt(groupPermission.displayTemplateType) === displayTemplateType.value)
         .map((groupPermission) => {
+          // get permissions
+          let permissions = groupPermission?.permissions || {}
+          if (groupPermission.templateId) {
+            const templateFound = find(templatesPermission.value, { id: groupPermission.templateId })
+            templateFound && (permissions = templateFound.permissions)
+          }
+
+          // add page name
           const groupFound = find(groupList.value, { id: groupPermission.groupId })
           const groupName = groupFound?.name || ''
-
-          // FIXME: apply template id
-
-          const permissions = (groupPermission?.permissions || {})
-            .map((page) => {
+          const permissionsModified = permissions
+            ?.map((page) => {
               const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(page.featureKey) })
 
               return {
@@ -186,7 +191,7 @@ export default defineComponent({
             })
             .filter((page) => !!page.name)
 
-          return { ...groupPermission, groupName, permissions }
+          return { ...groupPermission, groupName, permissions: permissionsModified }
         })
 
       return rows
@@ -265,7 +270,7 @@ export default defineComponent({
         activeKeyCollapse.value = dataTablePermission.value
           .filter(
             (item) =>
-              !!item.templateName || // FIXME: check id: !!item.templateId
+              !!item.templateId ||
               _activeKeyCollapse.indexOf(`${item.id}`) !== -1 ||
               item.permissions.some((page) => page.permissionKey !== null)
           )
