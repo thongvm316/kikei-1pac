@@ -121,7 +121,7 @@
       <!-- Permission Group-->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('account.group_permissions') }}</label>
+          <label class="form-label required">{{ $t('account.group_permissions') }}</label>
 
           <PermissionTable
             v-model:group-list-allowed-access="groupListAllowedAccess"
@@ -134,6 +134,7 @@
             @delete-permission-template="deletePermissionTemplate($event)"
           />
         </div>
+        <span v-show="isMissingPermission" class="errors">グループを選択してください</span>
       </div>
 
       <!-- Permission Setting-->
@@ -207,6 +208,7 @@ export default defineComponent({
     const groupListAllowedAccess = ref([])
 
     const templatesPermission = ref()
+    const isMissingPermission = ref()
 
     let form = ref({
       accountGroupId: 1,
@@ -364,6 +366,9 @@ export default defineComponent({
       if (route.name === 'account-edit') {
         updateAccount(data)
       } else {
+        isMissingPermission.value = data.groupPermissions.length < 1
+        if(data.groupPermissions.length < 1) return
+
         createAccount(data)
       }
     })
@@ -468,6 +473,7 @@ export default defineComponent({
       groupList,
       templatesPermission,
       groupListAllowedAccess,
+      isMissingPermission,
 
       onSubmit,
       handleCancel,
