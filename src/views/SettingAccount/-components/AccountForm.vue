@@ -415,7 +415,6 @@ export default defineComponent({
     const createAccount = async (data) => {
       // eslint-disable-next-line no-useless-catch
       try {
-        console.log('create', data)
         const { createAccount } = useCreateAccountService(data)
         await createAccount()
         //show notification

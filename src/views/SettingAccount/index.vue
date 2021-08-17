@@ -152,7 +152,7 @@ export default defineComponent({
     const initialDataRequest = {
       keySearch: '',
       groupId: []
-      // type: [] // ???
+      // type: []
     }
 
     const requestParamsData = ref({
