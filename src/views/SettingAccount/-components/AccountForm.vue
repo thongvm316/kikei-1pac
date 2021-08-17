@@ -24,27 +24,6 @@
           </div>
         </Field>
       </div>
-      <!-- Password -->
-      <div v-if="isHiddenField" class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('account.password') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                class="w-300"
-                :disabled="isDisableEditField"
-                @change="handleChange"
-              />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
-                {{ replaceField(message, 'password') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
 
       <!-- Full name -->
       <div class="form-group">
@@ -67,36 +46,31 @@
         </Field>
       </div>
 
-      <!-- Sales -->
-      <div class="form-group">
-        <div class="form-content">
-          <label class="form-label">{{ $t('account.sales') }}</label>
-
-          <div class="form-input">
-            <a-checkbox-group v-model:value="form.types">
-              <a-checkbox v-for="item in TYPE" :key="item.id" :value="item.id">
-                {{ $t(`account.${item.value}`) }}
-              </a-checkbox>
-            </a-checkbox-group>
-          </div>
-        </div>
-      </div>
-      <!-- Memo -->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
+      <!-- Password -->
+      <div v-if="isHiddenField" class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
           <div class="form-content">
-            <label class="form-label">{{ $t('account.memo') }}</label>
+            <label class="form-label required">{{ $t('account.password') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :disabled="isDisableEditField"
                 @change="handleChange"
               />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                {{ replaceField(message, 'password') }}
+              </ErrorMessage>
             </div>
           </div>
         </Field>
+        <div class="u-ml-16 u-mt-12">
+          <a-checkbox v-model:checked="autoGeneratePassW">パスワードを自動生成する</a-checkbox>
+        </div>
       </div>
+
       <!-- Status -->
       <div class="form-group">
         <div class="form-content">
@@ -111,18 +85,73 @@
           </div>
         </div>
       </div>
-      <!-- Authority-->
+
+      <!-- Type -->
       <div class="form-group">
         <div class="form-content">
-          <label class="form-label">{{ $t('account.authority') }}</label>
+          <label class="form-label">{{ $t('account.sales') }}</label>
 
           <div class="form-input">
-            <a-radio-group v-model:value="form.is_admin">
-              <a-radio v-for="item in AUTHORITY" :key="item.id" :value="item.id"
-                >{{ $t(`account.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
+            <a-checkbox-group v-model:value="form.types">
+              <a-checkbox v-for="item in TYPE" :key="item.id" :value="item.id">
+                {{ $t(`account.${item.value}`) }}
+              </a-checkbox>
+            </a-checkbox-group>
           </div>
+        </div>
+      </div>
+
+      <!-- Memo -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
+          <div class="form-content">
+            <label class="form-label">{{ $t('account.memo') }}</label>
+            <div class="form-input">
+              <a-textarea
+                :value="field.value"
+                :placeholder="$t('common.please_enter')"
+                :style="{ width: '300px', height: '160px' }"
+                @change="handleChange"
+              />
+            </div>
+          </div>
+        </Field>
+      </div>
+
+      <!-- Permission Group-->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label required">{{ $t('account.group_permissions') }}</label>
+
+          <PermissionTable
+            v-model:group-list-allowed-access="groupListAllowedAccess"
+            :group-permissions="form.groupPermissions"
+            :is-group-permission="true"
+            :group-list="groupList"
+            :templates-permission="templatesPermission"
+            @handle-change-permission="handleChangePermission"
+            @handle-template-list="handleTemplateList($event)"
+            @delete-permission-template="deletePermissionTemplate($event)"
+          />
+        </div>
+        <span v-show="isMissingPermission" class="errors">グループを選択してください</span>
+      </div>
+
+      <!-- Permission Setting-->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label">{{ $t('account.setting_permissions') }}</label>
+
+          <PermissionTable
+            v-model:group-list-allowed-access="groupListAllowedAccess"
+            :group-permissions="form.groupPermissions"
+            :is-group-permission="false"
+            :group-list="groupList"
+            :templates-permission="templatesPermission"
+            @handle-change-permission="handleChangePermission"
+            @handle-template-list="handleTemplateList($event)"
+            @delete-permission-template="deletePermissionTemplate($event)"
+          />
         </div>
       </div>
 
@@ -140,20 +169,28 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
-import { TYPE, ACTIVE, AUTHORITY } from '@/enums/account.enum'
+import { useStore } from 'vuex'
+import { findIndex, cloneDeep, find } from 'lodash-es'
 
-import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { TYPE, ACTIVE } from '@/enums/account.enum'
+import { PAGE_PERMISSIONS } from '@/enums/account.enum'
+
 import useUpdateAccountService from '@/views/SettingAccount/composables/useUpdateAccountService'
 import useCreateAccountService from '@/views/SettingAccount/composables/useCreateAccountService'
-import { useStore } from 'vuex'
+import { getGroups } from '../composables/useGroupService'
+import { getPermissionTemplate } from '../composables/usePermissionService'
+import PermissionTable from './PermissionTable'
 
 export default defineComponent({
   name: 'AccountForm',
+
+  components: {
+    PermissionTable
+  },
 
   setup() {
     const router = useRouter()
@@ -165,8 +202,16 @@ export default defineComponent({
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
 
+    const autoGeneratePassW = ref(false)
+
+    const groupList = ref([])
+    const groupListAllowedAccess = ref([])
+
+    const templatesPermission = ref()
+    const isMissingPermission = ref()
+
     let form = ref({
-      account_group_id: 1,
+      accountGroupId: 1,
       username: '',
       password: '',
       email: '',
@@ -174,16 +219,122 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      is_admin: false
+      isAdmin: false,
+      groupPermissions: []
     })
 
-    onMounted(() => {
+    const createPermissionDefault = () => {
+      const groupPermissionsDefault = []
+      const permissionGroup = PAGE_PERMISSIONS.filter((page) => page.isGroupPermission).map((page) => ({
+        featureKey: page.value,
+        permissionKey: null
+      }))
+      const permissionSetting = PAGE_PERMISSIONS.filter((page) => !page.isGroupPermission).map((page) => ({
+        featureKey: page.value,
+        permissionKey: null
+      }))
+
+      // template type: 1
+      groupList.value.forEach((group) => {
+        groupPermissionsDefault.push({
+          id: group.id,
+          groupId: group.id,
+          permissions: cloneDeep(permissionGroup),
+          templateName: '',
+          templateId: null,
+          displayTemplateType: 1
+        })
+      })
+
+      // template type: 2
+      groupPermissionsDefault.push({
+        id: 0,
+        groupId: null,
+        permissions: cloneDeep(permissionSetting),
+        templateName: '',
+        templateId: null,
+        displayTemplateType: 2
+      })
+
+      return groupPermissionsDefault
+    }
+
+    const updateGroupPermissionsDefault = (groupPermissionsDefault, groupPermissionsRequested) => {
+      const groupPermissionsModify = cloneDeep(groupPermissionsDefault)
+      let listAllowedAccess = []
+
+      groupPermissionsRequested.forEach((group) => {
+        const groupIndexFound = findIndex(groupPermissionsModify, { groupId: group.groupId })
+
+        if (groupIndexFound === -1) {
+          groupPermissionsModify.push(group)
+        } else {
+          // update permissions
+          const permissions = cloneDeep(groupPermissionsModify[groupIndexFound]?.permissions || [])
+          let permissionsRequested = group?.permissions || []
+          let isAllow = false
+
+          if (!!group.templateId && permissionsRequested.length === 0) {
+            const templateFound = find(templatesPermission.value, { id: group.templateId })
+            templateFound && (permissionsRequested = templateFound?.permissions || [])
+          }
+
+          permissionsRequested.forEach((page) => {
+            const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
+            if (pageIndexFound !== -1) {
+              const permissionKey = page?.permissionKey || null
+              groupPermissionsModify[groupIndexFound].permissions[pageIndexFound].permissionKey = permissionKey
+
+              if (!!permissionKey && !isAllow) isAllow = true
+            }
+          })
+
+          // update templates
+          groupPermissionsModify[groupIndexFound].templateId = group.templateId
+          groupPermissionsModify[groupIndexFound].templateName = group.templateName
+
+          // update Group List Allowed Access
+          listAllowedAccess.push({
+            id: groupPermissionsModify[groupIndexFound].id,
+            isAllow: isAllow
+          })
+        }
+
+        return group
+      })
+
+      groupListAllowedAccess.value = listAllowedAccess
+
+      return groupPermissionsModify
+    }
+
+    onMounted(async () => {
+      // template permissions
+      const templateRes = await getPermissionTemplate()
+      templatesPermission.value = templateRes.data.result.data
+
+      // fetch group
+      const groupReponse = await getGroups()
+      groupList.value = groupReponse?.result?.data || []
+
+      // permission list
+      const groupPermissionsDefault = createPermissionDefault()
+
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
-        form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
+
+        const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
+        const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
+
+        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsModify }
       } else {
         isHiddenField.value = true
+        form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
       }
+    })
+
+    watch(autoGeneratePassW, (value) => {
+      value ? (form.value.password = Math.random().toString(36).slice(-8)) : (form.value.password = '')
     })
 
     const handleCancel = () => {
@@ -192,11 +343,53 @@ export default defineComponent({
 
     const onSubmit = handleSubmit(() => {
       let data = { ...form.value }
-      data = { ...deleteEmptyValue(data) }
+
+      // check group permission
+      const groupPermissions = data.groupPermissions
+        .filter((group) => {
+          // check group checked and not empty
+          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
+          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
+
+          const isPermisionNotEmpty = !group.permissions.every((page) => page.permissionKey === null)
+          const isTempalteNotEmpty = !!group.templateId
+          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || (isGroupAllowAccess && isTempalteNotEmpty)
+
+          return isGroupAllow || false
+        })
+        .map((group) => {
+          // select templateId or permissions
+          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
+          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
+          const isPermisionNotEmpty = group.permissions.some((page) => page.permissionKey !== null)
+          const isTemplatePermission = group?.templateId || null
+
+          const permissions =
+            !isTemplatePermission && isGroupAllowAccess && isPermisionNotEmpty
+              ? group.permissions.filter((page) => page.permissionKey !== null)
+              : null
+
+          const groupModified = {
+            ...group,
+            permissions
+          }
+
+          // remove fields
+          delete groupModified.id
+          delete groupModified.templateName
+
+          return groupModified
+        })
+
+      data.groupPermissions = groupPermissions
+      delete data.id
 
       if (route.name === 'account-edit') {
         updateAccount(data)
       } else {
+        isMissingPermission.value = data.groupPermissions.filter((group) => group.displayTemplateType === 1).length < 1
+        if (isMissingPermission.value) return
+
         createAccount(data)
       }
     })
@@ -213,7 +406,7 @@ export default defineComponent({
           duration: 5,
           message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
         })
-        await router.push({ name: 'account' }).catch((err) => err)
+        await router.push({ name: 'account', query: route.query }).catch((err) => err)
       } catch (err) {
         throw err
       }
@@ -231,7 +424,7 @@ export default defineComponent({
           message:
             locale.value === 'en' ? data.username + 'created account success' : data.username + ' が追加されました'
         })
-        await router.push({ name: 'account' })
+        await router.push({ name: 'account', query: route.query })
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -251,18 +444,68 @@ export default defineComponent({
       return text.replace(field, t(`account.${field}`))
     }
 
+    const handleChangePermission = ({
+      groupPermissionId,
+      featureKey,
+      value,
+      templateName = '',
+      templateId = null,
+      permissions = null,
+      IS_CHANGE_TEMPLATE
+    }) => {
+      const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
+      if (groupIndex === -1) return
+
+      const formNew = cloneDeep(form.value)
+      if (IS_CHANGE_TEMPLATE) {
+        formNew.groupPermissions[groupIndex].permissions = permissions
+        formNew.groupPermissions[groupIndex].templateName = templateName
+        formNew.groupPermissions[groupIndex].templateId = templateId
+      } else {
+        const permissionIndex = findIndex(form.value.groupPermissions[groupIndex].permissions, {
+          featureKey: featureKey
+        })
+        if (permissionIndex === -1) return
+
+        formNew.groupPermissions[groupIndex].permissions[permissionIndex].permissionKey = value
+        formNew.groupPermissions[groupIndex].templateName = ''
+        formNew.groupPermissions[groupIndex].templateId = null
+      }
+
+      form.value = formNew
+    }
+
+    const handleTemplateList = (template) => {
+      templatesPermission.value.push(template)
+      // FIXME: set tempalte name
+    }
+
+    const deletePermissionTemplate = (templateId) => {
+      templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
+      // FIXME: remove template name if using
+      // FIXME: error if all permission using this tempalteId ???
+    }
+
     return {
       form,
       TYPE,
       ACTIVE,
-      AUTHORITY,
       isHiddenField,
       isDisableEditField,
+      autoGeneratePassW,
+      groupList,
+      templatesPermission,
+      groupListAllowedAccess,
+      isMissingPermission,
+
       onSubmit,
       handleCancel,
       updateAccount,
       createAccount,
-      replaceField
+      replaceField,
+      handleChangePermission,
+      handleTemplateList,
+      deletePermissionTemplate
     }
   }
 })
