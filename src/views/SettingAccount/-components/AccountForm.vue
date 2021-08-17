@@ -437,7 +437,6 @@ export default defineComponent({
       IS_CHANGE_TEMPLATE
     }) => {
       const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
-      console.log(IS_CHANGE_TEMPLATE);
 
       const formNew = cloneDeep(form.value)
       if (IS_CHANGE_TEMPLATE) {
@@ -462,13 +461,35 @@ export default defineComponent({
     }
 
     const handleTemplateList = (template) => {
+      const formNew = cloneDeep(form.value)
       templatesPermission.value.push(template)
-      // FIXME: set template name
+
+      const { groupId, permissions, id, templateName } = template
+
+      const idPermission = !!groupId ? groupId : 0
+      const groupIndex = findIndex(form.value.groupPermissions, { id: idPermission })
+
+      formNew.groupPermissions[groupIndex].permissions = permissions
+      formNew.groupPermissions[groupIndex].templateName = templateName
+      formNew.groupPermissions[groupIndex].templateId = id
+
+      form.value = formNew
     }
 
     const deletePermissionTemplate = (templateId) => {
+      const formNew = cloneDeep(form.value)
       templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
-      // FIXME: remove template name if using
+
+      const groupIndex = findIndex(form.value.groupPermissions, { templateId: templateId })
+      formNew.groupPermissions[groupIndex].permissions = [
+        { featureKey: 1, permissionKey: null },
+        { featureKey: 2, permissionKey: null },
+        { featureKey: 3, permissionKey: null },
+      ]
+      formNew.groupPermissions[groupIndex].templateName = ''
+      formNew.groupPermissions[groupIndex].templateId = null
+
+      form.value = formNew
     }
 
     return {
