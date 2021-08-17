@@ -204,6 +204,7 @@ export default defineComponent({
         title: t('account.status'),
         dataIndex: 'active',
         key: 'active',
+        sorter: true,
         slots: { customRender: 'active' }
       }
     ]
