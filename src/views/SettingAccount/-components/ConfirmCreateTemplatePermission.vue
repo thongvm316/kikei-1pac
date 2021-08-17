@@ -4,7 +4,7 @@
       <a-input v-model:value="templateName" />
       <p class="modal-save-template__description">※テンプレート名を入力してください</p>
       <a-button type="default" @click="handleCancel">キャンセル</a-button>
-      <a-button type="primary" :disabled="!templateName" @click="handleOk">保存</a-button>
+      <a-button type="primary" :disabled="!!!templateName" @click="handleOk">保存</a-button>
     </template>
   </a-modal>
 </template>

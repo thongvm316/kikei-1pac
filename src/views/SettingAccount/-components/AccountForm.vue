@@ -481,11 +481,8 @@ export default defineComponent({
       templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
 
       const groupIndex = findIndex(form.value.groupPermissions, { templateId: templateId })
-      formNew.groupPermissions[groupIndex].permissions = [
-        { featureKey: 1, permissionKey: null },
-        { featureKey: 2, permissionKey: null },
-        { featureKey: 3, permissionKey: null },
-      ]
+
+      formNew.groupPermissions[groupIndex].permissions = formNew.groupPermissions[groupIndex].permissions.map(item => ({ featureKey: item.featureKey, permissionKey: null }))
       formNew.groupPermissions[groupIndex].templateName = ''
       formNew.groupPermissions[groupIndex].templateId = null
 
