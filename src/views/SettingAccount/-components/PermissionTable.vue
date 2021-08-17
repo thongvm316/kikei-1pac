@@ -27,33 +27,37 @@
                   </a>
                   <template #overlay>
                     <div class="permission-template__body">
-                      <div v-for="template in templatePermission" :key="template.id" class="permission-template__item">
-                        <template v-if="!template.groupId || template.groupId === group.id">
-                          <p
-                            @click="
-                              chooseTemplatePermission(
-                                template.groupId,
-                                template.permissions,
-                                template.templateName,
-                                template.id
-                              )
-                            "
-                          >
-                            {{ template.templateName }}
-                          </p>
-                          <a-button
-                            class="btn-delete u-text-12"
-                            type="link"
-                            danger
-                            @click="deleteTemplatePermission(template.id)"
-                          >
-                            <template #icon>
-                              <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
-                            </template>
-                            削除
-                          </a-button>
-                        </template>
-                      </div>
+                      <template v-if="templatePermission.length > 0">
+                        <div v-for="template in templatePermission" :key="template.id" class="permission-template__item">
+                          <template v-if="!template.groupId || template.groupId === group.id">
+                            <p
+                              @click="
+                                chooseTemplatePermission(
+                                  template.groupId,
+                                  template.permissions,
+                                  template.templateName,
+                                  template.id
+                                )
+                              "
+                            >
+                              {{ template.templateName }}
+                            </p>
+                            <a-button
+                              class="btn-delete u-text-12"
+                              type="link"
+                              danger
+                              @click="deleteTemplatePermission(template.id)"
+                            >
+                              <template #icon>
+                                <span class="btn-icon" :style="{ height: '18px' }"><delete-icon /></span>
+                              </template>
+                              削除
+                            </a-button>
+                          </template>
+                        </div>
+                      </template>
+
+                      <span v-else>該当テンプレートが見つかりませんでした。</span>
                     </div>
                   </template>
                 </a-dropdown>
