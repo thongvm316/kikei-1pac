@@ -437,11 +437,12 @@ export default defineComponent({
       IS_CHANGE_TEMPLATE
     }) => {
       const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
+      console.log(IS_CHANGE_TEMPLATE);
 
       const formNew = cloneDeep(form.value)
       if (IS_CHANGE_TEMPLATE) {
         const groupTemplateType2 = findIndex(form.value.groupPermissions, { displayTemplateType: 2 })
-        const index = groupIndex < 0 ? groupTemplateType2 : groupTemplateType2
+        const index = groupIndex < 0 ? groupTemplateType2 : groupIndex
 
         formNew.groupPermissions[index].permissions = permissions
         formNew.groupPermissions[index].templateName = templateName
