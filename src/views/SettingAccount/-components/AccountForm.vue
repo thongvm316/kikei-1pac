@@ -274,11 +274,6 @@ export default defineComponent({
           let permissionsRequested = group?.permissions || []
           let isAllow = false
 
-          if (!!group.templateId && permissionsRequested.length === 0) {
-            const templateFound = find(templatesPermission.value, { id: group.templateId })
-            templateFound && (permissionsRequested = templateFound?.permissions || [])
-          }
-
           permissionsRequested.forEach((page) => {
             const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
             if (pageIndexFound !== -1) {
@@ -350,29 +345,17 @@ export default defineComponent({
           // check group checked and not empty
           const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
           const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
-
           const isPermisionNotEmpty = !group.permissions.every((page) => page.permissionKey === null)
-          const isTempalteNotEmpty = !!group.templateId
-          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || (isGroupAllowAccess && isTempalteNotEmpty)
+          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || false
 
-          return isGroupAllow || false
+          return isGroupAllow
         })
         .map((group) => {
-          // select templateId or permissions
-          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
-          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
-          const isPermisionNotEmpty = group.permissions.some((page) => page.permissionKey !== null)
-          const isTemplatePermission = group?.templateId || null
+          let groupModified = cloneDeep(group)
 
-          const permissions =
-            !isTemplatePermission && isGroupAllowAccess && isPermisionNotEmpty
-              ? group.permissions.filter((page) => page.permissionKey !== null)
-              : null
-
-          const groupModified = {
-            ...group,
-            permissions
-          }
+          // remove permissionKey null
+          const permission = group?.permissions || []
+          groupModified.permissions = permission.filter((page) => page.permissionKey !== null)
 
           // remove fields
           delete groupModified.id
@@ -477,13 +460,12 @@ export default defineComponent({
 
     const handleTemplateList = (template) => {
       templatesPermission.value.push(template)
-      // FIXME: set tempalte name
+      // FIXME: set template name
     }
 
     const deletePermissionTemplate = (templateId) => {
       templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
       // FIXME: remove template name if using
-      // FIXME: error if all permission using this tempalteId ???
     }
 
     return {
