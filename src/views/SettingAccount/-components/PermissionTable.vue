@@ -21,7 +21,7 @@
                 <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                   <a class="ant-dropdown-link" @click.prevent>
                     <span class="u-flex u-justify-end u-items-center text-grey-55">
-                      {{ group.templateName ? group.templateName : 'テンプレートから選択' }}
+                      {{ group.templateName ? `${group.templateName.length > 10 ? group.templateName.slice(0, 10) + '...' : group.templateName}` : 'テンプレートから選択' }}
                       <ArrowDownIcon class="u-ml-6" />
                     </span>
                   </a>
