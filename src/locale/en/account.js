@@ -15,6 +15,7 @@ export default {
   in_use: 'In use',
   retired: 'Retired',
   add_account: 'Add account',
+  delete_account: 'Deleted {username}',
   note: 'Search by username',
   keyword: 'Keyword',
   clear: 'Clear',
