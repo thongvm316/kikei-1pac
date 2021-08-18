@@ -64,6 +64,13 @@ export default {
   account_0004: '入力が無効です',
   account_0102: '権限がありません',
 
+  template_permission_0000: 'エラーが見つかりません',
+  template_permission_0001: 'テンプレートが見つかりません',
+  template_permission_0002: 'テンプレートが無効です',
+  template_permission_0003: 'テンプレートが存在しました',
+  template_permission_0004: '入力が無効です',
+  template_permission_0102: '権限がありません',
+
   chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
   data_chart_null: 'no data'
 }
