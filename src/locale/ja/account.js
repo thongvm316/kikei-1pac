@@ -28,5 +28,10 @@ export default {
   search_input_placeholder: 'ログインID、氏名',
   created_at: '登録日',
   all_group: 'グループ全体',
-  registration_settings: '登録設定'
+  registration_settings: '登録設定',
+  empty_text_table: '該当するアカウントが見つかりませんでした。',
+
+  csv: {
+    all_group: 'グループ'
+  }
 }
