@@ -339,11 +339,7 @@ export default defineComponent({
       router.push({ name: 'account', params: route.params, query: route.query })
     }
 
-<<<<<<< Updated upstream
-    const onSubmit = handleSubmit(() => {
-=======
     const valueSubmit = computed(() => {
->>>>>>> Stashed changes
       let data = { ...form.value }
 
       // check group permission
