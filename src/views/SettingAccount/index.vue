@@ -382,7 +382,7 @@ export default defineComponent({
       const groupId =
         val !== GROUP_ID_ALL
           ? [val]
-          : groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id) // FIXME: get all group ???
+          : groupList.value.filter((group) => group.id !== GROUP_ID_ALL).map((group) => group.id)
 
       updateParamRequestAccount({ data: { groupId }, params: { pageNumber: 1 } })
     }
