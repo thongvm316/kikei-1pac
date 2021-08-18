@@ -431,10 +431,6 @@ export default defineComponent({
       }
     }
 
-    const replaceField = (text, field) => {
-      return text.replace(field, t(`account.${field}`))
-    }
-
     const handleChangePermission = ({
       groupPermissionId,
       featureKey,
@@ -474,6 +470,7 @@ export default defineComponent({
 
       const { groupId, permissions, id, templateName } = template
 
+      // eslint-disable-next-line no-extra-boolean-cast
       const idPermission = !!groupId ? groupId : 0
       const groupIndex = findIndex(form.value.groupPermissions, { id: idPermission })
 
@@ -513,7 +510,6 @@ export default defineComponent({
       handleCancel,
       updateAccount,
       createAccount,
-      replaceField,
       handleChangePermission,
       handleTemplateList,
       deletePermissionTemplate
