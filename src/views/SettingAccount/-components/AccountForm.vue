@@ -274,11 +274,6 @@ export default defineComponent({
           let permissionsRequested = group?.permissions || []
           let isAllow = false
 
-          if (!!group.templateId && permissionsRequested.length === 0) {
-            const templateFound = find(templatesPermission.value, { id: group.templateId })
-            templateFound && (permissionsRequested = templateFound?.permissions || [])
-          }
-
           permissionsRequested.forEach((page) => {
             const pageIndexFound = findIndex(permissions, { featureKey: page.featureKey })
             if (pageIndexFound !== -1) {
@@ -350,29 +345,17 @@ export default defineComponent({
           // check group checked and not empty
           const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
           const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
-
           const isPermisionNotEmpty = !group.permissions.every((page) => page.permissionKey === null)
-          const isTempalteNotEmpty = !!group.templateId
-          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || (isGroupAllowAccess && isTempalteNotEmpty)
+          const isGroupAllow = (isGroupAllowAccess && isPermisionNotEmpty) || false
 
-          return isGroupAllow || false
+          return isGroupAllow
         })
         .map((group) => {
-          // select templateId or permissions
-          const groupAllowedFound = find(groupListAllowedAccess.value, { id: group.id })
-          const isGroupAllowAccess = groupAllowedFound && groupAllowedFound.isAllow
-          const isPermisionNotEmpty = group.permissions.some((page) => page.permissionKey !== null)
-          const isTemplatePermission = group?.templateId || null
+          let groupModified = cloneDeep(group)
 
-          const permissions =
-            !isTemplatePermission && isGroupAllowAccess && isPermisionNotEmpty
-              ? group.permissions.filter((page) => page.permissionKey !== null)
-              : null
-
-          const groupModified = {
-            ...group,
-            permissions
-          }
+          // remove permissionKey null
+          const permission = group?.permissions || []
+          groupModified.permissions = permission.filter((page) => page.permissionKey !== null)
 
           // remove fields
           delete groupModified.id
@@ -454,13 +437,15 @@ export default defineComponent({
       IS_CHANGE_TEMPLATE
     }) => {
       const groupIndex = findIndex(form.value.groupPermissions, { id: groupPermissionId })
-      if (groupIndex === -1) return
 
       const formNew = cloneDeep(form.value)
       if (IS_CHANGE_TEMPLATE) {
-        formNew.groupPermissions[groupIndex].permissions = permissions
-        formNew.groupPermissions[groupIndex].templateName = templateName
-        formNew.groupPermissions[groupIndex].templateId = templateId
+        const groupTemplateType2 = findIndex(form.value.groupPermissions, { displayTemplateType: 2 })
+        const index = groupIndex < 0 ? groupTemplateType2 : groupIndex
+
+        formNew.groupPermissions[index].permissions = permissions
+        formNew.groupPermissions[index].templateName = templateName
+        formNew.groupPermissions[index].templateId = templateId
       } else {
         const permissionIndex = findIndex(form.value.groupPermissions[groupIndex].permissions, {
           featureKey: featureKey
@@ -476,14 +461,32 @@ export default defineComponent({
     }
 
     const handleTemplateList = (template) => {
+      const formNew = cloneDeep(form.value)
       templatesPermission.value.push(template)
-      // FIXME: set tempalte name
+
+      const { groupId, permissions, id, templateName } = template
+
+      const idPermission = !!groupId ? groupId : 0
+      const groupIndex = findIndex(form.value.groupPermissions, { id: idPermission })
+
+      formNew.groupPermissions[groupIndex].permissions = permissions
+      formNew.groupPermissions[groupIndex].templateName = templateName
+      formNew.groupPermissions[groupIndex].templateId = id
+
+      form.value = formNew
     }
 
     const deletePermissionTemplate = (templateId) => {
+      const formNew = cloneDeep(form.value)
       templatesPermission.value = templatesPermission.value.filter((item) => item.id !== templateId)
-      // FIXME: remove template name if using
-      // FIXME: error if all permission using this tempalteId ???
+
+      const groupIndex = findIndex(form.value.groupPermissions, { templateId: templateId })
+
+      formNew.groupPermissions[groupIndex].permissions = formNew.groupPermissions[groupIndex].permissions.map(item => ({ featureKey: item.featureKey, permissionKey: null }))
+      formNew.groupPermissions[groupIndex].templateName = ''
+      formNew.groupPermissions[groupIndex].templateId = null
+
+      form.value = formNew
     }
 
     return {

@@ -6,6 +6,7 @@
         v-model:value="requestParamsData.data.keySearch"
         :placeholder="$t('account.search_input_placeholder')"
         :style="{ width: '222px' }"
+        allow-clear
         @search="onInputChange"
       />
 
@@ -204,6 +205,7 @@ export default defineComponent({
         title: t('account.status'),
         dataIndex: 'active',
         key: 'active',
+        sorter: true,
         slots: { customRender: 'active' }
       }
     ]
@@ -244,10 +246,7 @@ export default defineComponent({
       store.commit('flash/STORE_FLASH_MESSAGE', {
         variant: 'success',
         duration: 5,
-        message:
-          locale.value === 'en'
-            ? 'Deleted' + recordVisible.value.name
-            : recordVisible.value.username + ' を削除しました'
+        message: t('account.delete_account', { username: recordVisible.value.username })
       })
     }
 

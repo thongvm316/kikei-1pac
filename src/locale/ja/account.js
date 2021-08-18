@@ -15,6 +15,7 @@ export default {
   in_use: '有効',
   retired: '無効',
   add_account: '新規アカウント追加',
+  delete_account: '{username}が削除されました',
   note: 'ログインID、氏名より検索します',
   keyword: 'キーワード',
   clear: 'クリア',
@@ -26,5 +27,6 @@ export default {
   permission_none: 'アクセス不可',
   search_input_placeholder: 'ログインID、氏名',
   created_at: '登録日',
-  all_group: 'グループ全体'
+  all_group: 'グループ全体',
+  registration_settings: '登録設定'
 }

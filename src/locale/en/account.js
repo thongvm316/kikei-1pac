@@ -15,6 +15,7 @@ export default {
   in_use: 'In use',
   retired: 'Retired',
   add_account: 'Add account',
+  delete_account: 'Deleted {username}',
   note: 'Search by username',
   keyword: 'Keyword',
   clear: 'Clear',
@@ -26,5 +27,6 @@ export default {
   permission_none: 'None',
   search_input_placeholder: 'ログインID、氏名',
   created_at: '登録日',
-  all_group: 'All group'
+  all_group: 'All group',
+  registration_settings: '登録設定'
 }

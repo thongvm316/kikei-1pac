@@ -21,13 +21,13 @@
                 <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                   <a class="ant-dropdown-link" @click.prevent>
                     <span class="u-flex u-justify-end u-items-center text-grey-55">
-                      {{ group.templateName ? group.templateName : 'テンプレートを保存する' }}
+                      {{ group.templateName ? `${group.templateName.length > 10 ? group.templateName.slice(0, 10) + '...' : group.templateName}` : 'テンプレートから選択' }}
                       <ArrowDownIcon class="u-ml-6" />
                     </span>
                   </a>
                   <template #overlay>
                     <div class="permission-template__body">
-                      <template v-if="templatePermission.length > 0">
+                      <template v-if="templatePermission.filter(item => (!item.groupId || item.groupId === group.id)).length > 0">
                         <div v-for="template in templatePermission" :key="template.id" class="permission-template__item">
                           <template v-if="!template.groupId || template.groupId === group.id">
                             <p
@@ -196,8 +196,10 @@ export default defineComponent({
           }
 
           // add page name
+          const templateType = parseInt(groupPermission.displayTemplateType)
           const groupFound = find(groupList.value, { id: groupPermission.groupId })
-          const groupName = groupFound?.name || ''
+          const groupName = templateType === 2 ? t('account.registration_settings') : groupFound?.name || ''
+
           const permissionsModified = permissions
             ?.map((page) => {
               const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(page.featureKey) })
@@ -273,7 +275,7 @@ export default defineComponent({
       }
 
       newTemplate.value = {
-        groupId,
+        groupId: groupId > 0 ? groupId : null,
         templateName: '',
         templateType: displayTemplateType.value,
         permissions: newPermission
