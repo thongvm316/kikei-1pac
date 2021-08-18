@@ -196,8 +196,10 @@ export default defineComponent({
           }
 
           // add page name
+          const templateType = parseInt(groupPermission.displayTemplateType)
           const groupFound = find(groupList.value, { id: groupPermission.groupId })
-          const groupName = groupFound?.name || ''
+          const groupName = templateType === 2 ? t('account.registration_settings') : groupFound?.name || ''
+
           const permissionsModified = permissions
             ?.map((page) => {
               const pageFound = find(PAGE_PERMISSIONS, { value: parseInt(page.featureKey) })

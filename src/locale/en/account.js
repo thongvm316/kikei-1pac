@@ -27,5 +27,6 @@ export default {
   permission_none: 'None',
   search_input_placeholder: 'ログインID、氏名',
   created_at: '登録日',
-  all_group: 'All group'
+  all_group: 'All group',
+  registration_settings: '登録設定'
 }
