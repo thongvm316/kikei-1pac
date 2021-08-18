@@ -17,8 +17,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="login_id" class="errors">
-                {{ replaceField(message, 'login_id') }}
+              <ErrorMessage as="span" name="login_id" class="errors">
+                {{ $t('account.login_id_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -38,8 +38,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="full_name" class="errors">
-                {{ replaceField(message, 'full_name') }}
+              <ErrorMessage as="span" name="full_name" class="errors">
+                {{ $t('account.full_name_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -60,8 +60,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
-                {{ replaceField(message, 'password') }}
+              <ErrorMessage as="span" name="password" class="errors">
+                {{ $t('account.password_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -120,21 +120,25 @@
 
       <!-- Permission Group-->
       <div class="form-group">
-        <div class="form-content">
-          <label class="form-label required">{{ $t('account.group_permissions') }}</label>
+        <Field v-model="isMissingPermission" name="permission" rules="required">
+          <div class="form-content">
+            <label class="form-label required">{{ $t('account.group_permissions') }}</label>
 
-          <PermissionTable
-            v-model:group-list-allowed-access="groupListAllowedAccess"
-            :group-permissions="form.groupPermissions"
-            :is-group-permission="true"
-            :group-list="groupList"
-            :templates-permission="templatesPermission"
-            @handle-change-permission="handleChangePermission"
-            @handle-template-list="handleTemplateList($event)"
-            @delete-permission-template="deletePermissionTemplate($event)"
-          />
-        </div>
-        <span v-show="isMissingPermission" class="errors">グループを選択してください</span>
+            <PermissionTable
+              v-model:group-list-allowed-access="groupListAllowedAccess"
+              :group-permissions="form.groupPermissions"
+              :is-group-permission="true"
+              :group-list="groupList"
+              :templates-permission="templatesPermission"
+              @handle-change-permission="handleChangePermission"
+              @handle-template-list="handleTemplateList($event)"
+              @delete-permission-template="deletePermissionTemplate($event)"
+            />
+          </div>
+          <ErrorMessage as="span" name="permission" class="errors">
+            グループを選択してください
+          </ErrorMessage>
+        </Field>
       </div>
 
       <!-- Permission Setting-->
@@ -169,7 +173,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from 'vue'
+import { defineComponent, ref, onMounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
@@ -208,7 +212,6 @@ export default defineComponent({
     const groupListAllowedAccess = ref([])
 
     const templatesPermission = ref()
-    const isMissingPermission = ref()
 
     let form = ref({
       accountGroupId: 1,
@@ -336,7 +339,7 @@ export default defineComponent({
       router.push({ name: 'account', params: route.params, query: route.query })
     }
 
-    const onSubmit = handleSubmit(() => {
+    const valueSubmit = computed(() => {
       let data = { ...form.value }
 
       // check group permission
@@ -367,13 +370,18 @@ export default defineComponent({
       data.groupPermissions = groupPermissions
       delete data.id
 
-      if (route.name === 'account-edit') {
-        updateAccount(data)
-      } else {
-        isMissingPermission.value = data.groupPermissions.filter((group) => group.displayTemplateType === 1).length < 1
-        if (isMissingPermission.value) return
+      return data
+    })
 
-        createAccount(data)
+    const isMissingPermission = computed(() => {
+      return valueSubmit.value.groupPermissions.filter(item => item.displayTemplateType === 1).length > 0
+    })
+
+    const onSubmit = handleSubmit(() => {
+      if (route.name === 'account-edit') {
+        updateAccount(valueSubmit.value)
+      } else {
+        createAccount(valueSubmit.value)
       }
     })
 
@@ -423,10 +431,6 @@ export default defineComponent({
       }
     }
 
-    const replaceField = (text, field) => {
-      return text.replace(field, t(`account.${field}`))
-    }
-
     const handleChangePermission = ({
       groupPermissionId,
       featureKey,
@@ -466,6 +470,7 @@ export default defineComponent({
 
       const { groupId, permissions, id, templateName } = template
 
+      // eslint-disable-next-line no-extra-boolean-cast
       const idPermission = !!groupId ? groupId : 0
       const groupIndex = findIndex(form.value.groupPermissions, { id: idPermission })
 
@@ -505,7 +510,6 @@ export default defineComponent({
       handleCancel,
       updateAccount,
       createAccount,
-      replaceField,
       handleChangePermission,
       handleTemplateList,
       deletePermissionTemplate
