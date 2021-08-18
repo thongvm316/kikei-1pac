@@ -5,8 +5,8 @@
       <a-input-search
         v-model:value="requestParamsData.data.keySearch"
         :placeholder="$t('account.search_input_placeholder')"
-        :style="{ width: '222px' }"
         allow-clear
+        class="account-wrap__key-search"
         @search="onInputChange"
       />
 
@@ -60,6 +60,7 @@
       :custom-row="customRow"
       :row-selection="rowSelection"
       :scroll="{ y: height - 264 }"
+      :locale="localeTable"
       size="middle"
       @change="handleAccountTableChange"
     >
@@ -90,7 +91,7 @@ import { defineComponent, computed, ref, reactive, onMounted, onUnmounted, watch
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { forEach, isArray, keys, map, includes, find, cloneDeep, parseInt, isEqual } from 'lodash-es'
+import { forEach, keys, includes, find, cloneDeep, parseInt, isEqual } from 'lodash-es'
 import humps from 'humps'
 import moment from 'moment'
 
@@ -154,6 +155,10 @@ export default defineComponent({
       keySearch: '',
       groupId: []
       // type: []
+    }
+
+    const localeTable = {
+      emptyText: t('account.empty_text_table')
     }
 
     const requestParamsData = ref({
@@ -342,7 +347,7 @@ export default defineComponent({
 
     const handleExportCsv = () => {
       const labels = [
-        { header: t('account.all_group'), field: 'group' },
+        { header: t('account.csv.all_group'), field: 'group' },
         { header: t('account.created_at'), field: 'createdAt' },
         { header: t('account.login_id'), field: 'username' },
         { header: t('account.full_name'), field: 'fullname' },
@@ -415,13 +420,10 @@ export default defineComponent({
             paramsRequest[keyCamelize] = Number(value)
           } else if (includes(['orderBy'], keyCamelize)) {
             paramsRequest[keyCamelize] = value
+          } else if (includes(['groupId'], keyCamelize)) {
+            dataRequest[keyCamelize] = value === 'all' ? value : [Number(value)]
           } else {
-            if (isArray(value)) {
-              dataRequest[keyCamelize] = map(value, (i) => Number(i))
-            } else {
-              const isGroupAll = keyCamelize === 'groupId' && value === 'all'
-              dataRequest[keyCamelize] = isGroupAll ? value : [Number(value)]
-            }
+            dataRequest[keyCamelize] = value
           }
         })
       }
@@ -487,6 +489,7 @@ export default defineComponent({
       activeKeyGroup,
       groupList,
       requestParamsData,
+      localeTable,
 
       handleDeleteRecord,
       handleEditRecord,
@@ -504,24 +507,40 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
-.box-create {
-  padding: 24px 32px 0;
-  text-align: right;
-  text-align: -webkit-right;
+<style lang="scss">
+.account-wrap {
+  .box-create {
+    padding: 24px 32px 0;
+    text-align: right;
+    text-align: -webkit-right;
 
-  .btn-modal {
-    width: auto;
-    border-radius: 2px;
-    padding: 1px 8px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
+    .btn-modal {
+      width: auto;
+      border-radius: 2px;
+      padding: 1px 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
 
-    .add-icon {
-      margin-right: 10.33px;
+      .add-icon {
+        margin-right: 10.33px;
+      }
     }
+  }
+
+  &__key-search {
+    width: 260px;
+
+    .ant-input-suffix {
+      .ant-input-clear-icon {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .ant-table-placeholder {
+    padding-top: 48px;
   }
 }
 </style>
