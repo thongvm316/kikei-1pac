@@ -337,7 +337,6 @@ export default defineComponent({
     }
 
     const onSubmit = handleSubmit(() => {
-      console.log('object');
       let data = { ...form.value }
 
       // check group permission

@@ -6,7 +6,7 @@ export default function useDeleteCompanyService(id) {
     // eslint-disable-next-line no-useless-catch
     try {
       const response = await SettingAccountService.deleteAccount(id)
-      return response.data
+      return response
     } catch (e) {
       throw e
     }

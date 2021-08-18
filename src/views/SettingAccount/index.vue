@@ -238,21 +238,24 @@ export default defineComponent({
     const handleDeleteRecord = async () => {
       try {
         const { deleteAccount } = useDeleteAccountService(recordVisible.value.id)
-        await deleteAccount()
+        const response = await deleteAccount()
+
+        if (response.status === 200) {
+          //show notification
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'success',
+            duration: 5,
+            message: t('account.delete_account', { username: recordVisible.value.username })
+          })
+
+          await fetchDataTableAccount()
+        }
       } catch (error) {
         console.log(error)
+      } finally {
+        openDelete.value = false
+        recordVisible.value.visible = false
       }
-
-      openDelete.value = false
-      recordVisible.value.visible = false
-      await fetchDataTableAccount()
-
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message: t('account.delete_account', { username: recordVisible.value.username })
-      })
     }
 
     const handleEditRecord = () => {
