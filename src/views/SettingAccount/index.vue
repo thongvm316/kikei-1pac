@@ -6,6 +6,7 @@
         v-model:value="requestParamsData.data.keySearch"
         :placeholder="$t('account.search_input_placeholder')"
         :style="{ width: '222px' }"
+        allow-clear
         @search="onInputChange"
       />
 
