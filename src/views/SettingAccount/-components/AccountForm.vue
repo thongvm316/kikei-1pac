@@ -17,8 +17,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="login_id" class="errors">
-                {{ replaceField(message, 'login_id') }}
+              <ErrorMessage as="span" name="login_id" class="errors">
+                {{ $t('account.login_id_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -38,8 +38,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="full_name" class="errors">
-                {{ replaceField(message, 'full_name') }}
+              <ErrorMessage as="span" name="full_name" class="errors">
+                {{ $t('account.full_name_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -60,8 +60,8 @@
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
-                {{ replaceField(message, 'password') }}
+              <ErrorMessage as="span" name="password" class="errors">
+                {{ $t('account.password_error') }}
               </ErrorMessage>
             </div>
           </div>
@@ -337,6 +337,7 @@ export default defineComponent({
     }
 
     const onSubmit = handleSubmit(() => {
+      console.log('object');
       let data = { ...form.value }
 
       // check group permission

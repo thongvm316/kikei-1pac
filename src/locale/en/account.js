@@ -1,9 +1,12 @@
 export default {
   title_search: 'Search',
   login_id: 'ID',
+  login_id_error: 'Please input login ID',
   username: 'Username',
   password: 'Password',
+  password_error: 'Please input password',
   full_name: 'FullName',
+  full_name_error: 'Please input fullName',
   email: 'Email',
   sales: 'Sales staff',
   type_sales: 'Business',

@@ -1,9 +1,12 @@
 export default {
   title_search: '検索',
   login_id: 'ログインID',
+  login_id_error: 'ログインIDを入力してください',
   username: 'ユーザー名',
   password: 'パスワード',
+  password_error: 'パスワードを入力してください ',
   full_name: '氏名',
+  full_name_error: '氏名を入力してください',
   email: 'Email',
   sales: '職種',
   type_sales: '営業',
