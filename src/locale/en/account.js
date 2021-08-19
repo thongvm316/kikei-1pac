@@ -1,9 +1,12 @@
 export default {
   title_search: 'Search',
   login_id: 'ID',
+  login_id_error: 'Please input login ID',
   username: 'Username',
   password: 'Password',
+  password_error: 'Please input password',
   full_name: 'FullName',
+  full_name_error: 'Please input fullName',
   email: 'Email',
   sales: 'Sales staff',
   type_sales: 'Business',
@@ -28,5 +31,10 @@ export default {
   search_input_placeholder: 'ログインID、氏名',
   created_at: '登録日',
   all_group: 'All group',
-  registration_settings: '登録設定'
+  registration_settings: '登録設定',
+  empty_text_table: '該当するアカウントが見つかりませんでした。',
+
+  csv: {
+    all_group: 'グループ'
+  }
 }

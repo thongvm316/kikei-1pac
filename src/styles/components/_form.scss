@@ -26,6 +26,11 @@
           line-height: 18px;
         }
 
+        .ant-input.has-error {
+          border-color: #ff4d4f;
+          box-shadow: none;
+        }
+
         .ant-checkbox-group {
           label:first-child {
             margin-right: 15px;

@@ -116,7 +116,6 @@ const routes = [
         name: 'setting',
         component: lazyLoadRoute('Base'),
         meta: { title: `Setting | ${APP_NAME}` },
-        // TODO: children will modify later
         children: [
           {
             path: 'company',
