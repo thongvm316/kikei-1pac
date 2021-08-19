@@ -21,14 +21,30 @@
                 <a-dropdown :trigger="['click']" overlay-class-name="permission-template">
                   <a class="ant-dropdown-link" @click.prevent>
                     <span class="u-flex u-justify-end u-items-center text-grey-55">
-                      {{ group.templateName ? `${group.templateName.length > 10 ? group.templateName.slice(0, 10) + '...' : group.templateName}` : 'テンプレートから選択' }}
+                      {{
+                        group.templateName
+                          ? `${
+                              group.templateName.length > 10
+                                ? group.templateName.slice(0, 10) + '...'
+                                : group.templateName
+                            }`
+                          : 'テンプレートから選択'
+                      }}
                       <ArrowDownIcon class="u-ml-6" />
                     </span>
                   </a>
                   <template #overlay>
                     <div class="permission-template__body">
-                      <template v-if="templatePermission.filter(item => (!item.groupId || item.groupId === group.id)).length > 0">
-                        <div v-for="template in templatePermission" :key="template.id" class="permission-template__item">
+                      <template
+                        v-if="
+                          templatePermission.filter((item) => !item.groupId || item.groupId === group.id).length > 0
+                        "
+                      >
+                        <div
+                          v-for="template in templatePermission"
+                          :key="template.id"
+                          class="permission-template__item"
+                        >
                           <template v-if="!template.groupId || template.groupId === group.id">
                             <p
                               @click="

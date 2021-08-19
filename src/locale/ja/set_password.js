@@ -1,8 +1,8 @@
 export default {
-  min: 'Have at least 8 characters in length',
-  lower: 'Have a minimum of 1 lower case letter [a-z]',
-  upper: 'Have a minimum of 1 lower case letter [A-Z]',
-  number: 'Have a minimum of 1 lower case letter [0-9]',
-  special: 'Have a minimum of 1 special character:',
-  pw_not_match: 'Password not match'
+  min: '8文字以上であること',
+  lower: '1つ以上の半角英小文字が使われていること',
+  upper: '1つ以上の半角英大文字が使われていること',
+  number: '1つ以上の半角数字を含めること',
+  special: '1つ以上の記号を含めること:',
+  pw_not_match: 'パスワードとパスワード（確認）が一致しません。'
 }

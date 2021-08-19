@@ -2,7 +2,8 @@ import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
   login: '/login',
-  logout: '/logout'
+  logout: '/logout',
+  setpassword: '/setpassword'
 })
 
 export default {
@@ -12,5 +13,9 @@ export default {
 
   logout() {
     return apiCaller({ method: 'POST', url: `${RESOURCES.logout}` })
+  },
+
+  getToken(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.setpassword}`, data, needAuth: 0 })
   }
 }

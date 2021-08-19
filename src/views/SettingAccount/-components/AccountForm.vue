@@ -135,9 +135,7 @@
               @delete-permission-template="deletePermissionTemplate($event)"
             />
           </div>
-          <ErrorMessage as="span" name="permission" class="errors">
-            グループを選択してください
-          </ErrorMessage>
+          <ErrorMessage as="span" name="permission" class="errors"> グループを選択してください </ErrorMessage>
         </Field>
       </div>
 
@@ -374,7 +372,7 @@ export default defineComponent({
     })
 
     const isMissingPermission = computed(() => {
-      return valueSubmit.value.groupPermissions.filter(item => item.displayTemplateType === 1).length > 0
+      return valueSubmit.value.groupPermissions.filter((item) => item.displayTemplateType === 1).length > 0
     })
 
     const onSubmit = handleSubmit(() => {
@@ -488,7 +486,9 @@ export default defineComponent({
       const groupIndex = findIndex(form.value.groupPermissions, { templateId: templateId })
       if (groupIndex < 0) return
 
-      formNew.groupPermissions[groupIndex].permissions = formNew.groupPermissions[groupIndex].permissions.map(item => ({ featureKey: item.featureKey, permissionKey: null }))
+      formNew.groupPermissions[groupIndex].permissions = formNew.groupPermissions[groupIndex].permissions.map(
+        (item) => ({ featureKey: item.featureKey, permissionKey: null })
+      )
       formNew.groupPermissions[groupIndex].templateName = ''
       formNew.groupPermissions[groupIndex].templateId = null
 
