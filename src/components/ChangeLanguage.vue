@@ -1,5 +1,5 @@
 <template>
-  <a-select v-model:value="locale" style="width: 115px" @focus="focus" @change="handleChange">
+  <a-select v-model:value="locale" style="width: 115px" @change="handleChange">
     <a-select-option v-for="(item, i) in LANGUAGE" :key="i" :value="item.locale">
       <span class="role">
         <div v-if="item.locale === 'ja'" class="role__flag">
