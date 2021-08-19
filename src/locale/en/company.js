@@ -37,5 +37,7 @@ export default {
   both: 'Both',
   company_project: 'This company being used in project and cannot be deleted',
   company_project_order: 'This company being used in project order and cannot be deleted',
-  company_deposit: 'This company being used in deposit and cannot be deleted'
+  company_deposit: 'This company being used in deposit and cannot be deleted',
+  caption: '※If you do not enter, company code will be automatically numbered',
+  company_created_at: 'Created date'
 }
