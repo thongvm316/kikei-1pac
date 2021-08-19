@@ -1,23 +1,23 @@
 <template>
-  <a-select ref="select" v-model:value="locales.ja" style="width: 115px" @change="handleChange">
-    <a-select-option v-for="(locale, i) in locales" :key="i" :value="locale">
+  <a-select ref="select" v-model:value="locales" style="width: 115px" @change="handleChange">
+    <a-select-option v-for="(item, i) in LANGUAGE" :key="i" :value="item.locale">
       <span class="role">
-        <div v-if="i === 'ja'" class="role__flag">
-          <japan-icon class="role__flag-img" />
+        <div class="role__flag">
+          <component :is="item.component" class="role__flag-img" />
         </div>
-        <div v-else class="role__flag">
-          <usa-icon class="role__flag-img" />
-        </div>
-        {{ locale }}
+        {{ item.value }}
       </span>
     </a-select-option>
   </a-select>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { forEach } from 'lodash-es'
+import { useStore } from 'vuex'
+
+import { LANGUAGE } from '@/enums/language.enum'
+
 import JapanIcon from '@/assets/icons/ico_japan.svg'
 import UsaIcon from '@/assets/icons/ico_united-kingdom.svg'
 
@@ -31,23 +31,23 @@ export default defineComponent({
 
   setup() {
     const t = useI18n()
+    const store = useStore()
 
-    const selected = ref()
+    const locales = ref('')
 
-    const locales = {
-      en: 'English',
-      ja: '日本語'
-    }
+    onMounted(() => {
+      locales.value = store.state.lang.language
+    })
 
-    const handleChange = (value, key) => {
-      selected.value = key.key
-      forEach(t.availableLocales, (value) => {
-        if (value === selected.value) return (t.locale.value = value)
-      })
+    const handleChange = (value) => {
+      t.locale.value = value
+      store.commit('lang/STORE_LANGUAGE', value)
     }
 
     return {
       locales,
+      LANGUAGE,
+      store,
       handleChange
     }
   }
