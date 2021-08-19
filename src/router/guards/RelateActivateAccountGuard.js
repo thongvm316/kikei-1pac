@@ -1,6 +1,6 @@
 export const RelateActivateAccountGuard = async (to, from, next) => {
-  if (to?.redirectedFrom?.name === 'activate-account') {
+  if (from.name === 'activate-account') {
     next()
   }
-  next({ name: 'login' })
+  next('/login')
 }

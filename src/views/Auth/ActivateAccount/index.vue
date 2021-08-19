@@ -88,14 +88,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, onBeforeMount } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep, values, every } from 'lodash-es'
 import { useRouter, useRoute } from 'vue-router'
-import jwt_decode from 'jwt-decode'
-import moment from 'moment'
 import ChangeLanguage from '@/components/ChangeLanguage'
-import useGetTokenService from './composables/useGetTokenService'
 
 // eslint-disable-next-line no-unused-vars
 const VALIDATE = ['min', 'lower', 'upper', 'number', 'special']
@@ -111,7 +108,7 @@ export default defineComponent({
     const route = useRoute()
 
     let form = ref({ new_password: '', confirm_password: '' })
-    const checked = ref(false)
+    const checked = ref(true)
     const decoded = ref({})
 
     const message = ref('')
@@ -143,17 +140,7 @@ export default defineComponent({
           token: route.query.token,
           password: data.confirm_password
         }
-        try {
-          const { getToken } = useGetTokenService({ ...params })
-          // run login
-          const { result } = await getToken()
-          console.log(result)
-          // await router.push({ name: 'congratulations' })
-        } catch (e) {
-          console.log(e)
-        }
-        // console.log(route.query.token)
-        // let token = route.query.token
+        await router.push({ name: 'congratulations', params: { ...params } })
       }
     }
 

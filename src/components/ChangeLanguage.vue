@@ -1,9 +1,12 @@
 <template>
-  <a-select ref="select" v-model:value="locales" style="width: 115px" @change="handleChange">
+  <a-select v-model:value="locale" style="width: 115px" @focus="focus" @change="handleChange">
     <a-select-option v-for="(item, i) in LANGUAGE" :key="i" :value="item.locale">
       <span class="role">
-        <div class="role__flag">
-          <component :is="item.component" class="role__flag-img" />
+        <div v-if="item.locale === 'ja'" class="role__flag">
+          <img class="role__flag-img" src="@/assets/icons/ico_japan.png" alt="flag-japan" />
+        </div>
+        <div v-else class="role__flag">
+          <img class="role__flag-img" src="@/assets/icons/ico_united-kingdom.png" alt="flag-japan" />
         </div>
         {{ item.value }}
       </span>
@@ -12,43 +15,28 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { LANGUAGE } from '@/enums/language.enum'
 
-import JapanIcon from '@/assets/icons/ico_japan.svg'
-import UsaIcon from '@/assets/icons/ico_united-kingdom.svg'
-
 export default defineComponent({
   name: 'ChangeLanguage',
 
-  components: {
-    JapanIcon,
-    UsaIcon
-  },
-
   setup() {
-    const t = useI18n()
+    const { locale } = useI18n()
     const store = useStore()
 
-    const locales = ref('')
-
-    onMounted(() => {
-      locales.value = store.state.lang.language
-    })
-
     const handleChange = (value) => {
-      t.locale.value = value
-      store.commit('lang/STORE_LANGUAGE', value)
+      locale.value = value
     }
 
     return {
-      locales,
-      LANGUAGE,
+      locale,
       store,
-      handleChange
+      handleChange,
+      LANGUAGE
     }
   }
 })
@@ -61,6 +49,8 @@ export default defineComponent({
   &__flag {
     display: flex;
     width: 25%;
+    height: 20px;
+    margin: auto;
     margin-right: 10px;
   }
 

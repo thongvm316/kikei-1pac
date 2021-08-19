@@ -1,12 +1,10 @@
 export const LANGUAGE = [
   {
     locale: 'ja',
-    value: '日本語',
-    component: 'JapanIcon'
+    value: '日本語'
   },
   {
     locale: 'en',
-    value: 'English',
-    component: 'UsaIcon'
+    value: 'English'
   }
 ]

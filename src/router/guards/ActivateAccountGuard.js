@@ -7,10 +7,10 @@ export const ActivateAccountGuard = async (to, from, next) => {
     const currentTime = new Date().getTime() / 1000
     // still time to live
     if (tokenTime <= currentTime) {
-      next({ name: 'error-expired' })
+      next('/error-expired')
     } else {
       next()
     }
   }
-  next({ name: 'login' })
+  next('/login')
 }

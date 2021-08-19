@@ -22,9 +22,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import { useRouter } from 'vue-router'
+import { defineComponent, ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
+import useGetTokenService from '@/views/Auth/ActivateAccount/composables/useGetTokenService'
 
 export default defineComponent({
   name: 'Index',
@@ -33,10 +34,18 @@ export default defineComponent({
 
   setup() {
     const router = useRouter()
-    // const route = useRoute()
+    const route = useRoute()
 
-    const onSubmit = () => {
-      router.push({ name: 'dashboard' })
+    const params = ref({})
+
+    onMounted(() => {
+      params.value = route.params
+    })
+
+    const onSubmit = async () => {
+      const { getToken } = useGetTokenService({ ...params.value })
+      await getToken()
+      await router.push({ name: 'dashboard' })
     }
 
     return {
