@@ -4,7 +4,7 @@
     <form @submit="onSubmit">
       <!-- ID username-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.username" name="login_id" rules="required">
+        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="login_id" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.login_id') }}</label>
             <div class="form-input">
@@ -12,7 +12,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 :maxlength="20"
-                class="w-300"
+                :class="['w-300', { 'has-error': !!errorMessage }]"
                 :disabled="isDisableEditField"
                 @change="handleChange"
               />
@@ -27,14 +27,14 @@
 
       <!-- Full name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.fullname" name="full_name" rules="required">
+        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.fullname" name="full_name" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.full_name') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                class="w-300"
+                :class="['w-300', { 'has-error': !!errorMessage }]"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -48,14 +48,14 @@
 
       <!-- Password -->
       <div v-if="isHiddenField" class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="required">
+        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.password" name="password" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.password') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                class="w-300"
+                :class="['w-300', { 'has-error': !!errorMessage }]"
                 :disabled="isDisableEditField"
                 @change="handleChange"
               />
