@@ -20,14 +20,12 @@ export default defineComponent({
     const templateName = ref('')
 
     const handleCancel = () => {
-      templateName.value = ''
       emit('update:visible', false)
       emit('clearTemplateTmp')
     }
 
     const handleOk = () => {
       emit('handleSaveTemplate', templateName.value)
-      templateName.value = ''
     }
 
     return {
