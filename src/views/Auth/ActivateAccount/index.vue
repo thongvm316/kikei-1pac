@@ -126,30 +126,6 @@ export default defineComponent({
 
     const valid = ref(null)
 
-    // onBeforeMount(() => {
-    //   let token =
-    //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo5LCJmdWxsX25hbWUiOiJtYXJ1IiwiZW1haWwiOiJtYXJ1QGthaWtlaS52biIsImV4cCI6MTYyOTg1OTExOCwiaWF0IjoxNTE2MjM5MDIyfQ.6VocPPH1nE9EzcsEtBbYMpnnVc-s-G7SwI502iqfU_Q'
-    //   router.push({ name: 'activate-account', query: { token } })
-    // })
-
-    onMounted(() => {
-      // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJmdWxsX25hbWUiOiJMw6ogVHLhu41uZyBUw6BpIiwiZW1haWwiOiJsZXRyb25nLnRhaTI0MkBnbWFpbC5jb20iLCJleHAiOjE2Mjg3NjUyOTcsImlhdCI6MTUxNjIzOTAyMn0.sW5dIdM8J6gpylDgGvOhGxGa-T-vx3FiU48UTEpMdFE
-      // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJmdWxsX25hbWUiOiJMw6ogVHLhu41uZyBUw6BpIiwiZW1haWwiOiJsZXRyb25nLnRhaTI0MkBnbWFpbC5jb20iLCJleHAiOjE2Mjk0Mjk1NzYsImlhdCI6MTUxNjIzOTAyMn0.Lb6Y6bxaOFamcMEWGr8o7oCg3K8P2ulHzRCm0IeqYak
-      // console.log(route.query.token)
-      // if (route.query.token === undefined) router.push({ name: 'login' })
-      // let token = route.query.token
-      console.log(route.params.id)
-      // decoded.value = jwt_decode(route.query.token)
-      // console.log(decoded.value)
-      // console.log(moment.unix(decoded.value.exp))
-      // console.log(moment())
-      // if (moment.unix(decoded.value.exp) <= moment()) {
-      //   console.log('ok')
-      // } else {
-      //   router.push({ name: 'error-expired' })
-      // }
-    })
-
     const onSubmit = async () => {
       let data = { ...form.value }
       error.value = cloneDeep(checkError(data.new_password))
@@ -163,14 +139,10 @@ export default defineComponent({
       } else {
         // call api in here
         message.value = ''
-        console.log(route.query)
-        console.log(data.confirm_password)
-        console.log('submit')
         const params = {
           token: route.query.token,
           password: data.confirm_password
         }
-        console.log(params)
         try {
           const { getToken } = useGetTokenService({ ...params })
           // run login

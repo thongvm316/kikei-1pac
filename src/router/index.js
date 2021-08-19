@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
+import { ActivateAccountGuard, RelateActivateAccountGuard, ResolveGuard } from '@/router/guards'
 
 const StorageService = Services.get('StorageService')
 const APP_NAME = process.env.APP_NAME || 'KAIKEI'
@@ -33,49 +34,32 @@ const routes = [
     path: '/activate-account',
     name: 'activate-account',
     component: lazyLoadRoute('Auth/ActivateAccount'),
+    beforeEnter: ResolveGuard([ActivateAccountGuard]),
     meta: { title: `Activate Account | ${APP_NAME}` }
   },
 
   {
     path: '/error-expired',
-    meta: { title: `Expired Mail | ${APP_NAME}` },
-    component: lazyLoadLayout('AuthLayout'),
-    children: [
-      {
-        path: '',
-        name: 'error-expired',
-        component: lazyLoadRoute('Auth/ErrorExpired'),
-        meta: { title: `Expired Mail | ${APP_NAME}` }
-      }
-    ]
+    name: 'error-expired',
+    component: lazyLoadRoute('Auth/ErrorExpired'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Expired Mail | ${APP_NAME}` }
   },
 
   {
     path: '/congratulations',
-    meta: { title: `Congratulations | ${APP_NAME}` },
-    component: lazyLoadLayout('AuthLayout'),
-    children: [
-      {
-        path: '',
-        name: 'congratulations',
-        component: lazyLoadRoute('Auth/Congratulations'),
-        meta: { title: `Congratulations | ${APP_NAME}` }
-      }
-    ]
+    name: 'congratulations',
+    component: lazyLoadRoute('Auth/Congratulations'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Congratulations | ${APP_NAME}` }
   },
 
   {
     path: '/error-verified',
-    meta: { title: `Verified Mail | ${APP_NAME}` },
-    component: lazyLoadLayout('AuthLayout'),
-    children: [
-      {
-        path: '',
-        name: 'error-verified',
-        component: lazyLoadRoute('Auth/ErrorVerified'),
-        meta: { title: `Verified Mail | ${APP_NAME}` }
-      }
-    ]
+    name: 'error-verified',
+    component: lazyLoadRoute('Auth/ErrorVerified'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Verified Mail | ${APP_NAME}` }
   },
 
   {

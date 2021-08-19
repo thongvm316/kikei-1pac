@@ -36,7 +36,7 @@ export default defineComponent({
     // const route = useRoute()
 
     const onSubmit = () => {
-      router.push({ name: 'dashboard' })
+      router.push({ name: 'login' })
     }
 
     return {
