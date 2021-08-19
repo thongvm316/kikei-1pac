@@ -19,6 +19,12 @@
 
       .form-input {
         margin-top: 5px;
+        
+        .form-caption {
+          color: $color-grey-75;
+          font-size: 12px;
+          line-height: 18px;
+        }
 
         .ant-checkbox-group {
           label:first-child {
