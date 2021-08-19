@@ -1,6 +1,6 @@
 <template>
   <section class="company">
-    <company-search-form @filter-changed="onFilterChange($event)" />
+    <company-search-form :is-delete="isDelete" @filter-changed="onFilterChange($event)" />
 
     <div class="box-create">
       <a-button class="btn-modal" type="primary" @click="$router.push({ name: 'company-new', query: $route.query })">
@@ -26,6 +26,10 @@
       size="middle"
       @change="handleChange"
     >
+      <template #createdAt="{ text: createdAt }">
+        {{ $filters.moment_l(createdAt) }}
+      </template>
+
       <template #divisions="{ text: divisions }">
         {{ divisions === 0 ? $t('company.customer') : divisions === 1 ? $t('company.partner') : $t('company.both') }}
       </template>
@@ -92,7 +96,7 @@ export default defineComponent({
     const query = {
       page_number: to.query.page_number || 1,
       page_size: 50,
-      order_by: 'code asc',
+      order_by: 'created_at desc',
       ...to.query,
       ...body
     }
@@ -111,6 +115,7 @@ export default defineComponent({
     const store = useStore()
 
     const openDelete = ref(false)
+    const isDelete = ref(false)
     const dataSource = ref([])
     const pagination = ref({})
     const filter = ref({})
@@ -141,6 +146,12 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
+          title: t('company.company_created_at'),
+          dataIndex: 'createdAt',
+          key: 'createdAt',
+          slots: { customRender: 'createdAt' }
+        },
+        {
           title: t('company.company_name'),
           dataIndex: 'name',
           key: 'name',
@@ -155,7 +166,8 @@ export default defineComponent({
         {
           title: t('company.country'),
           dataIndex: 'countryName',
-          key: 'countryName'
+          key: 'countryName',
+          sorter: true
         },
         {
           title: t('company.currency'),
@@ -198,7 +210,12 @@ export default defineComponent({
       params.value = {
         page_number: pagination.current,
         page_size: pagination.pageSize,
-        order_by: sorter.order === '' ? 'code asc' : sorter.field + ' ' + sorter.order
+        order_by:
+          sorter.order === ''
+            ? 'created_at desc'
+            : sorter.field === 'countryName'
+              ? 'ADCountry.name' + ' ' + sorter.order
+              : sorter.field + ' ' + sorter.order
       }
 
       if (keys(route.query).length > 0) {
@@ -228,7 +245,8 @@ export default defineComponent({
       filter.value = { ...deleteEmptyValue(evt) }
       params.value = {
         page_number: 1,
-        page_size: 50
+        page_size: 50,
+        order_by: 'created_at desc'
       }
       await router.push({ name: 'company', query: { ...params.value, ...filter.value } })
       await fetchList({ ...params.value }, { ...filter.value })
@@ -244,6 +262,7 @@ export default defineComponent({
           message:
             locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
         })
+        isDelete.value = true
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -350,6 +369,7 @@ export default defineComponent({
       height,
       params,
       modalActionRef,
+      isDelete,
       handleDeleteRecord,
       handleEditRecord,
       handleCloseRecord,

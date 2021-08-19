@@ -18,5 +18,12 @@ export default {
   project_0001: 'Project not found',
   project_0002: 'Project is valid',
   project_0003: 'Project existed',
-  project_0004: 'Input is not valid'
+  project_0004: 'Input is not valid',
+
+  template_permission_0000: 'No error',
+  template_permission_0001: 'Template not found',
+  template_permission_0002: 'Template is not valid',
+  template_permission_0003: 'Template existed',
+  template_permission_0004: 'Input is not valid',
+  template_permission_0102: 'Don\'t have permission',
 }

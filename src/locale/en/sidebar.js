@@ -8,5 +8,7 @@ export default {
   category: '登録大分類',
   setting: '登録設定',
   logs: '活動記録',
-  account: '登録アカウント'
+  account: '登録アカウント',
+  bank: 'Bank',
+  bankAccount: 'Bank Account'
 }

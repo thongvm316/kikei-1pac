@@ -41,26 +41,17 @@
 
       <!-- Company code -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange, errors }"
-          v-model="form.code"
-          name="company_code_project"
-          rules="input_required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.code" name="company_code_project">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_code_project') }}</label>
+            <label class="form-label">{{ $t('company.company_code_project') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
-                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="company_code_project" class="errors">
-                {{ replaceField(message, 'company_code_project') }}
-              </ErrorMessage>
+              <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
         </Field>
@@ -68,26 +59,17 @@
 
       <!-- Slack code -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange, errors }"
-          v-model="form.slack_code"
-          name="company_slack_code"
-          rules="input_required"
-        >
+        <Field v-slot="{ field, handleChange }" v-model="form.slack_code" name="company_slack_code">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_slack_code') }}</label>
+            <label class="form-label">{{ $t('company.company_slack_code') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
-                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="company_slack_code" class="errors">
-                {{ replaceField(message, 'company_slack_code') }}
-              </ErrorMessage>
+              <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
         </Field>
