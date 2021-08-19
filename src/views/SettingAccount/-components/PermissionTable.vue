@@ -118,6 +118,7 @@
   </div>
 
   <confirm-create-template-permission
+    v-if="isVisibleCreateTemplateModal"
     v-model:visible="isVisibleCreateTemplateModal"
     @handle-save-template="handleSaveTemplate($event)"
     @clear-template-tmp="clearTemplateTmp"
