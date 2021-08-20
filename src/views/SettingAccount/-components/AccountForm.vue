@@ -4,21 +4,21 @@
     <form @submit="onSubmit">
       <!-- ID username-->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="login_id" rules="required">
+        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="email" rules="input_required|email">
           <div class="form-content">
-            <label class="form-label required">{{ $t('account.login_id') }}</label>
+            <label class="form-label required">{{ $t('account.email') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
-                :maxlength="20"
+                :maxlength="50"
                 :class="['w-300', { 'has-error': !!errorMessage }]"
                 :disabled="isDisableEditField"
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage as="span" name="login_id" class="errors">
-                {{ $t('account.login_id_error') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
+                {{ replaceField(message, 'email') }}
               </ErrorMessage>
             </div>
           </div>
@@ -495,6 +495,10 @@ export default defineComponent({
       form.value = formNew
     }
 
+    const replaceField = (text, field) => {
+      return text.replace(field, t(`account.${field}`))
+    }
+
     return {
       form,
       TYPE,
@@ -513,7 +517,8 @@ export default defineComponent({
       createAccount,
       handleChangePermission,
       handleTemplateList,
-      deletePermissionTemplate
+      deletePermissionTemplate,
+      replaceField
     }
   }
 })
