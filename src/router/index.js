@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
+import { ActivateAccountGuard, RelateActivateAccountGuard, ResolveGuard } from '@/router/guards'
 
 const StorageService = Services.get('StorageService')
 const APP_NAME = process.env.APP_NAME || 'KAIKEI'
@@ -27,6 +28,38 @@ const routes = [
         meta: { title: `Login | ${APP_NAME}` }
       }
     ]
+  },
+
+  {
+    path: '/activate-account',
+    name: 'activate-account',
+    component: lazyLoadRoute('Auth/ActivateAccount'),
+    beforeEnter: ResolveGuard([ActivateAccountGuard]),
+    meta: { title: `Activate Account | ${APP_NAME}` }
+  },
+
+  {
+    path: '/error-expired',
+    name: 'error-expired',
+    component: lazyLoadRoute('Auth/ErrorExpired'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Expired Mail | ${APP_NAME}` }
+  },
+
+  {
+    path: '/congratulations',
+    name: 'congratulations',
+    component: lazyLoadRoute('Auth/Congratulations'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Congratulations | ${APP_NAME}` }
+  },
+
+  {
+    path: '/error-verified',
+    name: 'error-verified',
+    component: lazyLoadRoute('Auth/ErrorVerified'),
+    beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Verified Mail | ${APP_NAME}` }
   },
 
   {
@@ -251,7 +284,7 @@ const router = createRouter({
 })
 
 // pager guard
-const ROUTING_FREE = ['login']
+const ROUTING_FREE = ['login', 'activate-account', 'error-expired', 'congratulations', 'error-verified']
 
 router.beforeEach((to, _, next) => {
   // set head title
