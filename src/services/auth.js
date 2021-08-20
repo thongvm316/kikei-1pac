@@ -3,7 +3,8 @@ import apiCaller from './api-caller'
 const RESOURCES = Object.freeze({
   login: '/login',
   logout: '/logout',
-  setpassword: '/setpassword'
+  setpassword: '/setpassword',
+  checkactivatetoken: '/check-activate-token'
 })
 
 export default {
@@ -17,5 +18,9 @@ export default {
 
   getToken(data) {
     return apiCaller({ method: 'POST', url: `${RESOURCES.setpassword}`, data, needAuth: 0 })
+  },
+
+  getTokenActive(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.checkactivatetoken}`, data, needAuth: 0 })
   }
 }

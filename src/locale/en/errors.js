@@ -71,6 +71,8 @@ export default {
   template_permission_0004: 'Input is not valid',
   template_permission_0102: 'Don\'t have permission',
 
-  chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
-  data_chart_null: 'no data'
+  chart_date_2m: 'For graph display, select a date within 2 months',
+  data_chart_null: 'no data',
+
+  check_activate_token_0004: 'Email has verified'
 }
