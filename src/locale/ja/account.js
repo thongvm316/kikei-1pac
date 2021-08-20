@@ -7,7 +7,7 @@ export default {
   password_error: 'パスワードを入力してください ',
   full_name: '氏名',
   full_name_error: '氏名を入力してください',
-  email: 'Email',
+  email: 'メールアドレス',
   sales: '職種',
   type_sales: '営業',
   type_accounting: '会計',
