@@ -287,15 +287,17 @@ export default defineComponent({
   .ant-table-fixed-left {
     border-top: 1px solid #bfbfbf;
 
-    .ant-table-row-cell-break-word:first-child {
-      padding-left: 32px;
-    }
-
     th.ant-table-row-cell-break-word:first-child {
       background-color: $color-grey-55;
       color: $color-grey-100;
       font-size: 16px;
     }
+  }
+
+  .ant-table-fixed-left .ant-table-row-cell-break-word:first-child,
+  .ant-table-scroll table .ant-table-fixed-columns-in-body:not([colspan]) {
+    padding-left: 32px;
+    padding-right: 32px;
   }
 
   .ant-table-row-cell-break-word {
