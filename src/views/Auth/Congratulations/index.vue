@@ -25,7 +25,7 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
-import useGetTokenService from '@/views/Auth/ActivateAccount/composables/useGetTokenService'
+import useGetTokenService from '@/views/Auth/Congratulations/composables/useGetTokenService'
 
 export default defineComponent({
   name: 'Index',

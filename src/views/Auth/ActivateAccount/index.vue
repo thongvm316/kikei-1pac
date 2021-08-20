@@ -88,11 +88,12 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep, values, every } from 'lodash-es'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
+import jwt_decode from 'jwt-decode'
 
 // eslint-disable-next-line no-unused-vars
 const VALIDATE = ['min', 'lower', 'upper', 'number', 'special']
@@ -122,6 +123,11 @@ export default defineComponent({
     })
 
     const valid = ref(null)
+
+    onMounted(() => {
+      let dataToken = jwt_decode(route.query.token)
+      decoded.value = dataToken
+    })
 
     const onSubmit = async () => {
       let data = { ...form.value }
