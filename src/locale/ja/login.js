@@ -3,7 +3,7 @@ export default {
   email_label: 'メールアドレスにログイン',
   email_placeholder: 'メールアドレスを入力してください',
   email_require: 'メールアドレスを入力してください',
-  password_label: 'パスワード',
+  password_label: 'パスワードを入力してください',
   password_placeholder: 'パスワードを入力する',
   password_require: 'パスワードを入力してください',
   login_submit: 'ログイン'
