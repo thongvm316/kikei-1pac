@@ -72,5 +72,7 @@ export default {
   template_permission_0102: '権限がありません',
 
   chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
-  data_chart_null: 'no data'
+  data_chart_null: 'データなし',
+
+  check_activate_token_0004: 'メールアドレスが確認されました'
 }

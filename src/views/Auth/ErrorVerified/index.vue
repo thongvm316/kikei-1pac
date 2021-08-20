@@ -49,7 +49,7 @@ export default defineComponent({
 <style scoped lang="scss">
 @import '@/styles/shared/mixins';
 
-$form-wrapper-size: 500px;
+$form-wrapper-size: 450px;
 
 .activate-account-verified {
   @include flexbox();
@@ -65,6 +65,7 @@ $form-wrapper-size: 500px;
 
   &__wrapper {
     width: $form-wrapper-size;
+    margin-right: 37px;
 
     form {
       .ant-btn {
