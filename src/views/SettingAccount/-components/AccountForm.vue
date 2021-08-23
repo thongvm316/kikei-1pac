@@ -39,6 +39,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 :maxlength="50"
+                :disabled="isDisableEditField"
                 :class="['w-300', { 'has-error': !!errorMessage }]"
                 @change="handleChange"
               />
