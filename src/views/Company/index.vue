@@ -149,7 +149,8 @@ export default defineComponent({
           title: t('company.company_created_at'),
           dataIndex: 'createdAt',
           key: 'createdAt',
-          slots: { customRender: 'createdAt' }
+          slots: { customRender: 'createdAt' },
+          sorter: true
         },
         {
           title: t('company.company_name'),
@@ -207,15 +208,17 @@ export default defineComponent({
         sorter.order = ''
       }
 
+      let sortIsCountry = sorter.field === 'countryName'
+      let sortIsDate = sorter.field === 'createdAt'
+      let sortCountry = 'ADCountry.name' + ' ' + sorter.order
+      let sortDate = 'created_at' + ' ' + sorter.order
+      let sortDefault = sorter.field + ' ' + sorter.order
+
       params.value = {
         page_number: pagination.current,
         page_size: pagination.pageSize,
         order_by:
-          sorter.order === ''
-            ? 'created_at desc'
-            : sorter.field === 'countryName'
-              ? 'ADCountry.name' + ' ' + sorter.order
-              : sorter.field + ' ' + sorter.order
+          sorter.order === '' ? 'created_at desc' : sortIsCountry ? sortCountry : sortIsDate ? sortDate : sortDefault
       }
 
       if (keys(route.query).length > 0) {
