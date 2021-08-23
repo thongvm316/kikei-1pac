@@ -195,7 +195,7 @@ export default defineComponent({
         }
       },
       {
-        title: t('account.login_id'),
+        title: t('account.email'),
         dataIndex: 'username',
         key: 'username',
         sorter: true
@@ -352,7 +352,7 @@ export default defineComponent({
       const labels = [
         { header: t('account.csv.all_group'), field: 'group' },
         { header: t('account.created_at'), field: 'createdAt' },
-        { header: t('account.login_id'), field: 'username' },
+        { header: t('account.email'), field: 'username' },
         { header: t('account.full_name'), field: 'fullname' },
         { header: t('account.status'), field: 'active' }
       ]
