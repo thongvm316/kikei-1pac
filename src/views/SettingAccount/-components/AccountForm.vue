@@ -12,8 +12,8 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 :class="['w-300', { 'has-error': !!errorMessage }]"
-                @change="handleChange"
                 :disabled="isDisableEditField"
+                @change="handleChange"
               />
               <!-- Error message -->
               <ErrorMessage as="span" name="full_name" class="errors">
@@ -26,7 +26,12 @@
 
       <!-- ID email -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="email" rules="input_required|email">
+        <Field
+          v-slot="{ field, handleChange, errorMessage }"
+          v-model="form.username"
+          name="email"
+          rules="input_required|email"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('account.email') }}</label>
             <div class="form-input">
