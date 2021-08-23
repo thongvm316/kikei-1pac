@@ -2,29 +2,6 @@
   <div class="card-common">
     <!-- Form -->
     <form @submit="onSubmit">
-      <!-- ID username-->
-      <div class="form-group">
-        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="email" rules="input_required|email">
-          <div class="form-content">
-            <label class="form-label required">{{ $t('account.email') }}</label>
-            <div class="form-input">
-              <a-input
-                :value="field.value"
-                :placeholder="$t('common.please_enter')"
-                :maxlength="50"
-                :class="['w-300', { 'has-error': !!errorMessage }]"
-                :disabled="isDisableEditField"
-                @change="handleChange"
-              />
-              <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
-                {{ replaceField(message, 'email') }}
-              </ErrorMessage>
-            </div>
-          </div>
-        </Field>
-      </div>
-
       <!-- Full name -->
       <div class="form-group">
         <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.fullname" name="full_name" rules="required">
@@ -36,6 +13,7 @@
                 :placeholder="$t('common.please_enter')"
                 :class="['w-300', { 'has-error': !!errorMessage }]"
                 @change="handleChange"
+                :disabled="isDisableEditField"
               />
               <!-- Error message -->
               <ErrorMessage as="span" name="full_name" class="errors">
@@ -46,29 +24,26 @@
         </Field>
       </div>
 
-      <!-- Password -->
-      <div v-if="isHiddenField" class="form-group">
-        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.password" name="password" rules="required">
+      <!-- ID email -->
+      <div class="form-group">
+        <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.username" name="email" rules="input_required|email">
           <div class="form-content">
-            <label class="form-label required">{{ $t('account.password') }}</label>
+            <label class="form-label required">{{ $t('account.email') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
+                :maxlength="50"
                 :class="['w-300', { 'has-error': !!errorMessage }]"
-                :disabled="isDisableEditField"
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage as="span" name="password" class="errors">
-                {{ $t('account.password_error') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="email" class="errors">
+                {{ replaceField(message, 'email') }}
               </ErrorMessage>
             </div>
           </div>
         </Field>
-        <div class="u-ml-16 u-mt-12">
-          <a-checkbox v-model:checked="autoGeneratePassW">パスワードを自動生成する</a-checkbox>
-        </div>
       </div>
 
       <!-- Status -->
@@ -204,8 +179,6 @@ export default defineComponent({
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
 
-    const autoGeneratePassW = ref(false)
-
     const groupList = ref([])
     const groupListAllowedAccess = ref([])
 
@@ -214,7 +187,6 @@ export default defineComponent({
     let form = ref({
       accountGroupId: 1,
       username: '',
-      password: '',
       email: '',
       fullname: '',
       types: [],
@@ -327,10 +299,6 @@ export default defineComponent({
         isHiddenField.value = true
         form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
       }
-    })
-
-    watch(autoGeneratePassW, (value) => {
-      value ? (form.value.password = Math.random().toString(36).slice(-8)) : (form.value.password = '')
     })
 
     const handleCancel = () => {
@@ -505,7 +473,6 @@ export default defineComponent({
       ACTIVE,
       isHiddenField,
       isDisableEditField,
-      autoGeneratePassW,
       groupList,
       templatesPermission,
       groupListAllowedAccess,

@@ -24,8 +24,8 @@
                       {{
                         group.templateName
                           ? `${
-                              group.templateName.length > 10
-                                ? group.templateName.slice(0, 10) + '...'
+                              group.templateName.length > 15
+                                ? group.templateName.slice(0, 15) + '...'
                                 : group.templateName
                             }`
                           : 'テンプレートから選択'
