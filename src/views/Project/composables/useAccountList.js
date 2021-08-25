@@ -1,9 +1,10 @@
+/* eslint-disable no-useless-catch */
 import service from '@/services'
-const AccountService = service.get('AccountService')
+const SettingAccountService = service.get('SettingAccountService')
 
-export const useAccountList = async (dataReq) => {
+export const useAccountList = async () => {
   try {
-    const { data } = await AccountService.getAccounts(dataReq)
+    const { data } = await SettingAccountService.getListDropdown()
     return data.result.data || []
   } catch (e) {
     throw e
