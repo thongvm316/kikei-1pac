@@ -1,6 +1,5 @@
 /* eslint-disable no-useless-catch */
 import services from '@/services'
-import { uniqueId } from 'lodash-es'
 import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
 const DepositService = services.get('DepositService')

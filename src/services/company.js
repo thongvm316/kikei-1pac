@@ -14,6 +14,15 @@ export default {
     })
   },
 
+  getListCompany(params = {}, data) {
+    return apiCaller({
+      method: 'POST',
+      url: `${RESOURCES.company}/list`,
+      params,
+      data
+    })
+  },
+
   companyDetail(id) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.company}/${id}` })
   },

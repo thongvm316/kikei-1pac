@@ -287,7 +287,7 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // accounts
-      dataAccounts.value = await useAccountList({ type: [0, 2] })
+      dataAccounts.value = await useAccountList()
       // groups
       const paramsGroup = { allGroup: true }
       const { data: groups } = await useGroupList(paramsGroup)
