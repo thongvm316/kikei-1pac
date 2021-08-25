@@ -82,7 +82,6 @@ import useGetCategoryListService from '@/views/Category/composables/useGetCatego
 import useDeleteCategoryService from '@/views/Category/composables/useDeleteCategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
-import { forEach, includes, isArray, keys, map } from 'lodash-es'
 
 import Table from '@/mixins/table.mixin'
 import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
@@ -90,6 +89,7 @@ import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { refreshCategory } from '@/helpers/check-refresh-cate-sub'
 
 export default defineComponent({
   name: 'Index',
@@ -101,17 +101,7 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const body = {}
 
-    if (keys(to.query).length > 0) {
-      forEach(to.query, (value, key) => {
-        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          if (isArray(value)) {
-            body[key] = map([...value], (i) => Number(i))
-          } else {
-            body[key] = value
-          }
-        }
-      })
-    }
+    refreshCategory(to.query, body)
 
     const query = {
       page_number: to.query.page_number || 1,
@@ -231,17 +221,7 @@ export default defineComponent({
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
 
-      if (keys(route.query).length > 0) {
-        forEach(route.query, (value, key) => {
-          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-            if (isArray(value)) {
-              filter.value[key] = map([...value], (i) => Number(i))
-            } else {
-              filter.value[key] = value
-            }
-          }
-        })
-      }
+      refreshCategory(route.query, filter.value)
 
       await router.push({
         name: 'category',

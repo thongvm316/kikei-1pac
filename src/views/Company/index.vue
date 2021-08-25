@@ -84,11 +84,7 @@ export default defineComponent({
     if (keys(to.query).length > 0) {
       forEach(to.query, (value, key) => {
         if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          if (isArray(value)) {
-            body[key] = map([...value], (i) => Number(i))
-          } else {
-            body[key] = value
-          }
+          body[key] = map([...value], (i) => Number(i))
         }
       })
     }
