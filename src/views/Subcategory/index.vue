@@ -71,6 +71,7 @@ import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 import { forEach, includes, isArray, keys, map } from 'lodash-es'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { refreshSubCategoryTo } from '@/helpers/check-refresh-cate-sub'
 
 export default defineComponent({
   name: 'Index',
@@ -82,29 +83,7 @@ export default defineComponent({
   async beforeRouteEnter(to, from, next) {
     const body = {}
 
-    if (isArray(to.query.category_id)) {
-      forEach(to.query, (value, key) => {
-        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          if (isArray(value)) {
-            body[key] = map([...value], (i) => Number(i))
-          } else {
-            body[key] = value
-          }
-        }
-      })
-    }
-
-    if (isArray(from.query.category_id)) {
-      forEach(from.query, (value, key) => {
-        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          if (isArray(value)) {
-            body[key] = map([...value], (i) => Number(i))
-          } else {
-            body[key] = value
-          }
-        }
-      })
-    }
+    refreshSubCategoryTo(to.query, body)
 
     const query = {
       page_number: 1,
@@ -235,7 +214,10 @@ export default defineComponent({
       if (keys(route.query).length > 0) {
         forEach(route.query, (value, key) => {
           if (isArray(value)) {
-            filter[key] = map([...value], (i) => Number(i))
+            filter[key] = map(
+              value[0].length > 3 ? [...JSON.parse('[' + value + ']')] : [...value],
+              value[0].length > 3 ? (i) => Boolean(i) : (i) => Number(i)
+            )
           } else if (key === 'category_id' && typeof value === 'string') {
             filter[key] = map([value], (i) => Number(i))
           } else {

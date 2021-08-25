@@ -126,6 +126,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import { DIVISIONCATEGORY, DIVISIONMEDIUM, INUSE, INREPORT } from '@/enums/category.enum'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons-vue'
@@ -133,7 +134,6 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCategoryService from '@/views/Category/composables/useUpdateCategoryService'
 import useCreateCategoryService from '@/views/Category/composables/useCreateCategoryService'
-import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CategoryForm',

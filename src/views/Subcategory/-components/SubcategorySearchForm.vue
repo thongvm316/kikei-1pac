@@ -73,9 +73,28 @@ export default defineComponent({
     onMounted(() => {
       if (keys(route.query).length > 0) {
         forEach(route.query, (value, key) => {
-          if (!includes(['id', 'name', 'category_name', 'category_id', 'order_by', 'page_number', 'page_size'], key)) {
+          if (
+            !includes(
+              [
+                'id',
+                'name',
+                'category_name',
+                'category_id',
+                'in_use',
+                'division_type',
+                'subcategory_kind',
+                'order_by',
+                'page_number',
+                'page_size'
+              ],
+              key
+            )
+          ) {
             if (isArray(value)) {
-              filter[key] = map([...value], (i) => Number(i))
+              filter[key] = map(
+                value[0].length > 3 ? [...JSON.parse('[' + value + ']')] : [...value],
+                value[0].length > 3 ? (i) => Boolean(i) : (i) => Number(i)
+              )
             } else {
               filter[key] = value
             }
