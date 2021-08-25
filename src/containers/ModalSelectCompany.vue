@@ -246,8 +246,8 @@ export default defineComponent({
       isLoading.value = true
 
       try {
-        const { getLists } = useGetCompanyListService({ ...params }, data)
-        const { result } = await getLists()
+        const { getListCompany } = useGetCompanyListService({ ...params }, data)
+        const { result } = await getListCompany()
 
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta, 'bottom')
