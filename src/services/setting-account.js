@@ -29,7 +29,7 @@ export default {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.account}/resetpassword/${id}` })
   },
 
-  getListDropdown() {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.account}` })
+  getListDropdown(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.account}`, params })
   }
 }
