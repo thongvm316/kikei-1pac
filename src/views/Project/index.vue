@@ -438,8 +438,6 @@ export default defineComponent({
 
       updateRequestData(merge(deepCopy(filtersProjectStore)))
 
-      // fetchProjectDatas()
-
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -448,6 +446,9 @@ export default defineComponent({
     watch(
       () => requestData.value,
       () => {
+        // check groupId for permission
+        if (!requestData.value.data?.groupId) return
+
         fetchProjectDatas()
       }
     )

@@ -173,10 +173,9 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual, pick } from 'lodash-es'
+import { isEqual, pick, find, cloneDeep } from 'lodash-es'
 
-import { PROJECT_TYPES } from '@/enums/project.enum'
-import { STATUS_CODE } from '@/enums/project.enum'
+import { PROJECT_TYPES, STATUS_CODE } from '@/enums/project.enum'
 
 import localeJa from 'ant-design-vue/es/locale/ja_JP'
 import localeEn from 'ant-design-vue/es/locale/en_US'
@@ -222,6 +221,9 @@ export default defineComponent({
     const dataAccuracies = ref([])
     const isNeedSubmit = ref(false)
 
+    // group access permission
+    const groupAccessDefault = ref([])
+
     const handleChangeStatisticsDateValue = (val) => {
       state.value.statisticsDateValue = val
     }
@@ -249,6 +251,8 @@ export default defineComponent({
     }
 
     const onSubmit = () => {
+      if (state.value?.groupId.length === 0) state.value.groupId = groupAccessDefault.value
+
       const isEqualState = isEqual(state.value, initState)
 
       // parse to search data
@@ -319,10 +323,31 @@ export default defineComponent({
       }
       state.value = { ...state.value, ...stateStore }
 
+      // default groupId for permission
+      if (state.value?.groupId.length === 0) {
+        let groupListAccess = []
+        const permissionsStore = store.state?.account?.permissions || []
+        groupListAccess = permissionsStore
+          .filter((group) => {
+            const groupFound = find(group.permissions, { featureKey: 1 })
+            return groupFound && groupFound.permissionKey !== 3
+          })
+          .map((group) => group.groupId)
+
+        // update to initState
+        initState.groupId = cloneDeep(groupListAccess)
+
+        // if no group access, get all group to show error
+        if (groupListAccess.length === 0) groupListAccess = dataGroups.value.map((group) => group.id)
+
+        state.value.groupId = groupListAccess
+        groupAccessDefault.value = groupListAccess
+        emit('on-search', { data: { groupId: groupListAccess } })
+      }
+
       // check status code
       const isEqualState = isEqual(state.value, initState)
       state.value.statusCode = isEqualState ? STATUS_CODE : [] // default in the first load page
-
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqualState)
     })
 
