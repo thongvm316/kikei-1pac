@@ -31,5 +31,9 @@ export default {
 
   getListDropdown(params) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.account}`, params })
+  },
+
+  getPermissionAccount() {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.account}/permission` })
   }
 }

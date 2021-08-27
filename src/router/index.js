@@ -5,6 +5,7 @@ import storageKeys from '@/enums/storage-keys'
 import { ActivateAccountGuard, RelateActivateAccountGuard, ResolveGuard } from '@/router/guards'
 
 const StorageService = Services.get('StorageService')
+const SettingAccountService = Services.get('SettingAccountService')
 const APP_NAME = process.env.APP_NAME || 'KAIKEI'
 
 const lazyLoadRoute = (pageName) => {
@@ -286,7 +287,7 @@ const router = createRouter({
 // pager guard
 const ROUTING_FREE = ['login', 'activate-account', 'error-expired', 'congratulations', 'error-verified']
 
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
   // set head title
   document.title = to.meta.title
 
@@ -297,6 +298,11 @@ router.beforeEach((to, _, next) => {
     // store data to state if need
     if (!store.state.auth.authProfile) {
       store.commit('auth/STORE_AUTH_PROFILE', authProfile)
+
+      // get permissions account
+      const permissionResponse = await SettingAccountService.getPermissionAccount()
+      const permissionData = permissionResponse?.data?.result?.data || []
+      store.commit('account/STORE_ACCOUNT_PERMISSIONS', permissionData)
     }
 
     if (isRouteFree) {
