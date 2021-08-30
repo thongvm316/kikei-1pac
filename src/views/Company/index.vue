@@ -78,32 +78,6 @@ export default defineComponent({
 
   mixins: [Table],
 
-  async beforeRouteEnter(to, from, next) {
-    const body = {}
-
-    if (keys(to.query).length > 0) {
-      forEach(to.query, (value, key) => {
-        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          body[key] = map([...value], (i) => Number(i))
-        }
-      })
-    }
-
-    const query = {
-      page_number: to.query.page_number || 1,
-      page_size: 50,
-      order_by: 'created_at desc',
-      ...to.query,
-      ...body
-    }
-
-    const { getLists } = useGetCompanyListService(query, body)
-    const { result } = await getLists()
-    to.meta['lists'] = result.data
-    to.meta['pagination'] = { ...convertPagination(result.meta) }
-    next()
-  },
-
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -119,7 +93,6 @@ export default defineComponent({
     const recordVisible = ref({})
     const params = ref({ ...route.query })
     const modalActionRef = ref()
-
     const height = ref(0)
 
     const state = reactive({ selectedRowKeys: [] })
@@ -181,8 +154,33 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      dataSource.value = [...route.meta['lists']]
-      pagination.value = { ...route.meta['pagination'] }
+      const body = {}
+
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
+            body[key] = map([...value], (i) => Number(i))
+          }
+        })
+      }
+
+      const query = {
+        page_number: route.query.page_number || 1,
+        page_size: 50,
+        order_by: 'created_at desc',
+        ...route.query,
+        ...body
+      }
+
+      isLoading.value = true
+
+      const { getLists } = useGetCompanyListService(query, body)
+      const { result } = await getLists()
+
+      dataSource.value = result.data
+      pagination.value = { ...convertPagination(result.meta) }
+
+      isLoading.value = false
 
       // get inner height
       getInnerHeight()

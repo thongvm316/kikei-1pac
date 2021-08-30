@@ -98,26 +98,6 @@ export default defineComponent({
 
   mixins: [Table],
 
-  async beforeRouteEnter(to, from, next) {
-    const body = {}
-
-    refreshCategory(to.query, body)
-
-    const query = {
-      page_number: to.query.page_number || 1,
-      page_size: 50,
-      order_by: 'name asc',
-      ...to.query,
-      ...body
-    }
-
-    const { getLists } = await useGetCategoryListService(query, body)
-    const { result } = await getLists()
-    to.meta['lists'] = result.data
-    to.meta['pagination'] = { ...convertPagination(result.meta) }
-    next()
-  },
-
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -192,8 +172,27 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      dataSource.value = [...route.meta['lists']]
-      pagination.value = { ...route.meta['pagination'] }
+      const body = {}
+
+      refreshCategory(route.query, body)
+
+      const query = {
+        page_number: route.query.page_number || 1,
+        page_size: 50,
+        order_by: 'name asc',
+        ...route.query,
+        ...body
+      }
+
+      isLoading.value = true
+
+      const { getLists } = await useGetCategoryListService(query, body)
+      const { result } = await getLists()
+
+      dataSource.value = result.data
+      pagination.value = { ...convertPagination(result.meta) }
+
+      isLoading.value = false
 
       // get inner height
       getInnerHeight()
