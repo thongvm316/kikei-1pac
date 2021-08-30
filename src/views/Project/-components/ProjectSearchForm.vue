@@ -325,20 +325,10 @@ export default defineComponent({
 
       // default groupId for permission
       if (state.value?.groupId.length === 0) {
-        let groupListAccess = []
-        const permissionsStore = store.state?.account?.permissions || []
-        groupListAccess = permissionsStore
-          .filter((group) => {
-            const groupFound = find(group.permissions, { featureKey: 1 })
-            return groupFound && groupFound.permissionKey !== 3
-          })
-          .map((group) => group.groupId)
+        const groupListAccess = dataGroups.value.map((group) => group.id)
 
         // update to initState
         initState.groupId = cloneDeep(groupListAccess)
-
-        // if no group access, get all group to show error
-        if (groupListAccess.length === 0) groupListAccess = dataGroups.value.map((group) => group.id)
 
         state.value.groupId = groupListAccess
         groupAccessDefault.value = groupListAccess
