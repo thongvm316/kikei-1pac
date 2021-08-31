@@ -193,6 +193,10 @@ export default defineComponent({
 
         // save filters accounting to store
         store.commit('accounting/STORE_ACCOUNTING_FILTER', dataRequest)
+      } catch (err) {
+        depositList.value = []
+        withdrawalList.value = []
+        financingTotalList.value = []
       } finally {
         isLoadingTable.value = false
       }

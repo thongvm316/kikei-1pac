@@ -277,6 +277,8 @@ export default defineComponent({
         isDisabledSelectAllRows.value = dataDeposit.value.filter((item) => !item.confirmed).length === 0
         totalRecords.value = data.result?.meta.totalRecords || 0
         currentPage.value = paramsRequest.pageNumber || 1
+      } catch (err) {
+        dataDeposit.value = []
       } finally {
         isLoadingDataTable.value = false
       }
