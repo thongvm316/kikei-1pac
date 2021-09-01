@@ -296,7 +296,7 @@ export default defineComponent({
 
   .ant-table-fixed-left .ant-table-row-cell-break-word:first-child,
   .ant-table-scroll table .ant-table-fixed-columns-in-body:not([colspan]) {
-    padding-left: 32px;
+    padding-left: 44px;
     padding-right: 32px;
   }
 
