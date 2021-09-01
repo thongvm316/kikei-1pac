@@ -366,6 +366,16 @@ export default defineComponent({
   .ant-table-empty .ant-table-body {
     overflow-x: hidden !important;
   }
+
+  .ant-table-row.ant-table-row-level-1 {
+    .ant-table-row-indent.indent-level-1 {
+      display: none;
+    }
+
+    .ant-table-row-cell-break-word {
+      padding-left: 44px;
+    }
+  }
 }
 
 .accounting-table:not(.is-table-total) {
