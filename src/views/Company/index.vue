@@ -174,13 +174,15 @@ export default defineComponent({
 
       isLoading.value = true
 
-      const { getLists } = useGetCompanyListService(query, body)
-      const { result } = await getLists()
+      try {
+        const { getLists } = useGetCompanyListService(query, body)
+        const { result } = await getLists()
 
-      dataSource.value = result.data
-      pagination.value = { ...convertPagination(result.meta) }
-
-      isLoading.value = false
+        dataSource.value = result.data
+        pagination.value = { ...convertPagination(result.meta) }
+      } finally {
+        isLoading.value = false
+      }
 
       // get inner height
       getInnerHeight()
