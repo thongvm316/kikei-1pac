@@ -64,10 +64,12 @@
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchRaking($event)"
       >
-        <div class="dashboard__ranking">
-          <ranking-table :ranking-data="rankingData || []" />
-          <pie-chart :ranking-data="rankingData" />
-        </div>
+        <a-spin :spinning="isSpiningRanking">
+          <div class="dashboard__ranking">
+            <ranking-table :ranking-data="rankingData || []" />
+            <pie-chart :ranking-data="rankingData" />
+          </div>
+        </a-spin>
       </controller-block>
     </div>
   </div>
@@ -136,6 +138,8 @@ export default defineComponent({
 
     // revenue
     const rankingData = ref()
+
+    const isSpiningRanking = ref()
 
     // bank balance
     const bankBalance = ref()
@@ -268,8 +272,10 @@ export default defineComponent({
     }
 
     const fetchRaking = async (params) => {
+      isSpiningRanking.value = true
       const { result } = await getRevenue(params)
       rankingData.value = result?.data
+      isSpiningRanking.value = false
     }
 
     const fetchBankAccountBalance = async (param) => {
@@ -330,6 +336,7 @@ export default defineComponent({
       isLoadingMonthlyAccounting,
       rankingData,
       bankBalance,
+      isSpiningRanking,
 
       swapBlockOrder,
       fetchPendingDeposits,
