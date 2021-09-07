@@ -29,7 +29,7 @@
     </template>
 
     <template #renderSubcategoryName="{ record }">
-      <a-tooltip color="#fff" :title="record.subcategoryName">
+      <a-tooltip color="#fff" :title="record.subcategoryName" placement="topLeft">
         {{ record.subcategoryName }}
       </a-tooltip>
     </template>
