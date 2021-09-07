@@ -78,7 +78,7 @@
         <a-button key="back" class="btn-close" style="width: 105px; margin-right: 16px" @click="handleCancel">
           {{ $t('common.cancel') }}
         </a-button>
-        <a-button key="submit" type="primary" html-type="submit" style="width: 105px">
+        <a-button key="submit" type="primary" html-type="submit" style="width: atuo">
           {{ $t('user.handle_ok') }}
         </a-button>
       </div>

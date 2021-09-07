@@ -64,6 +64,30 @@ const routes = [
   },
 
   {
+    path: '/change-password',
+    name: 'change-password',
+    component: lazyLoadRoute('Auth/ChangePassword'),
+    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Change Password | ${APP_NAME}` }
+  },
+
+  {
+    path: '/expired-mail',
+    name: 'expired-mail',
+    component: lazyLoadRoute('Auth/ExpiredMail'),
+    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Expired Mail | ${APP_NAME}` }
+  },
+
+  {
+    path: '/email-sent',
+    name: 'email-sent',
+    component: lazyLoadRoute('Auth/EmailSent'),
+    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    meta: { title: `Email Sent | ${APP_NAME}` }
+  },
+
+  {
     path: '/',
     component: lazyLoadLayout('MainLayout'),
     children: [
@@ -285,7 +309,16 @@ const router = createRouter({
 })
 
 // pager guard
-const ROUTING_FREE = ['login', 'activate-account', 'error-expired', 'congratulations', 'error-verified']
+const ROUTING_FREE = [
+  'login',
+  'activate-account',
+  'error-expired',
+  'congratulations',
+  'error-verified',
+  'change-password',
+  'expired-mail',
+  'email-sent'
+]
 
 router.beforeEach(async (to, _, next) => {
   // set head title

@@ -23,6 +23,7 @@
     "ant-design-vue": "2.1.6",
     "axios": "^0.21.1",
     "chart.js": "^3.4.1",
+    "croppie": "^2.6.5",
     "humps": "^2.0.1",
     "jwt-decode": "^3.1.2",
     "lodash-es": "^4.17.21",

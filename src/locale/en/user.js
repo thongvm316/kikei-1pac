@@ -9,7 +9,7 @@ export default {
   desc_error: 'Please return to message in your inbox to request a new verification link.',
   hello: 'Hello',
   desc: ' your account has been successfully created. Please create a password to continue.',
-  please_enter: 'Enter pass word',
+  please_enter: 'Enter password',
   show_pass: 'Show password',
   password_must: 'Password must:',
   title_congratulations: 'Congratulations!',
