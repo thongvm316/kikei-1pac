@@ -71,6 +71,12 @@ export default {
   template_permission_0004: 'Input is not valid',
   template_permission_0102: 'Don\'t have permission',
 
+  profile_0000: 'No error',
+  profile_0001: 'currency not found',
+  profile_0002: 'currency is not valid',
+  profile_0003: 'currency existed',
+  profile_0004: 'input is not valid',
+
   chart_date_2m: 'For graph display, select a date within 2 months',
   data_chart_null: 'no data',
 

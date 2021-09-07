@@ -71,6 +71,12 @@ export default {
   template_permission_0004: '入力が無効です',
   template_permission_0102: '権限がありません',
 
+  profile_0000: 'エラーが見つかりません',
+  profile_0001: 'プロフィール見つかりません',
+  profile_0002: 'プロフィール存在しました',
+  profile_0003: 'プロフィール無効です',
+  profile_0004: '入力が無効です',
+
   chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
   data_chart_null: 'データなし',
 

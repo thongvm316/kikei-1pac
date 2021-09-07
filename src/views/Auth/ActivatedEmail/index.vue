@@ -1,57 +1,40 @@
 <template>
-  <section class="email-sent">
-    <div class="email-sent__box">
-      <div class="email-sent__form-wrapper">
+  <section class="activated-email">
+    <div class="activated-email__box">
+      <div class="activated-email__form-wrapper">
         <!-- Form -->
-        <div class="email-sent__form">
-          <a-typography-title>{{ $t('change_password.sent_title') }}</a-typography-title>
-          <p class="email-sent__desc">
-            {{ $t('change_password.sent_desc') }}
+        <div class="activated-email__form">
+          <a-typography-title>{{ $t('change_password.activated_title') }}</a-typography-title>
+          <p class="activated-email__desc">
+            {{ $t('change_password.activated_desc') }}
           </p>
 
           <!-- Action Section Submit & Cancel -->
           <div class="card-footer">
-            <a-button key="submit" type="primary" html-type="submit" @click="handleGoLogin">
-              {{ $t('change_password.sent_ok') }}
+            <a-button key="submit" type="primary" html-type="submit" @click="$router.push({ name: 'login' })">
+              {{ $t('change_password.activated_ok') }}
             </a-button>
           </div>
         </div>
       </div>
 
-      <div class="email-sent__language">
+      <div class="activated-email__language">
         <change-language />
       </div>
     </div>
 
-    <img class="email-sent__img" src="@/assets/images/img-bg-login.png" alt="login image" />
+    <img class="activated-email__img" src="@/assets/images/img-bg-login.png" alt="login image" />
   </section>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import { useRouter } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
-
-import storageKeys from '@/enums/storage-keys'
-import services from '@/services'
-const StorageService = services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
 
-  components: { ChangeLanguage },
-
-  setup() {
-    const router = useRouter()
-
-    const handleGoLogin = () => {
-      StorageService.remove(storageKeys.authProfile)
-      router.push({ name: 'login' })
-    }
-    return {
-      handleGoLogin
-    }
-  }
+  components: { ChangeLanguage }
 })
 </script>
 
@@ -61,7 +44,7 @@ export default defineComponent({
 $form-wrapper-size: 500px;
 $form-size: 640px;
 
-.email-sent {
+.activated-email {
   @include flexbox();
 
   &__img {

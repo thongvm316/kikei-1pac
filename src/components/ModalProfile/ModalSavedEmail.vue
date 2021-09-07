@@ -25,6 +25,8 @@
 
 <script>
 import { defineComponent, watch, toRefs, ref } from 'vue'
+import useSuggestNewEmailService from '@/components/ModalProfile/composables/useSuggestNewEmailService'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'ModalSavedEmail',
@@ -34,18 +36,30 @@ export default defineComponent({
       type: Boolean,
       default: false,
       require: true
+    },
+    form: {
+      type: String,
+      required: true
     }
   },
 
   emits: ['update:visible'],
 
   setup(props, context) {
+    const router = useRouter()
     const { openSaveEamil } = toRefs(props)
+    const { form } = toRefs(props)
+
     const open = ref(false)
-    let form = ref({ email: '', password: '' })
+
+    const nameEmail = ref('')
 
     watch(openSaveEamil, (value) => {
       open.value = value
+    })
+
+    watch(form, (value) => {
+      nameEmail.value = value
     })
 
     const handleCancel = () => {
@@ -53,19 +67,24 @@ export default defineComponent({
       context.emit('update:visible', false)
     }
 
-    const handleChangeEmail = () => {
-      console.log('change')
-    }
-
-    const handeleSubmit = () => {
+    const handeleSubmit = async () => {
       console.log('submit')
+      let dataEmail = {
+        new_email: nameEmail.value
+      }
+      try {
+        const { suggestNewEmail } = useSuggestNewEmailService(dataEmail)
+        await suggestNewEmail()
+
+        await router.push({ name: 'email-sent' })
+      } catch (err) {
+        console.log(err)
+      }
     }
 
     return {
       open,
-      form,
       handleCancel,
-      handleChangeEmail,
       handeleSubmit
     }
   }

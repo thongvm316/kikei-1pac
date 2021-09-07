@@ -48,6 +48,13 @@ export default defineComponent({
         }
       ],
 
+      //email sent
+      'email-sent': [
+        {
+          path: '/email-sent'
+        }
+      ],
+
       //dashboard
       dashboard: [
         {

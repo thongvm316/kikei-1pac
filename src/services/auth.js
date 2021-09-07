@@ -22,5 +22,9 @@ export default {
 
   getTokenActive(data) {
     return apiCaller({ method: 'POST', url: `${RESOURCES.checkactivatetoken}`, data, needAuth: 0 })
+  },
+
+  getTokenActiveEmail(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.checkactivatetoken}-set-email`, data, needAuth: 0 })
   }
 }

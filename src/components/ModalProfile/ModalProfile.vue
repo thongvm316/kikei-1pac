@@ -207,16 +207,9 @@ export default defineComponent({
 
     const handeleSubmit = async () => {
       console.log('submit')
+      module.exports = typeof self == 'object' ? self.formData : window.formData
       const formData = new FormData()
       formData.append('full_name', form.value.user_name)
-
-      for (let value of formData.values()) {
-        console.log(value)
-      }
-
-      for (let key of formData.keys()) {
-        console.log(key)
-      }
 
       try {
         const { putProfile } = usePutProfileService(formData)

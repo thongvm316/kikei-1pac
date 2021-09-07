@@ -43,10 +43,19 @@ export default {
     imgsize: '写真形式はPNGまたはJPGと写真のサイズは1MB以下をお試してください。'
   },
 
+  errorMessage: {
+    img: 'Profile image must be JPG or PNG.',
+    size: 'The size of photo is big. Try one’s that smaller than 1MB',
+    imgsize: 'Profile image must be JPG or PNG. The size of photo is big, try one’s that smaller than 1MB.'
+  },
+
   modal_save: {
     note_1: '-  ログインID（メールアドレス）の変更がおこなわれました',
     note_2: '-  再設定されたログインID（メールアドレス）に確認のURLが送信されました',
     note_3: '-  24時間以内にURLにアクセスし、メールアドレスのの確認をおこなってください',
     note_4: '-  24時間以内に確認がおこなわれない場合、変更は無効となります'
-  }
+  },
+
+  error_email: '新しいメールアドレス',
+  error_password_email: '現在パスワード'
 }

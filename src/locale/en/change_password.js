@@ -16,5 +16,11 @@ export default {
   //email sent
   sent_title: 'You has been signed out',
   sent_desc: 'An email has been sent. Please click the link to change new email address when you get it.',
-  sent_ok: 'Go to Login'
+  sent_ok: 'Go to Login',
+
+  // activated email
+  activated_title: 'You has changed email before',
+  activated_desc:
+    'You has confirmed change new email. Please login with your new email. If you can\'t log in for some reason (system error; user confirmed after 24 hours...) then you must contact the Admin (via Tel/email) for support.',
+  activated_ok: 'Go to Login'
 }

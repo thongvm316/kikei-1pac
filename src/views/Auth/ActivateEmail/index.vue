@@ -2,28 +2,39 @@
   <section class="change-password">
     <div class="change-password__box">
       <div class="change-password__form-wrapper">
+        <a-typography-title>{{ $t('change_password.title') }}</a-typography-title>
+        <p class="change-password__desc">
+          {{ $t('change_password.changed_login') }} <span class="change-password__mail">{{ decoded.new_email }}</span
+          >{{ $t('change_password.desc') }}
+        </p>
         <!-- Form -->
         <form class="change-password__form" @submit.prevent="onSubmit">
-          <a-typography-title>{{ $t('change_password.title') }}</a-typography-title>
-          <p class="change-password__desc">
-            {{ $t('change_password.changed_login') }} <span class="change-password__mail">abcxyz@gmail.com</span
-            >{{ $t('change_password.desc') }}
-          </p>
-
           <!--New  Password -->
           <div class="form-group">
-            <div class="form-content">
-              <label class="form-label required">{{ $t('change_password.new_password') }}</label>
-
-              <div>
-                <a-input
-                  v-model:value="form.new_password"
-                  :placeholder="$t('change_password.please_enter')"
-                  size="large"
-                  class="new_password"
-                />
+            <Field
+              v-slot="{ field, handleChange }"
+              v-model="form.new_password"
+              name="new_password"
+              rules="input_required"
+            >
+              <div class="form-content">
+                <label class="form-label required">{{ $t('change_password.new_password') }}</label>
+                <div class="form-input">
+                  <a-input
+                    :value="field.value"
+                    type="password"
+                    :placeholder="$t('change_password.please_enter')"
+                    size="large"
+                    class="new_password"
+                    @change="handleChange"
+                  />
+                  <!-- Error message -->
+                  <ErrorMessage v-slot="{ message }" as="span" name="new_password" class="errors">
+                    {{ replaceField(message, 'new_password') }}
+                  </ErrorMessage>
+                </div>
               </div>
-            </div>
+            </Field>
           </div>
 
           <!-- Action Section Submit & Cancel -->
@@ -45,9 +56,12 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
+import { useForm } from 'vee-validate'
+import jwt_decode from 'jwt-decode'
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'Index',
@@ -56,13 +70,24 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n()
+    const route = useRoute()
+
+    const { handleSubmit } = useForm()
+
+    const decoded = ref({})
 
     let form = ref({ new_password: '' })
 
-    const onSubmit = async () => {
+    onMounted(() => {
+      let dataToken = jwt_decode(route.query.token)
+      decoded.value = dataToken
+      console.log(decoded.value)
+    })
+
+    const onSubmit = handleSubmit(async () => {
       let data = { ...form.value }
       console.log(data)
-    }
+    })
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`change_password.${field}`))
@@ -71,6 +96,7 @@ export default defineComponent({
     return {
       form,
       onSubmit,
+      decoded,
       replaceField
     }
   }

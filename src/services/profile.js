@@ -10,6 +10,14 @@ export default {
   },
 
   putProfile(data) {
-    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/update`, data })
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/update`, body: data })
+  },
+
+  checkPasswordEmail(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.profile}/check-password`, data })
+  },
+
+  suggestNewEmail(data) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/suggest-new-email`, data })
   }
 }
