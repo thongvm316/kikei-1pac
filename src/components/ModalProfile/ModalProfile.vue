@@ -2,7 +2,12 @@
   <section>
     <modal-change-email v-model:visible="isShowModal" :is-show-modal="isShowModal" />
 
-    <modal-upload-image v-model:visible="modalCrop" :file-content="fileContent" @back-modal="handleBack($event)" />
+    <modal-upload-image
+      v-model:visible="modalCrop"
+      :file-content="fileContent"
+      @back-modal="handleBack($event)"
+      @file-img="onFileImg($event)"
+    />
 
     <a-modal v-model:visible="open" :title="$t('modal.title_profile')" @cancel="handleCancel">
       <template #footer>
@@ -128,7 +133,7 @@ export default defineComponent({
     const open = ref(false)
     const isShowModal = ref(false)
     const modalCrop = ref(false)
-    const fileContent = ref({})
+    const fileContent = ref([])
     const image = ref()
     const imageUpload = ref()
 
@@ -183,7 +188,11 @@ export default defineComponent({
         fileUploads.push(file)
       }
 
-      fileContent.value = [...fileUploads, form.value.user_name]
+      fileContent.value = [...fileUploads]
+    }
+
+    const onFileImg = (file) => {
+      image.value = file.src
     }
 
     const toBase64 = (file) => {
@@ -230,7 +239,8 @@ export default defineComponent({
       handleCancel,
       handleChangeEmail,
       handeleSubmit,
-      handleBack
+      handleBack,
+      onFileImg
     }
   }
 })

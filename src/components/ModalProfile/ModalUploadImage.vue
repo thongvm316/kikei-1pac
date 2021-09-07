@@ -3,9 +3,11 @@
     <template #footer>
       <div class="card-common">
         <div v-show="!ctx.flag">
-          <div ref="croppie" class="croppie">
-            <a-button type="button" class="btn-zoom-in" @click="zoomIn">+</a-button>
-            <a-button type="button" class="btn-zoom-out" @click="zoomOut">-</a-button>
+          <div ref="croppie" class="croppie" />
+          <div>
+            <button @click="zoomOut">zoom out</button>
+            <Slider v-model="slider" :tooltips="false" @change="onSlider"></Slider>
+            <button @click="zoomIn">zoom in</button>
           </div>
           <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
           <a-button key="submit" type="primary" html-type="submit" @click="uploadImg">{{
@@ -31,19 +33,21 @@
 </template>
 
 <script>
-import { defineComponent, ref, toRefs, watch, nextTick } from 'vue'
+import { defineComponent, nextTick, ref, toRefs, watch } from 'vue'
 import { includes } from 'lodash-es'
+import { useI18n } from 'vue-i18n'
+
 import Croppie from 'croppie'
 import 'croppie/croppie.css'
+
+import Slider from '@vueform/slider'
+
 import WarningIcon from '@/assets/icons/ico_warning.svg'
-import { useI18n } from 'vue-i18n'
-import usePutProfileService from '@/components/ModalProfile/composables/usePutProfileService'
 
 const tmpContext = {
   flag: false,
   errorMessage: '',
-  tmpFile: null,
-  fullName: ''
+  tmpFile: null
 }
 
 const TIMEOUT = 1000
@@ -51,16 +55,16 @@ const TIMEOUT = 1000
 export default defineComponent({
   name: 'ModalUploadImage',
 
-  components: { WarningIcon },
+  components: { WarningIcon, Slider },
 
   props: {
     fileContent: {
-      type: Object,
+      type: Array,
       required: true
     }
   },
 
-  emits: ['update:visible', 'back-modal'],
+  emits: ['update:visible', 'back-modal', 'file-img'],
 
   setup(props, context) {
     const { fileContent } = toRefs(props)
@@ -70,6 +74,7 @@ export default defineComponent({
     const croppie = ref()
     const init = ref()
     const ctx = ref({ ...tmpContext })
+    const slider = ref(0)
 
     const profileEnums = ref({
       size: t('modal.errorMessage.size'),
@@ -78,10 +83,8 @@ export default defineComponent({
     })
 
     watch(fileContent, async (file) => {
-      console.log(file)
       open.value = true
       ctx.value.tmpFile = file[0]
-      ctx.value.fullName = file[1]
 
       await nextTick()
 
@@ -115,6 +118,9 @@ export default defineComponent({
           ctx.value.errorMessage = ''
           ctx.value.flag = false
           init.value.bind({ url: ctx.value.tmpFile.src })
+          setTimeout(() => {
+            slider.value = init.value._currentZoom * 100
+          }, TIMEOUT / 2)
         }, TIMEOUT)
       }
     })
@@ -123,40 +129,43 @@ export default defineComponent({
       return new Croppie(croppie.value, {
         viewport: { width: 180, height: 180, type: 'circle' },
         boundary: { width: 457, height: 235 },
-        showZoomer: true,
+        showZoomer: false,
         enableOrientation: false
       })
     }
 
     const uploadImg = async () => {
       const blob = await init.value.result('blob')
-      const file = new File([blob], `profile_avatar_${new Date().getTime()}`, {
+      const base64 = await init.value.result('base64')
+      let file = new File([blob], `profile_avatar_${new Date().getTime()}`, {
         lastModified: new Date().getTime(),
         type: blob.type
       })
-      // const formData = new FormData()
-      //
-      // formData.append('image', file)
-      // formData.append('full_name', ctx.value.fullName)
-      //
-      // try {
-      //   const { putProfile } = usePutProfileService(formData)
-      //   await putProfile()
-      // } catch (e) {
-      //   console.log(e)
-      // }
+      file = Object.assign(file, { src: base64 })
+
+      ctx.value = { ...tmpContext }
+      context.emit('update:visible', false)
+      context.emit('back-modal', true)
+      context.emit('file-img', file)
+    }
+
+    const onSlider = (value) => {
+      console.log(value)
+      // init.value.setZoom(value + 0.05)
     }
 
     const zoomIn = (evt) => {
       evt.preventDefault()
       const delta = init.value._currentZoom
-      init.value.setZoom(delta + 0.05)
+      init.value.setZoom(delta + 0.01)
+      slider.value = (delta + 0.1) * 100
     }
 
     const zoomOut = (evt) => {
       evt.preventDefault()
       const delta = init.value._currentZoom
-      init.value.setZoom(delta - 0.05)
+      init.value.setZoom(delta - 0.1)
+      slider.value = (delta - 0.1) * 100
     }
 
     const handleCancel = () => {
@@ -184,6 +193,8 @@ export default defineComponent({
       croppie,
       open,
       ctx,
+      slider,
+      onSlider,
       uploadImg,
       zoomIn,
       zoomOut,
@@ -194,6 +205,7 @@ export default defineComponent({
 })
 </script>
 
+<style src="@vueform/slider/themes/default.css"></style>
 <style scoped lang="scss">
 .card-common {
   overflow: hidden;
