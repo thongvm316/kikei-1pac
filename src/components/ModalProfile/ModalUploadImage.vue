@@ -4,11 +4,36 @@
       <div class="card-common">
         <div v-show="!ctx.flag">
           <div ref="croppie" class="croppie" />
-          <div>
-            <button @click="zoomOut">zoom out</button>
-            <Slider v-model="slider" :tooltips="false" @change="onSlider"></Slider>
-            <button @click="zoomIn">zoom in</button>
+
+          <div class="slider-range">
+            <button
+              id="btn-slider-l"
+              class="controller-block__toogle-icon ant-btn ant-btn-default ant-btn-icon-only"
+              @mousedown="mouseDownZoomOut"
+              @mouseup="mouseUpZoom"
+            >
+              <span>-</span>
+            </button>
+            <Slider
+              v-model="slider"
+              :tooltips="false"
+              :step="0.01"
+              :min="0.25"
+              :max="1"
+              @update="onUpdateSlider"
+            ></Slider>
+            <button
+              id="btn-slider-r"
+              class="controller-block__toogle-icon ant-btn ant-btn-default ant-btn-icon-only"
+              @mousedown="mouseDownZoomIn"
+              @mouseup="mouseUpZoom"
+            >
+              <span>+</span>
+            </button>
           </div>
+
+          <span class="note">Drag the point or click the icon to change size and crop image</span>
+
           <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
           <a-button key="submit" type="primary" html-type="submit" @click="uploadImg">{{
             $t('modal.submit')
@@ -50,7 +75,11 @@ const tmpContext = {
   tmpFile: null
 }
 
+const STEP = 0.01
 const TIMEOUT = 1000
+const VIEW_PORT_SIZE = 180
+const BOUNDARY_WIDTH = 457
+const BOUNDARY_HEIGHT = 235
 
 export default defineComponent({
   name: 'ModalUploadImage',
@@ -75,6 +104,7 @@ export default defineComponent({
     const init = ref()
     const ctx = ref({ ...tmpContext })
     const slider = ref(0)
+    const flagZoom = ref(false)
 
     const profileEnums = ref({
       size: t('modal.errorMessage.size'),
@@ -117,20 +147,23 @@ export default defineComponent({
         setTimeout(() => {
           ctx.value.errorMessage = ''
           ctx.value.flag = false
-          init.value.bind({ url: ctx.value.tmpFile.src })
-          setTimeout(() => {
-            slider.value = init.value._currentZoom * 100
-          }, TIMEOUT / 2)
+
+          init.value.bind({ url: ctx.value.tmpFile.src }).then(() => {
+            slider.value = +init.value._currentZoom.toFixed(2)
+          })
         }, TIMEOUT)
       }
     })
 
     const initCroppieApp = () => {
       return new Croppie(croppie.value, {
-        viewport: { width: 180, height: 180, type: 'circle' },
-        boundary: { width: 457, height: 235 },
+        viewport: { width: VIEW_PORT_SIZE, height: VIEW_PORT_SIZE, type: 'circle' },
+        boundary: { width: BOUNDARY_WIDTH, height: BOUNDARY_HEIGHT },
         showZoomer: false,
-        enableOrientation: false
+        enableOrientation: true,
+        mouseWheelZoom: false,
+        minZoom: 0.25,
+        maxZoom: 1
       })
     }
 
@@ -149,23 +182,43 @@ export default defineComponent({
       context.emit('file-img', file)
     }
 
-    const onSlider = (value) => {
-      console.log(value)
-      // init.value.setZoom(value + 0.05)
+    const onUpdateSlider = (value) => {
+      if (!flagZoom.value) {
+        // press move
+        let delta = 0
+        if (value > slider.value) {
+          // increase
+          delta = value + STEP
+        } else {
+          // decrease
+          delta = value - STEP
+        }
+        init.value.setZoom(delta)
+      }
     }
 
-    const zoomIn = (evt) => {
-      evt.preventDefault()
+    const mouseDownZoomIn = () => {
       const delta = init.value._currentZoom
-      init.value.setZoom(delta + 0.01)
-      slider.value = (delta + 0.1) * 100
+
+      init.value.setZoom(delta + STEP)
+      slider.value = delta + STEP
+
+      flagZoom.value = true
     }
 
-    const zoomOut = (evt) => {
-      evt.preventDefault()
+    const mouseDownZoomOut = () => {
       const delta = init.value._currentZoom
-      init.value.setZoom(delta - 0.1)
-      slider.value = (delta - 0.1) * 100
+
+      init.value.setZoom(delta - STEP)
+      slider.value = delta - STEP
+
+      flagZoom.value = true
+    }
+
+    const mouseUpZoom = () => {
+      if (flagZoom.value) {
+        flagZoom.value = false
+      }
     }
 
     const handleCancel = () => {
@@ -194,10 +247,11 @@ export default defineComponent({
       open,
       ctx,
       slider,
-      onSlider,
+      onUpdateSlider,
       uploadImg,
-      zoomIn,
-      zoomOut,
+      mouseDownZoomIn,
+      mouseDownZoomOut,
+      mouseUpZoom,
       handleCancel,
       handleUploadNew
     }
@@ -387,6 +441,12 @@ export default defineComponent({
 
   .advertise-photo img {
     width: 100%;
+  }
+
+  .note {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 21px;
   }
 }
 </style>
