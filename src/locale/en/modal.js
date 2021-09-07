@@ -21,6 +21,8 @@ export default {
   tooltip_email: 'Change email',
   tooltip_img: 'Change photo',
   title_upload: 'Uploading your image',
+  title_crop: 'Crop your image',
+  title_fail: 'Upload failed',
   title_email: 'メールアドレスの変更',
   email: '新しいメールアドレス',
   password_email: '現在パスワード',
@@ -32,6 +34,8 @@ export default {
   title_save_email: 'ログインID（メールアドレス）の変更がおこなわれました',
   upload_new: 'Upload new image',
   submit: 'Submit',
+  save: 'Save',
+  back: 'Back',
 
   errorMessage: {
     img: 'Profile image must be JPG or PNG.',

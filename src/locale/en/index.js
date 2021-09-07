@@ -18,6 +18,7 @@ import subcategory from './subcategory'
 import login from './login'
 import set_password from './set_password'
 import change_password from './change_password'
+import profile from './profile'
 
 export default {
   errors,
@@ -39,5 +40,6 @@ export default {
   subcategory,
   login,
   set_password,
-  change_password
+  change_password,
+  profile
 }

@@ -20,7 +20,9 @@ export default {
   note_profile: 'パスワードを変更する',
   tooltip_email: 'Change email',
   tooltip_img: '写真を変更',
-  title_upload: 'Uploading your image',
+  title_upload: '写真を読み込み中',
+  title_crop: '写真を切り取り',
+  title_fail: 'アップロードに失敗しました',
   title_email: 'メールアドレスの変更',
   email: '新しいメールアドレス',
   password_email: '現在パスワード',
@@ -30,8 +32,16 @@ export default {
   handle_save_email_cancle: '戻る',
   handle_save_email_ok: 'メールアドレスを変更する',
   title_save_email: 'ログインID（メールアドレス）の変更がおこなわれました',
-  upload_new: 'Upload new image',
+  upload_new: '新しい写真をアップロード',
   submit: 'Submit',
+  save: '保存',
+  back: '戻る',
+
+  errorMessage: {
+    img: 'プロフィール写真は、1 MB 以下の PNGまたはJPG である必要があります',
+    size: '写真のサイズが大きいため、アップロードする写真は1MB以下をお試してください。',
+    imgsize: '写真形式はPNGまたはJPGと写真のサイズは1MB以下をお試してください。'
+  },
 
   modal_save: {
     note_1: '-  ログインID（メールアドレス）の変更がおこなわれました',

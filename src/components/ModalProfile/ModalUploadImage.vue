@@ -1,5 +1,15 @@
 <template>
-  <a-modal v-model:visible="open" :title="$t('modal.title_upload')" @cancel="handleCancel">
+  <a-modal
+    v-model:visible="open"
+    :title="
+      !ctx.flag
+        ? $t('modal.title_crop')
+        : ctx.flag && ctx.errorMessage
+        ? $t('modal.title_fail')
+        : $t('modal.title_upload')
+    "
+    @cancel="handleCancel"
+  >
     <template #footer>
       <div class="card-common">
         <div v-show="!ctx.flag">
@@ -32,24 +42,22 @@
             </button>
           </div>
 
-          <span class="note">Drag the point or click the icon to change size and crop image</span>
+          <span class="note">{{ $t('profile.note') }}</span>
 
-          <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
-          <a-button key="submit" type="primary" html-type="submit" @click="uploadImg">{{
-            $t('modal.submit')
-          }}</a-button>
+          <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.back') }}</a-button>
+          <a-button key="submit" type="primary" html-type="submit" @click="uploadImg">{{ $t('modal.save') }}</a-button>
         </div>
-        <div v-show="ctx.flag">
+        <div v-if="ctx.flag" class="content-loading">
           <template v-if="ctx.errorMessage">
             <warning-icon />
             <!-- Error -->
             <h2>{{ ctx.errorMessage }}</h2>
-            <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
+            <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.back') }}</a-button>
             <a-button type="primary" @click="handleUploadNew">{{ $t('modal.upload_new') }}</a-button>
           </template>
           <template v-else>
-            <h3>Uploading...</h3>
-            <div class="loader">Loading...</div>
+            <h3>{{ $t('profile.uploading') }}</h3>
+            <div class="loader" />
           </template>
         </div>
       </div>
@@ -227,9 +235,9 @@ export default defineComponent({
     }
 
     const handleUploadNew = () => {
-      ctx.value = { ...tmpContext }
-      context.emit('update:visible', false)
       context.emit('back-modal', true)
+      context.emit('update:visible', false)
+      ctx.value = { ...tmpContext, flag: true }
     }
 
     const validateImage = (file) => {
@@ -306,10 +314,10 @@ export default defineComponent({
 
   .loader {
     font-size: 10px;
-    margin: 50px auto;
+    margin: 14px auto;
     text-indent: -9999em;
-    width: 6em;
-    height: 6em;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #ffffff;
     background: -moz-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
@@ -447,6 +455,18 @@ export default defineComponent({
     display: block;
     font-size: 12px;
     margin-bottom: 21px;
+  }
+
+  .content-loading {
+    margin: 46px 0 0;
+
+    h2 {
+      margin-top: 7px;
+    }
+    h3,
+    h2 {
+      font-size: 16px;
+    }
   }
 }
 </style>
