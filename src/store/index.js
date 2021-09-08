@@ -8,6 +8,7 @@ import financing from './financing'
 import accounting from './accounting'
 import dashboard from './dashboard'
 import account from './account'
+import loading from './loading'
 
 const state = {}
 
@@ -27,7 +28,8 @@ const store = createStore({
     financing,
     accounting,
     dashboard,
-    account
+    account,
+    loading
   },
   state,
   getters,

@@ -91,6 +91,11 @@
               </a-button>
             </div>
           </form>
+
+          <!-- Loading -->
+          <div :class="isLoading ? 'overlay-loading' : null">
+            <a-spin :spinning="isLoading" class="spin-loading" />
+          </div>
         </div>
       </template>
     </a-modal>
@@ -98,14 +103,14 @@
 </template>
 
 <script>
-import { defineComponent, watch, toRefs, ref } from 'vue'
-
+import { defineComponent, watch, toRefs, ref, computed } from 'vue'
 import { uniqueId } from 'lodash-es'
-import ModalChangeEmail from '@/components/ModalProfile/ModalChangeEmail'
 
+import ModalChangeEmail from '@/components/ModalProfile/ModalChangeEmail'
 import PencilIcon from '@/assets/icons/ico_pencil.svg'
 import ModalUploadImage from '@/components/ModalProfile/ModalUploadImage'
 import usePutProfileService from '@/components/ModalProfile/composables/usePutProfileService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'ModalProfile',
@@ -127,6 +132,8 @@ export default defineComponent({
   emits: ['update:visible'],
 
   setup(props, context) {
+    const store = useStore()
+
     const { isShow } = toRefs(props)
     const { dataProfile } = toRefs(props)
 
@@ -138,6 +145,8 @@ export default defineComponent({
     const imageUpload = ref()
 
     let form = ref({ user_name: '', email: '' })
+
+    const isLoading = computed(() => store.state.loading.isLoading)
 
     watch(isShow, (value) => {
       open.value = value
@@ -215,6 +224,8 @@ export default defineComponent({
       try {
         const { putProfile } = usePutProfileService(data)
         await putProfile()
+
+        open.value = false
       } catch (e) {
         console.log(e)
       }
@@ -228,6 +239,7 @@ export default defineComponent({
       fileContent,
       modalCrop,
       imageUpload,
+      isLoading,
       resetUploadImage,
       onFileChange,
       handleCancel,
@@ -322,6 +334,33 @@ export default defineComponent({
       background-repeat: no-repeat;
       background-position: center;
       background-image: url('../../assets/icons/ico_user.png');
+    }
+  }
+}
+
+.modal-profile {
+  position: relative;
+
+  .overlay-loading {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.5);
+
+    .ant-spin {
+      .ant-spin-dot {
+        font-size: 24px;
+      }
+    }
+
+    .spin-loading {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
