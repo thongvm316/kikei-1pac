@@ -328,9 +328,10 @@ router.beforeEach(async (to, _, next) => {
 
       const pageFound = find(PAGE_PERMISSIONS, { path: item.path })
       if (!pageFound) return
+      isPageAccess = false
 
       permissionList.forEach((group) => {
-        if (isPageAccessFound) return
+        if (isPageAccessFound && isPageAccess) return
 
         const groupFound = find(group.permissions, { featureKey: pageFound.value })
         if (groupFound) {
@@ -338,8 +339,6 @@ router.beforeEach(async (to, _, next) => {
           isPageAccessFound = true
         }
       })
-
-      if (!isPageAccessFound) isPageAccess = false
     })
 
     if (isRouteFree) {
