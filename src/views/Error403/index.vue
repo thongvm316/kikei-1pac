@@ -1,9 +1,9 @@
 <template>
-  <div class="page-404">
-    <div class="page-404__content">
-      <img src="@/assets/images/404.png" alt="404 image" />
-      <h1 class="page-404__content--title">Page not found.</h1>
-      <h2 class="page-404__content--description">申し訳ございませんが、お探しのページが見つかりません。</h2>
+  <div class="page-403">
+    <div class="page-403__content">
+      <img src="@/assets/images/403.png" alt="403 image" />
+      <h1 class="page-403__content--title">Forbidden</h1>
+      <h2 class="page-403__content--description">申し訳ありません。 このページへのアクセスを許可していません。</h2>
       <router-link to="/">
         <a-button type="primary" size="large"> ダッシュボードへ行く </a-button>
       </router-link>
@@ -15,7 +15,7 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Error404Page'
+  name: 'Error403Page'
 })
 </script>
 
@@ -23,7 +23,7 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-.page-404 {
+.page-403 {
   @include flexbox(center, flex-start);
   background-color: $color-grey-96;
   height: 100vh;

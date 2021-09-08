@@ -36,49 +36,57 @@ export const PAGE_PERMISSIONS = [
     id: 1,
     value: 1,
     text: 'sidebar.project',
-    isGroupPermission: true
+    isGroupPermission: true,
+    path: '/project'
   },
   {
     id: 2,
     value: 2,
     text: 'sidebar.deposit',
-    isGroupPermission: true
+    isGroupPermission: true,
+    path: '/deposit'
   },
   {
     id: 3,
     value: 3,
     text: 'sidebar.financing',
-    isGroupPermission: true
+    isGroupPermission: true,
+    path: '/financing'
   },
   {
     id: 4,
     value: 4,
     text: 'sidebar.accounting',
-    isGroupPermission: true
+    isGroupPermission: true,
+    path: '/accounting'
   },
   {
     id: 5,
     value: 5,
     text: 'sidebar.company',
-    isGroupPermission: false
+    isGroupPermission: false,
+    path: '/setting/company'
   },
   {
     id: 6,
     value: 6,
     text: 'sidebar.category',
-    isGroupPermission: false
+    isGroupPermission: false,
+    path: '/setting/category'
   },
   {
     id: 7,
     value: 7,
     text: 'sidebar.account',
-    isGroupPermission: false
+    isGroupPermission: false,
+    path: '/setting/account'
   },
   {
-    id: 10,
+    id: 8,
     value: 10,
     text: 'sidebar.logs',
-    isGroupPermission: false
+    isGroupPermission: false,
+    path: '/setting/logs'
   }
 ]
 
