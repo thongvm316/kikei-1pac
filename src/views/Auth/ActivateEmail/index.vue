@@ -61,7 +61,8 @@ import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import jwt_decode from 'jwt-decode'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/useUpdateNewEmailService'
 
 export default defineComponent({
   name: 'Index',
@@ -71,6 +72,7 @@ export default defineComponent({
   setup() {
     const { t } = useI18n()
     const route = useRoute()
+    const router = useRouter()
 
     const { handleSubmit } = useForm()
 
@@ -81,12 +83,16 @@ export default defineComponent({
     onMounted(() => {
       let dataToken = jwt_decode(route.query.token)
       decoded.value = dataToken
-      console.log(decoded.value)
     })
 
     const onSubmit = handleSubmit(async () => {
-      let data = { ...form.value }
-      console.log(data)
+      const params = {
+        token: route.query.token,
+        password: form.value.new_password
+      }
+      const { updateNewEmail } = useUpdateNewEmailService({ ...params })
+      await updateNewEmail()
+      await router.push({ name: 'dashboard' })
     })
 
     const replaceField = (text, field) => {
@@ -139,6 +145,10 @@ $form-size: 640px;
 
         .new_password {
           width: 320px;
+        }
+
+        .form-input {
+          margin-top: 4px;
         }
       }
     }

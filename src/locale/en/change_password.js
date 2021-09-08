@@ -11,7 +11,7 @@ export default {
   expired_title: 'Your verification link has expired',
   expired_desc:
     'When the user can\'t log in for some reason (system error; user confirmed after 24 hours...) then they must contact the Admin (via Tel/email) for support.',
-  expired_ok: '以前のメールアドレスとパスワードでログインする',
+  expired_ok: 'Log in with your old email address and password',
 
   //email sent
   sent_title: 'You has been signed out',

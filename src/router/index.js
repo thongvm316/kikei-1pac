@@ -2,7 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
-import { ActivateAccountGuard, RelateActivateAccountGuard, ResolveGuard } from '@/router/guards/ActivateAccount'
+import { ActivateAccountGuard, RelateActivateAccountGuard } from '@/router/guards/ActivateAccount'
+import { ActivateEmailGuard, RelateActivateEmailGuard } from '@/router/guards/ActivateEmail'
+import { ActivatePasswordGuard, RelateActivatePasswordGuard } from '@/router/guards/ActivatePassword'
+import { ResolveGuard } from '@/router/guards/ResolveGuard'
 
 const StorageService = Services.get('StorageService')
 const SettingAccountService = Services.get('SettingAccountService')
@@ -67,7 +70,7 @@ const routes = [
     path: '/activate-email',
     name: 'activate-email',
     component: lazyLoadRoute('Auth/ActivateEmail'),
-    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    beforeEnter: ResolveGuard([ActivateEmailGuard]),
     meta: { title: `Activate Email | ${APP_NAME}` }
   },
 
@@ -75,7 +78,7 @@ const routes = [
     path: '/expired-mail',
     name: 'expired-mail',
     component: lazyLoadRoute('Auth/ExpiredMail'),
-    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    beforeEnter: ResolveGuard([RelateActivateEmailGuard]),
     meta: { title: `Expired Mail | ${APP_NAME}` }
   },
 
@@ -83,7 +86,6 @@ const routes = [
     path: '/email-sent',
     name: 'email-sent',
     component: lazyLoadRoute('Auth/EmailSent'),
-    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
     meta: { title: `Email Sent | ${APP_NAME}` }
   },
 
@@ -91,8 +93,40 @@ const routes = [
     path: '/activated-email',
     name: 'activated-email',
     component: lazyLoadRoute('Auth/ActivatedEmail'),
-    // beforeEnter: ResolveGuard([RelateActivateAccountGuard]),
+    beforeEnter: ResolveGuard([RelateActivateEmailGuard]),
     meta: { title: `Activated Email | ${APP_NAME}` }
+  },
+
+  {
+    path: '/activate-change-password',
+    name: 'activate-change-password',
+    component: lazyLoadRoute('Auth/ActivateChangePassword'),
+    beforeEnter: ResolveGuard([ActivatePasswordGuard]),
+    meta: { title: `Activate Change Password | ${APP_NAME}` }
+  },
+
+  {
+    path: '/congratulations-new-password',
+    name: 'congratulations-new-password',
+    component: lazyLoadRoute('Auth/CongratulationsNewPassword'),
+    beforeEnter: ResolveGuard([RelateActivatePasswordGuard]),
+    meta: { title: `Congratulations New Password | ${APP_NAME}` }
+  },
+
+  {
+    path: '/activated-password',
+    name: 'activated-password',
+    component: lazyLoadRoute('Auth/ActivatedPassword'),
+    beforeEnter: ResolveGuard([RelateActivatePasswordGuard]),
+    meta: { title: `Activated Password| ${APP_NAME}` }
+  },
+
+  {
+    path: '/expired-mail',
+    name: 'expired-mail',
+    component: lazyLoadRoute('Auth/ExpiredMail'),
+    beforeEnter: ResolveGuard([RelateActivatePasswordGuard]),
+    meta: { title: `Expired Mail | ${APP_NAME}` }
   },
 
   {
@@ -325,7 +359,10 @@ const ROUTING_FREE = [
   'error-verified',
   'activate-email',
   'expired-mail',
-  'activated-email'
+  'activated-email',
+  'activate-change-password',
+  'congratulations-new-password',
+  'activated-password'
 ]
 
 router.beforeEach(async (to, _, next) => {

@@ -9,6 +9,12 @@
       @file-img="onFileImg($event)"
     />
 
+    <modal-saved-email
+      v-model:visible="modalResetPassword"
+      :modal-reset-password="modalResetPassword"
+      @back-modal="handleBack($event)"
+    />
+
     <a-modal v-model:visible="open" :title="$t('modal.title_profile')" @cancel="handleCancel">
       <template #footer>
         <div class="modal-profile">
@@ -43,21 +49,32 @@
           </div>
 
           <!--Form-->
-          <form class="modal-profile__form">
+          <form class="modal-profile__form" @submit="onSubmit">
             <!--Name -->
             <div class="form-group">
-              <div class="form-content">
-                <label class="form-label required">{{ $t('modal.name_profile') }}</label>
-
-                <div>
-                  <a-input
-                    v-model:value="form.user_name"
-                    :placeholder="$t('modal.please_enter')"
-                    size="large"
-                    class="name_profile"
-                  />
+              <Field
+                v-slot="{ field, handleChange }"
+                v-model="form.user_name"
+                name="name_profile"
+                rules="input_required"
+              >
+                <div class="form-content">
+                  <label class="form-label required">{{ $t('modal.name_profile') }}</label>
+                  <div class="form-input">
+                    <a-input
+                      :value="field.value"
+                      :placeholder="$t('modal.please_enter')"
+                      size="large"
+                      class="name_profile"
+                      @change="handleChange"
+                    />
+                    <!-- Error message -->
+                    <ErrorMessage v-slot="{ message }" as="span" name="name_profile" class="errors">
+                      {{ replaceField(message, 'name_profile') }}
+                    </ErrorMessage>
+                  </div>
                 </div>
-              </div>
+              </Field>
             </div>
 
             <!--Email -->
@@ -79,14 +96,14 @@
               </div>
             </div>
 
-            <p class="note-progile">{{ $t('modal.note_profile') }}</p>
+            <div class="note-progile" @click="handleModalResetPassword">{{ $t('modal.note_profile') }}</div>
 
             <!-- Action Section Submit & Cancel -->
             <div class="card-footer">
               <a-button key="back" class="btn-close" @click="handleCancel">
                 {{ $t('modal.handle_cancel') }}
               </a-button>
-              <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmit">
+              <a-button key="submit" type="primary" html-type="submit">
                 {{ $t('modal.handle_ok') }}
               </a-button>
             </div>
@@ -110,12 +127,15 @@ import ModalChangeEmail from '@/components/ModalProfile/ModalChangeEmail'
 import PencilIcon from '@/assets/icons/ico_pencil.svg'
 import ModalUploadImage from '@/components/ModalProfile/ModalUploadImage'
 import usePutProfileService from '@/components/ModalProfile/composables/usePutProfileService'
+import ModalSavedEmail from '@/components/ModalProfile/ModalSavedEmail'
+import { useForm } from 'vee-validate'
+import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'ModalProfile',
 
-  components: { ModalUploadImage, PencilIcon, ModalChangeEmail },
+  components: { ModalSavedEmail, ModalUploadImage, PencilIcon, ModalChangeEmail },
 
   props: {
     isShow: {
@@ -129,17 +149,22 @@ export default defineComponent({
     }
   },
 
-  emits: ['update:visible'],
+  emits: ['update:visible', 'back-modal'],
 
   setup(props, context) {
+    const { t } = useI18n()
     const store = useStore()
 
     const { isShow } = toRefs(props)
     const { dataProfile } = toRefs(props)
 
+    const { handleSubmit } = useForm()
+
     const open = ref(false)
     const isShowModal = ref(false)
     const modalCrop = ref(false)
+    const modalResetPassword = ref(false)
+    const loading = ref(false)
     const fileContent = ref([])
     const image = ref()
     const imageUpload = ref()
@@ -168,9 +193,19 @@ export default defineComponent({
       open.value = e
     }
 
+    const handleBackModal = () => {
+      context.emit('back-modal', false)
+    }
+
     const handleChangeEmail = () => {
       open.value = false
       isShowModal.value = true
+      context.emit('update:visible', false)
+    }
+
+    const handleModalResetPassword = () => {
+      open.value = false
+      modalResetPassword.value = true
       context.emit('update:visible', false)
     }
 
@@ -214,7 +249,7 @@ export default defineComponent({
       })
     }
 
-    const handleSubmit = async () => {
+    const onSubmit = handleSubmit(async () => {
       const base64result = image.value.split(',')[1]
       const data = {
         fullname: form.value.user_name,
@@ -222,13 +257,17 @@ export default defineComponent({
       }
 
       try {
-        const { putProfile } = usePutProfileService(data)
+        const { putProfile } = usePutProfileService(data, loading)
         await putProfile()
 
         handleCancel()
       } catch (e) {
         console.log(e)
       }
+    })
+
+    const replaceField = (text, field) => {
+      return text.replace(field, t(`modal.error_${field}`))
     }
 
     return {
@@ -239,14 +278,18 @@ export default defineComponent({
       fileContent,
       modalCrop,
       imageUpload,
+      modalResetPassword,
+      onSubmit,
       isLoading,
+      handleModalResetPassword,
+      handleBackModal,
       resetUploadImage,
       onFileChange,
       handleCancel,
       handleChangeEmail,
-      handleSubmit,
       handleBack,
-      onFileImg
+      onFileImg,
+      replaceField
     }
   }
 })
