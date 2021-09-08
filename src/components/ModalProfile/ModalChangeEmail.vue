@@ -1,6 +1,6 @@
 <template>
   <section>
-    <modal-saved-email v-model:visible="openSaveEamil" :open-save-eamil="openSaveEamil" :form="form.email" />
+    <modal-saved-email v-model:visible="openSaveEmail" :open-save-eamil="openSaveEmail" :form="form.email" />
 
     <a-modal v-model:visible="open" :title="$t('modal.title_email')" @cancel="handleCancel">
       <template #footer>
@@ -11,7 +11,7 @@
             <div class="form-group">
               <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="email|input_required">
                 <div class="form-content">
-                  <label class="form-label required">{{ $t('modal.email') }}</label>
+                  <label class="form-label required font-bold">{{ $t('modal.email') }}</label>
                   <div class="form-input">
                     <a-input
                       :value="field.value"
@@ -39,19 +39,19 @@
                 rules="input_required"
               >
                 <div class="form-content">
-                  <label class="form-label required">{{ $t('modal.password_email') }}</label>
+                  <label class="form-label required font-bold">{{ $t('modal.password_email') }}</label>
                   <div class="form-input">
                     <a-input
                       :value="field.value"
                       type="password"
-                      :placeholder="$t('modal.please_enter')"
+                      :placeholder="$t('modal.please_enter_password')"
                       size="large"
                       class="password_email"
                       @change="handleChange"
                     />
                     <!-- Error message -->
-                    <ErrorMessage v-slot="{ message }" as="span" name="password_email" class="errors">
-                      {{ replaceField(message, 'password_email') }}
+                    <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                      {{ replaceField(message, 'password') }}
                     </ErrorMessage>
                   </div>
                 </div>
@@ -61,10 +61,10 @@
             <!-- Action Section Submit & Cancel -->
             <div class="card-footer">
               <a-button key="back" class="btn-close" @click="handleCancel">
-                {{ $t('modal.handle_email_cancle') }}
+                {{ $t('modal.back') }}
               </a-button>
               <a-button key="submit" type="primary" html-type="submit">
-                {{ $t('modal.handle_email_ok') }}
+                {{ $t('modal.email_ok') }}
               </a-button>
             </div>
           </form>
@@ -76,10 +76,12 @@
 
 <script>
 import { defineComponent, watch, toRefs, ref } from 'vue'
-import ModalSavedEmail from '@/components/ModalProfile/ModalSavedEmail'
-import useCheckPasswordEmailService from '@/components/ModalProfile/composables/useCheckPasswordEmailService'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+
+import ModalSavedEmail from '@/components/ModalProfile/ModalSavedEmail'
+import useCheckPasswordEmailService from '@/components/ModalProfile/composables/useCheckPasswordEmailService'
 
 export default defineComponent({
   name: 'ModalChangeEmail',
@@ -96,12 +98,13 @@ export default defineComponent({
 
   setup(props, context) {
     const { t } = useI18n()
+    const { locale } = useI18n()
+
     const { isShowModal } = toRefs(props)
-    const { handleSubmit } = useForm()
+    const { handleSubmit, setFieldError } = useForm()
 
     const open = ref(false)
-    const openSaveEamil = ref(false)
-
+    const openSaveEmail = ref(false)
     let form = ref({ email: '', password: '' })
 
     watch(isShowModal, (value) => {
@@ -113,26 +116,34 @@ export default defineComponent({
       context.emit('update:visible', false)
     }
 
-    const handleChangeEmail = () => {
-      console.log('change')
-    }
-
     const onSubmit = handleSubmit(async () => {
       let dataPassword = {
         password: form.value.password
       }
-
       // eslint-disable-next-line no-useless-catch
       try {
         const { checkPasswordEmail } = useCheckPasswordEmailService(dataPassword)
         await checkPasswordEmail()
 
-        openSaveEamil.value = true
+        openSaveEmail.value = true
         context.emit('update:visible', false)
       } catch (err) {
+        checkErrorsApi(err)
         throw err
       }
     })
+
+    const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        locale.value === 'en'
+          ? (err.response.data.errors[item] = 'The password is different from the registered password')
+          : (err.response.data.errors[item] = '登録されたパスワードと異なります')
+
+        setFieldError(item, err.response.data.errors[item])
+      }
+    }
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`modal.error_${field}`))
@@ -141,10 +152,9 @@ export default defineComponent({
     return {
       open,
       form,
-      openSaveEamil,
+      openSaveEmail,
       onSubmit,
       handleCancel,
-      handleChangeEmail,
       replaceField
     }
   }

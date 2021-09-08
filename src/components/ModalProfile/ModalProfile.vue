@@ -84,7 +84,7 @@
             <!-- Action Section Submit & Cancel -->
             <div class="card-footer">
               <a-button key="back" class="btn-close" @click="handleCancel">
-                {{ $t('modal.handle_cancle') }}
+                {{ $t('modal.handle_cancel') }}
               </a-button>
               <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmit">
                 {{ $t('modal.handle_ok') }}
@@ -225,7 +225,7 @@ export default defineComponent({
         const { putProfile } = usePutProfileService(data)
         await putProfile()
 
-        open.value = false
+        handleCancel()
       } catch (e) {
         console.log(e)
       }

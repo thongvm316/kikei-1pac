@@ -12,7 +12,7 @@
         <!-- Action Section Submit & Cancel -->
         <div class="card-footer">
           <a-button key="back" class="btn-close" @click="handleCancel">
-            {{ $t('modal.handle_save_email_cancle') }}
+            {{ $t('modal.handle_save_email_cancel') }}
           </a-button>
           <a-button key="submit" type="primary" html-type="submit" @click.prevent="handeleSubmit">
             {{ $t('modal.handle_save_email_ok') }}

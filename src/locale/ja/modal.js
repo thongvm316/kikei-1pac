@@ -15,10 +15,10 @@ export default {
   name_profile: '氏名',
   please_enter: 'Enter password',
   email_profile: 'ログインID（メールアドレス）',
-  handle_cancle: 'キャンセル',
+  handle_cancel: 'キャンセル',
   handle_ok: '登録',
   note_profile: 'パスワードを変更する',
-  tooltip_email: 'Change email',
+  tooltip_email: 'メールアドレスの変更',
   tooltip_img: '写真を変更',
   title_upload: '写真を読み込み中',
   title_crop: '写真を切り取り',
@@ -26,10 +26,10 @@ export default {
   title_email: 'メールアドレスの変更',
   email: '新しいメールアドレス',
   password_email: '現在パスワード',
-  handle_email_cancle: '戻る',
-  handle_email_ok: '次',
-  please_enter_email: 'Enter new email',
-  handle_save_email_cancle: '戻る',
+  email_ok: '次へ',
+  please_enter_email: 'メールアドレスを入力してください',
+  please_enter_password: 'パスワードを入力してください',
+  handle_save_email_cancel: '戻る',
   handle_save_email_ok: 'メールアドレスを変更する',
   title_save_email: 'ログインID（メールアドレス）の変更がおこなわれました',
   upload_new: '新しい写真をアップロード',
@@ -41,12 +41,6 @@ export default {
     img: 'プロフィール写真は、1 MB 以下の PNGまたはJPG である必要があります',
     size: '写真のサイズが大きいため、アップロードする写真は1MB以下をお試してください。',
     imgsize: '写真形式はPNGまたはJPGと写真のサイズは1MB以下をお試してください。'
-  },
-
-  errorMessage: {
-    img: 'Profile image must be JPG or PNG.',
-    size: 'The size of photo is big. Try one’s that smaller than 1MB',
-    imgsize: 'Profile image must be JPG or PNG. The size of photo is big, try one’s that smaller than 1MB.'
   },
 
   modal_save: {
