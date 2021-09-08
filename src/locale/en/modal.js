@@ -62,6 +62,6 @@ export default {
   },
 
   error_email: 'New mail address',
-  error_password_email: 'Current password',
+  error_password: 'Current password',
   error_name_profile: ''
 }

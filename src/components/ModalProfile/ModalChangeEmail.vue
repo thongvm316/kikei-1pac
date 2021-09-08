@@ -32,12 +32,7 @@
 
             <!--Password -->
             <div class="form-group">
-              <Field
-                v-slot="{ field, handleChange }"
-                v-model="form.password"
-                name="password_email"
-                rules="input_required"
-              >
+              <Field v-slot="{ field, handleChange }" v-model="form.password" name="password" rules="input_required">
                 <div class="form-content">
                   <label class="form-label required font-bold">{{ $t('modal.password_email') }}</label>
                   <div class="form-input">

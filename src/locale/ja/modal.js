@@ -60,6 +60,6 @@ export default {
   },
 
   error_email: '新しいメールアドレス',
-  error_password_email: '現在パスワード',
+  error_password: '現在パスワード',
   error_name_profile: '氏名'
 }
