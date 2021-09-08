@@ -13,7 +13,7 @@
           <!-- Action Section Submit & Cancel -->
           <div class="card-footer">
             <a-button key="back" class="btn-close" @click="handleCancel">
-              {{ $t('modal.handle_rp_save_cancle') }}
+              {{ $t('modal.handle_rp_save_cancel') }}
             </a-button>
             <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmitRP">
               {{ $t('modal.handle_rp_save_ok') }}
@@ -33,7 +33,7 @@
           <!-- Action Section Submit & Cancel -->
           <div class="card-footer">
             <a-button key="back" class="btn-close" @click="handleCancel">
-              {{ $t('modal.handle_save_email_cancle') }}
+              {{ $t('modal.handle_save_email_cancel') }}
             </a-button>
             <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmit">
               {{ $t('modal.handle_save_email_ok') }}

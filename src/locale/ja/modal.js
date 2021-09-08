@@ -31,7 +31,7 @@ export default {
   please_enter_password: 'パスワードを入力してください',
   handle_save_email_cancel: '戻る',
   handle_save_email_ok: 'メールアドレスを変更する',
-  handle_rp_save_cancle: 'キャンセル',
+  handle_rp_save_cancel: 'キャンセル',
   handle_rp_save_ok: 'パスワードをリセットする',
   title_save_email: 'ログインID（メールアドレス）の変更がおこなわれました',
   upload_new: '新しい写真をアップロード',
