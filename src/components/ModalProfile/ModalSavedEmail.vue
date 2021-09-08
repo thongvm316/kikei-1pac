@@ -1,32 +1,56 @@
 <template>
   <a-modal v-model:visible="open" :title="$t('modal.title_save_email')" @cancel="handleCancel">
     <template #footer>
-      <div class="modal-save-email">
-        <ul>
-          <li>{{ $t('modal.modal_save.note_1') }}</li>
-          <li>{{ $t('modal.modal_save.note_2') }}</li>
-          <li>{{ $t('modal.modal_save.note_3') }}</li>
-          <li>{{ $t('modal.modal_save.note_4') }}</li>
-        </ul>
+      <template v-if="isRestPassword">
+        <div class="modal-save-email">
+          <ul>
+            <li>{{ $t('modal.modal_rp_save.note_1') }}</li>
+            <li>{{ $t('modal.modal_rp_save.note_2') }}</li>
+            <li>{{ $t('modal.modal_rp_save.note_3') }}</li>
+            <li>{{ $t('modal.modal_rp_save.note_4') }}</li>
+          </ul>
 
-        <!-- Action Section Submit & Cancel -->
-        <div class="card-footer">
-          <a-button key="back" class="btn-close" @click="handleCancel">
-            {{ $t('modal.handle_save_email_cancle') }}
-          </a-button>
-          <a-button key="submit" type="primary" html-type="submit" @click.prevent="handeleSubmit">
-            {{ $t('modal.handle_save_email_ok') }}
-          </a-button>
+          <!-- Action Section Submit & Cancel -->
+          <div class="card-footer">
+            <a-button key="back" class="btn-close" @click="handleCancel">
+              {{ $t('modal.handle_rp_save_cancle') }}
+            </a-button>
+            <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmitRP">
+              {{ $t('modal.handle_rp_save_ok') }}
+            </a-button>
+          </div>
         </div>
-      </div>
+      </template>
+      <template v-else>
+        <div class="modal-save-email">
+          <ul>
+            <li>{{ $t('modal.modal_save.note_1') }}</li>
+            <li>{{ $t('modal.modal_save.note_2') }}</li>
+            <li>{{ $t('modal.modal_save.note_3') }}</li>
+            <li>{{ $t('modal.modal_save.note_4') }}</li>
+          </ul>
+
+          <!-- Action Section Submit & Cancel -->
+          <div class="card-footer">
+            <a-button key="back" class="btn-close" @click="handleCancel">
+              {{ $t('modal.handle_save_email_cancle') }}
+            </a-button>
+            <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmit">
+              {{ $t('modal.handle_save_email_ok') }}
+            </a-button>
+          </div>
+        </div>
+      </template>
     </template>
   </a-modal>
 </template>
 
 <script>
 import { defineComponent, watch, toRefs, ref } from 'vue'
-import useSuggestNewEmailService from '@/components/ModalProfile/composables/useSuggestNewEmailService'
 import { useRouter } from 'vue-router'
+
+import useSuggestNewEmailService from '@/components/ModalProfile/composables/useSuggestNewEmailService'
+import useSuggestNewPasswordService from '@/components/ModalProfile/composables/useSuggestNewPasswordService'
 
 export default defineComponent({
   name: 'ModalSavedEmail',
@@ -40,22 +64,37 @@ export default defineComponent({
     form: {
       type: String,
       required: true
+    },
+    modalResetPassword: {
+      type: Boolean,
+      default: false,
+      require: true
     }
   },
 
-  emits: ['update:visible'],
+  emits: ['update:visible', 'back-modal'],
 
   setup(props, context) {
     const router = useRouter()
+
     const { openSaveEamil } = toRefs(props)
+    const { modalResetPassword } = toRefs(props)
+
     const { form } = toRefs(props)
 
     const open = ref(false)
+    const isRestPassword = ref(false)
 
     const nameEmail = ref('')
 
     watch(openSaveEamil, (value) => {
       open.value = value
+    })
+
+    watch(modalResetPassword, (value) => {
+      open.value = value
+      isRestPassword.value = value
+      context.emit('back-modal', true)
     })
 
     watch(form, (value) => {
@@ -67,7 +106,7 @@ export default defineComponent({
       context.emit('update:visible', false)
     }
 
-    const handeleSubmit = async () => {
+    const handleSubmit = async () => {
       console.log('submit')
       let dataEmail = {
         new_email: nameEmail.value
@@ -82,10 +121,23 @@ export default defineComponent({
       }
     }
 
+    const handleSubmitRP = async () => {
+      try {
+        const { suggestNewPassword } = useSuggestNewPasswordService()
+        await suggestNewPassword()
+
+        await router.push({ name: 'email-sent' })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
     return {
       open,
+      isRestPassword,
       handleCancel,
-      handeleSubmit
+      handleSubmit,
+      handleSubmitRP
     }
   }
 })

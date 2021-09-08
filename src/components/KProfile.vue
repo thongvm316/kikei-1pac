@@ -112,7 +112,6 @@ export default defineComponent({
       try {
         const { profileDetail } = useGetProfileDetailService()
         const { result } = await profileDetail()
-        console.log(result)
 
         dataProfile.value = result
         isShow.value = true

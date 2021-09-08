@@ -19,5 +19,9 @@ export default {
 
   suggestNewEmail(data) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/suggest-new-email`, data })
+  },
+
+  suggestNewPassword() {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/suggest-new-password` })
   }
 }

@@ -113,10 +113,6 @@ export default defineComponent({
       context.emit('update:visible', false)
     }
 
-    const handleChangeEmail = () => {
-      console.log('change')
-    }
-
     const onSubmit = handleSubmit(async () => {
       let dataPassword = {
         password: form.value.password
@@ -144,7 +140,6 @@ export default defineComponent({
       openSaveEamil,
       onSubmit,
       handleCancel,
-      handleChangeEmail,
       replaceField
     }
   }

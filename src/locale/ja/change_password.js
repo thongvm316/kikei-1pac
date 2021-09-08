@@ -2,25 +2,26 @@ export default {
   //chagne password
   new_password: '現在のパスワード',
   handle_ok: 'ログイン',
-  title: 'Login ID (email address) has been changed.',
-  changed_login: 'You has changed to new Login ID ( email address) is',
-  desc: '. Please login with new Login ID ( email address ), or contact the Administrator if you need further support.',
+  title: 'メールアドレスが変更されました。',
+  changed_login: 'メールアドレスが ',
+  desc: 'に変更されました。新しいメールアドレスにログインするか、さらにサポートが必要な場合は管理者に連絡してください。',
   please_enter: 'パスワードを入力してください',
 
   //expired mail
-  expired_title: 'Your verification link has expired',
+  expired_title: '確認リンクは有効期限が切れています。 ',
   expired_desc:
-    'When the user can\'t log in for some reason (system error; user confirmed after 24 hours...) then they must contact the Admin (via Tel/email) for support.',
+    'ユーザーが何らかの理由でログインできない場合（システムエラー、24時間後にユーザーが確認した...）、サポートについて管理者に（電話/電子メールで）連絡する必要があります。',
   expired_ok: '以前のメールアドレスとパスワードでログインする',
 
   //email sent
-  sent_title: 'You has been signed out',
-  sent_desc: 'An email has been sent. Please click the link to change new email address when you get it.',
-  sent_ok: 'Go to Login',
+  sent_title: 'ログアウトしました。',
+  sent_desc:
+    '(メールアドレス)にメールが送信されました。メールアドレスを変更するには、メール内のリンクをクリックしてください。',
+  sent_ok: 'ログインへ行く',
 
   // activated email
-  activated_title: 'You has changed email before',
+  activated_title: '以前にメールアドレスを変更しました。',
   activated_desc:
-    'You has confirmed change new email. Please login with your new email. If you can\'t log in for some reason (system error; user confirmed after 24 hours...) then you must contact the Admin (via Tel/email) for support.',
-  activated_ok: 'Go to Login'
+    '新しいメールの変更を確認しました。 新しいメールアドレスでログインしてください。 何らかの理由でログインできない場合（システムエラー、24時間後にユーザーが確認した...）、サポートについて管理者に（電話/メールで）連絡する必要があります。',
+  activated_ok: 'ログインへ行く'
 }

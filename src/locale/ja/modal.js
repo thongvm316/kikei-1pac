@@ -13,7 +13,7 @@ export default {
   total_balance: '残高合計',
   title_profile: 'プロフィール編集',
   name_profile: '氏名',
-  please_enter: 'Enter password',
+  please_enter: 'パスワードを入力する',
   email_profile: 'ログインID（メールアドレス）',
   handle_cancle: 'キャンセル',
   handle_ok: '登録',
@@ -31,6 +31,8 @@ export default {
   please_enter_email: 'Enter new email',
   handle_save_email_cancle: '戻る',
   handle_save_email_ok: 'メールアドレスを変更する',
+  handle_rp_save_cancle: 'キャンセル',
+  handle_rp_save_ok: 'パスワードをリセットする',
   title_save_email: 'ログインID（メールアドレス）の変更がおこなわれました',
   upload_new: '新しい写真をアップロード',
   submit: 'Submit',
@@ -43,12 +45,6 @@ export default {
     imgsize: '写真形式はPNGまたはJPGと写真のサイズは1MB以下をお試してください。'
   },
 
-  errorMessage: {
-    img: 'Profile image must be JPG or PNG.',
-    size: 'The size of photo is big. Try one’s that smaller than 1MB',
-    imgsize: 'Profile image must be JPG or PNG. The size of photo is big, try one’s that smaller than 1MB.'
-  },
-
   modal_save: {
     note_1: '-  ログインID（メールアドレス）の変更がおこなわれました',
     note_2: '-  再設定されたログインID（メールアドレス）に確認のURLが送信されました',
@@ -56,6 +52,14 @@ export default {
     note_4: '-  24時間以内に確認がおこなわれない場合、変更は無効となります'
   },
 
+  modal_rp_save: {
+    note_1: '-  パスワードリセットのをおこないます',
+    note_2: '-  パスワードリセット実行後、登録されたメールアドレスにパスワード再設定のURLが送信されます',
+    note_3: '-  24時間以内にパスワードの再設定をおこなってください',
+    note_4: '-  24時間以内に再設定がおこなわれない場合、変更は無効となります'
+  },
+
   error_email: '新しいメールアドレス',
-  error_password_email: '現在パスワード'
+  error_password_email: '現在パスワード',
+  error_name_profile: '氏名'
 }
