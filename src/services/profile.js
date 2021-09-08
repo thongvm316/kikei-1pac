@@ -10,7 +10,7 @@ export default {
   },
 
   putProfile(data) {
-    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/update`, body: data })
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.profile}/update`, data })
   },
 
   checkPasswordEmail(data) {

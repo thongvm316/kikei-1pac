@@ -86,7 +86,7 @@
               <a-button key="back" class="btn-close" @click="handleCancel">
                 {{ $t('modal.handle_cancle') }}
               </a-button>
-              <a-button key="submit" type="primary" html-type="submit" @click.prevent="handeleSubmit">
+              <a-button key="submit" type="primary" html-type="submit" @click.prevent="handleSubmit">
                 {{ $t('modal.handle_ok') }}
               </a-button>
             </div>
@@ -205,14 +205,15 @@ export default defineComponent({
       })
     }
 
-    const handeleSubmit = async () => {
-      console.log('submit')
-      module.exports = typeof self == 'object' ? self.formData : window.formData
-      const formData = new FormData()
-      formData.append('full_name', form.value.user_name)
+    const handleSubmit = async () => {
+      const base64result = image.value.split(',')[1]
+      const data = {
+        fullname: form.value.user_name,
+        avatar: base64result
+      }
 
       try {
-        const { putProfile } = usePutProfileService(formData)
+        const { putProfile } = usePutProfileService(data)
         await putProfile()
       } catch (e) {
         console.log(e)
@@ -231,7 +232,7 @@ export default defineComponent({
       onFileChange,
       handleCancel,
       handleChangeEmail,
-      handeleSubmit,
+      handleSubmit,
       handleBack,
       onFileImg
     }
