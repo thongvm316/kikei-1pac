@@ -99,10 +99,10 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { cloneDeep, values, every } from 'lodash-es'
-import { useRouter, useRoute } from 'vue-router'
+import { cloneDeep, every, values } from 'lodash-es'
+import { useRoute, useRouter } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import jwt_decode from 'jwt-decode'
 import useCheckPasswordService from '@/views/Auth/ActivateChangePassword/composables/useCheckPasswordService'
@@ -119,15 +119,17 @@ export default defineComponent({
 
   setup() {
     const { t, locale } = useI18n()
-    const router = useRouter()
-    const route = useRoute()
     const { setFieldError } = useForm()
 
-    let form = ref({ new_password: '', confirm_password: '' })
+    const router = useRouter()
+    const route = useRoute()
+
     const checked = ref(true)
     const decoded = ref({})
-
     const message = ref('')
+    const tmpErrors = ref()
+
+    let form = ref({ new_password: '', confirm_password: '' })
 
     const error = ref({
       min: null,
@@ -140,9 +142,17 @@ export default defineComponent({
     const valid = ref(null)
 
     onMounted(() => {
-      let dataToken = jwt_decode(route.query.token)
-      decoded.value = dataToken
+      decoded.value = jwt_decode(route.query.token)
     })
+
+    watch(
+      () => locale.value,
+      (locale) => {
+        locale === 'en'
+          ? verifyErrors(tmpErrors.value, 'You used this password recently. Please set a different one.')
+          : verifyErrors(tmpErrors.value, 'このパスワードは最近使用されています。別のパスワードを指定してください。')
+      }
+    )
 
     const onSubmit = async () => {
       let data = { ...form.value }
@@ -172,15 +182,16 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
-        locale.value === 'en'
-          ? (err.response.data.errors[item] = 'You used this password recently. Please set a different one.')
-          : (err.response.data.errors[item] =
-              'このパスワードは最近使用されています。別のパスワードを指定してください。')
+      locale.value === 'en'
+        ? verifyErrors(tmpErrors.value, 'You used this password recently. Please set a different one.')
+        : verifyErrors(tmpErrors.value, 'このパスワードは最近使用されています。別のパスワードを指定してください。')
+    }
 
-        setFieldError(item, err.response.data.errors[item])
+    const verifyErrors = (errors, msg) => {
+      for (let item in errors) {
+        setFieldError(item, msg)
       }
     }
 

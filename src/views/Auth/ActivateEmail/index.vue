@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
@@ -61,6 +61,7 @@ import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/use
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import storageKeys from '@/enums/storage-keys'
 import services from '@/services'
+
 const StorageService = services.get('StorageService')
 
 export default defineComponent({
@@ -70,19 +71,27 @@ export default defineComponent({
 
   setup() {
     const { t, locale } = useI18n()
-    const route = useRoute()
-    const router = useRouter()
-
     const { setFieldError } = useForm()
 
+    const route = useRoute()
+    const router = useRouter()
     const decoded = ref({})
+    const tmpErrors = ref()
 
     let form = ref({ new_password: '' })
 
     onMounted(() => {
-      let dataToken = jwt_decode(route.query.token)
-      decoded.value = dataToken
+      decoded.value = jwt_decode(route.query.token)
     })
+
+    watch(
+      () => locale.value,
+      (locale) => {
+        locale === 'en'
+          ? verifyErrors(tmpErrors.value, 'The password is in correct')
+          : verifyErrors(tmpErrors.value, 'パスワードが正しくありません')
+      }
+    )
 
     const onSubmit = async () => {
       const params = {
@@ -100,14 +109,16 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
-        locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The password is in correct')
-          : (err.response.data.errors[item] = 'パスワードが正しくありません')
+      locale.value === 'en'
+        ? verifyErrors(tmpErrors.value, 'The password is in correct')
+        : verifyErrors(tmpErrors.value, 'パスワードが正しくありません')
+    }
 
-        setFieldError(item, err.response.data.errors[item])
+    const verifyErrors = (errors, msg) => {
+      for (let item in errors) {
+        setFieldError(item, msg)
       }
     }
 

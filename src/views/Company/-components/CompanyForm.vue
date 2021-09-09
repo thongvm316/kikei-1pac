@@ -51,6 +51,11 @@
                 class="w-300"
                 @change="handleChange"
               />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="company_code_project" class="errors">
+                {{ replaceField(message, 'company_code_project') }}
+              </ErrorMessage>
+
               <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
@@ -69,6 +74,11 @@
                 class="w-300"
                 @change="handleChange"
               />
+              <!-- Error message -->
+              <ErrorMessage v-slot="{ message }" as="span" name="company_slack_code" class="errors">
+                {{ replaceField(message, 'company_slack_code') }}
+              </ErrorMessage>
+
               <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
@@ -233,7 +243,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -265,6 +275,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const route = useRoute()
+
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
 
@@ -273,12 +284,20 @@ export default defineComponent({
       company_name: t('company.error_company_name'),
       company_slack_code: t('company.error_company_slack_code')
     })
+    const tmpErrors = ref()
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'company-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       router.push({ name: 'company', params: route.params, query: route.query })
@@ -329,16 +348,20 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
         if (item === 'company_code') item = 'company_code_project'
 
         locale.value === 'en'
-          ? (err.response.data.errors[item] = `${companyEnums.value[item]} existed`)
-          : (err.response.data.errors[item] = `${companyEnums.value[item]}は存在しました`)
+          ? (errs[item] = `${companyEnums.value[item]} existed`)
+          : (errs[item] = `${companyEnums.value[item]}は存在しました`)
 
-        setFieldError(item, err.response.data.errors[item])
+        setFieldError(item, errs[item])
       }
     }
 
