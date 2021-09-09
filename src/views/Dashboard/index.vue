@@ -76,6 +76,8 @@
         </a-spin>
       </controller-block>
     </div>
+
+    <DashboardEmpty v-if="isDashboardEmpty" />
   </div>
 </template>
 
@@ -92,6 +94,7 @@ import PieChart from './-components/PieChart'
 import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 import RankingTable from './-components/RankingTable'
+import DashboardEmpty from './-components/DashboardEmpty'
 
 import {
   getGroups,
@@ -117,7 +120,8 @@ export default defineComponent({
     PieChart,
     AccoutingOperationsTable,
     MonthlyAccountingTable,
-    RankingTable
+    RankingTable,
+    DashboardEmpty
   },
 
   setup() {
@@ -149,6 +153,7 @@ export default defineComponent({
     const bankBalance = ref()
 
     const dashboardBlocks = computed(() => store.state.dashboard.blocks)
+    const isDashboardEmpty = ref(false)
 
     const setBlocksActive = () => {
       const isAdmin = store.state.auth?.authProfile?.isAdmin || false
@@ -178,6 +183,9 @@ export default defineComponent({
           isActive: groupIdAccess.length > 0
         }
       })
+
+      // check dashboard is empty
+      isDashboardEmpty.value = blockList.value.every((block) => !block.isActive)
     }
 
     const generateOrderList = () => {
@@ -375,6 +383,7 @@ export default defineComponent({
       rankingData,
       bankBalance,
       isSpiningRanking,
+      isDashboardEmpty,
 
       swapBlockOrder,
       fetchPendingDeposits,
@@ -398,6 +407,7 @@ export default defineComponent({
   @include flexbox(null, null);
   flex-direction: column;
   margin-top: -40px;
+  height: 100%;
 
   &__block {
     margin-top: 64px;

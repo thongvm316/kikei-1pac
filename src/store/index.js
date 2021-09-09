@@ -9,6 +9,7 @@ import accounting from './accounting'
 import dashboard from './dashboard'
 import account from './account'
 
+// NOTE: clear all state or module state when logout
 const state = {}
 
 const getters = {}
