@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
@@ -86,10 +86,8 @@ export default defineComponent({
 
     watch(
       () => locale.value,
-      (locale) => {
-        locale === 'en'
-          ? verifyErrors(tmpErrors.value, 'The password is in correct')
-          : verifyErrors(tmpErrors.value, 'パスワードが正しくありません')
+      () => {
+        verifyErrors(tmpErrors.value, t('change_password.password_wrong'))
       }
     )
 
@@ -111,9 +109,7 @@ export default defineComponent({
     const checkErrorsApi = (err) => {
       tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      locale.value === 'en'
-        ? verifyErrors(tmpErrors.value, 'The password is in correct')
-        : verifyErrors(tmpErrors.value, 'パスワードが正しくありません')
+      verifyErrors(tmpErrors.value, t('change_password.password_wrong'))
     }
 
     const verifyErrors = (errors, msg) => {

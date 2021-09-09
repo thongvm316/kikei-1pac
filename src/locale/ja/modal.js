@@ -66,6 +66,6 @@ export default {
   error_email: '新しいメールアドレス',
   error_password: '現在パスワード',
   error_name_profile: '「氏名」',
-  check_password: '登録されたパスワードと異なります 1',
-  check_email: 'trùng rồi 3'
+  check_password: '登録されたパスワードと異なります',
+  check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。'
 }

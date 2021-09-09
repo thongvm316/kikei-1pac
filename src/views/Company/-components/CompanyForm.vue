@@ -41,7 +41,7 @@
 
       <!-- Company code -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.code" name="company_code_project">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.code" name="company_code_project">
           <div class="form-content">
             <label class="form-label">{{ $t('company.company_code_project') }}</label>
             <div class="form-input">
@@ -49,6 +49,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -64,7 +65,7 @@
 
       <!-- Slack code -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.slack_code" name="company_slack_code">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.slack_code" name="company_slack_code">
           <div class="form-content">
             <label class="form-label">{{ $t('company.company_slack_code') }}</label>
             <div class="form-input">
@@ -72,6 +73,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->

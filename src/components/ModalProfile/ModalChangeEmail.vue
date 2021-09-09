@@ -106,9 +106,18 @@ export default defineComponent({
       email: t('modal.check_email')
     })
 
+    const tmpErrors = ref()
+
     watch(isShowModal, (value) => {
       open.value = value
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       open.value = false
@@ -134,11 +143,20 @@ export default defineComponent({
     })
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
-        locale.value === 'en' ? `${chnageEmailEnums.value[item]}` : `${chnageEmailEnums.value[item]}`
-        setFieldError(item, `${chnageEmailEnums.value[item]}`)
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
+        if (item === 'company_code') item = 'company_code_project'
+
+        locale.value === 'en'
+          ? (errs[item] = `${chnageEmailEnums.value[item]} existed`)
+          : (errs[item] = `${chnageEmailEnums.value[item]}は存在しました`)
+
+        setFieldError(item, errs[item])
       }
     }
 

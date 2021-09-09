@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -97,6 +97,7 @@ import { useStore } from 'vuex'
 import useChangePasswordAccountService from '@/views/User/composables/useChangePassAccountService'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 const StorageService = Services.get('StorageService')
 
@@ -115,6 +116,15 @@ export default defineComponent({
       new_password: '',
       confirm_password: ''
     })
+
+    const tmpErrors = ref()
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value, t('user.password_wrong'))
+      }
+    )
 
     const handleCancel = () => {
       router.go(-1)
@@ -149,11 +159,14 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      for (let item in err.response.data.errors) {
-        locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The current password is incorrect')
-          : (err.response.data.errors[item] = '現在のパスワードが間違っています')
-        setFieldError(item, err.response.data.errors[item])
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
+
+      verifyErrors(tmpErrors.value, t('user.password_wrong'))
+    }
+
+    const verifyErrors = (errors, msg) => {
+      for (let item in errors) {
+        setFieldError(item, msg)
       }
     }
 

@@ -17,5 +17,6 @@ export default {
   handle_dashboard: 'ダッシュボードへ行く',
   handle_login: 'ログインへ行く',
   title_verified: 'このメールアドレスは既に登録されています。',
-  desc_verified: '登録されているアカウントにログインするか、さらにサポートが必要な場合は管理者に連絡してください。'
+  desc_verified: '登録されているアカウントにログインするか、さらにサポートが必要な場合は管理者に連絡してください。',
+  password_wrong: '現在のパスワードが間違っています'
 }

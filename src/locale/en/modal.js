@@ -65,5 +65,5 @@ export default {
   error_password: 'Current password',
   error_name_profile: 'Name profile',
   check_password: 'The password is different from the registered password',
-  check_email: 'trùng rồi 3'
+  check_email: 'You used this email recently. Please set a different one.'
 }

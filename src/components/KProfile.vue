@@ -9,7 +9,12 @@
       </template>
     </a-button>
 
-    <modal-profile v-model:visible="isShow" :is-show="isShow" :data-profile="dataProfile" />
+    <modal-profile
+      v-model:visible="isShow"
+      :is-show="isShow"
+      :data-profile="dataProfile"
+      @is-submit="handleSubmitFromModal($event)"
+    />
 
     <template #content>
       <a-menu mode="inline">
@@ -146,8 +151,7 @@ export default defineComponent({
       await router.push({ name: 'login' })
     }
 
-    onMounted(async () => {
-      await swapCurrencyList()
+    const fetchData = async () => {
       try {
         const { profileDetail } = useGetProfileDetailService()
         const { result } = await profileDetail()
@@ -156,6 +160,15 @@ export default defineComponent({
       } catch (e) {
         console.log(e)
       }
+    }
+
+    const handleSubmitFromModal = async (e) => {
+      if (e) await fetchData()
+    }
+
+    onMounted(async () => {
+      await swapCurrencyList()
+      await fetchData()
     })
 
     watch(currencyActive, () => {
@@ -172,6 +185,7 @@ export default defineComponent({
       isShow,
       dataProfile,
       image,
+      handleSubmitFromModal,
       handleShowModalProfile,
       handleLogout,
       changeCurrencyActive

@@ -29,12 +29,7 @@
 
           <!--Confirm  Password -->
           <div class="form-group">
-            <Field
-              v-slot="{ field, handleChange }"
-              v-model="form.confirm_password"
-              name="password"
-              rules="input_required"
-            >
+            <Field v-slot="{ field, handleChange }" v-model="form.confirm_password" name="password">
               <div class="form-content">
                 <label class="form-label required">{{ $t('activate_password.confirm_password') }}</label>
 
@@ -147,10 +142,8 @@ export default defineComponent({
 
     watch(
       () => locale.value,
-      (locale) => {
-        locale === 'en'
-          ? verifyErrors(tmpErrors.value, 'You used this password recently. Please set a different one.')
-          : verifyErrors(tmpErrors.value, 'このパスワードは最近使用されています。別のパスワードを指定してください。')
+      () => {
+        verifyErrors(tmpErrors.value, t('activate_password.conflict_password'))
       }
     )
 
@@ -184,9 +177,7 @@ export default defineComponent({
     const checkErrorsApi = (err) => {
       tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      locale.value === 'en'
-        ? verifyErrors(tmpErrors.value, 'You used this password recently. Please set a different one.')
-        : verifyErrors(tmpErrors.value, 'このパスワードは最近使用されています。別のパスワードを指定してください。')
+      verifyErrors(tmpErrors.value, t('activate_password.conflict_password'))
     }
 
     const verifyErrors = (errors, msg) => {

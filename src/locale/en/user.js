@@ -17,5 +17,6 @@ export default {
   handle_dashboard: 'Go to dashboard',
   handle_login: 'Go to Login',
   title_verified: 'This email address has already been registered.',
-  desc_verified: 'Log in to the registered account, or contact the Administrator if you need further support.'
+  desc_verified: 'Log in to the registered account, or contact the Administrator if you need further support.',
+  password_wrong: 'The current password is incorrect'
 }
