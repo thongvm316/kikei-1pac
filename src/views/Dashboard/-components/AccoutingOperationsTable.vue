@@ -66,8 +66,16 @@ export default defineComponent({
           key: item?.groupId,
           align: 'right',
           ellipsis: true,
+          width: 350,
           slots: { customRender: 'renderGroup' }
         })
+      })
+
+      // add end column is empty
+      headerList.push({
+        title: '',
+        dataIndex: 'empty-space',
+        key: 'empty-space'
       })
 
       return headerList

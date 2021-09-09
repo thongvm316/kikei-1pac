@@ -116,6 +116,7 @@ export default defineComponent({
       store.commit('financing/CLEAR_FINANCING_FILTER')
       store.commit('flash/CLEAR_FLASH_MESSAGE')
       store.commit('project/CLEAR_PROJECT_FILTER')
+      store.commit('account/CLEAR_ACCOUNT_PERMISSIONS')
 
       await router.push({ name: 'login' })
     }
