@@ -33,8 +33,9 @@ export default defineComponent({
   },
 
   setup() {
-    const locales = ref({ en: localeEn, ja: localeJa })
     const { locale } = useI18n()
+
+    const locales = ref({ en: localeEn, ja: localeJa })
     const isCollapse = ref()
 
     const onCollapseSideBar = (isCollapseEmit) => {

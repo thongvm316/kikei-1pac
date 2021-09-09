@@ -33,6 +33,7 @@ export default {
   all_group: 'グループ全体',
   registration_settings: '登録設定',
   empty_text_table: '該当するアカウントが見つかりませんでした。',
+  content: '内容は存在しました。',
 
   csv: {
     all_group: 'グループ'

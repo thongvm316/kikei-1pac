@@ -8,8 +8,9 @@ import financing from './financing'
 import accounting from './accounting'
 import dashboard from './dashboard'
 import account from './account'
+import loading from './loading'
+import token from './token'
 
-// NOTE: clear all state or module state when logout
 const state = {}
 
 const getters = {}
@@ -28,7 +29,9 @@ const store = createStore({
     financing,
     accounting,
     dashboard,
-    account
+    account,
+    loading,
+    token
   },
   state,
   getters,

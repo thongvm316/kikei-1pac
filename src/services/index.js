@@ -17,6 +17,7 @@ import CurrencyService from './currency'
 import ChartService from './chart'
 import DashboardService from './dashboard'
 import PermissionService from './permission'
+import ProfileService from './profile'
 
 const repositories = {
   StorageService,
@@ -37,7 +38,8 @@ const repositories = {
   CurrencyService,
   ChartService,
   DashboardService,
-  PermissionService
+  PermissionService,
+  ProfileService
 }
 
 export default {

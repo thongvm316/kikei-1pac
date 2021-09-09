@@ -121,7 +121,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -161,11 +161,20 @@ export default defineComponent({
       category_name: t('category.error_category_name')
     })
 
+    const tmpErrors = ref()
+
     onMounted(() => {
       if ('id' in route.params && route.name === 'category-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       router.push({ name: 'category', params: route.params, query: route.query })
@@ -214,13 +223,20 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
+        if (item === 'company_code') item = 'company_code_project'
+
         locale.value === 'en'
-          ? (err.response.data.errors[item] = `${categoryEnums.value[item]} existed`)
-          : (err.response.data.errors[item] = `${categoryEnums.value[item]}が存在しました`)
-        setFieldError(item, err.response.data.errors[item])
+          ? (errs[item] = `${categoryEnums.value[item]} existed`)
+          : (errs[item] = `${categoryEnums.value[item]}は存在しました`)
+
+        setFieldError(item, errs[item])
       }
     }
 

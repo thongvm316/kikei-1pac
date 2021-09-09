@@ -167,6 +167,7 @@ import useCreateAccountService from '@/views/SettingAccount/composables/useCreat
 import { getGroups } from '../composables/useGroupService'
 import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'AccountForm',
@@ -201,6 +202,8 @@ export default defineComponent({
       isAdmin: false,
       groupPermissions: []
     })
+
+    const tmpErrors = ref()
 
     const createPermissionDefault = () => {
       const groupPermissionsDefault = []
@@ -307,6 +310,13 @@ export default defineComponent({
       }
     })
 
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value, t('account.content'))
+      }
+    )
+
     const handleCancel = () => {
       router.push({ name: 'account', params: route.params, query: route.query })
     }
@@ -395,11 +405,14 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      for (let item in err.response.data.errors) {
-        locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
-        setFieldError(item, err.response.data.errors[item])
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
+
+      verifyErrors(tmpErrors.value, t('account.content'))
+    }
+
+    const verifyErrors = (errors, msg) => {
+      for (let item in errors) {
+        setFieldError(item, msg)
       }
     }
 

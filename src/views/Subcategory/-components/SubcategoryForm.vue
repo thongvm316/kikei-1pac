@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -125,6 +125,8 @@ export default defineComponent({
       subcategory_name: t('subcategory.error_subcategory_name')
     })
 
+    const tmpErrors = ref()
+
     onMounted(() => {
       if ('id' in route.params && route.name === 'subcategory-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
@@ -133,6 +135,13 @@ export default defineComponent({
         form.value.category_name = route.params.name
       }
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       idSelected.value = {
@@ -191,13 +200,20 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
+        if (item === 'company_code') item = 'company_code_project'
+
         locale.value === 'en'
-          ? (err.response.data.errors[item] = `${subcategoryEnums.value[item]} existed`)
-          : (err.response.data.errors[item] = `${subcategoryEnums.value[item]}が存在しました`)
-        setFieldError(item, err.response.data.errors[item])
+          ? (errs[item] = `${subcategoryEnums.value[item]} existed`)
+          : (errs[item] = `${subcategoryEnums.value[item]}は存在しました`)
+
+        setFieldError(item, errs[item])
       }
     }
 
