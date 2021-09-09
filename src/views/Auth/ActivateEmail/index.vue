@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
@@ -61,7 +61,6 @@ import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/use
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import storageKeys from '@/enums/storage-keys'
 import services from '@/services'
-import jwt_decode from 'jwt-decode'
 
 const StorageService = services.get('StorageService')
 
