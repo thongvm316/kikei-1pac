@@ -10,7 +10,7 @@
       </div>
 
       <ul class="aside__menu">
-        <li v-for="navItem in navList" :key="navItem.name" class="aside__list">
+        <li v-for="navItem in navListAccess" :key="navItem.name" class="aside__list">
           <router-link
             v-if="!navItem.children"
             :to="{ name: navItem.name }"
@@ -24,7 +24,7 @@
             <a-collapse v-model:activeKey="activeKey" :bordered="false">
               <a-collapse-panel :key="navItem.name" :show-arrow="false" :force-render="true">
                 <template #extra>
-                  <li class="aside__list" @click="headerCollapseClick">
+                  <li v-if="navItem.children?.length > 0" class="aside__list" @click="headerCollapseClick">
                     <router-link v-slot="{ isActive, isExactActive }" :to="{ name: navItem.name }" custom>
                       <div
                         :class="[
@@ -64,6 +64,8 @@
 <script>
 import { defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { find } from 'lodash-es'
 
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
@@ -90,6 +92,7 @@ export default defineComponent({
 
   setup(_, { emit }) {
     const { t } = useI18n()
+    const store = useStore()
 
     const navList = [
       {
@@ -100,22 +103,26 @@ export default defineComponent({
       {
         name: 'project',
         label: t('sidebar.project'),
-        icon: 'ProjectIcon'
+        icon: 'ProjectIcon',
+        featureKey: 1
       },
       {
         name: 'deposit',
         label: t('sidebar.deposit'),
-        icon: 'DepositIcon'
+        icon: 'DepositIcon',
+        featureKey: 2
       },
       {
         name: 'financing',
         label: t('sidebar.financing'),
-        icon: 'FinancingIcon'
+        icon: 'FinancingIcon',
+        featureKey: 3
       },
       {
         name: 'accounting',
         label: t('sidebar.accounting'),
-        icon: 'AccountingIcon'
+        icon: 'AccountingIcon',
+        featureKey: 4
       },
       {
         name: 'setting',
@@ -124,23 +131,63 @@ export default defineComponent({
         children: [
           {
             name: 'company',
-            label: t('sidebar.company')
+            label: t('sidebar.company'),
+            featureKey: 5
           },
           {
             name: 'category',
-            label: t('sidebar.category')
+            label: t('sidebar.category'),
+            featureKey: 6
           },
           {
             name: 'account',
-            label: t('sidebar.account')
+            label: t('sidebar.account'),
+            featureKey: 7
           },
           {
             name: 'logs',
-            label: t('sidebar.logs')
+            label: t('sidebar.logs'),
+            featureKey: 10
           }
         ]
       }
     ]
+
+    const skipMenuList = ['dashboard']
+
+    // check page access
+    const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+    const permissionList = store.state?.account?.permissions || []
+    const navListAccess = navList
+      .filter((page) => {
+        if (isAdmin || skipMenuList.indexOf(page.name) !== -1 || (!page.featureKey && page.children)) return true
+
+        // filter page
+        const groupAccess = permissionList.filter((group) => {
+          const groupFound = find(group.permissions, { featureKey: page.featureKey })
+          return groupFound && groupFound.permissionKey !== 3
+        })
+
+        return groupAccess.length > 0
+      })
+      .map((page) => {
+        if (!page.children) return page
+
+        // filter children page
+        const children = page.children.filter((childrenPage) => {
+          const groupAccess = permissionList.filter((group) => {
+            const groupFound = find(group.permissions, { featureKey: childrenPage.featureKey })
+            return groupFound && groupFound.permissionKey !== 3
+          })
+
+          return groupAccess.length > 0
+        })
+
+        return {
+          ...page,
+          children
+        }
+      })
 
     // collapse sidebar
     const isCollapse = ref(false)
@@ -165,7 +212,7 @@ export default defineComponent({
 
     watch(isCollapse, () => {
       activeKey.value = isCollapse.value
-        ? navList.filter((item) => item.children).map((item) => item.name)
+        ? navListAccess.filter((item) => item.children).map((item) => item.name)
         : preActiveKeys.value
 
       // disable transition panel in first time
@@ -177,12 +224,12 @@ export default defineComponent({
     })
 
     return {
-      navList,
-      isCollapse,
-      toggleSideBar,
+      navListAccess,
       activeKey,
-      headerCollapseClick,
-      isShowChidrenNav
+      isCollapse,
+      isShowChidrenNav,
+      toggleSideBar,
+      headerCollapseClick
     }
   }
 })

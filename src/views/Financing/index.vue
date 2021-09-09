@@ -24,7 +24,7 @@ import { defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, 
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import moment from 'moment'
-import { remove } from 'lodash-es'
+import { remove, isArray } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 
@@ -77,7 +77,7 @@ export default defineComponent({
 
     // data for request financing
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -223,7 +223,10 @@ export default defineComponent({
       isLoadingDataTable.value = true
       // eslint-disable-next-line no-useless-catch
       try {
-        const { getLists } = useGetFinancingListService(data, params)
+        const groupId = data?.group_id || null
+        const groupIdArr = isArray(groupId) ? groupId : [groupId]
+
+        const { getLists } = useGetFinancingListService({ ...data, groupId: groupIdArr }, params)
         const { result } = await getLists()
 
         // remove(dataRowsTableFinancing.value)
@@ -291,7 +294,8 @@ export default defineComponent({
       if (filtersFinancingStore) {
         Object.assign(requestParamsData.value, filtersFinancingStore)
         // fetch data table
-        await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
+        requestParamsData.value.data.group_id &&
+          (await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params))
       }
       updateDataRequest.value = requestParamsData.value
     })

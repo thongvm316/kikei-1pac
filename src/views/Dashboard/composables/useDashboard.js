@@ -53,9 +53,9 @@ export const getRevenueBalance = async (isLoading, params) => {
   }
 }
 
-export const getRevenue = async (param) => {
+export const getRevenue = async (params) => {
   try {
-    const { data } = await DashboardService.getRevenue(param)
+    const { data } = await DashboardService.getRevenue(params)
 
     return data
   } catch (e) {
@@ -63,9 +63,9 @@ export const getRevenue = async (param) => {
   }
 }
 
-export const getBankAccountBalance = async (param) => {
+export const getBankAccountBalance = async (params) => {
   try {
-    const { data } = await DashboardService.getBankAccountBalance(param)
+    const { data } = await DashboardService.getBankAccountBalance(params)
 
     return data
   } catch (e) {

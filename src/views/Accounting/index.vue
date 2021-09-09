@@ -318,14 +318,25 @@ export default defineComponent({
       // fetch group list
       const groupsReponse = await getGroups()
       const groupList = groupsReponse.result?.data || []
-      tabListGroup.value = groupList
+
+      // get group access
+      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+      const permissionList = store.state?.account?.permissions || []
+      const groupIdAccess = permissionList
+        .filter((group) => {
+          const groupFound = find(group.permissions, { featureKey: 4 })
+          return isAdmin || (groupFound && groupFound.permissionKey !== 3)
+        })
+        .map((group) => group.groupId)
+
+      tabListGroup.value = groupList.filter((group) => groupIdAccess.indexOf(group.id) !== -1)
 
       // set group active
       const filtersAccountingStore = store.state?.accounting?.filters || {}
       if (filtersAccountingStore.groupId) {
         activeKeyGroup.value = filtersAccountingStore.groupId
       } else if (groupList.length > 0) {
-        activeKeyGroup.value = groupList[0].id
+        activeKeyGroup.value = tabListGroup.value[0].id
       }
 
       fetchPeriodList()

@@ -248,7 +248,7 @@ export default defineComponent({
     const getRoutesList = () => {
       const nameRoute = route?.name || ''
       routes.value = routesList[nameRoute] || []
-      if (route?.query) {
+      if (route?.query && routes.value.length > 0) {
         routes.value[routes.value.length - 1].query = Object.keys(route.query).length ? { ...route.query } : ''
       }
     }
