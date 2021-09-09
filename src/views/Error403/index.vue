@@ -3,7 +3,7 @@
     <div class="page-403__content">
       <img src="@/assets/images/403.png" alt="403 image" />
       <h1 class="page-403__content--title">Forbidden</h1>
-      <h2 class="page-403__content--description">申し訳ありません。 このページへのアクセスを許可していません。</h2>
+      <h2 class="page-403__content--description">申し訳ありません。このページへのアクセスを許可していません。</h2>
       <router-link to="/">
         <a-button type="primary" size="large"> ダッシュボードへ行く </a-button>
       </router-link>
