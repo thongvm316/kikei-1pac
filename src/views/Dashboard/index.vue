@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard">
-    <div class="dashboard__block">
+    <div v-show="blockList[0].isActive" class="dashboard__block">
       <controller-block
-        :block-id="blockIdList[0]"
         :title="'経理業務'"
-        :group-list="groupList"
+        :block-id="blockList[0].id"
+        :group-list="blockList[0].groupListAccess"
         :is-unvisible-group-tab="true"
         @on-swap-block-order="swapBlockOrder"
       >
@@ -15,40 +15,44 @@
       </controller-block>
     </div>
 
-    <div class="dashboard__block">
+    <div v-show="blockList[1].isActive" class="dashboard__block">
       <controller-block
-        :block-id="blockIdList[1]"
         :title="'今期売上見込'"
-        :group-list="groupList"
+        :block-id="blockList[1].id"
+        :group-list="blockList[1].groupListAccess"
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchSales($event)"
       >
-        <sales-table :block-id="blockIdList[1]" :is-loading-table="isLoadingTableSales" :data-source="dataTableSales" />
+        <sales-table
+          :block-id="blockList[1].id"
+          :is-loading-table="isLoadingTableSales"
+          :data-source="dataTableSales"
+        />
         <stacked-bar-sales :data-source="dataTableSales" />
       </controller-block>
     </div>
 
-    <div class="dashboard__block">
+    <div v-show="blockList[2].isActive" class="dashboard__block">
       <controller-block
-        :block-id="blockIdList[2]"
         :title="'月次簡易試算'"
-        :group-list="groupList"
+        :block-id="blockList[2].id"
+        :group-list="blockList[2].groupListAccess"
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchMonthlyAccounting($event)"
       >
         <monthly-accounting-table
-          :block-id="blockIdList[2]"
+          :block-id="blockList[2].id"
           :is-loading-table="isLoadingMonthlyAccounting"
           :data-source="dataTableMonthly"
         />
       </controller-block>
     </div>
 
-    <div class="dashboard__block">
+    <div v-show="blockList[3].isActive" class="dashboard__block">
       <controller-block
-        :block-id="blockIdList[3]"
         :title="'銀行残高推移'"
-        :group-list="groupList"
+        :block-id="blockList[3].id"
+        :group-list="blockList[3].groupListAccess"
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchBankAccountBalance($event)"
       >
@@ -56,11 +60,11 @@
       </controller-block>
     </div>
 
-    <div class="dashboard__block">
+    <div v-show="blockList[4].isActive" class="dashboard__block">
       <controller-block
-        :block-id="blockIdList[4]"
         :title="'今期顧客別売上'"
-        :group-list="groupList"
+        :block-id="blockList[4].id"
+        :group-list="blockList[4].groupListAccess"
         @on-swap-block-order="swapBlockOrder"
         @on-change-group="fetchRaking($event)"
       >
@@ -72,12 +76,14 @@
         </a-spin>
       </controller-block>
     </div>
+
+    <DashboardEmpty v-if="isDashboardEmpty" />
   </div>
 </template>
 
 <script>
 import { defineComponent, ref, onBeforeMount, computed, nextTick } from 'vue'
-import { findIndex, find } from 'lodash-es'
+import { findIndex, find, cloneDeep } from 'lodash-es'
 import { useStore } from 'vuex'
 
 import ControllerBlock from './-components/ControllerBlock'
@@ -88,6 +94,7 @@ import PieChart from './-components/PieChart'
 import AccoutingOperationsTable from './-components/AccoutingOperationsTable'
 import MonthlyAccountingTable from './-components/MonthlyAccountingTable'
 import RankingTable from './-components/RankingTable'
+import DashboardEmpty from './-components/DashboardEmpty'
 
 import {
   getGroups,
@@ -97,7 +104,7 @@ import {
   getRevenueBalance,
   getBankAccountBalance
 } from './composables/useDashboard'
-import { ORDER_UP, ORDER_DOWN } from '@/enums/dashboard.enum'
+import { ORDER_UP, ORDER_DOWN, BLOCK_FEATURE_KEY_LIST } from '@/enums/dashboard.enum'
 import services from '@/services'
 import storageKeys from '@/enums/storage-keys'
 import { deepCopy } from '@/helpers/json-parser'
@@ -113,7 +120,8 @@ export default defineComponent({
     PieChart,
     AccoutingOperationsTable,
     MonthlyAccountingTable,
-    RankingTable
+    RankingTable,
+    DashboardEmpty
   },
 
   setup() {
@@ -122,10 +130,11 @@ export default defineComponent({
 
     // table order
     const blockListEl = ref()
-    const blockIdList = ref([])
+    const blockList = ref(cloneDeep(BLOCK_FEATURE_KEY_LIST))
     const groupIdDefault = ref(0)
 
     // group tabs
+    const TAB_GROUP_ALL_ID = 0
     const groupList = ref([])
 
     //tables
@@ -138,13 +147,46 @@ export default defineComponent({
 
     // revenue
     const rankingData = ref()
-
     const isSpiningRanking = ref()
 
     // bank balance
     const bankBalance = ref()
 
     const dashboardBlocks = computed(() => store.state.dashboard.blocks)
+    const isDashboardEmpty = ref(false)
+
+    const setBlocksActive = () => {
+      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+      const permissionList = store.state?.account?.permissions || []
+
+      blockList.value = blockList.value.map((block) => {
+        if (isAdmin) {
+          return {
+            ...block,
+            groupListAccess: groupList.value,
+            isActive: true
+          }
+        }
+
+        const groupIdAccess = permissionList
+          .filter((group) => {
+            const groupFound = find(group.permissions, { featureKey: block.featureKey })
+            return groupFound && groupFound.permissionKey !== 3
+          })
+          .map((group) => group.groupId)
+
+        if (groupIdAccess.length > 1) groupIdAccess.push(TAB_GROUP_ALL_ID)
+
+        return {
+          ...block,
+          groupListAccess: groupList.value.filter((group) => groupIdAccess.indexOf(group.id) !== -1),
+          isActive: groupIdAccess.length > 0
+        }
+      })
+
+      // check dashboard is empty
+      isDashboardEmpty.value = blockList.value.every((block) => !block.isActive)
+    }
 
     const generateOrderList = () => {
       blockListEl.value = document.querySelectorAll('.dashboard__block')
@@ -169,8 +211,6 @@ export default defineComponent({
         updateBlockStore(_dashboardBlocks)
       }
 
-      blockIdList.value = dashboardBlocks.value.map((_, index) => index) // needs to be the same as the id generated above
-
       setBlockOrder()
     }
 
@@ -180,9 +220,8 @@ export default defineComponent({
         currentBlockIndex !== -1 &&
         ((mode === ORDER_UP && currentBlockIndex === 0) ||
           (mode === ORDER_DOWN && currentBlockIndex + 1 === dashboardBlocks.value.length))
-      ) {
+      )
         return
-      }
 
       // block target
       let blockTargetIndex
@@ -257,7 +296,11 @@ export default defineComponent({
 
     // FETCH APIs
     const fetchPendingDeposits = async () => {
-      const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations)
+      const groupIdListAccess = blockList.value[0].groupListAccess
+        .filter((group) => group.id !== TAB_GROUP_ALL_ID)
+        .map((group) => group.id)
+      const params = { groupId: groupIdListAccess.toString() }
+      const pendingDepositsReponse = await getPendingDeposits(isLoadingAccountingOperations, params)
       dataTableAccoutingOperations.value = pendingDepositsReponse?.result?.data || []
     }
 
@@ -293,13 +336,16 @@ export default defineComponent({
       const groupsReponse = await getGroups()
       const groupListData = groupsReponse?.result?.data || []
       if (groupListData.length > 1) {
-        // add item
+        // add tab group all
         groupListData.push({
-          id: 0, // default all group
+          id: TAB_GROUP_ALL_ID,
           name: 'グループ全体'
         })
       }
       groupList.value = groupListData
+
+      // get group access
+      setBlocksActive()
 
       groupIdDefault.value = groupList.value[0]?.id || 0
       if (!groupIdDefault.value) return
@@ -312,11 +358,11 @@ export default defineComponent({
         }, '')
       const params = { groupId: groupIdDefault.value > 0 ? groupIdDefault.value : allGroupId }
 
-      fetchPendingDeposits(params)
-      fetchSales(params)
-      fetchMonthlyAccounting(params)
-      fetchRaking(params)
-      fetchBankAccountBalance(params)
+      blockList.value[0]?.groupListAccess?.length !== 0 && fetchPendingDeposits(params)
+      blockList.value[1]?.groupListAccess?.length !== 0 && fetchSales(params)
+      blockList.value[2]?.groupListAccess?.length !== 0 && fetchMonthlyAccounting(params)
+      blockList.value[3]?.groupListAccess?.length !== 0 && fetchBankAccountBalance(params)
+      blockList.value[4]?.groupListAccess?.length !== 0 && fetchRaking(params)
 
       nextTick(() => {
         // DOM is updated
@@ -329,7 +375,7 @@ export default defineComponent({
       isLoadingTableSales,
       dataTableSales,
       dashboardBlocks,
-      blockIdList,
+      blockList,
       dataTableAccoutingOperations,
       isLoadingAccountingOperations,
       dataTableMonthly,
@@ -337,6 +383,7 @@ export default defineComponent({
       rankingData,
       bankBalance,
       isSpiningRanking,
+      isDashboardEmpty,
 
       swapBlockOrder,
       fetchPendingDeposits,
@@ -360,6 +407,7 @@ export default defineComponent({
   @include flexbox(null, null);
   flex-direction: column;
   margin-top: -40px;
+  height: 100%;
 
   &__block {
     margin-top: 64px;

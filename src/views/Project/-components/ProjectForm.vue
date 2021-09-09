@@ -181,30 +181,47 @@
       </p>
     </a-form-item>
     <!-- accountID -->
+    <div class="moneyWrapper">
+      <!-- money -->
+      <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
+        <a-input-number
+          v-model:value="projectParams.money"
+          placeholder="入力してください"
+          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :precision="0"
+          :style="{ width: '300px' }"
+        />
+        <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
+        <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
+          <a-button type="link" @click="isHistoryMoneyModalOpen = true">
+            <template #icon>
+              <span :style="{ height: '16px' }" class="btn-icon"><history-icon /></span>
+            </template>
+          </a-button>
+        </a-tooltip>
+        <p v-if="localErrors['money']" class="ant-form-explain">
+          {{ $t(`common.local_error.${localErrors['money']}`) }}
+        </p>
 
-    <!-- money -->
-    <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
-      <a-input-number
-        v-model:value="projectParams.money"
-        placeholder="入力してください"
-        :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :precision="0"
-        :style="{ width: '300px' }"
-      />
-      <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
-      <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
-        <a-button type="link" @click="isHistoryMoneyModalOpen = true">
-          <template #icon>
-            <span :style="{ height: '16px' }" class="btn-icon"><history-icon /></span>
-          </template>
-        </a-button>
-      </a-tooltip>
-      <p v-if="localErrors['money']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['money']}`) }}</p>
+        <!-- history money edit -->
+        <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
+      </a-form-item>
+      <!-- money -->
 
-      <!-- history money edit -->
-      <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
-    </a-form-item>
-    <!-- money -->
+      <!-- tax -->
+      <a-form-item name="tax" label="税金">
+        <a-input-number
+          v-model:value="projectParams.tax"
+          :precision="0"
+          :style="{ width: '68px' }"
+          :min="0"
+          :max="100"
+        />
+
+        <span class="u-ml-8 u-text-grey-75">%</span>
+      </a-form-item>
+      <!-- tax -->
+    </div>
 
     <!-- projectOrders -->
     <a-form-item name="adProjectOrders" label="外注">
@@ -355,7 +372,10 @@ export default defineComponent({
   },
 
   props: {
-    project: Object,
+    project: {
+      type: Object,
+      required: true
+    },
     edit: Boolean
   },
 
@@ -384,7 +404,8 @@ export default defineComponent({
       money: 0,
       tags: [],
       memo: '',
-      adProjectOrders: []
+      adProjectOrders: [],
+      tax: 0
     })
     const localErrors = ref({})
     const loading = ref(false)
@@ -865,5 +886,10 @@ export default defineComponent({
     color: $color-grey-100;
     background-color: $color-grey-35;
   }
+}
+
+.moneyWrapper {
+  display: flex;
+  gap: 32px;
 }
 </style>

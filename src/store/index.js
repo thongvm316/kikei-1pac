@@ -10,6 +10,7 @@ import dashboard from './dashboard'
 import account from './account'
 import loading from './loading'
 
+// NOTE: clear all state or module state when logout
 const state = {}
 
 const getters = {}

@@ -1,12 +1,11 @@
 <template>
-  <div class="page-404">
-    <div class="page-404__content">
-      <img src="@/assets/images/404.png" alt="404 image" />
-      <h1 class="page-404__content--title">Page not found.</h1>
-      <h2 class="page-404__content--description">申し訳ございませんが、お探しのページが見つかりません。</h2>
-      <router-link to="/">
-        <a-button type="primary" size="large"> ダッシュボードへ行く </a-button>
-      </router-link>
+  <div class="dashboard-empty">
+    <div class="dashboard-empty__content">
+      <img src="@/assets/images/ooops.png" alt="ooops image" />
+      <h1 class="dashboard-empty__content--title">データは表示されません。</h1>
+      <h2 class="dashboard-empty__content--description">
+        申し訳ありませんが、リクエストしたデータは表示されていません。
+      </h2>
     </div>
   </div>
 </template>
@@ -23,19 +22,19 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-.page-404 {
+.dashboard-empty {
   @include flexbox(center, flex-start);
-  background-color: $color-grey-96;
-  height: 100vh;
+  height: 100%;
+  margin-top: 40px;
 
   &__content {
-    @include flexbox(center, center);
+    @include flexbox(flex-start, center);
     flex-direction: column;
-    background-color: $color-grey-100;
+    background-color: $color-grey-96;
     width: 100%;
     max-width: 936px;
-    height: 490px;
-    margin-top: 40px;
+    height: 100%;
+    padding-top: 40px;
 
     &--title {
       font-size: 20px;

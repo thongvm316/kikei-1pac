@@ -116,7 +116,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { isEmpty, remove } from 'lodash-es'
+import { isEmpty, remove, isArray, find } from 'lodash-es'
 
 import useGetGroupListService from '@/views/FinancingChart/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/FinancingChart/composables/useGetPeriodListService'
@@ -161,7 +161,7 @@ export default defineComponent({
 
     // data for request financing
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -295,9 +295,11 @@ export default defineComponent({
       filter.show_by = value !== 0 ? requestParamsData.value.data.show_by : 0
       filter.bank_account_ids = bankAccountList?.value[0]?.id
 
+      const allGroupIdList = groupList.value.filter((group) => group.id !== initialGroup.id).map((group) => group.id)
+
       updateParamRequestFinancing({
         data: {
-          group_id: value !== 0 ? value : null,
+          group_id: value !== 0 ? value : allGroupIdList,
           show_by: filter.show_by,
           bank_account_ids: []
         }
@@ -352,9 +354,30 @@ export default defineComponent({
     const fetchGroupList = async () => {
       const { getGroups } = useGetGroupListService()
       const { result } = await getGroups()
+      const groupsData = result?.data || []
 
-      groupList.value = result?.data
-      groupList.value.push(initialGroup)
+      // get group access
+      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+      const permissionList = store.state?.account?.permissions || []
+      const groupIdAccess = permissionList
+        .filter((group) => {
+          const groupFound = find(group.permissions, { featureKey: 3 })
+          return isAdmin || (groupFound && groupFound.permissionKey !== 3)
+        })
+        .map((group) => group.groupId)
+
+      groupList.value = groupsData.filter((group) => groupIdAccess.indexOf(group.id) !== -1)
+      if (groupList.value.length > 1 && groupList.value.length === groupsData.length) {
+        groupList.value.push(initialGroup)
+      }
+
+      if (groupList.value.length > 0) {
+        updateParamRequestFinancing({
+          data: {
+            group_id: groupList.value[0].id
+          }
+        })
+      }
     }
 
     // Fetch data period
@@ -386,7 +409,11 @@ export default defineComponent({
       isLoadingDataChart.value = true
       // eslint-disable-next-line no-useless-catch
       try {
-        const { getDataChart } = useGetDataChartService(data, params)
+        // convert groupId to array
+        const groupId = data?.group_id || null
+        const groupIdArr = isArray(groupId) ? groupId : [groupId]
+
+        const { getDataChart } = useGetDataChartService({ ...data, groupId: groupIdArr }, params)
         const { result } = await getDataChart()
 
         remove(dataChartFinancing.value)
@@ -456,8 +483,13 @@ export default defineComponent({
             ? currencyDefault?.code
             : requestParamsData.value.data.currency_code
 
+        // convert groupId to array
+        const groupId = requestParamsData.value?.data?.group_id || null
+        const groupIdArr = isArray(groupId) ? groupId : [groupId]
+
         requestParamsData.value.data = {
           ...requestParamsData.value.data,
+          group_id: groupIdArr,
           currency_code: filter.currency_code,
           bank_account_ids: filter.bank_account_ids !== 0 ? filter.bank_account_ids : [],
           period_id: filter.period_id,
@@ -487,8 +519,14 @@ export default defineComponent({
       filter.period_id = null
       filter.date_from_to[0] = currentDate()
       filter.date_from_to[1] = addDaysInCurrentDate(null, 59)
+
+      // convert groupId to array
+      const groupId = requestParamsData.value?.data?.group_id || null
+      const groupIdArr = isArray(groupId) ? groupId : [groupId]
+
       requestParamsData.value.data = {
         ...requestParamsData.value.data,
+        group_id: groupIdArr,
         period_id: filter.period_id,
         from_date: filter.date_from_to[0],
         to_date: filter.date_from_to[1]

@@ -121,7 +121,7 @@
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
-import { isEmpty, remove } from 'lodash-es'
+import { isEmpty, remove, find } from 'lodash-es'
 import { useRouter } from 'vue-router'
 import moment from 'moment'
 
@@ -202,7 +202,7 @@ export default {
     const filter = reactive({ ...initialStateFilter })
 
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -302,7 +302,8 @@ export default {
         isDisabledBank.value = true
         isDisabledCurrency.value = false
 
-        updateDataFilterRequest({ data: { group_id: null } })
+        const allGroupIdList = groupList.value.filter((group) => group.id !== initialGroup.id).map((group) => group.id)
+        updateDataFilterRequest({ data: { group_id: allGroupIdList } })
       }
 
       updateDataFilterRequest({
@@ -343,9 +344,30 @@ export default {
     const fetchGroupList = async () => {
       const { getGroups } = useGetGroupListService()
       const { result } = await getGroups()
+      const groupsData = result?.data || []
 
-      groupList.value = result?.data
-      groupList.value.push(initialGroup)
+      // get group access
+      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+      const permissionList = store.state?.account?.permissions || []
+      const groupIdAccess = permissionList
+        .filter((group) => {
+          const groupFound = find(group.permissions, { featureKey: 3 })
+          return isAdmin || (groupFound && groupFound.permissionKey !== 3)
+        })
+        .map((group) => group.groupId)
+
+      groupList.value = groupsData.filter((group) => groupIdAccess.indexOf(group.id) !== -1)
+      if (groupList.value.length > 1 && groupList.value.length === groupsData.length) {
+        groupList.value.push(initialGroup)
+      }
+
+      if (groupList.value.length > 0) {
+        updateDataFilterRequest({
+          data: {
+            group_id: groupList.value[0].id
+          }
+        })
+      }
     }
 
     // Fetch data period
@@ -377,7 +399,7 @@ export default {
     const handleGroupDefault = async (groupID) => {
       if (!groupID) {
         await fetchPeriodList(1)
-        await fetchBankAccounts({ group_id: 1 })
+        await fetchBankAccounts({ group_id: groupList.value[0].id })
 
         filter.group_id = groupList?.value[groupList.value.length - 1].id
         isDisabledDisplay.value = true

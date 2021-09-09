@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import CloseIcon from '@/assets/icons/ico_close.svg'
 
 export default defineComponent({
@@ -28,19 +28,21 @@ export default defineComponent({
   },
 
   props: {
-    project: Object,
+    project: {
+      type: Object,
+      required: true
+    },
     visible: Boolean
   },
 
-  setup(props, { emit }) {
-    const visible = computed(() => props.visible)
+  emits: ['update:visible'],
 
+  setup(_, { emit }) {
     const handleCancel = () => {
       emit('update:visible', false)
     }
 
     return {
-      visible,
       handleCancel
     }
   }
@@ -53,7 +55,7 @@ export default defineComponent({
 
 .money-history {
   @include y-centered();
-  left: calc(100% + 97px);
+  left: calc(100% + 158px);
   width: 390px;
   box-shadow: 0px 8px 16px 0px #3232470f;
   box-shadow: 0px 8px 8px 0px #32324714;

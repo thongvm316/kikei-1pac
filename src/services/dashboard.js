@@ -5,8 +5,8 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getPendingDeposits() {
-    return apiCaller({ method: 'GET', url: '/group/pendingdeposits' })
+  getPendingDeposits(params) {
+    return apiCaller({ method: 'GET', url: '/group/pendingdeposits', params })
   },
 
   getRevenue(params) {

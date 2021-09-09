@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { find } from 'lodash-es'
 import store from '@/store'
 import Services from '@/services'
 import storageKeys from '@/enums/storage-keys'
@@ -6,6 +7,7 @@ import { ActivateAccountGuard, RelateActivateAccountGuard } from '@/router/guard
 import { ActivateEmailGuard, RelateActivateEmailGuard } from '@/router/guards/ActivateEmail'
 import { ActivatePasswordGuard, RelateActivatePasswordGuard } from '@/router/guards/ActivatePassword'
 import { ResolveGuard } from '@/router/guards/ResolveGuard'
+import { PAGE_PERMISSIONS } from '@/enums/account.enum'
 
 const StorageService = Services.get('StorageService')
 const SettingAccountService = Services.get('SettingAccountService')
@@ -191,17 +193,22 @@ const routes = [
       },
 
       {
-        path: '/financing/table',
-        name: 'financing',
-        component: lazyLoadRoute('Financing'),
-        meta: { title: `Financing Report | ${APP_NAME}` }
-      },
-
-      {
-        path: '/financing/chart',
-        name: 'financing-chart',
-        component: lazyLoadRoute('FinancingChart'),
-        meta: { title: `Financing Report | ${APP_NAME}` }
+        path: '/financing',
+        component: lazyLoadRoute('Base'),
+        meta: { title: `Financing Report  | ${APP_NAME}` },
+        children: [
+          {
+            path: '',
+            name: 'financing',
+            component: lazyLoadRoute('Financing')
+          },
+          {
+            path: 'chart',
+            name: 'financing-chart',
+            component: lazyLoadRoute('FinancingChart'),
+            meta: { title: `Financing Report | ${APP_NAME}` }
+          }
+        ]
       },
 
       {
@@ -332,10 +339,17 @@ const routes = [
   },
 
   {
+    path: '/403',
+    name: 'error-403',
+    component: lazyLoadRoute('Error403'),
+    meta: { title: `403 Forbidden | ${APP_NAME}` }
+  },
+
+  {
     path: '/404',
     name: 'error-404',
     component: lazyLoadRoute('Error404'),
-    meta: { title: '404 Page not found' }
+    meta: { title: `404 Page not found | ${APP_NAME}` }
   },
 
   {
@@ -374,18 +388,42 @@ router.beforeEach(async (to, _, next) => {
   const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
   // eslint-disable-next-line no-extra-boolean-cast
   if (!!authProfile) {
+    let permissionList = store.state?.account?.permissions
+    if (!permissionList) {
+      const permissionResponse = await SettingAccountService.getPermissionAccount()
+      permissionList = permissionResponse?.data?.result?.data || []
+      store.commit('account/STORE_ACCOUNT_PERMISSIONS', permissionList)
+    }
+
     // store data to state if need
     if (!store.state.auth.authProfile) {
       store.commit('auth/STORE_AUTH_PROFILE', authProfile)
-
-      // get permissions account
-      const permissionResponse = await SettingAccountService.getPermissionAccount()
-      const permissionData = permissionResponse?.data?.result?.data || []
-      store.commit('account/STORE_ACCOUNT_PERMISSIONS', permissionData)
     }
+
+    let isPageAccess = true
+    let isPageAccessFound = false
+    to.matched.forEach((item) => {
+      if (isPageAccessFound) return
+
+      const pageFound = find(PAGE_PERMISSIONS, { path: item.path })
+      if (!pageFound) return
+      isPageAccess = false
+
+      permissionList.forEach((group) => {
+        if (isPageAccessFound && isPageAccess) return
+
+        const groupFound = find(group.permissions, { featureKey: pageFound.value })
+        if (groupFound) {
+          isPageAccess = groupFound.permissionKey !== 3
+          isPageAccessFound = true
+        }
+      })
+    })
 
     if (isRouteFree) {
       next('/')
+    } else if (!isPageAccess) {
+      next('/403')
     } else {
       next()
     }
