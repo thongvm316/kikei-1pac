@@ -4,7 +4,7 @@
       <div class="change-password__form-wrapper">
         <a-typography-title>{{ $t('change_password.title') }}</a-typography-title>
         <p class="change-password__desc">
-          {{ $t('change_password.changed_login') }} <span class="change-password__mail">{{ decoded.new_email }}</span
+          {{ $t('change_password.changed_login') }} <span class="change-password__mail">{{ jwtToken.new_email }}</span
           >{{ $t('change_password.desc') }}
         </p>
         <!-- Form -->
@@ -51,16 +51,17 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, ref, watch } from 'vue'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-import jwt_decode from 'jwt-decode'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/useUpdateNewEmailService'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import storageKeys from '@/enums/storage-keys'
 import services from '@/services'
+import jwt_decode from 'jwt-decode'
 
 const StorageService = services.get('StorageService')
 
@@ -75,14 +76,12 @@ export default defineComponent({
 
     const route = useRoute()
     const router = useRouter()
-    const decoded = ref({})
+    const store = useStore()
     const tmpErrors = ref()
 
     let form = ref({ new_password: '' })
 
-    onMounted(() => {
-      decoded.value = jwt_decode(route.query.token)
-    })
+    const jwtToken = computed(() => store.state.token.jwtToken)
 
     watch(
       () => locale.value,
@@ -124,7 +123,7 @@ export default defineComponent({
 
     return {
       form,
-      decoded,
+      jwtToken,
       onSubmit,
       replaceField
     }

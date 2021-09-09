@@ -37,3 +37,6 @@ export const CLEAR_ACCOUNT_PERMISSIONS = 'CLEAR_ACCOUNT_PERMISSIONS'
 
 // loading
 export const STORE_FLASH_LOADING = 'STORE_FLASH_LOADING'
+
+// jwt token
+export const STORE_JWT_TOKEN = 'STORE_JWT_TOKEN'
