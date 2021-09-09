@@ -264,7 +264,7 @@ export default defineComponent({
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'success',
           duration: 5,
-          message: locale.value === 'en' ? 'Success EN' : 'Success JP'
+          message: locale.value === 'en' ? 'Profile editing successful' : 'プロフィルの編集が成功されました'
         })
 
         context.emit('is-submit', true)
