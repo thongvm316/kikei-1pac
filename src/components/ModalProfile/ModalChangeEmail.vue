@@ -17,7 +17,6 @@
                       :value="field.value"
                       :placeholder="$t('modal.please_enter_email')"
                       size="large"
-                      autofocus
                       class="name_profile"
                       @change="handleChange"
                     />
@@ -102,6 +101,11 @@ export default defineComponent({
     const openSaveEmail = ref(false)
     let form = ref({ email: '', password: '' })
 
+    const chnageEmailEnums = ref({
+      password: t('modal.check_password'),
+      email: t('modal.check_email')
+    })
+
     watch(isShowModal, (value) => {
       open.value = value
     })
@@ -113,7 +117,8 @@ export default defineComponent({
 
     const onSubmit = handleSubmit(async () => {
       let dataPassword = {
-        password: form.value.password
+        password: form.value.password,
+        email: form.value.email
       }
       // eslint-disable-next-line no-useless-catch
       try {
@@ -132,11 +137,8 @@ export default defineComponent({
       err.response.data.errors = camelToSnakeCase(err.response.data.errors)
 
       for (let item in err.response.data.errors) {
-        locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The password is different from the registered password')
-          : (err.response.data.errors[item] = '登録されたパスワードと異なります')
-
-        setFieldError(item, err.response.data.errors[item])
+        locale.value === 'en' ? `${chnageEmailEnums.value[item]}` : `${chnageEmailEnums.value[item]}`
+        setFieldError(item, `${chnageEmailEnums.value[item]}`)
       }
     }
 

@@ -1,7 +1,12 @@
 <template>
   <a-popover v-model:visible="visible" trigger="click" placement="bottomRight" overlay-class-name="k-profile">
     <a-button :class="['k-profile__btn-user', visible && 'is-active']">
-      <user-icon />
+      <template v-if="image">
+        <div id="imagePreview-avatar" :style="{ backgroundImage: `url(${image})` }"></div>
+      </template>
+      <template v-else>
+        <user-icon />
+      </template>
     </a-button>
 
     <modal-profile v-model:visible="isShow" :is-show="isShow" :data-profile="dataProfile" />
@@ -76,6 +81,7 @@ export default defineComponent({
     const store = useStore()
     const isShow = ref()
     const dataProfile = ref({})
+    const image = ref()
     // currency list
     const currencyActive = ref('jpy')
     const currencyList = ref([
@@ -140,8 +146,16 @@ export default defineComponent({
       await router.push({ name: 'login' })
     }
 
-    onMounted(() => {
-      swapCurrencyList()
+    onMounted(async () => {
+      await swapCurrencyList()
+      try {
+        const { profileDetail } = useGetProfileDetailService()
+        const { result } = await profileDetail()
+
+        image.value = result.data.avatar
+      } catch (e) {
+        console.log(e)
+      }
     })
 
     watch(currencyActive, () => {
@@ -157,6 +171,7 @@ export default defineComponent({
       currencyActive,
       isShow,
       dataProfile,
+      image,
       handleShowModalProfile,
       handleLogout,
       changeCurrencyActive
@@ -168,6 +183,14 @@ export default defineComponent({
 <style lang="scss">
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
+
+#imagePreview-avatar {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 50px;
+  height: 50px;
+}
 
 .k-profile {
   svg {

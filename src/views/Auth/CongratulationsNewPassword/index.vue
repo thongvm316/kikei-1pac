@@ -25,7 +25,9 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
-import useGetNewPasswordService from '@/views/Auth/CongratulationsNewPassword/composables/useGetNewPasswordService'
+import storageKeys from '@/enums/storage-keys'
+import services from '@/services'
+const StorageService = services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -43,8 +45,7 @@ export default defineComponent({
     })
 
     const onSubmit = async () => {
-      const { getNewPassword } = useGetNewPasswordService({ ...params.value })
-      await getNewPassword()
+      StorageService.set(storageKeys.authProfile, params.value)
       await router.push({ name: 'dashboard' })
     }
 

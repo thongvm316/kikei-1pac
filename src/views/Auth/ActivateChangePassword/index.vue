@@ -29,24 +29,36 @@
 
           <!--Confirm  Password -->
           <div class="form-group">
-            <div class="form-content">
-              <label class="form-label required">{{ $t('activate_password.confirm_password') }}</label>
+            <Field
+              v-slot="{ field, handleChange }"
+              v-model="form.confirm_password"
+              name="password"
+              rules="input_required"
+            >
+              <div class="form-content">
+                <label class="form-label required">{{ $t('activate_password.confirm_password') }}</label>
 
-              <div>
-                <a-input
-                  v-model:value="form.confirm_password"
-                  :type="checked ? 'text' : 'password'"
-                  :class="message !== '' ? 'border-invalid' : ''"
-                  :placeholder="$t('activate_password.please_enter')"
-                  size="large"
-                  class="confirm_password"
-                />
-                <!-- Error message -->
-                <span v-if="message" class="errors">
-                  {{ $t(`set_password.${message}`) }}
-                </span>
+                <div class="form-input">
+                  <a-input
+                    :value="field.value"
+                    :type="checked ? 'text' : 'password'"
+                    :class="message !== '' ? 'border-invalid' : ''"
+                    :placeholder="$t('activate_password.please_enter')"
+                    size="large"
+                    class="confirm_password"
+                    @change="handleChange"
+                  />
+                  <!-- Error message -->
+                  <span v-if="message" class="errors">
+                    {{ $t(`set_password.${message}`) }}
+                  </span>
+                  <!-- Error message -->
+                  <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                    {{ replaceField(message, 'password') }}
+                  </ErrorMessage>
+                </div>
               </div>
-            </div>
+            </Field>
           </div>
 
           <a-checkbox v-model:checked="checked">{{ $t('activate_password.show_pass') }}</a-checkbox>
@@ -93,6 +105,9 @@ import { cloneDeep, values, every } from 'lodash-es'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
 import jwt_decode from 'jwt-decode'
+import useCheckPasswordService from '@/views/Auth/ActivateChangePassword/composables/useCheckPasswordService'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { useForm } from 'vee-validate'
 
 // eslint-disable-next-line no-unused-vars
 const VALIDATE = ['min', 'lower', 'upper', 'number', 'special']
@@ -103,9 +118,10 @@ export default defineComponent({
   components: { ChangeLanguage },
 
   setup() {
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const router = useRouter()
     const route = useRoute()
+    const { setFieldError } = useForm()
 
     let form = ref({ new_password: '', confirm_password: '' })
     const checked = ref(true)
@@ -145,7 +161,26 @@ export default defineComponent({
           token: route.query.token,
           password: data.confirm_password
         }
-        await router.push({ name: 'congratulations-new-password', params: { ...params } })
+        try {
+          const { getNewPassword } = useCheckPasswordService({ ...params })
+          const { result } = await getNewPassword()
+          await router.push({ name: 'congratulations-new-password', params: result.data })
+        } catch (err) {
+          checkErrorsApi(err)
+        }
+      }
+    }
+
+    const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        locale.value === 'en'
+          ? (err.response.data.errors[item] = 'You used this password recently. Please set a different one.')
+          : (err.response.data.errors[item] =
+              'このパスワードは最近使用されています。別のパスワードを指定してください。')
+
+        setFieldError(item, err.response.data.errors[item])
       }
     }
 

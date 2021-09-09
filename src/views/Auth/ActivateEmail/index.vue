@@ -11,26 +11,21 @@
         <form class="change-password__form" @submit.prevent="onSubmit">
           <!--New  Password -->
           <div class="form-group">
-            <Field
-              v-slot="{ field, handleChange }"
-              v-model="form.new_password"
-              name="new_password"
-              rules="input_required"
-            >
+            <Field v-slot="{ field, handleChange }" v-model="form.new_password" name="password" rules="input_required">
               <div class="form-content">
-                <label class="form-label required">{{ $t('change_password.new_password') }}</label>
+                <label class="form-label required">{{ $t('change_password.password') }}</label>
                 <div class="form-input">
                   <a-input
                     :value="field.value"
                     type="password"
                     :placeholder="$t('change_password.please_enter')"
                     size="large"
-                    class="new_password"
+                    class="password"
                     @change="handleChange"
                   />
                   <!-- Error message -->
-                  <ErrorMessage v-slot="{ message }" as="span" name="new_password" class="errors">
-                    {{ replaceField(message, 'new_password') }}
+                  <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
+                    {{ replaceField(message, 'password') }}
                   </ErrorMessage>
                 </div>
               </div>
@@ -63,6 +58,10 @@ import { useForm } from 'vee-validate'
 import jwt_decode from 'jwt-decode'
 import { useRoute, useRouter } from 'vue-router'
 import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/useUpdateNewEmailService'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import storageKeys from '@/enums/storage-keys'
+import services from '@/services'
+const StorageService = services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -70,11 +69,11 @@ export default defineComponent({
   components: { ChangeLanguage },
 
   setup() {
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const route = useRoute()
     const router = useRouter()
 
-    const { handleSubmit } = useForm()
+    const { setFieldError } = useForm()
 
     const decoded = ref({})
 
@@ -85,15 +84,32 @@ export default defineComponent({
       decoded.value = dataToken
     })
 
-    const onSubmit = handleSubmit(async () => {
+    const onSubmit = async () => {
       const params = {
         token: route.query.token,
         password: form.value.new_password
       }
-      const { updateNewEmail } = useUpdateNewEmailService({ ...params })
-      await updateNewEmail()
-      await router.push({ name: 'dashboard' })
-    })
+      try {
+        const { updateNewEmail } = useUpdateNewEmailService({ ...params })
+        const { result } = await updateNewEmail()
+        StorageService.set(storageKeys.authProfile, result.data)
+        await router.push({ name: 'dashboard' })
+      } catch (err) {
+        checkErrorsApi(err)
+      }
+    }
+
+    const checkErrorsApi = (err) => {
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        locale.value === 'en'
+          ? (err.response.data.errors[item] = 'The password is in correct')
+          : (err.response.data.errors[item] = 'パスワードが正しくありません')
+
+        setFieldError(item, err.response.data.errors[item])
+      }
+    }
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`change_password.${field}`))
@@ -101,8 +117,8 @@ export default defineComponent({
 
     return {
       form,
-      onSubmit,
       decoded,
+      onSubmit,
       replaceField
     }
   }
@@ -143,7 +159,7 @@ $form-size: 640px;
       .form-content {
         margin-bottom: 24px;
 
-        .new_password {
+        .password {
           width: 320px;
         }
 

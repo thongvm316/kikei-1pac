@@ -49,7 +49,7 @@ export default {
 
   modal_save: {
     note_1: '-  The email address has been changed.',
-    note_2: '-  A confirmation URL was sent to the reset login ID (email address).',
+    note_2: '-  A confirmation URL was sent to the reset email address.',
     note_3: '-  Please access the URL within 24 hours and confirm your email address.',
     note_4: '-  If not confirmed within 24 hours, the change will be invalid.'
   },
@@ -63,5 +63,7 @@ export default {
 
   error_email: 'New mail address',
   error_password: 'Current password',
-  error_name_profile: ''
+  error_name_profile: 'Name profile',
+  check_password: 'The password is different from the registered password',
+  check_email: 'trùng rồi 3'
 }

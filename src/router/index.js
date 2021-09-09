@@ -122,9 +122,9 @@ const routes = [
   },
 
   {
-    path: '/expired-mail',
-    name: 'expired-mail',
-    component: lazyLoadRoute('Auth/ExpiredMail'),
+    path: '/expired-mail-password',
+    name: 'expired-mail-password',
+    component: lazyLoadRoute('Auth/ExpiredMailPassword'),
     beforeEnter: ResolveGuard([RelateActivatePasswordGuard]),
     meta: { title: `Expired Mail | ${APP_NAME}` }
   },
@@ -362,7 +362,8 @@ const ROUTING_FREE = [
   'activated-email',
   'activate-change-password',
   'congratulations-new-password',
-  'activated-password'
+  'activated-password',
+  'expired-mail-password'
 ]
 
 router.beforeEach(async (to, _, next) => {

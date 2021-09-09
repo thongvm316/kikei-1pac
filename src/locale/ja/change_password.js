@@ -1,6 +1,6 @@
 export default {
   //chagne password
-  new_password: '現在のパスワード',
+  password: '現在のパスワード',
   handle_ok: 'ログイン',
   title: 'メールアドレスが変更されました。',
   changed_login: 'メールアドレスが ',

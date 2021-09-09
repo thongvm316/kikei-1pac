@@ -61,9 +61,10 @@ export default defineComponent({
       default: false,
       require: true
     },
+    // eslint-disable-next-line vue/require-default-prop
     form: {
       type: String,
-      required: true
+      require: true
     },
     modalResetPassword: {
       type: Boolean,
@@ -79,13 +80,12 @@ export default defineComponent({
 
     const { openSaveEamil } = toRefs(props)
     const { modalResetPassword } = toRefs(props)
-
     const { form } = toRefs(props)
 
     const open = ref(false)
     const isRestPassword = ref(false)
 
-    const nameEmail = ref('')
+    const nameEmail = ref({})
 
     watch(openSaveEamil, (value) => {
       open.value = value
@@ -107,7 +107,6 @@ export default defineComponent({
     }
 
     const handleSubmit = async () => {
-      console.log('submit')
       let dataEmail = {
         new_email: nameEmail.value
       }

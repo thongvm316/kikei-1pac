@@ -7,7 +7,14 @@ import storageKeys from '@/enums/storage-keys'
 import StorageService from './storage'
 import { includes } from 'lodash-es'
 
-const NAME_PAGE = ['company.0002', 'category.0002', 'subcategory.0002']
+const NAME_PAGE = [
+  'company.0002',
+  'category.0002',
+  'subcategory.0002',
+  'set_password.0004',
+  'profile.0004',
+  'profile.0001'
+]
 
 axios.defaults.baseURL = process.env.VUE_APP_API_ENDPOINT
 axios.defaults.headers.common['Accept'] = 'application/json'

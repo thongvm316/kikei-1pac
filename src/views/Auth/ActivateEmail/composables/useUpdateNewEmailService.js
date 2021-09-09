@@ -1,19 +1,14 @@
 import services from '@/services'
 const AuthService = services.get('AuthService')
-const StorageService = services.get('StorageService')
-import storageKeys from '@/enums/storage-keys'
 
 export default function useUpdateNewEmailService(params) {
   const updateNewEmail = async () => {
+    // eslint-disable-next-line no-useless-catch
     try {
       const response = await AuthService.updateNewEmail(params)
-      const { token } = response.data.result.data || null
-      if (!token) return
-
-      // store auth profile
-      StorageService.set(storageKeys.authProfile, response.data.result.data)
+      return response.data
     } catch (e) {
-      console.log(e)
+      throw e
     }
   }
 

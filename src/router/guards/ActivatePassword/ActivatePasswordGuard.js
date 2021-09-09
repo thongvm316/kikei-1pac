@@ -9,7 +9,7 @@ export const ActivatePasswordGuard = async (to, from, next) => {
 
     // still time to live
     if (tokenTime <= currentTime) {
-      next('/expired-mail')
+      next('/expired-mail-password')
     } else {
       const params = {
         token: to.query.token

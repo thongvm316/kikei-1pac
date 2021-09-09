@@ -1,6 +1,6 @@
 export default {
   //chagne password
-  new_password: 'Password',
+  password: 'Password',
   handle_ok: 'Login',
   title: 'Login ID (email address) has been changed.',
   changed_login: 'You has changed to new Login ID ( email address) is',

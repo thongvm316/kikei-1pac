@@ -12,6 +12,7 @@
     <modal-saved-email
       v-model:visible="modalResetPassword"
       :modal-reset-password="modalResetPassword"
+      :form="form.email"
       @back-modal="handleBack($event)"
     />
 
@@ -149,10 +150,10 @@ export default defineComponent({
     }
   },
 
-  emits: ['update:visible', 'back-modal'],
+  emits: ['update:visible', 'back-modal', 'is-submit'],
 
   setup(props, context) {
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const store = useStore()
 
     const { isShow } = toRefs(props)
@@ -259,6 +260,14 @@ export default defineComponent({
       try {
         const { putProfile } = usePutProfileService(data, loading)
         await putProfile()
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'success',
+          duration: 5,
+          message: locale.value === 'en' ? 'Success EN' : 'Success JP'
+        })
+
+        context.emit('is-submit', true)
 
         handleCancel()
       } catch (e) {

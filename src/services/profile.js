@@ -14,7 +14,7 @@ export default {
   },
 
   checkPasswordEmail(data) {
-    return apiCaller({ method: 'POST', url: `${RESOURCES.profile}/check-password`, data })
+    return apiCaller({ method: 'POST', url: `${RESOURCES.profile}/check-password-and-email`, data })
   },
 
   suggestNewEmail(data) {
