@@ -51,6 +51,10 @@ import { useRouter } from 'vue-router'
 
 import useSuggestNewEmailService from '@/components/ModalProfile/composables/useSuggestNewEmailService'
 import useSuggestNewPasswordService from '@/components/ModalProfile/composables/useSuggestNewPasswordService'
+import storageKeys from '@/enums/storage-keys'
+import services from '@/services'
+import { useStore } from 'vuex'
+const StorageService = services.get('StorageService')
 
 export default defineComponent({
   name: 'ModalSavedEmail',
@@ -77,6 +81,7 @@ export default defineComponent({
 
   setup(props, context) {
     const router = useRouter()
+    const store = useStore()
 
     const { openSaveEamil } = toRefs(props)
     const { modalResetPassword } = toRefs(props)
@@ -113,6 +118,15 @@ export default defineComponent({
       try {
         const { suggestNewEmail } = useSuggestNewEmailService(dataEmail)
         await suggestNewEmail()
+
+        StorageService.remove(storageKeys.authProfile)
+
+        store.commit('auth/CLEAR_AUTH_PROFILE')
+        store.commit('accounting/CLEAR_ACCOUNTING_FILTER')
+        store.commit('deposit/CLEAR_DEPOSIT_FILTER')
+        store.commit('financing/CLEAR_FINANCING_FILTER')
+        store.commit('flash/CLEAR_FLASH_MESSAGE')
+        store.commit('project/CLEAR_PROJECT_FILTER')
 
         await router.push({ name: 'email-sent' })
       } catch (err) {

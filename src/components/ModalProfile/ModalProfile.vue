@@ -199,7 +199,6 @@ export default defineComponent({
     }
 
     const handleChangeEmail = () => {
-      open.value = false
       isShowModal.value = true
       context.emit('update:visible', false)
     }

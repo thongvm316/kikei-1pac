@@ -6,7 +6,7 @@
         <form class="activate-account__form" @submit.prevent="onSubmit">
           <a-typography-title>{{ $t('user.title') }}</a-typography-title>
           <p class="activate-account__desc">
-            {{ $t('user.hello') }} <span class="activate-account__mail">{{ decoded.full_name }}</span
+            {{ $t('user.hello') }} <span class="activate-account__mail">{{ jwtToken.full_name }}</span
             >{{ $t('user.desc') }}
           </p>
           <!--New  Password -->
@@ -88,12 +88,13 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep, values, every } from 'lodash-es'
 import { useRouter, useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
 import ChangeLanguage from '@/components/ChangeLanguage'
-import jwt_decode from 'jwt-decode'
 
 // eslint-disable-next-line no-unused-vars
 const VALIDATE = ['min', 'lower', 'upper', 'number', 'special']
@@ -107,6 +108,7 @@ export default defineComponent({
     const { t } = useI18n()
     const router = useRouter()
     const route = useRoute()
+    const store = useStore()
 
     let form = ref({ new_password: '', confirm_password: '' })
     const checked = ref(true)
@@ -124,10 +126,7 @@ export default defineComponent({
 
     const valid = ref(null)
 
-    onMounted(() => {
-      let dataToken = jwt_decode(route.query.token)
-      decoded.value = dataToken
-    })
+    const jwtToken = computed(() => store.state.token.jwtToken)
 
     const onSubmit = async () => {
       let data = { ...form.value }
@@ -201,6 +200,7 @@ export default defineComponent({
       valid,
       checked,
       decoded,
+      jwtToken,
       onSubmit,
       onChangePassword,
       replaceField,

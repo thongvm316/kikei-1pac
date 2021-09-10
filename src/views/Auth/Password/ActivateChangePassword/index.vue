@@ -94,13 +94,12 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep, every, values } from 'lodash-es'
 import { useRoute, useRouter } from 'vue-router'
 import ChangeLanguage from '@/components/ChangeLanguage'
-import jwt_decode from 'jwt-decode'
-import useCheckPasswordService from '@/views/Auth/ActivateChangePassword/composables/useCheckPasswordService'
+import useCheckPasswordService from '@/views/Auth/Password/composables/useCheckPasswordService'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import { useForm } from 'vee-validate'
 
@@ -120,7 +119,6 @@ export default defineComponent({
     const route = useRoute()
 
     const checked = ref(true)
-    const decoded = ref({})
     const message = ref('')
     const tmpErrors = ref()
 
@@ -135,10 +133,6 @@ export default defineComponent({
     })
 
     const valid = ref(null)
-
-    onMounted(() => {
-      decoded.value = jwt_decode(route.query.token)
-    })
 
     watch(
       () => locale.value,
@@ -236,7 +230,6 @@ export default defineComponent({
       error,
       valid,
       checked,
-      decoded,
       onSubmit,
       onChangePassword,
       replaceField,

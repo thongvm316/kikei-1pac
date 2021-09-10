@@ -11,7 +11,7 @@
             <div class="form-group">
               <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="email|input_required">
                 <div class="form-content">
-                  <label class="form-label required font-bold">{{ $t('modal.email') }}</label>
+                  <label class="form-label required font-bold">{{ $t('modal.email_label') }}</label>
                   <div class="form-input">
                     <a-input
                       :value="field.value"
@@ -79,11 +79,12 @@ import useCheckPasswordEmailService from '@/components/ModalProfile/composables/
 
 export default defineComponent({
   name: 'ModalChangeEmail',
+
   components: { ModalSavedEmail },
+
   props: {
     isShowModal: {
       type: Boolean,
-      default: false,
       require: true
     }
   },
@@ -95,7 +96,7 @@ export default defineComponent({
     const { locale } = useI18n()
 
     const { isShowModal } = toRefs(props)
-    const { handleSubmit, setFieldError } = useForm()
+    const { handleSubmit, setFieldError, resetForm } = useForm()
 
     const open = ref(false)
     const openSaveEmail = ref(false)
@@ -121,6 +122,7 @@ export default defineComponent({
 
     const handleCancel = () => {
       open.value = false
+      resetForm()
       context.emit('update:visible', false)
     }
 
