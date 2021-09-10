@@ -1,5 +1,5 @@
 <template>
-  <div class="deposit-edit container">
+  <div class="deposit-edit">
     <deposit-form :is-edit-deposit="true" />
   </div>
 </template>
@@ -17,4 +17,19 @@ export default defineComponent({
 })
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.deposit-edit {
+  padding-right: 32px;
+  padding-left: 32px;
+
+  @supports (padding: env(safe-area-inset-left)) {
+    padding-left: calc(32px + env(safe-area-inset-left));
+    padding-right: calc(32px + env(safe-area-inset-right));
+  }
+
+  @supports (padding: constant(safe-area-inset-left)) {
+    padding-left: calc(32px + constant(safe-area-inset-left));
+    padding-right: calc(32px + constant(safe-area-inset-right));
+  }
+}
+</style>
