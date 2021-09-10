@@ -451,15 +451,17 @@ export default defineComponent({
       const purpose = currentSelectedRecord.value?.purpose
       if (!depositId) return
 
-      isLoadingDataTable.value = true
-      const { result: deletedRecords } = await deleteDeposit(depositId, {
-        applyForRoot: currentSelectedRecord.value?.isRoot || false
-      })
+      try {
+        isLoadingDataTable.value = true
+        const applyForRoot = currentSelectedRecord.value?.isRoot || false
+        const { result: deletedRecords } = await deleteDeposit(depositId, { applyForRoot })
 
-      dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
-      isVisibleDeleteModal.value = false
-      isLoadingDataTable.value = false
-      isVisibleModalActionBar.value = false
+        dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
+        isVisibleDeleteModal.value = false
+        isVisibleModalActionBar.value = false
+      } finally {
+        isLoadingDataTable.value = false
+      }
 
       totalRecords.value = totalRecords.value > 0 ? totalRecords.value - 1 : totalRecords.value
 

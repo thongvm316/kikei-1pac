@@ -388,37 +388,45 @@ router.beforeEach(async (to, _, next) => {
   const authProfile = StorageService.get(storageKeys.authProfile) || store.state.auth.authProfile
   // eslint-disable-next-line no-extra-boolean-cast
   if (!!authProfile) {
-    let permissionList = store.state?.account?.permissions
-    if (!permissionList) {
-      const permissionResponse = await SettingAccountService.getPermissionAccount()
-      permissionList = permissionResponse?.data?.result?.data || []
-      store.commit('account/STORE_ACCOUNT_PERMISSIONS', permissionList)
-    }
-
     // store data to state if need
     if (!store.state.auth.authProfile) {
       store.commit('auth/STORE_AUTH_PROFILE', authProfile)
     }
 
+    // get permission list
+    let permissionList = store.state?.account?.permissions
+    if (!permissionList) {
+      try {
+        const permissionResponse = await SettingAccountService.getPermissionAccount()
+        permissionList = permissionResponse?.data?.result?.data || []
+        store.commit('account/STORE_ACCOUNT_PERMISSIONS', permissionList)
+      } catch {
+        permissionList = []
+      }
+    }
+
+    // check access
     let isPageAccess = true
-    let isPageAccessFound = false
-    to.matched.forEach((item) => {
-      if (isPageAccessFound) return
+    if (permissionList.length !== 0) {
+      let isPageAccessFound = false
+      to.matched.forEach((item) => {
+        if (isPageAccessFound) return
 
-      const pageFound = find(PAGE_PERMISSIONS, { path: item.path })
-      if (!pageFound) return
-      isPageAccess = false
+        const pageFound = find(PAGE_PERMISSIONS, { path: item.path })
+        if (!pageFound) return
+        isPageAccess = false
 
-      permissionList.forEach((group) => {
-        if (isPageAccessFound && isPageAccess) return
+        permissionList.forEach((group) => {
+          if (isPageAccessFound && isPageAccess) return
 
-        const groupFound = find(group.permissions, { featureKey: pageFound.value })
-        if (groupFound) {
-          isPageAccess = groupFound.permissionKey !== 3
-          isPageAccessFound = true
-        }
+          const groupFound = find(group.permissions, { featureKey: pageFound.value })
+          if (groupFound) {
+            isPageAccess = groupFound.permissionKey !== 3
+            isPageAccessFound = true
+          }
+        })
       })
-    })
+    }
 
     if (isRouteFree) {
       next('/')
