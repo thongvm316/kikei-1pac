@@ -153,7 +153,7 @@ export default defineComponent({
   emits: ['update:visible', 'back-modal', 'is-submit'],
 
   setup(props, context) {
-    const { t, locale } = useI18n()
+    const { t } = useI18n()
     const store = useStore()
 
     const { isShow } = toRefs(props)
@@ -199,7 +199,6 @@ export default defineComponent({
     }
 
     const handleChangeEmail = () => {
-      open.value = false
       isShowModal.value = true
       context.emit('update:visible', false)
     }
@@ -262,9 +261,9 @@ export default defineComponent({
         await putProfile()
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           duration: 5,
-          message: locale.value === 'en' ? 'Profile editing successful' : 'プロフィルの編集が成功されました'
+          message: 'profile.profile_success'
         })
 
         context.emit('is-submit', true)

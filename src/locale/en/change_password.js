@@ -2,9 +2,9 @@ export default {
   //chagne password
   password: 'Password',
   handle_ok: 'Login',
-  title: 'Login ID (email address) has been changed.',
-  changed_login: 'You has changed to new Login ID ( email address) is',
-  desc: '. Please login with new Login ID ( email address ), or contact the Administrator if you need further support.',
+  title: 'Email address has been changed.',
+  changed_login: 'You has changed to new Email address is',
+  desc: '. Please login with new Email address, or contact the Administrator if you need further support.',
   please_enter: 'Enter password',
 
   //expired mail

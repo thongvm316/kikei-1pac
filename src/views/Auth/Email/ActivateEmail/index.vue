@@ -57,7 +57,7 @@ import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import useUpdateNewEmailService from '@/views/Auth/ActivateEmail/composables/useUpdateNewEmailService'
+import useUpdateNewEmailService from '@/views/Auth/Email/composables/useUpdateNewEmailService'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import storageKeys from '@/enums/storage-keys'
 import services from '@/services'
@@ -154,6 +154,7 @@ $form-size: 640px;
 
   &__form-wrapper {
     width: $form-wrapper-size;
+    margin-right: 16px;
   }
 
   &__form {
@@ -184,8 +185,7 @@ $form-size: 640px;
 
   &__desc {
     margin-bottom: 48px;
-    width: 400px;
-    text-align: justify;
+    width: 470px;
     line-height: 22px;
   }
 

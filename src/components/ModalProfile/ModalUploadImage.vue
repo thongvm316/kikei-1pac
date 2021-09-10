@@ -25,11 +25,12 @@
               <span>-</span>
             </button>
             <Slider
+              v-if="flag"
               v-model="slider"
               :tooltips="false"
-              :step="0.01"
-              :min="0.25"
-              :max="1"
+              :step="figure.step"
+              :min="figure.min"
+              :max="figure.max"
               @update="onUpdateSlider"
             ></Slider>
             <button
@@ -67,7 +68,7 @@
 
 <script>
 import { defineComponent, nextTick, ref, toRefs, watch } from 'vue'
-import { includes } from 'lodash-es'
+import { forEach, includes } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
 
 import Croppie from 'croppie'
@@ -77,17 +78,23 @@ import Slider from '@vueform/slider'
 
 import WarningIcon from '@/assets/icons/ico_warning.svg'
 
-const tmpContext = {
+const TMP_CONTEXT = {
   flag: false,
   errorMessage: '',
   tmpFile: null
 }
-
-const STEP = 0.01
+const STEP = 0.1
 const TIMEOUT = 1000
 const VIEW_PORT_SIZE = 180
-const BOUNDARY_WIDTH = 457
-const BOUNDARY_HEIGHT = 235
+const BOUNDARY = {
+  width: 457,
+  height: 235
+}
+const FIFURE = {
+  min: 0.1,
+  max: 1.5,
+  step: 0.0001
+}
 
 export default defineComponent({
   name: 'ModalUploadImage',
@@ -110,9 +117,11 @@ export default defineComponent({
 
     const croppie = ref()
     const init = ref()
-    const ctx = ref({ ...tmpContext })
-    const slider = ref(0)
+    const ctx = ref({ ...TMP_CONTEXT })
+    const slider = ref(STEP)
     const flagZoom = ref(false)
+    const figure = ref({ ...FIFURE })
+    const flag = ref(false)
 
     const profileEnums = ref({
       size: t('modal.errorMessage.size'),
@@ -157,7 +166,19 @@ export default defineComponent({
           ctx.value.flag = false
 
           init.value.bind({ url: ctx.value.tmpFile.src }).then(() => {
-            slider.value = +init.value._currentZoom.toFixed(2)
+            const crSlider = document.getElementsByClassName('cr-slider')[0]
+
+            forEach(figure.value, (item, key) => {
+              figure.value[`${key}`] = +crSlider.getAttribute(`${key}`)
+              if (includes(['min', 'max'], key)) {
+                figure.value[`${key}`] = +figure.value[`${key}`].toFixed(1)
+              }
+            })
+
+            // set default zoom
+            init.value.setZoom(figure.value.min)
+            slider.value = figure.value.min
+            flag.value = true
           })
         }, TIMEOUT)
       }
@@ -166,12 +187,10 @@ export default defineComponent({
     const initCroppieApp = () => {
       return new Croppie(croppie.value, {
         viewport: { width: VIEW_PORT_SIZE, height: VIEW_PORT_SIZE, type: 'circle' },
-        boundary: { width: BOUNDARY_WIDTH, height: BOUNDARY_HEIGHT },
+        boundary: { width: BOUNDARY.width, height: BOUNDARY.height },
         showZoomer: false,
         enableOrientation: true,
-        mouseWheelZoom: false,
-        minZoom: 0.25,
-        maxZoom: 1
+        mouseWheelZoom: false
       })
     }
 
@@ -184,7 +203,8 @@ export default defineComponent({
       })
       file = Object.assign(file, { src: base64 })
 
-      ctx.value = { ...tmpContext }
+      ctx.value = { ...TMP_CONTEXT }
+
       context.emit('update:visible', false)
       context.emit('back-modal', true)
       context.emit('file-img', file)
@@ -196,29 +216,35 @@ export default defineComponent({
         let delta = 0
         if (value > slider.value) {
           // increase
-          delta = value + STEP
+          delta = value + figure.value.step
         } else {
           // decrease
-          delta = value - STEP
+          delta = value - figure.value.step
         }
         init.value.setZoom(delta)
       }
     }
 
     const mouseDownZoomIn = () => {
-      const delta = init.value._currentZoom
+      const delta = Number(init.value.get().zoom.toFixed(1))
 
-      init.value.setZoom(delta + STEP)
-      slider.value = delta + STEP
+      if (delta <= figure.value.max) {
+        const numIncrease = delta + STEP
+        init.value.setZoom(numIncrease)
+        slider.value = numIncrease
+      }
 
       flagZoom.value = true
     }
 
     const mouseDownZoomOut = () => {
-      const delta = init.value._currentZoom
+      const delta = Number(init.value.get().zoom.toFixed(1))
 
-      init.value.setZoom(delta - STEP)
-      slider.value = delta - STEP
+      if (delta >= figure.value.min) {
+        const numDecrease = delta - STEP
+        init.value.setZoom(numDecrease)
+        slider.value = numDecrease
+      }
 
       flagZoom.value = true
     }
@@ -230,14 +256,18 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      ctx.value = { ...tmpContext }
+      ctx.value = { ...TMP_CONTEXT }
+      flag.value = false
+      slider.value = STEP
       context.emit('update:visible', false)
     }
 
     const handleUploadNew = () => {
+      ctx.value = { ...TMP_CONTEXT, flag: true }
+      flag.value = false
+      slider.value = STEP
       context.emit('back-modal', true)
       context.emit('update:visible', false)
-      ctx.value = { ...tmpContext, flag: true }
     }
 
     const validateImage = (file) => {
@@ -246,8 +276,9 @@ export default defineComponent({
     }
 
     const validateSize = (file) => {
-      const fsize = (file.size / 1024 / 1024).toFixed(2)
-      return fsize <= 1
+      const fSize = (file.size / 1024 / 1024).toFixed(2)
+      // 1MB
+      return fSize <= 1
     }
 
     return {
@@ -255,6 +286,8 @@ export default defineComponent({
       open,
       ctx,
       slider,
+      figure,
+      flag,
       onUpdateSlider,
       uploadImg,
       mouseDownZoomIn,
@@ -425,6 +458,7 @@ export default defineComponent({
       transform: rotate(360deg);
     }
   }
+
   .advertise-photo {
     margin-bottom: 100px;
   }
@@ -463,6 +497,7 @@ export default defineComponent({
     h2 {
       margin-top: 7px;
     }
+
     h3,
     h2 {
       font-size: 16px;

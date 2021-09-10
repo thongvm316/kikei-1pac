@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { notification } from 'ant-design-vue'
 
-const MESSAGE_VARIANTS = ['open', 'success', 'error', 'info', 'warning', 'warn']
+const MESSAGE_VARIANTS = ['open', 'success', 'error', 'info', 'warning', 'warn', 'successfully']
 
 export default defineComponent({
   name: 'App',

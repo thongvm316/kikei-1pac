@@ -30,12 +30,8 @@
 <script>
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
 
 import ChangeLanguage from '@/components/ChangeLanguage'
-import storageKeys from '@/enums/storage-keys'
-import services from '@/services'
-const StorageService = services.get('StorageService')
 
 export default defineComponent({
   name: 'Index',
@@ -44,18 +40,8 @@ export default defineComponent({
 
   setup() {
     const router = useRouter()
-    const store = useStore()
 
     const handleGoLogin = async () => {
-      StorageService.remove(storageKeys.authProfile)
-
-      store.commit('auth/CLEAR_AUTH_PROFILE')
-      store.commit('accounting/CLEAR_ACCOUNTING_FILTER')
-      store.commit('deposit/CLEAR_DEPOSIT_FILTER')
-      store.commit('financing/CLEAR_FINANCING_FILTER')
-      store.commit('flash/CLEAR_FLASH_MESSAGE')
-      store.commit('project/CLEAR_PROJECT_FILTER')
-
       await router.push({ name: 'login' })
     }
     return {
