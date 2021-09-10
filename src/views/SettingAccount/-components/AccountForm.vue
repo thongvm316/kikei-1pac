@@ -1,9 +1,9 @@
 <template>
-  <div class="card-common">
+  <div class="setting-account-form">
     <!-- Form -->
     <form @submit="onSubmit">
       <!-- Full name -->
-      <div class="form-group">
+      <div>
         <Field v-slot="{ field, handleChange, errorMessage }" v-model="form.fullname" name="full_name" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.full_name') }}</label>
@@ -25,7 +25,7 @@
       </div>
 
       <!-- ID email -->
-      <div class="form-group">
+      <div class="u-mt-16">
         <Field
           v-slot="{ field, handleChange, errorMessage }"
           v-model="form.username"
@@ -53,7 +53,7 @@
       </div>
 
       <!-- Status -->
-      <div class="form-group">
+      <div class="u-mt-16">
         <div class="form-content">
           <label class="form-label">{{ $t('account.status') }}</label>
 
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Type -->
-      <div class="form-group">
+      <div class="u-mt-16">
         <div class="form-content">
           <label class="form-label">{{ $t('account.sales') }}</label>
 
@@ -83,7 +83,7 @@
       </div>
 
       <!-- Memo -->
-      <div class="form-group">
+      <div class="u-mt-16">
         <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
           <div class="form-content">
             <label class="form-label">{{ $t('account.memo') }}</label>
@@ -100,7 +100,7 @@
       </div>
 
       <!-- Permission Group-->
-      <div class="form-group">
+      <div class="u-mt-16">
         <Field v-model="isMissingPermission" name="permission" rules="required">
           <div class="form-content">
             <label class="form-label required">{{ $t('account.group_permissions') }}</label>
@@ -121,7 +121,7 @@
       </div>
 
       <!-- Permission Setting-->
-      <div class="form-group">
+      <div class="u-mt-16">
         <div class="form-content">
           <label class="form-label">{{ $t('account.setting_permissions') }}</label>
 
@@ -139,7 +139,7 @@
       </div>
 
       <!-- Action Section Submit & Cancel -->
-      <div class="card-footer">
+      <div class="u-mt-16">
         <a-button key="back" class="btn-cancel" @click="handleCancel">
           {{ $t('common.cancel') }}
         </a-button>
@@ -509,3 +509,11 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss">
+.setting-account-form {
+  padding: 24px 32px;
+  overflow-y: scroll;
+  height: 100%;
+}
+</style>
