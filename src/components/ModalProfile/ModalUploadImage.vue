@@ -1,6 +1,7 @@
 <template>
   <a-modal
     v-model:visible="open"
+    class="modal-change-profile"
     :title="
       !ctx.flag
         ? $t('modal.title_crop')
@@ -11,7 +12,7 @@
     @cancel="handleCancel"
   >
     <template #footer>
-      <div class="card-common">
+      <div class="card-common-upload">
         <div v-show="!ctx.flag">
           <div ref="croppie" class="croppie" />
 
@@ -302,8 +303,10 @@ export default defineComponent({
 
 <style src="@vueform/slider/themes/default.css"></style>
 <style scoped lang="scss">
-.card-common {
+.card-common-upload {
   overflow: hidden;
+  padding: 24px 32px;
+  height: 100%;
 
   .croppie {
     width: auto;

@@ -1,5 +1,10 @@
 <template>
-  <a-modal v-model:visible="open" :title="$t('modal.title_save_email')" @cancel="handleCancel">
+  <a-modal
+    v-model:visible="open"
+    class="modal-change-profile"
+    :title="$t('modal.title_save_email')"
+    @cancel="handleCancel"
+  >
     <template #footer>
       <template v-if="isRestPassword">
         <div class="modal-save-email">

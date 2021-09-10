@@ -2,7 +2,12 @@
   <section>
     <modal-saved-email v-model:visible="openSaveEmail" :open-save-eamil="openSaveEmail" :form="form.email" />
 
-    <a-modal v-model:visible="open" :title="$t('modal.title_email')" @cancel="handleCancel">
+    <a-modal
+      v-model:visible="open"
+      class="modal-change-profile"
+      :title="$t('modal.title_email')"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <div class="modal-profile">
           <!--Form-->
@@ -137,6 +142,7 @@ export default defineComponent({
         await checkPasswordEmail()
 
         openSaveEmail.value = true
+        resetForm()
         context.emit('update:visible', false)
       } catch (err) {
         checkErrorsApi(err)
