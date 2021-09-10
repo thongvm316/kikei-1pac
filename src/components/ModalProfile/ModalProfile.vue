@@ -16,7 +16,12 @@
       @back-modal="handleBack($event)"
     />
 
-    <a-modal v-model:visible="open" :title="$t('modal.title_profile')" @cancel="handleCancel">
+    <a-modal
+      v-model:visible="open"
+      class="modal-change-profile"
+      :title="$t('modal.title_profile')"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <div class="modal-profile">
           <!--upload img-->
