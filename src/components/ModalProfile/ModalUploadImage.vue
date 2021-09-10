@@ -25,6 +25,7 @@
               <span>-</span>
             </button>
             <Slider
+              v-if="flag"
               v-model="slider"
               :tooltips="false"
               :step="figure.step"
@@ -77,18 +78,22 @@ import Slider from '@vueform/slider'
 
 import WarningIcon from '@/assets/icons/ico_warning.svg'
 
-const tmpContext = {
+const TMP_CONTEXT = {
   flag: false,
   errorMessage: '',
   tmpFile: null
 }
-
 const STEP = 0.1
 const TIMEOUT = 1000
 const VIEW_PORT_SIZE = 180
 const BOUNDARY = {
   width: 457,
   height: 235
+}
+const FIFURE = {
+  min: 0.1,
+  max: 1.5,
+  step: 0.0001
 }
 
 export default defineComponent({
@@ -112,10 +117,11 @@ export default defineComponent({
 
     const croppie = ref()
     const init = ref()
-    const ctx = ref({ ...tmpContext })
-    const slider = ref(0)
+    const ctx = ref({ ...TMP_CONTEXT })
+    const slider = ref(STEP)
     const flagZoom = ref(false)
-    const figure = ref({ min: 0.3, max: 1.5, step: 0.0001 })
+    const figure = ref({ ...FIFURE })
+    const flag = ref(false)
 
     const profileEnums = ref({
       size: t('modal.errorMessage.size'),
@@ -172,6 +178,7 @@ export default defineComponent({
             // set default zoom
             init.value.setZoom(figure.value.min)
             slider.value = figure.value.min
+            flag.value = true
           })
         }, TIMEOUT)
       }
@@ -196,7 +203,8 @@ export default defineComponent({
       })
       file = Object.assign(file, { src: base64 })
 
-      ctx.value = { ...tmpContext }
+      ctx.value = { ...TMP_CONTEXT }
+
       context.emit('update:visible', false)
       context.emit('back-modal', true)
       context.emit('file-img', file)
@@ -218,7 +226,7 @@ export default defineComponent({
     }
 
     const mouseDownZoomIn = () => {
-      const delta = Number(init.value._currentZoom.toFixed(1))
+      const delta = Number(init.value.get().zoom.toFixed(1))
 
       if (delta <= figure.value.max) {
         const numIncrease = delta + STEP
@@ -230,7 +238,7 @@ export default defineComponent({
     }
 
     const mouseDownZoomOut = () => {
-      const delta = Number(init.value._currentZoom.toFixed(1))
+      const delta = Number(init.value.get().zoom.toFixed(1))
 
       if (delta >= figure.value.min) {
         const numDecrease = delta - STEP
@@ -248,14 +256,18 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      ctx.value = { ...tmpContext }
+      ctx.value = { ...TMP_CONTEXT }
+      flag.value = false
+      slider.value = STEP
       context.emit('update:visible', false)
     }
 
     const handleUploadNew = () => {
+      ctx.value = { ...TMP_CONTEXT, flag: true }
+      flag.value = false
+      slider.value = STEP
       context.emit('back-modal', true)
       context.emit('update:visible', false)
-      ctx.value = { ...tmpContext, flag: true }
     }
 
     const validateImage = (file) => {
@@ -264,8 +276,9 @@ export default defineComponent({
     }
 
     const validateSize = (file) => {
-      const fsize = (file.size / 1024 / 1024).toFixed(2)
-      return fsize <= 1
+      const fSize = (file.size / 1024 / 1024).toFixed(2)
+      // 1MB
+      return fSize <= 1
     }
 
     return {
@@ -274,6 +287,7 @@ export default defineComponent({
       ctx,
       slider,
       figure,
+      flag,
       onUpdateSlider,
       uploadImg,
       mouseDownZoomIn,
