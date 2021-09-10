@@ -1,5 +1,5 @@
 <template>
-  <div class="k-deposit-new container">
+  <div class="k-deposit-new u-px-32">
     <deposit-form />
   </div>
 </template>

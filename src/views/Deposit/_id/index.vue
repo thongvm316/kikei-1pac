@@ -1,5 +1,5 @@
 <template>
-  <div class="deposit-edit container">
+  <div class="deposit-edit u-px-32">
     <deposit-form :is-edit-deposit="true" />
   </div>
 </template>
@@ -16,5 +16,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style></style>
