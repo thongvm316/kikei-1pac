@@ -1,5 +1,5 @@
 <template>
-  <div class="k-deposit-new container">
+  <div class="k-deposit-new">
     <deposit-form />
   </div>
 </template>
@@ -16,3 +16,20 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.k-deposit-new {
+  padding-right: 32px;
+  padding-left: 32px;
+
+  @supports (padding: env(safe-area-inset-left)) {
+    padding-left: calc(32px + env(safe-area-inset-left));
+    padding-right: calc(32px + env(safe-area-inset-right));
+  }
+
+  @supports (padding: constant(safe-area-inset-left)) {
+    padding-left: calc(32px + constant(safe-area-inset-left));
+    padding-right: calc(32px + constant(safe-area-inset-right));
+  }
+}
+</style>
