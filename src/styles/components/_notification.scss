@@ -14,6 +14,14 @@
     }
   }
 
+  &.successfully {
+    background-color: $color-green-7;
+
+    .ant-notification-notice-message {
+      color: $color-grey-100;
+    }
+  }
+
   &.error {
     background-color: $color-additional-red-6;
 

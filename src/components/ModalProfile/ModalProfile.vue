@@ -262,9 +262,9 @@ export default defineComponent({
         await putProfile()
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           duration: 5,
-          message: locale.value === 'en' ? 'Profile editing successful' : 'プロフィルの編集が成功されました'
+          message: 'profile.profile_success'
         })
 
         context.emit('is-submit', true)
