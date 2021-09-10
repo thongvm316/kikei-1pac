@@ -153,7 +153,7 @@ export default defineComponent({
   emits: ['update:visible', 'back-modal', 'is-submit'],
 
   setup(props, context) {
-    const { t, locale } = useI18n()
+    const { t } = useI18n()
     const store = useStore()
 
     const { isShow } = toRefs(props)

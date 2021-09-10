@@ -322,7 +322,7 @@ ul {
   }
 
   &__form {
-    width: 392px;
+    width: 425px;
     margin-right: 37px;
 
     .form-group {
@@ -345,7 +345,7 @@ ul {
 
     .card-footer {
       .ant-btn {
-        width: 80%;
+        width: 320px;
         height: 40px;
       }
     }

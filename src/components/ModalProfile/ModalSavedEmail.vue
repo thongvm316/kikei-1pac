@@ -139,6 +139,15 @@ export default defineComponent({
         const { suggestNewPassword } = useSuggestNewPasswordService()
         await suggestNewPassword()
 
+        StorageService.remove(storageKeys.authProfile)
+
+        store.commit('auth/CLEAR_AUTH_PROFILE')
+        store.commit('accounting/CLEAR_ACCOUNTING_FILTER')
+        store.commit('deposit/CLEAR_DEPOSIT_FILTER')
+        store.commit('financing/CLEAR_FINANCING_FILTER')
+        store.commit('flash/CLEAR_FLASH_MESSAGE')
+        store.commit('project/CLEAR_PROJECT_FILTER')
+
         await router.push({ name: 'email-sent' })
       } catch (err) {
         console.log(err)

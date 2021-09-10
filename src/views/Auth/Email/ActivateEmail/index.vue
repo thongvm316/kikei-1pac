@@ -154,6 +154,7 @@ $form-size: 640px;
 
   &__form-wrapper {
     width: $form-wrapper-size;
+    margin-right: 16px;
   }
 
   &__form {
@@ -184,8 +185,7 @@ $form-size: 640px;
 
   &__desc {
     margin-bottom: 48px;
-    width: 400px;
-    text-align: justify;
+    width: 470px;
     line-height: 22px;
   }
 

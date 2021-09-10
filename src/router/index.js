@@ -102,7 +102,7 @@ const routes = [
   {
     path: '/activate-change-password',
     name: 'activate-change-password',
-    component: lazyLoadRoute('Auth/ActivateChangePassword'),
+    component: lazyLoadRoute('Auth/Password/ActivateChangePassword'),
     beforeEnter: ResolveGuard([ActivatePasswordGuard]),
     meta: { title: `Activate Change Password | ${APP_NAME}` }
   },
@@ -377,7 +377,8 @@ const ROUTING_FREE = [
   'activate-change-password',
   'congratulations-new-password',
   'activated-password',
-  'expired-mail-password'
+  'expired-mail-password',
+  'email-sent'
 ]
 
 router.beforeEach(async (to, _, next) => {
