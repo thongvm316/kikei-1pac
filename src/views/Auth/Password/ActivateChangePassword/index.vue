@@ -13,47 +13,55 @@
             <div class="form-content">
               <label class="form-label required">{{ $t('activate_password.new_password') }}</label>
 
-              <div>
+              <div class="form-input">
                 <a-input
                   v-model:value="form.new_password"
                   :type="checked ? 'text' : 'password'"
                   :placeholder="$t('activate_password.please_enter')"
-                  :class="valid === false ? 'border-invalid' : ''"
+                  :class="message !== '' || checkedEmptyP ? 'border-invalid' : ''"
                   size="large"
                   class="new_password"
                   @change="onChangePassword"
                 />
+                <!-- Empty message -->
+                <span v-if="checkedEmptyP" class="errors">
+                  {{ $t('set_password.empty_password') }}
+                </span>
               </div>
             </div>
           </div>
 
           <!--Confirm  Password -->
           <div class="form-group">
-            <Field v-slot="{ field, handleChange }" v-model="form.confirm_password" name="password">
-              <div class="form-content">
-                <label class="form-label required">{{ $t('activate_password.confirm_password') }}</label>
+            <div class="form-content">
+              <label class="form-label required">{{ $t('activate_password.confirm_password') }}</label>
 
-                <div class="form-input">
-                  <a-input
-                    :value="field.value"
-                    :type="checked ? 'text' : 'password'"
-                    :class="message !== '' ? 'border-invalid' : ''"
-                    :placeholder="$t('activate_password.please_enter')"
-                    size="large"
-                    class="confirm_password"
-                    @change="handleChange"
-                  />
-                  <!-- Error message -->
-                  <span v-if="message" class="errors">
-                    {{ $t(`set_password.${message}`) }}
-                  </span>
-                  <!-- Error message -->
+              <div class="form-input">
+                <a-input
+                  v-model:value="form.confirm_password"
+                  :type="checked ? 'text' : 'password'"
+                  :class="message !== '' || checkedEmptyCP ? 'border-invalid' : ''"
+                  :placeholder="$t('activate_password.please_enter')"
+                  size="large"
+                  class="confirm_password"
+                  @change="onChangeCP"
+                />
+                <!-- Error message -->
+                <span v-if="message" class="errors">
+                  {{ $t(`set_password.${message}`) }}
+                </span>
+                <!-- Empty message -->
+                <span v-if="checkedEmptyCP" class="errors">
+                  {{ $t('set_password.empty_confirm_password') }}
+                </span>
+                <!-- Error message -->
+                <template v-if="checkedEmailInUse">
                   <ErrorMessage v-slot="{ message }" as="span" name="password" class="errors">
                     {{ replaceField(message, 'password') }}
                   </ErrorMessage>
-                </div>
+                </template>
               </div>
-            </Field>
+            </div>
           </div>
 
           <a-checkbox v-model:checked="checked">{{ $t('activate_password.show_pass') }}</a-checkbox>
@@ -119,6 +127,9 @@ export default defineComponent({
     const route = useRoute()
 
     const checked = ref(true)
+    const checkedEmptyP = ref(false)
+    const checkedEmptyCP = ref(false)
+    const checkedEmailInUse = ref(false)
     const message = ref('')
     const tmpErrors = ref()
 
@@ -147,10 +158,15 @@ export default defineComponent({
 
       valid.value = every(values(error.value), (item) => item)
 
-      if (valid.value === false) return
+      if (valid.value === false) {
+        checkedEmptyP.value = true
+        checkedEmptyCP.value = true
+        return
+      }
 
       if (data.confirm_password !== data.new_password) {
         message.value = 'pw_not_match'
+        checkedEmailInUse.value = false
       } else {
         // call api in here
         message.value = ''
@@ -169,6 +185,7 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
+      checkedEmailInUse.value = true
       tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
       verifyErrors(tmpErrors.value, t('activate_password.conflict_password'))
@@ -183,11 +200,19 @@ export default defineComponent({
     const onChangePassword = (evt) => {
       error.value = cloneDeep(checkError(evt.target.value))
 
+      error.value.lower ? (checkedEmptyP.value = false) : (checkedEmptyP.value = true)
+
       for (let i in error.value) {
         if (!error.value[i]) {
           delete error.value[i]
         }
       }
+    }
+
+    const onChangeCP = (evt) => {
+      error.value = cloneDeep(checkError(evt.target.value))
+
+      error.value.lower ? (checkedEmptyCP.value = false) : (checkedEmptyCP.value = true)
     }
 
     const minChar = (value, length) => {
@@ -230,6 +255,10 @@ export default defineComponent({
       error,
       valid,
       checked,
+      checkedEmptyP,
+      checkedEmptyCP,
+      checkedEmailInUse,
+      onChangeCP,
       onSubmit,
       onChangePassword,
       replaceField,

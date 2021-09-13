@@ -6,7 +6,7 @@
         <div class="email-sent__form">
           <a-typography-title>{{ $t('change_password.sent_title') }}</a-typography-title>
           <p class="email-sent__desc">
-            {{ $t('change_password.sent_desc') }}
+            {{ $t('change_password.sent_desc_email') }}
           </p>
 
           <!-- Action Section Submit & Cancel -->

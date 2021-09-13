@@ -55,6 +55,13 @@ export default defineComponent({
         }
       ],
 
+      //password sent
+      'password-sent': [
+        {
+          path: '/password-sent'
+        }
+      ],
+
       //dashboard
       dashboard: [
         {

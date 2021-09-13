@@ -14,9 +14,15 @@ export default {
   expired_ok: '以前のメールアドレスとパスワードでログインする',
 
   //email sent
-  sent_title: 'ログアウトしました。',
-  sent_desc:
+  sent_desc_email:
     'メールアドレスにメールが送信されました。メールアドレスを変更するには、メール内のリンクをクリックしてください。',
+
+  //password sent
+  sent_desc_password:
+    'メールアドレスにメールが送信されました。パスワードをリセットするには、リンクをクリックしてください。',
+
+  ///////////////////////
+  sent_title: 'ログアウトしました。',
   sent_ok: 'ログインへ行く',
 
   // activated email

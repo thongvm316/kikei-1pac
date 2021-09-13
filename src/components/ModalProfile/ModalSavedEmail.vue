@@ -2,7 +2,7 @@
   <a-modal
     v-model:visible="open"
     class="modal-change-profile"
-    :title="$t('modal.title_save_email')"
+    :title="isRestPassword ? $t('modal.title_save_password') : $t('modal.title_save_email')"
     @cancel="handleCancel"
   >
     <template #footer>
@@ -153,7 +153,7 @@ export default defineComponent({
         store.commit('flash/CLEAR_FLASH_MESSAGE')
         store.commit('project/CLEAR_PROJECT_FILTER')
 
-        await router.push({ name: 'email-sent' })
+        await router.push({ name: 'password-sent' })
       } catch (err) {
         console.log(err)
       }

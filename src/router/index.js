@@ -95,7 +95,7 @@ const routes = [
   {
     path: '/email-sent',
     name: 'email-sent',
-    component: lazyLoadRoute('Auth/EmailSent'),
+    component: lazyLoadRoute('Auth/Email/EmailSent'),
     meta: { title: `Email Sent | ${APP_NAME}` }
   },
 
@@ -129,6 +129,13 @@ const routes = [
     component: lazyLoadRoute('Auth/Password/ExpiredMailPassword'),
     beforeEnter: ResolveGuard([RelateActivatePasswordGuard]),
     meta: { title: `Expired Mail | ${APP_NAME}` }
+  },
+
+  {
+    path: '/password-sent',
+    name: 'password-sent',
+    component: lazyLoadRoute('Auth/Password/EmailSent'),
+    meta: { title: `Email Sent | ${APP_NAME}` }
   },
 
   {
@@ -378,7 +385,8 @@ const ROUTING_FREE = [
   'congratulations-new-password',
   'activated-password',
   'expired-mail-password',
-  'email-sent'
+  'email-sent',
+  'password-sent'
 ]
 
 router.beforeEach(async (to, _, next) => {
