@@ -131,7 +131,6 @@ export default defineComponent({
     // table order
     const blockListEl = ref()
     const blockList = ref(cloneDeep(BLOCK_FEATURE_KEY_LIST))
-    const groupIdDefault = ref(0)
 
     // group tabs
     const TAB_GROUP_ALL_ID = 0
@@ -197,15 +196,15 @@ export default defineComponent({
           id: index,
           order: index,
           mode: '',
-          groupId: groupIdDefault.value
+          groupId: blockList.value[index]?.groupListAccess[0]?.id || 0
         }))
 
         updateBlockStore(blockOrder)
       } else {
         // reset groupId
-        const _dashboardBlocks = dashboardBlocks.value.map((block) => ({
+        const _dashboardBlocks = dashboardBlocks.value.map((block, index) => ({
           ...block,
-          groupId: groupIdDefault.value
+          groupId: blockList.value[index]?.groupListAccess[0]?.id || 0
         }))
 
         updateBlockStore(_dashboardBlocks)
@@ -347,22 +346,31 @@ export default defineComponent({
       // get group access
       setBlocksActive()
 
-      groupIdDefault.value = groupList.value[0]?.id || 0
-      if (!groupIdDefault.value) return
-
-      const allGroupId = groupList.value
-        .filter((group) => group.id !== 0)
-        .reduce((acc, group) => {
-          acc += acc ? ',' + group.id : group.id
-          return acc
-        }, '')
-      const params = { groupId: groupIdDefault.value > 0 ? groupIdDefault.value : allGroupId }
-
-      blockList.value[0]?.groupListAccess?.length !== 0 && fetchPendingDeposits(params)
-      blockList.value[1]?.groupListAccess?.length !== 0 && fetchSales(params)
-      blockList.value[2]?.groupListAccess?.length !== 0 && fetchMonthlyAccounting(params)
-      blockList.value[3]?.groupListAccess?.length !== 0 && fetchBankAccountBalance(params)
-      blockList.value[4]?.groupListAccess?.length !== 0 && fetchRaking(params)
+      if (blockList.value[0]?.isActive) {
+        const params = {
+          groupId: blockList.value[0].groupListAccess
+            .filter((group) => group.id !== 0)
+            .map((group) => group.id)
+            .toString()
+        }
+        fetchPendingDeposits(params)
+      }
+      if (blockList.value[1]?.isActive) {
+        const params = { groupId: blockList.value[1].groupListAccess[0].id }
+        fetchSales(params)
+      }
+      if (blockList.value[2]?.isActive) {
+        const params = { groupId: blockList.value[2].groupListAccess[0].id }
+        fetchMonthlyAccounting(params)
+      }
+      if (blockList.value[3]?.isActive) {
+        const params = { groupId: blockList.value[3].groupListAccess[0].id }
+        fetchBankAccountBalance(params)
+      }
+      if (blockList.value[4]?.isActive) {
+        const params = { groupId: blockList.value[4].groupListAccess[0].id }
+        fetchRaking(params)
+      }
 
       nextTick(() => {
         // DOM is updated
