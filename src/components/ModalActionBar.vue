@@ -1,59 +1,65 @@
 <template>
   <div class="box-btn modal-actions">
-    <a-button type="default" @click="$emit('on-go-to-edit')">
-      <template #icon>
-        <span class="btn-icon">
-          <edit-icon />
-        </span>
-      </template>
-      {{ $t('project.float_modal.edit') }}
-    </a-button>
+    <div>
+      <a-button :disabled="project && !isAdmin" type="default" @click="$emit('on-go-to-edit')">
+        <template #icon>
+          <span class="btn-icon">
+            <edit-icon />
+          </span>
+        </template>
+        {{ $t('project.float_modal.edit') }}
+      </a-button>
 
-    <a-button type="default" @click="$emit('on-go-to-copy')">
-      <template #icon>
-        <span class="btn-icon">
-          <copy-icon />
-        </span>
-      </template>
-      {{ $t('project.float_modal.copy') }}
-    </a-button>
+      <a-button type="default" @click="$emit('on-go-to-copy')">
+        <template #icon>
+          <span class="btn-icon">
+            <copy-icon />
+          </span>
+        </template>
+        {{ $t('project.float_modal.copy') }}
+      </a-button>
 
-    <a-button v-if="enableGoToDeposit" type="default" @click="$emit('on-go-to-deposit')">
-      <template #icon>
-        <span class="btn-icon">
-          <to-deposit-icon />
-        </span>
-      </template>
-      {{ $t('project.float_modal.search_deposit') }}
-    </a-button>
+      <a-button v-if="enableGoToDeposit" type="default" @click="$emit('on-go-to-deposit')">
+        <template #icon>
+          <span class="btn-icon">
+            <to-deposit-icon />
+          </span>
+        </template>
+        {{ $t('project.float_modal.search_deposit') }}
+      </a-button>
 
-    <a-button type="default" :disabled="isDisableDelete" @click="$emit('on-go-to-delete')">
-      <template #icon>
-        <span class="btn-icon">
-          <delete-icon />
-        </span>
-      </template>
-      {{ $t('project.float_modal.delete') }}
-    </a-button>
+      <a-button type="default" :disabled="isDisableDelete || (project && !isAdmin)" @click="$emit('on-go-to-delete')">
+        <template #icon>
+          <span class="btn-icon">
+            <delete-icon />
+          </span>
+        </template>
+        {{ $t('project.float_modal.delete') }}
+      </a-button>
 
-    <a-button type="link" ghost class="modal-actions__close-btn" @click="$emit('on-close-modal')">
-      <template #icon>
-        <span class="btn-icon">
-          <close-icon />
-        </span>
-      </template>
-    </a-button>
+      <a-button type="link" ghost class="modal-actions__close-btn" @click="$emit('on-close-modal')">
+        <template #icon>
+          <span class="btn-icon">
+            <close-icon />
+          </span>
+        </template>
+      </a-button>
+    </div>
+    <p v-if="project && !isAdmin" class="modal-actions__description mb-0">
+      本人が登録したプロジェクトのみ編集・削除可能
+    </p>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 
 import DeleteIcon from '@/assets/icons/ico_delete.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ToDepositIcon from '@/assets/icons/ico_to_deposit.svg'
 import CloseIcon from '@/assets/icons/ico_close.svg'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'ModalActionBar',
@@ -75,6 +81,21 @@ export default defineComponent({
     isDisableDelete: {
       type: Boolean,
       default: false
+    },
+
+    project: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  setup() {
+    const store = useStore()
+
+    const isAdmin = computed(() => store.state?.auth.authProfile.isAdmin)
+
+    return {
+      isAdmin
     }
   }
 })
@@ -86,6 +107,13 @@ export default defineComponent({
 
 .modal-actions {
   @include flexbox(center, center);
+  flex-direction: column;
+  gap: 8px;
+
+  &__description {
+    font-size: 12px;
+    color: $color-grey-55;
+  }
 
   button + button {
     margin-left: 12px;

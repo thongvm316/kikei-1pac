@@ -116,6 +116,7 @@
   <modal-action-bar
     v-if="isOpenFloatButtons"
     ref="modalActionRef"
+    :project="true"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
     @on-go-to-edit="goToEditProject"
     @on-go-to-copy="cloneProject"

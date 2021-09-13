@@ -100,11 +100,20 @@
                       <tr v-for="page in group.permissions" :key="page.featureKey">
                         <td>{{ page.name }}</td>
                         <td v-for="permissionKey in PERMISSION_KEYS" :key="permissionKey.id">
-                          <a-radio
-                            :checked="permissionKey.value === page.permissionKey"
-                            :value="permissionKey.value"
-                            @change="handleChangePermission(group.id, page.featureKey, permissionKey.value)"
-                          ></a-radio>
+                          <a-tooltip
+                            color="#fff"
+                            :title="
+                              page.featureKey === 1 && permissionKey.id === 1
+                                ? '本人が登録したプロジェクトのみ編集可'
+                                : ''
+                            "
+                          >
+                            <a-radio
+                              :checked="permissionKey.value === page.permissionKey"
+                              :value="permissionKey.value"
+                              @change="handleChangePermission(group.id, page.featureKey, permissionKey.value)"
+                            ></a-radio>
+                          </a-tooltip>
                         </td>
                       </tr>
                     </tbody>
