@@ -121,11 +121,8 @@ export default defineComponent({
     const onHandleChangeGroup = (id) => {
       const allGroupId = props.groupList
         .filter((group) => group.id !== 0)
-        .reduce((acc, group) => {
-          acc += acc ? ',' + group.id : group.id
-          return acc
-        }, '')
-
+        .map((group) => group.id)
+        .toString()
       const params = { groupId: id > 0 ? id : allGroupId }
       emit('on-change-group', params)
 
