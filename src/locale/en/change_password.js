@@ -14,8 +14,13 @@ export default {
   expired_ok: 'Log in with your old email address and password',
 
   //email sent
+  sent_desc_email: 'An email has been sent. Please click the link to change new email address when you get it.',
+
+  //password sent
+  sent_desc_password: 'An email has been sent. Please click the link to reset password when you get it.',
+
+  //////////////////
   sent_title: 'You has been signed out',
-  sent_desc: 'An email has been sent. Please click the link to change new email address when you get it.',
   sent_ok: 'Go to Login',
 
   // activated email

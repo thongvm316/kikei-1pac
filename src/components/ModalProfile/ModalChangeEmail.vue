@@ -14,7 +14,7 @@
           <form class="modal-profile__form" @submit="onSubmit">
             <!--Name -->
             <div class="form-group">
-              <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="email|input_required">
+              <Field v-slot="{ field, handleChange }" v-model="form.email" name="email" rules="input_required|email">
                 <div class="form-content">
                   <label class="form-label required font-bold">{{ $t('modal.email_label') }}</label>
                   <div class="form-input">
