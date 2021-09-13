@@ -6,7 +6,7 @@
 
 <script>
 import { defineComponent, onBeforeMount } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getProject } from '../composables/useProject'
 import ProjectForm from '../-components/ProjectForm'
 
@@ -19,6 +19,7 @@ export default defineComponent({
 
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const project = {}
 
     const fetchProject = async () => {
@@ -28,7 +29,11 @@ export default defineComponent({
       const projectId = route.params.id
       if (!projectId) return
 
-      project.value = await getProject(projectId, paramRequest)
+      try {
+        project.value = await getProject(projectId, paramRequest)
+      } catch (error) {
+        if (error.response.status === 403) router.push('/403')
+      }
     }
 
     onBeforeMount(() => {

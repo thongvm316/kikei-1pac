@@ -302,7 +302,7 @@ export default defineComponent({
     const getTabIndex = (tabList) => {
       const { tab } = route.query || 1
       const indexTab = tabList.findIndex((item) => item.id === parseInt(tab))
-      const groupId = indexTab < 0 ? tabList[0].id : parseInt(tab)
+      const groupId = indexTab < 0 ? tabList[0]?.id : parseInt(tab)
 
       return groupId
     }
