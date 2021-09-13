@@ -1,7 +1,11 @@
 <template>
   <div class="box-btn modal-actions">
     <div>
-      <a-button :disabled="project && !isAdmin" type="default" @click="$emit('on-go-to-edit')">
+      <a-button
+        :disabled="project && !authProfile.isAdmin && isProjectCreatedByUser"
+        type="default"
+        @click="$emit('on-go-to-edit')"
+      >
         <template #icon>
           <span class="btn-icon">
             <edit-icon />
@@ -28,7 +32,11 @@
         {{ $t('project.float_modal.search_deposit') }}
       </a-button>
 
-      <a-button type="default" :disabled="isDisableDelete || (project && !isAdmin)" @click="$emit('on-go-to-delete')">
+      <a-button
+        type="default"
+        :disabled="isDisableDelete || (project && !authProfile.isAdmin && isProjectCreatedByUser)"
+        @click="$emit('on-go-to-delete')"
+      >
         <template #icon>
           <span class="btn-icon">
             <delete-icon />
@@ -45,7 +53,7 @@
         </template>
       </a-button>
     </div>
-    <p v-if="project && !isAdmin" class="modal-actions__description mb-0">
+    <p v-if="project && !authProfile.isAdmin && isProjectCreatedByUser" class="modal-actions__description mb-0">
       本人が登録したプロジェクトのみ編集・削除可能
     </p>
   </div>
@@ -86,16 +94,22 @@ export default defineComponent({
     project: {
       type: Boolean,
       default: false
+    },
+
+    targetProjectSelectedCreatedById: {
+      type: Number,
+      required: true
     }
   },
 
-  setup() {
+  setup(props) {
     const store = useStore()
-
-    const isAdmin = computed(() => store.state?.auth.authProfile.isAdmin)
+    const authProfile = computed(() => store.state?.auth.authProfile)
+    const isProjectCreatedByUser = computed(() => props.targetProjectSelectedCreatedById !== authProfile.value.userId)
 
     return {
-      isAdmin
+      authProfile,
+      isProjectCreatedByUser
     }
   }
 })
