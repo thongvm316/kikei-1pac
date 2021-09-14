@@ -60,7 +60,7 @@
       </span>
     </template>
 
-    <template #action="{ record }">
+    <template #confirmed="{ record }">
       <a-button v-if="record.confirmed && isAdmin" type="danger" @click="$emit('handle-open-unconfirm-modal', record)">
         取消
       </a-button>
@@ -200,11 +200,12 @@ export default defineComponent({
       },
       {
         title: '確定',
-        dataIndex: 'action',
-        key: 'action',
-        slots: { customRender: 'action' },
+        dataIndex: 'confirmed',
+        key: 'confirmed',
+        slots: { customRender: 'confirmed' },
         width: '136px',
         align: 'center',
+        sorter: true,
         ellipsis: true
       }
     ]
