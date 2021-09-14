@@ -515,7 +515,10 @@ export default defineComponent({
 
     const handleChange = (evt) => {
       form.value.active = evt.target.value
-      if (valueSubmit.value.active && valueSubmit.value.status === 'deactive') showModalActivate.value = true
+      if (valueSubmit.value.active && valueSubmit.value.status === 'deactive') {
+        showModalActivate.value = true
+        isCheckedRadio.value = true
+      }
       if (!valueSubmit.value.active && valueSubmit.value.status === 'activate') {
         showModalActivate.value = true
         isActivate.value = true

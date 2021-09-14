@@ -159,7 +159,11 @@ export default defineComponent({
       if (keys(route.query).length > 0) {
         forEach(route.query, (value, key) => {
           if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-            body[key] = map([...value], (i) => Number(i))
+            if (isArray(value)) {
+              body[key] = map([...value], (i) => Number(i))
+            } else {
+              body[key] = value
+            }
           }
         })
       }

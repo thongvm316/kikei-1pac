@@ -10,7 +10,7 @@ export const refreshCategory = (route, filter) => {
             value[0].length > 3 ? (i) => Boolean(i) : (i) => Number(i)
           )
         } else {
-          filter[key] = map([JSON.parse(value)])
+          filter[key] = value
         }
       }
     })
