@@ -1,5 +1,15 @@
 <template>
   <div class="setting-account-form">
+    <!--    Modal Account-->
+    <modal-setting-acount
+      v-model:visible="showModalActivate"
+      :show-modal-activate="showModalActivate"
+      :is-checked-radio="isCheckedRadio"
+      :is-activate="isActivate"
+      :is-pending="isPending"
+      @is-checked="form.active = $event"
+    />
+
     <!-- Form -->
     <form @submit="onSubmit">
       <!-- Full name -->
@@ -58,10 +68,13 @@
           <label class="form-label">{{ $t('account.status') }}</label>
 
           <div class="form-input">
-            <a-radio-group v-model:value="form.active">
-              <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">{{
-                $t(`account.${item.value}`)
-              }}</a-radio>
+            <a-radio-group v-model:value="form.active" @change="handleChange">
+              <a-radio v-for="item in ACTIVE" :key="item.id" :value="item.id">
+                <template v-if="valueSubmit.status === 'pending_verification' && item.id">
+                  {{ $t(`account.pending_active`) }}
+                </template>
+                <template v-else>{{ $t(`account.${item.value}`) }}</template>
+              </a-radio>
             </a-radio-group>
           </div>
         </div>
@@ -168,11 +181,13 @@ import { getGroups } from '../composables/useGroupService'
 import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import ModalSettingAcount from '@/components/ModalSettingAcount'
 
 export default defineComponent({
   name: 'AccountForm',
 
   components: {
+    ModalSettingAcount,
     PermissionTable
   },
 
@@ -185,6 +200,10 @@ export default defineComponent({
 
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
+    const showModalActivate = ref(false)
+    const isCheckedRadio = ref(false)
+    const isActivate = ref(false)
+    const isPending = ref(false)
 
     const groupList = ref([])
     const groupListAllowedAccess = ref([])
@@ -367,18 +386,30 @@ export default defineComponent({
       }
     })
 
+    const notifiySuccess = (val) => {
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'successfully',
+        duration: 5,
+        message: locale.value === 'en' ? t(val) : t(val)
+      })
+    }
+
     const updateAccount = async (data) => {
       const id = route.params.id
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateAccount } = useUpdateAccountService(id, data)
-        await updateAccount()
-        //show notification
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
-          duration: 5,
-          message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
-        })
+        const { result } = await updateAccount()
+
+        if (result.data.action === 'cancle confirming') {
+          notifiySuccess('account.status_cancle_status')
+        } else if (result.data.action === 'change deactive to active') {
+          notifiySuccess('account.status_change_deactive_to_active')
+        } else {
+          notifiySuccess('account.status_change_active_to_deactive')
+        }
+
         await router.push({ name: 'account', query: route.query }).catch((err) => err)
       } catch (err) {
         throw err
@@ -482,6 +513,19 @@ export default defineComponent({
       form.value = formNew
     }
 
+    const handleChange = (evt) => {
+      form.value.active = evt.target.value
+      if (valueSubmit.value.active && valueSubmit.value.status === 'deactive') showModalActivate.value = true
+      if (!valueSubmit.value.active && valueSubmit.value.status === 'activate') {
+        showModalActivate.value = true
+        isActivate.value = true
+      }
+      if (!valueSubmit.value.active && valueSubmit.value.status === 'pending_verification') {
+        showModalActivate.value = true
+        isPending.value = true
+      }
+    }
+
     const replaceField = (text, field) => {
       return text.replace(field, t(`account.${field}`))
     }
@@ -496,8 +540,13 @@ export default defineComponent({
       templatesPermission,
       groupListAllowedAccess,
       isMissingPermission,
-
       onSubmit,
+      showModalActivate,
+      isCheckedRadio,
+      valueSubmit,
+      isActivate,
+      isPending,
+      handleChange,
       handleCancel,
       updateAccount,
       createAccount,
@@ -510,10 +559,14 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .setting-account-form {
   padding: 24px 32px;
   overflow-y: scroll;
   height: 100%;
+
+  .btn-cancel {
+    margin-right: 14px;
+  }
 }
 </style>

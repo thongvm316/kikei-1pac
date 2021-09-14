@@ -18,5 +18,9 @@ export default {
   title_verified: 'You has changed password before',
   desc_verified:
     'You has confirmed change new password. Please login with your new password. If you can\'t log in for some reason (system error; user confirmed after 24 hours...) then you must contact the Admin (via Tel/email) for support.',
-  conflict_password: 'You used this password recently. Please set a different one.'
+  conflict_password: 'You used this password recently. Please set a different one.',
+
+  // edit password
+  title_edit_password: 'Your account has been activated',
+  desc_edit_password: 'Now you can start using Kaikei'
 }

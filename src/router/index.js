@@ -6,6 +6,7 @@ import storageKeys from '@/enums/storage-keys'
 import { ActivateAccountGuard, RelateActivateAccountGuard } from '@/router/guards/ActivateAccount'
 import { ActivateEmailGuard, RelateActivateEmailGuard } from '@/router/guards/ActivateEmail'
 import { ActivatePasswordGuard, RelateActivatePasswordGuard } from '@/router/guards/ActivatePassword'
+import { ActiveDeactiveGuard, RelateActiveDeactiveGuard } from '@/router/guards/ActiveDeactive'
 import { ResolveGuard } from '@/router/guards/ResolveGuard'
 import { PAGE_PERMISSIONS } from '@/enums/account.enum'
 
@@ -136,6 +137,46 @@ const routes = [
     name: 'password-sent',
     component: lazyLoadRoute('Auth/Password/EmailSent'),
     meta: { title: `Email Sent | ${APP_NAME}` }
+  },
+
+  {
+    path: '/update-activate-account',
+    name: 'update-activate-account',
+    component: lazyLoadRoute('Auth/Activate-Deactivate/ActivateEditPassword'),
+    beforeEnter: ResolveGuard([ActiveDeactiveGuard]),
+    meta: { title: `Activate Change Password | ${APP_NAME}` }
+  },
+
+  {
+    path: '/success-edit-password',
+    name: 'success-edit-password',
+    component: lazyLoadRoute('Auth/Activate-Deactivate/SuccessEditPassword'),
+    beforeEnter: ResolveGuard([RelateActiveDeactiveGuard]),
+    meta: { title: `Activated Change Password | ${APP_NAME}` }
+  },
+
+  {
+    path: '/expired-mail-edit',
+    name: 'expired-mail-edit',
+    component: lazyLoadRoute('Auth/Activate-Deactivate/ExpiredMail'),
+    beforeEnter: ResolveGuard([RelateActiveDeactiveGuard]),
+    meta: { title: `Expired Mail | ${APP_NAME}` }
+  },
+
+  {
+    path: '/activated-email-edit-account',
+    name: 'activated-email-edit-account',
+    component: lazyLoadRoute('Auth/Activate-Deactivate/ActivatedEditEmail'),
+    beforeEnter: ResolveGuard([RelateActiveDeactiveGuard]),
+    meta: { title: `Activated Mail | ${APP_NAME}` }
+  },
+
+  {
+    path: '/disabled-email',
+    name: 'disabled-email',
+    component: lazyLoadRoute('Auth/Activate-Deactivate/DisabledEmail'),
+    beforeEnter: ResolveGuard([RelateActiveDeactiveGuard]),
+    meta: { title: `Disabled Email | ${APP_NAME}` }
   },
 
   {
@@ -386,7 +427,12 @@ const ROUTING_FREE = [
   'activated-password',
   'expired-mail-password',
   'email-sent',
-  'password-sent'
+  'password-sent',
+  'update-activate-account',
+  'success-edit-password',
+  'expired-mail-edit',
+  'activated-email-edit-account',
+  'disabled-email'
 ]
 
 router.beforeEach(async (to, _, next) => {

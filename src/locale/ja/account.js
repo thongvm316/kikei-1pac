@@ -34,6 +34,13 @@ export default {
   registration_settings: '登録設定',
   empty_text_table: '該当するアカウントが見つかりませんでした。',
   content: '内容は存在しました。',
+  status_activte: '有効',
+  status_deactivte: '無効',
+  status_pending: '確認待ち',
+  pending_active: '有効 (確認待ち)',
+  status_cancle_status: '「確認待ち」のステータスをキャンセルしました。このアカウントが元の「無効」に戻ります',
+  status_change_deactive_to_active: 'アカウントを「有効」に変更しました。ユーザーがメールアドレス確認をお待ちください',
+  status_change_active_to_deactive: 'アカウントを「無効」に変更しました。',
 
   csv: {
     all_group: 'グループ'
