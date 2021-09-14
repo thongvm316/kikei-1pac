@@ -66,8 +66,13 @@
     >
       <template #renderCreatedAt="{ record }">{{ $filters.moment_l(record.createdAt) }}</template>
 
-      <template #active="{ text: active }">
-        {{ active === true ? $t('account.in_use') : $t('account.retired') }}
+      <template #status="{ text: status }">
+        <div class="columns-status">
+          <p class="point-status" :style="{ backgroundColor: tagsAction(status).backgroundColor }"></p>
+          <p class="text-status" :style="{ color: tagsAction(status).backgroundColor }">
+            {{ tagsAction(status).value }}
+          </p>
+        </div>
       </template>
     </a-table>
 
@@ -208,10 +213,10 @@ export default defineComponent({
       },
       {
         title: t('account.status'),
-        dataIndex: 'active',
-        key: 'active',
+        dataIndex: 'status',
+        key: 'status',
         sorter: true,
-        slots: { customRender: 'active' }
+        slots: { customRender: 'status' }
       }
     ]
 
@@ -390,6 +395,16 @@ export default defineComponent({
       updateParamRequestAccount({ data: { groupId }, params: { pageNumber: 1 } })
     }
 
+    const tagsAction = (status) => {
+      if (status.includes('activate')) {
+        return { backgroundColor: '#52C41A', value: t('account.status_activte') }
+      } else if (status.includes('deactive')) {
+        return { backgroundColor: '#F5222D', value: t('account.status_deactivte') }
+      } else {
+        return { backgroundColor: '#8C8C8C', value: t('account.status_pending') }
+      }
+    }
+
     onMounted(async () => {
       // get inner height
       getInnerHeight()
@@ -493,7 +508,7 @@ export default defineComponent({
       groupList,
       requestParamsData,
       localeTable,
-
+      tagsAction,
       handleDeleteRecord,
       handleEditRecord,
       handleResetPassword,
@@ -544,6 +559,23 @@ export default defineComponent({
 
   .ant-table-placeholder {
     padding-top: 48px;
+  }
+
+  .columns-status {
+    display: flex;
+    align-items: center;
+
+    .point-status {
+      width: 12px;
+      height: 12px;
+      margin-bottom: 0;
+      margin-right: 4px;
+      border-radius: 50%;
+    }
+
+    .text-status {
+      margin-bottom: 0;
+    }
   }
 }
 </style>

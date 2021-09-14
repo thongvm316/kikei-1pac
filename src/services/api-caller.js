@@ -13,7 +13,8 @@ const NAME_PAGE = [
   'subcategory.0002',
   'set_password.0004',
   'profile.0004',
-  'profile.0001'
+  'profile.0001',
+  'check_activate_token.0004'
 ]
 
 axios.defaults.baseURL = process.env.VUE_APP_API_ENDPOINT

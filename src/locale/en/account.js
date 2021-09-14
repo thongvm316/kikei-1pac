@@ -34,6 +34,13 @@ export default {
   registration_settings: '登録設定',
   empty_text_table: '該当するアカウントが見つかりませんでした。',
   content: 'The content existed',
+  status_activte: 'Active',
+  status_deactivte: 'Deavtive',
+  status_pending: 'Pending Verification',
+  pending_active: 'Active (Confirming)',
+  status_cancle_status: 'You has canceled status “ Confirming” success. This account change back to deactivated',
+  status_change_deactive_to_active: 'You has changed account to “Active” success. Waiting user confirm email.',
+  status_change_active_to_deactive: 'You has changed account to “Deactive” success.',
 
   csv: {
     all_group: 'グループ'
