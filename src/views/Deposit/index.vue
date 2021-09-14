@@ -259,7 +259,7 @@ export default defineComponent({
     // data for request deposit
     const paramRequestDataDeposit = ref({
       data: {},
-      params: { pageNumber: 1, pageSize: pageSize.value, orderBy: 'confirmed desc' }
+      params: { pageNumber: 1, pageSize: pageSize.value }
     })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
@@ -602,7 +602,7 @@ export default defineComponent({
     /* --------------------- ./handle unconfirm deposit ------------------- */
 
     const onSortTable = (emitData) => {
-      const currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : 'confirmed desc'
+      const currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
       updateParamRequestDeposit({ params: { orderBy: currentSortStr } })
     }
 
