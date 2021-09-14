@@ -53,7 +53,7 @@
     <!-- ./custom column middle -->
     <!-- custom column total -->
     <template #totalMoney="{ text, record, column }">
-      <span v-if="text?.warnings" :class="{ 'disabled-click': isDisabledEventClick }">
+      <span v-if="text.warnings" :class="{ 'disabled-click': isDisabledEventClick }">
         <a-tooltip v-if="text.warnings.length > 0" placement="topRight" :title="dataToolTip(text)">
           <a
             class="ant-dropdown-link"
@@ -92,7 +92,6 @@ import { defineComponent, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { isArray } from 'lodash-es'
 
 import humps from 'humps'
 import moment from 'moment'
@@ -208,20 +207,19 @@ export default defineComponent({
         }
       }
 
-      if (isArray(groupId)) {
+      if (!groupId) {
         bankAccountsId.value = null
       }
     }
 
     const handlePageRedirect = (record, column) => {
       dataFilterRequest.value = props.dataRequest.data
-      const isGroupAll = isArray(dataFilterRequest.value.group_id)
 
       let columnId = column.key.split('_')[1] ?? ''
       let typeDeposit = null
       let moneyType = null
       let groupId = parseInt(columnId)
-      if (!isGroupAll) {
+      if (dataFilterRequest.value.group_id) {
         groupId = dataFilterRequest.value.group_id
       }
 
@@ -248,7 +246,7 @@ export default defineComponent({
         moneyType: moneyType
       }
 
-      if (groupId) {
+      if (dataFilterRequest.value.group_id) {
         store.commit('deposit/STORE_DEPOSIT_FILTER', { data })
         router.push({ name: 'deposit' })
       } else {
@@ -301,7 +299,7 @@ export default defineComponent({
     watch(
       () => props.dataRequest,
       () => {
-        isDisabledEventClick.value = isArray(props.dataRequest.data.group_id)
+        isDisabledEventClick.value = !props.dataRequest.data.group_id
       }
     )
 
