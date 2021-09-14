@@ -156,7 +156,7 @@
         <a-button key="back" class="btn-cancel" @click="handleCancel">
           {{ $t('common.cancel') }}
         </a-button>
-        <a-button key="submit" type="primary" html-type="submit" class="btn-submit">
+        <a-button key="submit" type="primary" html-type="submit" class="btn-submit u-ml-12">
           {{ $route.name === 'account-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>

@@ -120,7 +120,7 @@
 import { defineComponent, onMounted, ref, toRefs, watch, nextTick, onBeforeMount } from 'vue'
 import Chart from 'chart.js/auto'
 import CloseIcon from '@/assets/icons/ico_close.svg'
-import { find, forEach, map, split, includes, cloneDeep, isArray } from 'lodash-es'
+import { find, forEach, map, split, includes, cloneDeep } from 'lodash-es'
 import { LineChartOutlined } from '@ant-design/icons-vue'
 import { CHART } from '@/enums/chart-line.enum'
 import { useStore } from 'vuex'
@@ -440,13 +440,8 @@ export default defineComponent({
 
         let filter = filters.data === undefined ? { ...initialDataRequest } : filters.data
 
-        // convert groupId to array
-        const groupId = filter?.group_id || null
-        const groupIdArr = isArray(groupId) ? groupId : [groupId]
-
         dataPoint.value = {
           ...filter,
-          group_id: groupIdArr,
           from_date: fullDate.value,
           to_date: fullDate.value,
           data_id: dataId

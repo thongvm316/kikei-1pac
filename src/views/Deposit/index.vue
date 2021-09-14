@@ -257,7 +257,10 @@ export default defineComponent({
     ])
 
     // data for request deposit
-    const paramRequestDataDeposit = ref({ data: {}, params: { pageNumber: 1, pageSize: pageSize.value } })
+    const paramRequestDataDeposit = ref({
+      data: {},
+      params: { pageNumber: 1, pageSize: pageSize.value }
+    })
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -302,7 +305,7 @@ export default defineComponent({
     const getTabIndex = (tabList) => {
       const { tab } = route.query || 1
       const indexTab = tabList.findIndex((item) => item.id === parseInt(tab))
-      const groupId = indexTab < 0 ? tabList[0].id : parseInt(tab)
+      const groupId = indexTab < 0 ? tabList[0]?.id : parseInt(tab)
 
       return groupId
     }
@@ -599,15 +602,7 @@ export default defineComponent({
     /* --------------------- ./handle unconfirm deposit ------------------- */
 
     const onSortTable = (emitData) => {
-      let currentSortStr = ''
-
-      if (!emitData.orderBy) {
-        currentSortStr = null
-        return
-      }
-
-      currentSortStr = `${emitData.field} ${emitData.orderBy}`
-
+      const currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
       updateParamRequestDeposit({ params: { orderBy: currentSortStr } })
     }
 
