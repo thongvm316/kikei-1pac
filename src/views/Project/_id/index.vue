@@ -32,7 +32,7 @@ export default defineComponent({
       try {
         project.value = await getProject(projectId, paramRequest)
       } catch (error) {
-        if (error.response.status === 403) router.push('/403')
+        if (error.response.status === 403) router.push({ name: 'error-403', query: { private: 'project' } })
       }
     }
 
