@@ -6,7 +6,7 @@
       <h2 class="page-403__content--description">{{ titlePage }}</h2>
 
       <div class="page-403__buttons">
-        <router-link v-if="isProjectPrivate === 'project'" to="/project">
+        <router-link v-if="currentPrivatePage === 'project'" to="/project">
           <a-button type="" size="large">戻る</a-button>
         </router-link>
 
@@ -28,12 +28,12 @@ export default defineComponent({
   setup() {
     const route = useRoute()
 
-    const isProjectPrivate = computed(() => route.query.private)
+    const currentPrivatePage = computed(() => route.query.private)
 
     const titlePage = computed(() => {
       let title = ''
 
-      switch (isProjectPrivate.value) {
+      switch (currentPrivatePage.value) {
         case 'project':
           title = '本人登録したプロジェクトのみ編集・削除可能'
           break
@@ -48,7 +48,7 @@ export default defineComponent({
 
     return {
       titlePage,
-      isProjectPrivate
+      currentPrivatePage
     }
   }
 })
