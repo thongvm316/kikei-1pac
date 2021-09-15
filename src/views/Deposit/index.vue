@@ -312,7 +312,8 @@ export default defineComponent({
 
     const onHandleChangeBankAcountSelect = debounce(async (value) => {
       updateParamRequestDeposit({
-        data: { bankAccountId: value }
+        data: { bankAccountId: value },
+        params: { pageNumber: 1 }
       })
     }, 1000)
 
