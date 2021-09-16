@@ -35,6 +35,7 @@ import { convertDataByDates, convertDataByMonth, convertDataCsv } from '@/helper
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
+import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 
 export default defineComponent({
   name: 'Index',
@@ -286,10 +287,21 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
+      // permission
+      const { getGroups } = useGetGroupListService()
+      const { result } = await getGroups()
+
       // Get filters financing from store
       const filtersFinancingStore = store.getters['financing/filters'] || {}
       if (filtersFinancingStore) {
         Object.assign(requestParamsData.value, filtersFinancingStore)
+
+        // permission
+        requestParamsData.value.data = {
+          ...requestParamsData.value.data,
+          group_id: result.data[0].id
+        }
+
         // fetch data table
         await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }

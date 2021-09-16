@@ -406,8 +406,15 @@ export default defineComponent({
           notifiySuccess('account.status_cancle_status')
         } else if (result.data.action === 'change deactive to active') {
           notifiySuccess('account.status_change_deactive_to_active')
-        } else {
+        } else if (result.data.action === 'change active to deactive') {
           notifiySuccess('account.status_change_active_to_deactive')
+        } else {
+          //show notification
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'success',
+            duration: 5,
+            message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
+          })
         }
 
         await router.push({ name: 'account', query: route.query }).catch((err) => err)
@@ -567,9 +574,5 @@ export default defineComponent({
   padding: 24px 32px;
   overflow-y: scroll;
   height: 100%;
-
-  .btn-cancel {
-    margin-right: 14px;
-  }
 }
 </style>

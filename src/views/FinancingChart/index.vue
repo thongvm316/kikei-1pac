@@ -225,7 +225,7 @@ export default defineComponent({
       let periodCurrentFound = findCurrentPeriod(periodList.value)
       if (dateString.length > 1) {
         if (!filter.show_by) {
-          let checkDateUndefined = filter.date_from_to[0] === undefined && filter.date_from_to[1] === undefined
+          let checkDateUndefined = filter.date_from_to[0] === null && filter.date_from_to[1] === null
 
           filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
           filter.date_from_to[0] = checkDateUndefined ? null : currentDate(value[0])
@@ -401,7 +401,7 @@ export default defineComponent({
     const resetFilterChart = async () => {
       let flagChart = JSON.parse(localStorage.getItem('flag_chart'))
       let initialDataRequest = {
-        group_id: 1,
+        group_id: groupList.value[0].id,
         period_id: null,
         from_date: null,
         to_date: null,
@@ -412,8 +412,8 @@ export default defineComponent({
       let groupID = filter?.group_id || null
 
       if (groupID === null) {
-        await fetchPeriodList(1)
-        await fetchBankAccounts({ group_id: 1 })
+        await fetchPeriodList(groupList.value[0].id)
+        await fetchBankAccounts({ group_id: groupList.value[0].id })
       } else {
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
@@ -425,18 +425,15 @@ export default defineComponent({
         filter.currency_code = currencyDefault?.code
         filter.period_id = null
         filter.date_from_to = [currentDate(), addDaysInCurrentDate(null, 59)]
-        filter.group_id = 1
+        filter.group_id = groupList.value[0].id
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         filter.show_by = 1
 
         initialDataRequest = {
-          group_id: 1,
-          period_id: null,
+          ...initialDataRequest,
+          group_id: groupList.value[0].id,
           from_date: currentDate(),
-          to_date: addDaysInCurrentDate(null, 59),
-          show_by: 1,
-          bank_account_ids: [],
-          currency_code: null
+          to_date: addDaysInCurrentDate(null, 59)
         }
 
         requestParamsData.value.data = { ...initialDataRequest }
@@ -476,12 +473,13 @@ export default defineComponent({
 
     const loadDataDefault = async () => {
       localStorage.removeItem('flag_chart')
-      let groupID = filter?.group_id || null
+      let groupID = groupList.value[0].id || null
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
       if (groupID) {
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
       }
+      filter.group_id = groupList.value[0].id
       filter.currency_code = currencyDefault?.code || null
       filter.bank_account_ids = bankAccountList?.value[0]?.id
       filter.period_id = null
@@ -489,6 +487,7 @@ export default defineComponent({
       filter.date_from_to[1] = addDaysInCurrentDate(null, 59)
       requestParamsData.value.data = {
         ...requestParamsData.value.data,
+        group_id: groupList.value[0].id,
         period_id: filter.period_id,
         from_date: filter.date_from_to[0],
         to_date: filter.date_from_to[1]

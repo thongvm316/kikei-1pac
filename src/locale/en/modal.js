@@ -23,7 +23,7 @@ export default {
   title_upload: 'Uploading your image',
   title_crop: 'Crop your image',
   title_fail: 'Upload failed',
-  title_account: 'Save',
+  title_account: 'Confirm',
   desc_account_activate_step1: 'You has changed account to “Active”.',
   desc_account_activate_step2: 'Do you want to save ?',
   desc_account_deactivate_step1: 'You has changed account to “Deactive”.',
