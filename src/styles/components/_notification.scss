@@ -6,14 +6,6 @@
     margin-bottom: 0;
   }
 
-  &.success {
-    background-color: $color-grey-26;
-
-    .ant-notification-notice-message {
-      color: $color-grey-100;
-    }
-  }
-
   &.successfully {
     background-color: $color-green-7;
 

@@ -260,7 +260,7 @@ export default defineComponent({
         const { deleteCompany } = useDeleteCompanyService(recordVisible.value.id)
         await deleteCompany()
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           duration: 5,
           message:
             locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'

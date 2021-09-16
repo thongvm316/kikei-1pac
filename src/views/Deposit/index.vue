@@ -594,7 +594,7 @@ export default defineComponent({
 
         // noti
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('deposit.unconfirm_modal.unconfirm_success', { purpose })
         })
       }
