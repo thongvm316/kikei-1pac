@@ -248,7 +248,7 @@ export default defineComponent({
         if (response.status === 200) {
           //show notification
           store.commit('flash/STORE_FLASH_MESSAGE', {
-            variant: 'success',
+            variant: 'successfully',
             duration: 5,
             message: t('account.delete_account', { username: recordVisible.value.username })
           })
@@ -286,7 +286,7 @@ export default defineComponent({
 
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message:
           locale.value === 'en'

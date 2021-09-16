@@ -148,7 +148,7 @@ export default defineComponent({
       }
       //show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message:
           locale.value === 'en'
