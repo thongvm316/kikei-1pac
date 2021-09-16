@@ -433,7 +433,9 @@ export default {
     }
 
     const handleLoadingData = async () => {
-      let groupID = filter?.group_id || null
+      // permission
+      let groupID = groupList.value[0].id || null
+
       let periodID = filter?.period_id || null
       let bankAccountIds = filter.bank_account_ids
       let currencyCode = filter.currency_code

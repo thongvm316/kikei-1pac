@@ -25,7 +25,7 @@ export default {
   title_crop: '写真を切り取り',
   title_fail: 'アップロードに失敗しました',
   title_email: 'メールアドレスの変更',
-  title_account: '保存',
+  title_account: '確定',
   desc_account_activate_step1: 'アカウントを「有効」に変更しました。',
   desc_account_activate_step2: '変更を保存しますか？',
   desc_account_deactivate_step1: 'アカウントを「無効」に変更しました。',

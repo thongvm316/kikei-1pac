@@ -17,14 +17,16 @@ export const convertDataByMonth = (array, key, key_prefix, value) => {
   let keyField = ''
   let valueField = {}
 
-  return array.reduce((obj, item) => {
-    key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
-    valueField.money = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    valueField.warnings = item?.warnings || []
+  if (array) {
+    return array.reduce((obj, item) => {
+      key_prefix === '' ? (keyField = item[key]) : (keyField = [key_prefix + item[key]])
+      valueField.money = item[value].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      valueField.warnings = item?.warnings || []
 
-    const newValueField = Object.assign({}, valueField)
-    return { ...obj, [keyField]: newValueField }
-  }, {})
+      const newValueField = Object.assign({}, valueField)
+      return { ...obj, [keyField]: newValueField }
+    }, {})
+  }
 }
 
 export const convertDataCsv = (array, key, key_prefix, value) => {

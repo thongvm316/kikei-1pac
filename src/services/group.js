@@ -1,7 +1,7 @@
 import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
-  group: '/group'
+  group: '/group/group_for_account/3'
 })
 
 export default {
