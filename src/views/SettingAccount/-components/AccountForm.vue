@@ -411,7 +411,7 @@ export default defineComponent({
         } else {
           //show notification
           store.commit('flash/STORE_FLASH_MESSAGE', {
-            variant: 'success',
+            variant: 'successfully',
             duration: 5,
             message: locale.value === 'en' ? data.username + 'updated success' : data.username + ' が更新されました'
           })
