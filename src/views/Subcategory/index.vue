@@ -269,7 +269,7 @@ export default defineComponent({
         await deleteSubCategory()
         //show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           duration: 5,
           message:
             locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'

@@ -423,7 +423,7 @@ export default defineComponent({
         await createAccount()
         //show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           duration: 5,
           message:
             locale.value === 'en' ? data.username + 'created account success' : data.username + ' が追加されました'

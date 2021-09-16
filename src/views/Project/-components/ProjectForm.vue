@@ -657,7 +657,7 @@ export default defineComponent({
         const name = projectDataRequest.value?.name || ''
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('project.flash_message.create_success', { name })
         })
         router.push({ name: 'project' })
@@ -677,7 +677,7 @@ export default defineComponent({
         const name = projectDataRequest.value.name
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('project.flash_message.update_success', { name })
         })
         router.push({ name: 'project' })

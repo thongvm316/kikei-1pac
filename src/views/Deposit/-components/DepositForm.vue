@@ -681,7 +681,7 @@ export default defineComponent({
         const purpose = depositDataRequest.purpose
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('deposit.new.create_success', { purpose })
         })
         router.push({ name: 'deposit' })
@@ -702,7 +702,7 @@ export default defineComponent({
         const purpose = depositDataRequest.purpose
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('deposit.new.update_success', { purpose })
         })
         router.push({ name: 'deposit' })
@@ -723,7 +723,7 @@ export default defineComponent({
         const purpose = params.value.purpose
 
         store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'success',
+          variant: 'successfully',
           message: t('deposit.unconfirm_modal.unconfirm_success', { purpose })
         })
         router.push({ name: 'deposit' })
