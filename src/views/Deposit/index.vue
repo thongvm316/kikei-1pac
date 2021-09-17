@@ -473,25 +473,22 @@ export default defineComponent({
 
         isVisibleDeleteModal.value = true
       }
-
       isVisibleDeleteModal.value = true
     }
 
     const onDeleteDepositRecord = async (emitKey) => {
-      console.log(emitKey)
-      const depositId = currentSelectedRecord.value?.id || ''
+      const targetDelete = emitKey === 'multiple' ? currentSelectedRowKeys.value : [currentSelectedRecord.value?.id]
       const purpose = currentSelectedRecord.value?.purpose
-      if (!depositId) return
+      if (targetDelete.length < 1) return
 
       try {
         isLoadingDataTable.value = true
-        const applyForRoot = currentSelectedRecord.value?.isRoot || false
-        const { result: deletedRecords } = await deleteDeposit(depositId, { applyForRoot })
+        const { result: deletedRecords } = await deleteDeposit({ id: targetDelete })
 
         dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
-        isVisibleDeleteModal.value = false
-        isVisibleModalActionBar.value = false
       } finally {
+        isVisibleModalActionBar.value = false
+        isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
       }
 
