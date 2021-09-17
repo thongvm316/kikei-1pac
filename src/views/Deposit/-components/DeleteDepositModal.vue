@@ -6,7 +6,7 @@
       </p>
       <p v-else>{{ $t('deposit.deposit_list.delete_deposit_multiple') }}</p>
       <a-button type="default" @click="handleCancel">キャンセル</a-button>
-      <a-button type="danger" @click="$emit('on-delete-deposit-record')">削除</a-button>
+      <a-button type="danger" @click="handleDeleteDeposit">削除</a-button>
     </template>
   </a-modal>
 </template>
@@ -23,17 +23,23 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const visible = ref()
+    const purpose = computed(() => props.currentSelectedRecord?.purpose)
 
     const handleCancel = () => {
       emit('update:visible', false)
     }
 
-    const purpose = computed(() => props.currentSelectedRecord?.purpose)
+    const handleDeleteDeposit = () => {
+      const emitKey = purpose.value ? 'once' : 'multiple'
+      console.log(purpose.value)
+      emit('on-delete-deposit-record', emitKey)
+    }
 
     return {
       visible,
       purpose,
-      handleCancel
+      handleCancel,
+      handleDeleteDeposit
     }
   }
 })

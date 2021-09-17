@@ -46,15 +46,27 @@
           />
         </a-tooltip>
 
-        <a-button
-          v-if="currentSelectedRowKeys.length > 0"
-          size="small"
-          type="link"
-          class="u-absolute u-ml-4"
-          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
-        >
-          {{ $t('deposit.deposit_list.confirm_all') }}
-        </a-button>
+        <div v-if="currentSelectedRowKeys.length > 0" class="confirm-buttons">
+          <a-tooltip color="fff" title="チェックした項目を確定">
+            <a-button
+              type="primary"
+              shape="circle"
+              @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
+            >
+              <template #icon>
+                <span class="btn-icon"><CheckWhiteIcon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+
+          <a-tooltip color="fff" title="削除">
+            <a-button type="primary" shape="circle" @click="onOpenDeleteDepositModal('multiple')">
+              <template #icon>
+                <span class="btn-icon"><DeleteWhiteIcon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+        </div>
       </div>
 
       <a-select
@@ -128,9 +140,10 @@
   />
 
   <delete-deposit-modal
+    v-if="isVisibleDeleteModal"
     v-model:visible="isVisibleDeleteModal"
     :current-selected-record="currentSelectedRecord"
-    @on-delete-deposit-record="onDeleteDepositRecord"
+    @on-delete-deposit-record="onDeleteDepositRecord($event)"
   />
 
   <confirm-deposit-modal
@@ -179,11 +192,15 @@ import ModifyDepositModal from './-components/ModifyDepositModal'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
+import CheckWhiteIcon from '@/assets/icons/ico_check_white.svg'
 
 export default defineComponent({
   name: 'DepositPage',
 
   components: {
+    CheckWhiteIcon,
+    DeleteWhiteIcon,
     LineDownIcon,
     LineAddIcon,
     DepositTable,
@@ -448,13 +465,20 @@ export default defineComponent({
       router.push({ name: 'deposit-new' })
     }
 
-    const onOpenDeleteDepositModal = () => {
-      if (currentSelectedRecord.value.confirmed) return
+    const onOpenDeleteDepositModal = (deleteType) => {
+      if (deleteType === 'multiple') {
+        isVisibleDeleteModal.value = true
+      } else {
+        if (currentSelectedRecord.value.confirmed) return
+
+        isVisibleDeleteModal.value = true
+      }
 
       isVisibleDeleteModal.value = true
     }
 
-    const onDeleteDepositRecord = async () => {
+    const onDeleteDepositRecord = async (emitKey) => {
+      console.log(emitKey)
       const depositId = currentSelectedRecord.value?.id || ''
       const purpose = currentSelectedRecord.value?.purpose
       if (!depositId) return
@@ -475,7 +499,7 @@ export default defineComponent({
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message: purpose
           ? t('deposit.deposit_list.delete_success', { purpose })
@@ -776,6 +800,17 @@ export default defineComponent({
     span {
       text-decoration: underline;
     }
+  }
+
+  .confirm-buttons {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    margin-left: 24px;
+    gap: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 100%;
   }
 }
 </style>
