@@ -144,10 +144,12 @@
     :purpose="unconfirmRecordSeleted?.purpose || ''"
     @on-unconfirm-deposit="onUnconfirmDeposit"
   />
+
+  <ModifyDepositModal v-model:visible="isModifyDepositRoot" />
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncComponent } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -172,11 +174,11 @@ import SearchDepositModal from './-components/SearchDepositModal'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
 import ModalActionBar from '@/components/ModalActionBar'
+import ModalUnconfirm from './-components/UnconfirmDepositModal'
+import ModifyDepositModal from './-components/ModifyDepositModal'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-
-const ModalUnconfirm = defineAsyncComponent(() => import('./-components/UnconfirmDepositModal'))
 
 export default defineComponent({
   name: 'DepositPage',
@@ -189,7 +191,8 @@ export default defineComponent({
     DeleteDepositModal,
     ConfirmDepositModal,
     ModalActionBar,
-    ModalUnconfirm
+    ModalUnconfirm,
+    ModifyDepositModal
   },
 
   setup() {
@@ -221,6 +224,7 @@ export default defineComponent({
     const tableKey = ref(0)
     const unconfirmRecordSeleted = ref()
     const modalActionRef = ref()
+    const isModifyDepositRoot = ref(false)
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -496,10 +500,16 @@ export default defineComponent({
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
+      console.log('currentSelectedRecord', currentSelectedRecord.value)
+
       // save filters search to store
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
-      router.push({ name: 'deposit-edit', params: { id: depositId } })
+      if (currentSelectedRecord.value.isRoot === null) {
+        router.push({ name: 'deposit-edit', params: { id: depositId } })
+      } else {
+        isModifyDepositRoot.value = true
+      }
     }
 
     const onCloseModalAction = () => {
@@ -701,10 +711,8 @@ export default defineComponent({
     )
 
     return {
-      isCheckAllRowTable,
       bankAccountId,
       currentPage,
-      isIndeterminateCheckAllRow,
       currentSelectedRowKeys,
       bankAccountList,
       tabListGroup,
@@ -712,7 +720,6 @@ export default defineComponent({
       totalRecords,
       activeKeyGroupTab,
       tableKey,
-      isDisabledSelectAllRows,
       currentSelectedRecord,
       confirmedSelectedDepositRecord,
       confirmedSelectedPurpose,
@@ -722,6 +729,9 @@ export default defineComponent({
       modalActionRef,
       pageSize,
 
+      isCheckAllRowTable,
+      isDisabledSelectAllRows,
+      isIndeterminateCheckAllRow,
       isLoadingDataTable,
       isVisibleModalActionBar,
       isVisibleDeleteModal,
@@ -729,6 +739,7 @@ export default defineComponent({
       isLoadingExportCsv,
       isVisibleConfirmDepositModal,
       isVisibleUnconfirmModal,
+      isModifyDepositRoot,
 
       updateParamRequestDeposit,
       onSelectAllRows,

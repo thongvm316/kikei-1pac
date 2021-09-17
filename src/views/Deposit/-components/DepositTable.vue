@@ -1,8 +1,8 @@
 <template>
   <a-table
-    class="deposit-table"
+    :class="['deposit-table', isTableModal && 'is-table-modal']"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1200, y: height - 295 }"
+    :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
@@ -107,7 +107,11 @@ export default defineComponent({
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
-    isVisibleModalActionBar: Boolean
+    isVisibleModalActionBar: Boolean,
+    isTableModal: {
+      type: Boolean,
+      default: false
+    }
   },
 
   setup(props, { emit }) {
@@ -115,12 +119,13 @@ export default defineComponent({
 
     const currentRowClick = ref()
     const height = ref(0)
-
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
     }
+
+    const columnNotShowList = ['confirmed']
 
     const columnsDeposit = [
       {
@@ -208,11 +213,12 @@ export default defineComponent({
         sorter: true,
         ellipsis: true
       }
-    ]
-
-    const currencyCodeText = computed(() => {
-      return props.dataDeposit[0]?.currency
+    ].filter((col) => {
+      if (!props.isTableModal) return true
+      return columnNotShowList.indexOf(col.dataIndex) === -1
     })
+
+    const currencyCodeText = computed(() => (props?.dataDeposit[0] ? props?.dataDeposit[0]?.currency : ''))
 
     const onSelectChangeRow = (selectedRowKeys) => {
       if (
@@ -415,6 +421,12 @@ export default defineComponent({
 
   .ant-table-placeholder {
     padding-top: 48px;
+  }
+}
+
+.ant-table-wrapper.deposit-table.is-table-modal {
+  .ant-table-placeholder {
+    height: calc(100vh - 500px);
   }
 }
 </style>
