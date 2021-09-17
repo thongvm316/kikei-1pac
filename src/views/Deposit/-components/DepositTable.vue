@@ -7,12 +7,16 @@
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
-    :row-selection="{
-      onChange: onSelectChangeRow,
-      onSelectAll: onSelectAllChangeRows,
-      selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => ({ disabled: record.confirmed })
-    }"
+    :row-selection="
+      isTableModal
+        ? null
+        : {
+            onChange: onSelectChangeRow,
+            onSelectAll: onSelectAllChangeRows,
+            selectedRowKeys: currentSelectedRowKeys,
+            getCheckboxProps: (record) => ({ disabled: record.confirmed })
+          }
+    "
     :pagination="false"
     :expand-icon-as-cell="false"
     :locale="localeTable"
