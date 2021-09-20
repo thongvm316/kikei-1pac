@@ -776,8 +776,12 @@ export default defineComponent({
         depositId && (isCloneDeposit.value = true)
       }
 
+      const paramsRequest = {
+        is_get_root: isEditRoot
+      }
+
       if (!depositId) return
-      const { result = {} } = await getDepositDetail(depositId)
+      const { result = {} } = await getDepositDetail(depositId, paramsRequest)
 
       params.value = {
         ...params.value,

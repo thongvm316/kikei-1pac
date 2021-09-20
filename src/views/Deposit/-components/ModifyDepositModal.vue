@@ -3,7 +3,7 @@
     :visible="visible"
     width="85%"
     class="modal-modify-deposit modal-modify-deposit-js"
-    :title="'入出金編集'"
+    :title="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT'] ? '入出金編集' : '入出金削除'"
     @cancel="handleCancel"
   >
     <template #footer>
@@ -31,14 +31,14 @@
       <div class="u-mt-24 u-mb-16">
         <a-button type="default" @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
         <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit"
-          >Edit</a-button
+          >編集</a-button
         >
         <a-button
           v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['DELETE']"
-          type="primary"
+          type="danger"
           @click="handleDelete"
         >
-          Delete
+          削除
         </a-button>
       </div>
     </template>
@@ -105,28 +105,23 @@ export default defineComponent({
 
     const handleEdit = () => {
       const isEditRoot = optionValue.value === EDIT_OPTIONS[1].value
+      const id = isEditRoot ? props.currentSelectedRecord.rootDepositId : props.currentSelectedRecord.id
 
-      if (isEditRoot) {
-        // edit deposit root
-        router.push({
-          name: 'deposit-edit',
-          params: { id: props.currentSelectedRecord.rootDepositId, isEditRoot }
-        })
-      } else {
-        // edit deposit child
-        router.push({
-          name: 'deposit-edit',
-          params: { id: props.currentSelectedRecord.id, isEditRoot }
-        })
-      }
+      router.push({
+        name: 'deposit-edit',
+        params: { id, isEditRoot }
+      })
     }
 
     const fetchDatatableDeposit = async () => {
+      const rootDepositId = props.currentSelectedRecord?.rootDepositId || null
+      if (!rootDepositId) return
+
       isLoadingDataTable.value = true
 
       const dataRequest = {
         groupId: props.groupId,
-        rootDepositId: props.currentSelectedRecord.rootDepositId || null
+        rootDepositId
       }
       const paramsRequest = { pageNumber: 1, pageSize: 50 }
 

@@ -85,9 +85,9 @@ export const createDeposit = async (data) => {
   }
 }
 
-export const getDepositDetail = async (id) => {
+export const getDepositDetail = async (id, params) => {
   try {
-    const { data } = await DepositService.getDepositDetail(id)
+    const { data } = await DepositService.getDepositDetail(id, params)
 
     return data
   } catch (error) {

@@ -17,8 +17,8 @@ export default {
     return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   },
 
-  getDepositDetail(depositId) {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}` })
+  getDepositDetail(depositId, params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}`, params })
   },
 
   deleteDeposit(data) {
