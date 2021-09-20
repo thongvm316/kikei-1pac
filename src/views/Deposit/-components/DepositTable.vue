@@ -246,7 +246,6 @@ export default defineComponent({
     }
 
     const onSelectAllChangeRows = (_, selectedRows) => {
-      console.log('object')
       emit(
         'update:currentSelectedRowKeys',
         selectedRows.map((item) => item.key)
@@ -258,6 +257,7 @@ export default defineComponent({
         onClick: (event) => {
           if (event.target.type === 'button') return
           currentRowClick.value = record.key
+
           emit('on-open-deposit-buttons-float', record)
         }
       }

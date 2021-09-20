@@ -141,6 +141,7 @@
 
   <delete-deposit-modal
     v-if="isVisibleDeleteModal"
+    ref="modalDeleteRef"
     v-model:visible="isVisibleDeleteModal"
     :current-selected-record="currentSelectedRecord"
     @on-delete-deposit-record="onDeleteDepositRecord($event)"
@@ -161,6 +162,7 @@
   <ModifyDepositModal
     v-if="isModifyDepositRoot"
     v-model:visible="isModifyDepositRoot"
+    v-model:current-selected-row-keys="currentSelectedRowKeys"
     :group-id="activeKeyGroupTab"
     :current-selected-record="currentSelectedRecord"
     :type-modify-deposit-root="typeModifyDepositRoot"
@@ -251,6 +253,7 @@ export default defineComponent({
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
     const typeModifyDepositRoot = ref('')
+    const modalDeleteRef = ref()
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -372,13 +375,16 @@ export default defineComponent({
 
     // close action bar
     const handleClickOutsideTable = (event) => {
-      const elModalDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
       const elModalModifyDeposit = document.querySelector('.modal-modify-deposit-js')
 
-      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit, elModalModifyDeposit].filter(Boolean)
+      const elNotOutsideList = [modalActionRef.value?.$el, modalDeleteRef.value?.$el, elModalModifyDeposit].filter(
+        Boolean
+      )
       if (elNotOutsideList.length === 0) return
 
-      const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
+      const isElOutside = elNotOutsideList.every((el) => {
+        return !(el === event.target || el.contains(event.target))
+      })
 
       if (isElOutside) {
         isVisibleModalActionBar.value = false
@@ -477,16 +483,18 @@ export default defineComponent({
     }
 
     const onDeleteDepositRoots = (event) => {
-      isModifyDepositRoot.value = false
-
       if (event.optionDelete === 1) {
         if (currentSelectedRecord.value.confirmed) return
 
         isVisibleDeleteModal.value = true
       } else {
-        console.log(event.optionDelete)
+        if (event.currentSelectedRowKeys.length < 1) return
+
+        currentSelectedRecord.value = {}
+        currentSelectedRowKeys.value = event.currentSelectedRowKeys
         isVisibleDeleteModal.value = true
       }
+      isModifyDepositRoot.value = false
     }
 
     const onOpenDeleteDepositModal = (deleteType) => {
@@ -498,6 +506,7 @@ export default defineComponent({
       } else if (currentSelectedRecord.value?.rootDepositId) {
         isModifyDepositRoot.value = true
         typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['DELETE']
+        currentSelectedRowKeys.value = [currentSelectedRecord?.value.id]
       }
     }
 
@@ -515,6 +524,7 @@ export default defineComponent({
         isVisibleModalActionBar.value = false
         isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
+        resetConfirmAllRecord()
       }
 
       totalRecords.value = totalRecords.value > 0 ? totalRecords.value - 1 : totalRecords.value

@@ -31,7 +31,6 @@ export default defineComponent({
 
     const handleDeleteDeposit = () => {
       const emitKey = purpose.value ? 'once' : 'multiple'
-      console.log(purpose.value)
       emit('on-delete-deposit-record', emitKey)
     }
 

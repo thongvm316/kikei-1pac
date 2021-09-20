@@ -23,9 +23,10 @@
         v-if="optionValue === 2"
         v-model:data-deposit="dataTableDeposit"
         v-model:is-loading-data-table="isLoadingDataTable"
-        v-model:current-selected-row-keys="currentSelectedRowKeys"
+        v-model:current-selected-row-keys="currentSelectedRowKeysMutation"
         :is-table-modal="true"
         :type-modify-deposit-root="typeModifyDepositRoot"
+        @on-sort="onSortTable"
       />
 
       <div class="u-mt-24 u-mb-16">
@@ -46,7 +47,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount } from 'vue'
+import { defineComponent, ref, onBeforeMount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
@@ -63,7 +64,8 @@ export default defineComponent({
     visible: Boolean,
     groupId: Number,
     currentSelectedRecord: Object,
-    typeModifyDepositRoot: String
+    typeModifyDepositRoot: String,
+    currentSelectedRowKeys: Array
   },
 
   setup(props, { emit }) {
@@ -73,8 +75,8 @@ export default defineComponent({
     // table params
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
-    const currentSelectedRowKeys = ref([])
     const totalChildDeposit = ref(0)
+    const currentSelectedRowKeysMutation = ref()
 
     const EDIT_OPTIONS = [
       {
@@ -92,13 +94,14 @@ export default defineComponent({
     const onChangeOption = () => {}
 
     const handleCancel = () => {
+      emit('update:currentSelectedRowKeys', [])
       emit('update:visible', false)
     }
 
     const handleDelete = () => {
       const emitData = {
         optionDelete: optionValue.value,
-        currentSelectedRowKeys: currentSelectedRowKeys.value
+        currentSelectedRowKeys: currentSelectedRowKeysMutation.value
       }
       emit('on-delete-deposit-roots', emitData)
     }
@@ -113,7 +116,7 @@ export default defineComponent({
       })
     }
 
-    const fetchDatatableDeposit = async () => {
+    const fetchDatatableDeposit = async (params) => {
       const rootDepositId = props.currentSelectedRecord?.rootDepositId || null
       if (!rootDepositId) return
 
@@ -123,7 +126,7 @@ export default defineComponent({
         groupId: props.groupId,
         rootDepositId
       }
-      const paramsRequest = { pageNumber: 1, pageSize: 50 }
+      const paramsRequest = { pageNumber: 1, pageSize: 50, ...params }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
@@ -137,24 +140,34 @@ export default defineComponent({
       }
     }
 
+    const onSortTable = (emitData) => {
+      const currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
+      fetchDatatableDeposit({ orderBy: currentSortStr })
+    }
+
     onBeforeMount(() => {
       optionValue.value = EDIT_OPTIONS[0].value
       fetchDatatableDeposit()
     })
+
+    watch(
+      () => optionValue.value,
+      () => (currentSelectedRowKeysMutation.value = props.currentSelectedRowKeys)
+    )
 
     return {
       EDIT_OPTIONS,
       optionValue,
       isLoadingDataTable,
       dataTableDeposit,
-      currentSelectedRowKeys,
       totalChildDeposit,
       TYPE_MODIFY_DEPOSIT_ROOT,
-
+      currentSelectedRowKeysMutation,
       handleCancel,
       onChangeOption,
       handleEdit,
-      handleDelete
+      handleDelete,
+      onSortTable
     }
   }
 })
