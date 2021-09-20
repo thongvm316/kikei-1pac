@@ -26,6 +26,7 @@
         v-model:current-selected-row-keys="currentSelectedRowKeysMutation"
         :is-table-modal="true"
         :type-modify-deposit-root="typeModifyDepositRoot"
+        :current-selected-record-id="currentSelectedRecord.id"
         @on-sort="onSortTable"
       />
 
