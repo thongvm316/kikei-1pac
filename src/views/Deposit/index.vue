@@ -158,7 +158,12 @@
     @on-unconfirm-deposit="onUnconfirmDeposit"
   />
 
-  <ModifyDepositModal v-model:visible="isModifyDepositRoot" />
+  <ModifyDepositModal
+    v-model:visible="isModifyDepositRoot"
+    :group-id="activeKeyGroupTab"
+    :current-selected-record="currentSelectedRecord"
+    :type-modify-deposit-root="typeModifyDepositRoot"
+  />
 </template>
 
 <script>
@@ -181,6 +186,7 @@ import {
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import { deepCopy } from '@/helpers/json-parser'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 import DepositTable from './-components/DepositTable'
 import SearchDepositModal from './-components/SearchDepositModal'
@@ -242,6 +248,7 @@ export default defineComponent({
     const unconfirmRecordSeleted = ref()
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
+    const typeModifyDepositRoot = ref('')
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -466,14 +473,15 @@ export default defineComponent({
     }
 
     const onOpenDeleteDepositModal = (deleteType) => {
-      if (deleteType === 'multiple') {
+      if (
+        deleteType === 'multiple' ||
+        (!currentSelectedRecord.value?.confirmed && currentSelectedRecord.value?.rootDepositId === null)
+      ) {
         isVisibleDeleteModal.value = true
-      } else {
-        if (currentSelectedRecord.value.confirmed) return
-
-        isVisibleDeleteModal.value = true
+      } else if (currentSelectedRecord.value?.rootDepositId) {
+        isModifyDepositRoot.value = true
+        typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['DELETE']
       }
-      isVisibleDeleteModal.value = true
     }
 
     const onDeleteDepositRecord = async (emitKey) => {
@@ -521,15 +529,14 @@ export default defineComponent({
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
-      console.log('currentSelectedRecord', currentSelectedRecord.value)
-
       // save filters search to store
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
-      if (currentSelectedRecord.value.isRoot === null) {
+      if (currentSelectedRecord.value.rootDepositId === null) {
         router.push({ name: 'deposit-edit', params: { id: depositId } })
       } else {
         isModifyDepositRoot.value = true
+        typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
       }
     }
 
@@ -749,6 +756,7 @@ export default defineComponent({
       unconfirmRecordSeleted,
       modalActionRef,
       pageSize,
+      typeModifyDepositRoot,
 
       isCheckAllRowTable,
       isDisabledSelectAllRows,

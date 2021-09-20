@@ -1,12 +1,5 @@
 <template>
-  <a-modal
-    :visible="visible"
-    width="85%"
-    max-height="1024px"
-    class="modal-modify-deposit"
-    :title="'入出金編集'"
-    @cancel="handleCancel"
-  >
+  <a-modal :visible="visible" width="85%" class="modal-modify-deposit" :title="'入出金編集'" @cancel="handleCancel">
     <template #footer>
       <div class="modal-modify-deposit__options">
         <a-radio-group v-model:value="optionValue" class="options-groups" @change="onChangeOption">
@@ -30,7 +23,13 @@
 
       <div class="u-mt-24 u-mb-16">
         <a-button type="default" @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
-        <a-button type="primary" @click="$emit('on-confirm-deposit-record')"> Edit </a-button>
+        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit">Edit</a-button>
+        <a-button
+          v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['DELETE']"
+          type="primary"
+          @click="handleDelete"
+          >Delete</a-button
+        >
       </div>
     </template>
   </a-modal>
@@ -42,6 +41,7 @@ import { defineComponent, ref, watch } from 'vue'
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 
 import { getDeposit, deleteDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 export default defineComponent({
   name: 'ModifyDepositModal',
@@ -51,7 +51,10 @@ export default defineComponent({
   },
 
   props: {
-    visible: Boolean
+    visible: Boolean,
+    groupId: Number,
+    currentSelectedRecord: Object,
+    typeModifyDepositRoot: String
   },
 
   setup(props, { emit }) {
@@ -83,22 +86,28 @@ export default defineComponent({
       emit('update:visible', false)
     }
 
+    const handleDelete = () => {
+      // ...
+    }
+
+    const handleEdit = () => {
+      // ..
+    }
+
     const fetchDatatableDeposit = async () => {
       isLoadingDataTable.value = true
 
       const dataRequest = {
-        group_id: 1
+        groupId: props.groupId,
+        rootDepositId: props.currentSelectedRecord?.rootDepositId || null
       }
-
       const paramsRequest = { pageNumber: 1, pageSize: 50 }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
 
         dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null)
-        // isDisabledSelectAllRows.value = dataTableDeposit.value.filter((item) => !item.confirmed).length === 0
         totalChildDeposit.value = data.result?.meta.totalRecords || 0
-        // currentPage.value = paramsRequest.pageNumber || 1
       } catch (err) {
         dataTableDeposit.value = []
       } finally {
@@ -110,6 +119,8 @@ export default defineComponent({
       () => props.visible,
       () => {
         if (!props.visible) return
+
+        optionValue.value = EDIT_OPTIONS[0].value
         fetchDatatableDeposit()
       }
     )
@@ -121,9 +132,12 @@ export default defineComponent({
       dataTableDeposit,
       currentSelectedRowKeys,
       totalChildDeposit,
+      TYPE_MODIFY_DEPOSIT_ROOT,
 
       handleCancel,
-      onChangeOption
+      onChangeOption,
+      handleEdit,
+      handleDelete
     }
   }
 })
@@ -134,6 +148,12 @@ export default defineComponent({
 @import '@/styles/shared/mixins';
 
 .modal-modify-deposit {
+  .ant-modal-content {
+    max-width: 1024px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
   &__options {
     @include flexbox(center, center);
 
