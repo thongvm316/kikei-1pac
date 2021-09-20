@@ -371,12 +371,14 @@ export default defineComponent({
     // close action bar
     const handleClickOutsideTable = (event) => {
       const elModalDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
-      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit].filter(Boolean)
+      const elModalModifyDeposit = document.querySelector('.modal-modify-deposit-js')
+
+      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit, elModalModifyDeposit].filter(Boolean)
       if (elNotOutsideList.length === 0) return
 
       const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
 
-      if (isElOutside && !isModifyDepositRoot.value) {
+      if (isElOutside) {
         isVisibleModalActionBar.value = false
         currentSelectedRecord.value = {}
       }

@@ -1,5 +1,11 @@
 <template>
-  <a-modal :visible="visible" width="85%" class="modal-modify-deposit" :title="'入出金編集'" @cancel="handleCancel">
+  <a-modal
+    :visible="visible"
+    width="85%"
+    class="modal-modify-deposit modal-modify-deposit-js"
+    :title="'入出金編集'"
+    @cancel="handleCancel"
+  >
     <template #footer>
       <div class="modal-modify-deposit__options">
         <a-radio-group v-model:value="optionValue" class="options-groups" @change="onChangeOption">
@@ -167,9 +173,14 @@ export default defineComponent({
 
 .modal-modify-deposit {
   .ant-modal-content {
-    max-width: 1024px;
+    max-width: 1305px;
     margin: 0 auto;
     width: 100%;
+  }
+
+  .ant-modal-footer {
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   &__options {
