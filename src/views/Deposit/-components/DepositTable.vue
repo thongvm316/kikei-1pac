@@ -8,7 +8,7 @@
     :columns="columnsDeposit"
     :data-source="dataDeposit"
     :row-selection="
-      isTableModal
+      isTableModal && typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
         ? null
         : {
             onChange: onSelectChangeRow,
@@ -99,8 +99,8 @@
 import { defineComponent, onBeforeMount, ref, onUnmounted, computed } from 'vue'
 import humps from 'humps'
 import { useStore } from 'vuex'
-
 import { toOrderBy } from '@/helpers/table'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -115,6 +115,10 @@ export default defineComponent({
     isTableModal: {
       type: Boolean,
       default: false
+    },
+    typeModifyDepositRoot: {
+      type: String,
+      default: 'EDIT'
     }
   },
 
@@ -242,6 +246,7 @@ export default defineComponent({
     }
 
     const onSelectAllChangeRows = (_, selectedRows) => {
+      console.log('object')
       emit(
         'update:currentSelectedRowKeys',
         selectedRows.map((item) => item.key)
@@ -294,6 +299,7 @@ export default defineComponent({
       localeTable,
       height,
       currencyCodeText,
+      TYPE_MODIFY_DEPOSIT_ROOT,
 
       onSelectChangeRow,
       onSelectAllChangeRows,
@@ -320,6 +326,10 @@ export default defineComponent({
 
   table thead .ant-checkbox-wrapper {
     display: none;
+  }
+
+  &.is-table-modal table thead .ant-checkbox-wrapper {
+    display: block;
   }
 
   td {

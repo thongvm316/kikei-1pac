@@ -159,10 +159,12 @@
   />
 
   <ModifyDepositModal
+    v-if="isModifyDepositRoot"
     v-model:visible="isModifyDepositRoot"
     :group-id="activeKeyGroupTab"
     :current-selected-record="currentSelectedRecord"
     :type-modify-deposit-root="typeModifyDepositRoot"
+    @on-delete-deposit-roots="onDeleteDepositRoots($event)"
   />
 </template>
 
@@ -472,6 +474,19 @@ export default defineComponent({
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       router.push({ name: 'deposit-new' })
+    }
+
+    const onDeleteDepositRoots = (event) => {
+      isModifyDepositRoot.value = false
+
+      if (event.optionDelete === 1) {
+        if (currentSelectedRecord.value.confirmed) return
+
+        isVisibleDeleteModal.value = true
+      } else {
+        console.log(event.optionDelete)
+        isVisibleDeleteModal.value = true
+      }
     }
 
     const onOpenDeleteDepositModal = (deleteType) => {
@@ -791,7 +806,8 @@ export default defineComponent({
       handleClickOutsideTable,
       onCloseModalAction,
       handleChangeFilterMonth,
-      onAddRecordDeposit
+      onAddRecordDeposit,
+      onDeleteDepositRoots
     }
   }
 })

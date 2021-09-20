@@ -25,13 +25,14 @@
         v-model:is-loading-data-table="isLoadingDataTable"
         v-model:current-selected-row-keys="currentSelectedRowKeys"
         :is-table-modal="true"
+        :type-modify-deposit-root="typeModifyDepositRoot"
       />
 
       <div class="u-mt-24 u-mb-16">
         <a-button type="default" @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
-        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit">
-          Edit
-        </a-button>
+        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit"
+          >Edit</a-button
+        >
         <a-button
           v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['DELETE']"
           type="primary"
@@ -45,11 +46,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
-
 import DepositTable from '@/views/Deposit/-components/DepositTable'
-
 import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
 import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
@@ -97,7 +96,11 @@ export default defineComponent({
     }
 
     const handleDelete = () => {
-      // ...
+      const emitData = {
+        optionDelete: optionValue.value,
+        currentSelectedRowKeys: currentSelectedRowKeys.value
+      }
+      emit('on-delete-deposit-roots', emitData)
     }
 
     const handleEdit = () => {
@@ -139,15 +142,10 @@ export default defineComponent({
       }
     }
 
-    watch(
-      () => props.visible,
-      () => {
-        if (!props.visible) return
-
-        optionValue.value = EDIT_OPTIONS[0].value
-        fetchDatatableDeposit()
-      }
-    )
+    onBeforeMount(() => {
+      optionValue.value = EDIT_OPTIONS[0].value
+      fetchDatatableDeposit()
+    })
 
     return {
       EDIT_OPTIONS,
