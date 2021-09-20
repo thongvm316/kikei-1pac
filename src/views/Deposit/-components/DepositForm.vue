@@ -307,6 +307,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+    const isEditRoot = route.params?.isEditRoot || false
 
     // form
     const depositNewRef = ref()
@@ -695,7 +696,7 @@ export default defineComponent({
     const callEditDeposit = async (depositDataRequest) => {
       const depositId = route.params.id
       const response = await updateDeposit(depositId, depositDataRequest, {
-        applyForRoot: depositDataRequest?.isRoot || false
+        isUpdateRoot: isEditRoot
       })
 
       if (response.status === 200) {

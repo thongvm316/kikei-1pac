@@ -23,13 +23,16 @@
 
       <div class="u-mt-24 u-mb-16">
         <a-button type="default" @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
-        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit">Edit</a-button>
+        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit">
+          Edit
+        </a-button>
         <a-button
           v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['DELETE']"
           type="primary"
           @click="handleDelete"
-          >Delete</a-button
         >
+          Delete
+        </a-button>
       </div>
     </template>
   </a-modal>
@@ -37,10 +40,11 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 
-import { getDeposit, deleteDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
+import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
 import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 export default defineComponent({
@@ -59,6 +63,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const optionValue = ref(1)
+    const router = useRouter()
 
     // table params
     const isLoadingDataTable = ref(false)
@@ -82,7 +87,6 @@ export default defineComponent({
     const onChangeOption = () => {}
 
     const handleCancel = () => {
-      console.log('close modify modal')
       emit('update:visible', false)
     }
 
@@ -91,7 +95,21 @@ export default defineComponent({
     }
 
     const handleEdit = () => {
-      // ..
+      const isEditRoot = optionValue.value === EDIT_OPTIONS[1].value
+
+      if (isEditRoot) {
+        // edit deposit root
+        router.push({
+          name: 'deposit-edit',
+          params: { id: props.currentSelectedRecord.rootDepositId, isEditRoot }
+        })
+      } else {
+        // edit deposit child
+        router.push({
+          name: 'deposit-edit',
+          params: { id: props.currentSelectedRecord.id, isEditRoot }
+        })
+      }
     }
 
     const fetchDatatableDeposit = async () => {
@@ -99,7 +117,7 @@ export default defineComponent({
 
       const dataRequest = {
         groupId: props.groupId,
-        rootDepositId: props.currentSelectedRecord?.rootDepositId || null
+        rootDepositId: props.currentSelectedRecord.rootDepositId || null
       }
       const paramsRequest = { pageNumber: 1, pageSize: 50 }
 

@@ -376,7 +376,7 @@ export default defineComponent({
 
       const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
 
-      if (isElOutside) {
+      if (isElOutside && !isModifyDepositRoot.value) {
         isVisibleModalActionBar.value = false
         currentSelectedRecord.value = {}
       }
@@ -533,7 +533,7 @@ export default defineComponent({
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       if (currentSelectedRecord.value.rootDepositId === null) {
-        router.push({ name: 'deposit-edit', params: { id: depositId } })
+        router.push({ name: 'deposit-edit', params: { id: depositId, isEditRoot: false } })
       } else {
         isModifyDepositRoot.value = true
         typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
