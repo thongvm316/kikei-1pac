@@ -163,6 +163,7 @@ import {
   confirmDeposit,
   unconfirmDeposit
 } from './composables/useDeposit'
+import useGetRecordRead from '@/views/Deposit/composables/useGetRecordRead'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import { deepCopy } from '@/helpers/json-parser'
@@ -434,6 +435,8 @@ export default defineComponent({
         currentSelectedRecord.value = record
         isDisableDelete.value = record.confirmed
         isVisibleModalActionBar.value = true
+
+        if (!record.read) checkRead(record)
       }
     }
 
@@ -617,6 +620,12 @@ export default defineComponent({
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
     }
 
+    const checkRead = async (evt) => {
+      const { getRecordRead } = useGetRecordRead(evt.id)
+      await getRecordRead()
+      evt.read = true
+    }
+
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroups()
@@ -730,6 +739,7 @@ export default defineComponent({
       isVisibleConfirmDepositModal,
       isVisibleUnconfirmModal,
 
+      checkRead,
       updateParamRequestDeposit,
       onSelectAllRows,
       onHandleChangeBankAcountSelect,

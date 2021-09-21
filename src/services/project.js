@@ -36,5 +36,9 @@ export default {
 
   getProjectAccuracies() {
     return apiCaller({ url: `${RESOURCES.project}/accuracy` })
+  },
+
+  getRecordRead(projectId) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.project}/read/${projectId}` })
   }
 }
