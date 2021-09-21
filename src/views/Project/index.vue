@@ -402,7 +402,7 @@ export default defineComponent({
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message: t('project.flash_message.delete_success', { name: targetProjectSelected.value?.name || '' })
       })
