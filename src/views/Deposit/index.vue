@@ -389,7 +389,6 @@ export default defineComponent({
 
       if (isElOutside) {
         isVisibleModalActionBar.value = false
-        currentSelectedRecord.value = {}
       }
     }
 
@@ -617,7 +616,7 @@ export default defineComponent({
       // show notification
       const purpose = confirmedSelectedPurpose?.value
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message: purpose
           ? t('deposit.confirm_modal.confirm_success', { purpose })
@@ -771,6 +770,15 @@ export default defineComponent({
 
         // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+      }
+    )
+
+    watch(
+      () => isVisibleDeleteModal.value,
+      (value) => {
+        if (!value) {
+          resetConfirmAllRecord()
+        }
       }
     )
 
