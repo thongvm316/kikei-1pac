@@ -436,7 +436,7 @@ export default defineComponent({
         isDisableDelete.value = record.confirmed
         isVisibleModalActionBar.value = true
 
-        if (!record.read) checkRead(record.id)
+        if (!record.read) checkRead(record)
       }
     }
 
@@ -621,10 +621,9 @@ export default defineComponent({
     }
 
     const checkRead = async (evt) => {
-      const filtersDepositStore = store.state.deposit?.filters || {}
-      const { getRecordRead } = useGetRecordRead(evt)
+      const { getRecordRead } = useGetRecordRead(evt.id)
       await getRecordRead()
-      updateParamRequestDeposit(merge(deepCopy(filtersDepositStore)))
+      evt.read = true
     }
 
     onBeforeMount(async () => {

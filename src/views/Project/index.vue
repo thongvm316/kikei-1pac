@@ -336,7 +336,7 @@ export default defineComponent({
           } else {
             targetProjectSelected.value = record
             isOpenFloatButtons.value = true
-            if (!record.read) checkRead(record.id)
+            if (!record.read) checkRead(record)
           }
         }
       }
@@ -459,10 +459,9 @@ export default defineComponent({
     }
 
     const checkRead = async (evt) => {
-      const filtersProjectStore = store.state.project?.filters || {}
-      const { getRecordRead } = useGetRecordRead(evt)
+      const { getRecordRead } = useGetRecordRead(evt.id)
       await getRecordRead()
-      updateRequestData(merge(deepCopy(filtersProjectStore)))
+      evt.read = true
     }
 
     onBeforeMount(() => {
