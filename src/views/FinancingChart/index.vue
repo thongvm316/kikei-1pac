@@ -350,8 +350,8 @@ export default defineComponent({
 
     // Fetch data group
     const fetchGroupList = async () => {
-      const { getGroups } = useGetGroupListService()
-      const { result } = await getGroups()
+      const { getGroupsFinancing } = useGetGroupListService()
+      const { result } = await getGroupsFinancing()
 
       groupList.value = result?.data
       groupList.value.push(initialGroup)
