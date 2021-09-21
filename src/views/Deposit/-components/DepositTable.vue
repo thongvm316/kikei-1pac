@@ -1,19 +1,23 @@
 <template>
   <a-table
-    class="deposit-table"
+    :class="['deposit-table', isTableModal && 'is-table-modal']"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1200, y: height - 295 }"
+    :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
-    :row-selection="{
-      onChange: onSelectChangeRow,
-      onSelectAll: onSelectAllChangeRows,
-      selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => ({ disabled: record.confirmed }),
-      order: 3
-    }"
+    :row-selection="
+      isTableModal && typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
+        ? null
+        : {
+            onChange: onSelectChangeRow,
+            onSelectAll: onSelectAllChangeRows,
+            selectedRowKeys: currentSelectedRowKeys,
+            getCheckboxProps: (record) => ({ disabled: record.confirmed }),
+            order: 3
+          }
+    "
     :pagination="false"
     :expand-icon-as-cell="false"
     :locale="localeTable"
@@ -102,8 +106,8 @@
 import { defineComponent, onBeforeMount, ref, onUnmounted, computed } from 'vue'
 import humps from 'humps'
 import { useStore } from 'vuex'
-
 import { toOrderBy } from '@/helpers/table'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -114,7 +118,19 @@ export default defineComponent({
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
-    isVisibleModalActionBar: Boolean
+    isVisibleModalActionBar: Boolean,
+    isTableModal: {
+      type: Boolean,
+      default: false
+    },
+    typeModifyDepositRoot: {
+      type: String,
+      default: 'EDIT'
+    },
+    currentSelectedRecordId: {
+      type: Number,
+      required: false
+    }
   },
 
   setup(props, { emit }) {
@@ -122,12 +138,13 @@ export default defineComponent({
 
     const currentRowClick = ref()
     const height = ref(0)
-
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
     }
+
+    const columnNotShowList = ['confirmed']
 
     const columnsDeposit = [
       {
@@ -223,11 +240,12 @@ export default defineComponent({
         sorter: true,
         ellipsis: true
       }
-    ]
-
-    const currencyCodeText = computed(() => {
-      return props.dataDeposit[0]?.currency
+    ].filter((col) => {
+      if (!props.isTableModal) return true
+      return columnNotShowList.indexOf(col.dataIndex) === -1
     })
+
+    const currencyCodeText = computed(() => (props?.dataDeposit[0] ? props?.dataDeposit[0]?.currency : ''))
 
     const onSelectChangeRow = (selectedRowKeys) => {
       if (
@@ -258,6 +276,7 @@ export default defineComponent({
         onClick: (event) => {
           if (event.target.type === 'button') return
           currentRowClick.value = record.key
+
           emit('on-open-deposit-buttons-float', record)
         }
       }
@@ -265,8 +284,11 @@ export default defineComponent({
 
     const onAddRowClass = (record) => {
       let classes = ''
-      if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
-
+      if (!props.isTableModal) {
+        if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
+      } else {
+        if (record.key === props.currentSelectedRecordId) classes += 'is-clicked-row'
+      }
       return classes
     }
 
@@ -307,6 +329,7 @@ export default defineComponent({
       localeTable,
       height,
       currencyCodeText,
+      TYPE_MODIFY_DEPOSIT_ROOT,
 
       tagsAction,
       onSelectChangeRow,
@@ -353,6 +376,10 @@ export default defineComponent({
 
   table thead .ant-checkbox-wrapper {
     display: none;
+  }
+
+  &.is-table-modal table thead .ant-checkbox-wrapper {
+    display: block;
   }
 
   td {
@@ -458,6 +485,12 @@ export default defineComponent({
 
   .ant-table-placeholder {
     padding-top: 48px;
+  }
+}
+
+.ant-table-wrapper.deposit-table.is-table-modal {
+  .ant-table-placeholder {
+    height: calc(100vh - 500px);
   }
 }
 </style>

@@ -46,15 +46,27 @@
           />
         </a-tooltip>
 
-        <a-button
-          v-if="currentSelectedRowKeys.length > 0"
-          size="small"
-          type="link"
-          class="u-absolute u-ml-4"
-          @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
-        >
-          {{ $t('deposit.deposit_list.confirm_all') }}
-        </a-button>
+        <div v-if="currentSelectedRowKeys.length > 0" class="confirm-buttons">
+          <a-tooltip color="fff" title="チェックした項目を確定">
+            <a-button
+              type="primary"
+              shape="circle"
+              @click="onOpenConfirmDepositRecordModal(currentSelectedRowKeys, 'confirmAll')"
+            >
+              <template #icon>
+                <span class="btn-icon"><CheckWhiteIcon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+
+          <a-tooltip color="fff" title="削除">
+            <a-button type="primary" shape="circle" @click="onOpenDeleteDepositModal('multiple')">
+              <template #icon>
+                <span class="btn-icon"><DeleteWhiteIcon /></span>
+              </template>
+            </a-button>
+          </a-tooltip>
+        </div>
       </div>
 
       <a-select
@@ -128,9 +140,11 @@
   />
 
   <delete-deposit-modal
+    v-if="isVisibleDeleteModal"
+    ref="modalDeleteRef"
     v-model:visible="isVisibleDeleteModal"
     :current-selected-record="currentSelectedRecord"
-    @on-delete-deposit-record="onDeleteDepositRecord"
+    @on-delete-deposit-record="onDeleteDepositRecord($event)"
   />
 
   <confirm-deposit-modal
@@ -144,10 +158,20 @@
     :purpose="unconfirmRecordSeleted?.purpose || ''"
     @on-unconfirm-deposit="onUnconfirmDeposit"
   />
+
+  <ModifyDepositModal
+    v-if="isModifyDepositRoot"
+    v-model:visible="isModifyDepositRoot"
+    v-model:current-selected-row-keys="currentSelectedRowKeys"
+    :group-id="activeKeyGroupTab"
+    :current-selected-record="currentSelectedRecord"
+    :type-modify-deposit-root="typeModifyDepositRoot"
+    @on-delete-deposit-roots="onDeleteDepositRoots($event)"
+  />
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch, defineAsyncComponent } from 'vue'
+import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -167,22 +191,27 @@ import useGetRecordRead from '@/views/Deposit/composables/useGetRecordRead'
 import { debounce } from '@/helpers/debounce'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import { deepCopy } from '@/helpers/json-parser'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 
 import DepositTable from './-components/DepositTable'
 import SearchDepositModal from './-components/SearchDepositModal'
 import DeleteDepositModal from './-components/DeleteDepositModal'
 import ConfirmDepositModal from './-components/ConfirmDepositModal'
 import ModalActionBar from '@/components/ModalActionBar'
+import ModalUnconfirm from './-components/UnconfirmDepositModal'
+import ModifyDepositModal from './-components/ModifyDepositModal'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-
-const ModalUnconfirm = defineAsyncComponent(() => import('./-components/UnconfirmDepositModal'))
+import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
+import CheckWhiteIcon from '@/assets/icons/ico_check_white.svg'
 
 export default defineComponent({
   name: 'DepositPage',
 
   components: {
+    CheckWhiteIcon,
+    DeleteWhiteIcon,
     LineDownIcon,
     LineAddIcon,
     DepositTable,
@@ -190,7 +219,8 @@ export default defineComponent({
     DeleteDepositModal,
     ConfirmDepositModal,
     ModalActionBar,
-    ModalUnconfirm
+    ModalUnconfirm,
+    ModifyDepositModal
   },
 
   setup() {
@@ -222,6 +252,9 @@ export default defineComponent({
     const tableKey = ref(0)
     const unconfirmRecordSeleted = ref()
     const modalActionRef = ref()
+    const isModifyDepositRoot = ref(false)
+    const typeModifyDepositRoot = ref('')
+    const modalDeleteRef = ref()
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -343,11 +376,16 @@ export default defineComponent({
 
     // close action bar
     const handleClickOutsideTable = (event) => {
-      const elModalDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
-      const elNotOutsideList = [modalActionRef.value?.$el, elModalDeleteDeposit].filter(Boolean)
+      const elModalModifyDeposit = document.querySelector('.modal-modify-deposit-js')
+
+      const elNotOutsideList = [modalActionRef.value?.$el, modalDeleteRef.value?.$el, elModalModifyDeposit].filter(
+        Boolean
+      )
       if (elNotOutsideList.length === 0) return
 
-      const isElOutside = elNotOutsideList.every((el) => !(el == event.target || el.contains(event.target)))
+      const isElOutside = elNotOutsideList.every((el) => {
+        return !(el === event.target || el.contains(event.target))
+      })
 
       if (isElOutside) {
         isVisibleModalActionBar.value = false
@@ -447,34 +485,56 @@ export default defineComponent({
       router.push({ name: 'deposit-new' })
     }
 
-    const onOpenDeleteDepositModal = () => {
-      if (currentSelectedRecord.value.confirmed) return
+    const onDeleteDepositRoots = (event) => {
+      if (event.optionDelete === 1) {
+        if (currentSelectedRecord.value.confirmed) return
 
-      isVisibleDeleteModal.value = true
+        isVisibleDeleteModal.value = true
+      } else {
+        if (event.currentSelectedRowKeys.length < 1) return
+
+        currentSelectedRecord.value = {}
+        currentSelectedRowKeys.value = event.currentSelectedRowKeys
+        isVisibleDeleteModal.value = true
+      }
+      isModifyDepositRoot.value = false
     }
 
-    const onDeleteDepositRecord = async () => {
-      const depositId = currentSelectedRecord.value?.id || ''
+    const onOpenDeleteDepositModal = (deleteType) => {
+      if (
+        deleteType === 'multiple' ||
+        (!currentSelectedRecord.value?.confirmed && currentSelectedRecord.value?.rootDepositId === null)
+      ) {
+        isVisibleDeleteModal.value = true
+      } else if (currentSelectedRecord.value?.rootDepositId) {
+        isModifyDepositRoot.value = true
+        typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['DELETE']
+        currentSelectedRowKeys.value = [currentSelectedRecord?.value.id]
+      }
+    }
+
+    const onDeleteDepositRecord = async (emitKey) => {
+      const targetDelete = emitKey === 'multiple' ? currentSelectedRowKeys.value : [currentSelectedRecord.value?.id]
       const purpose = currentSelectedRecord.value?.purpose
-      if (!depositId) return
+      if (targetDelete.length < 1) return
 
       try {
         isLoadingDataTable.value = true
-        const applyForRoot = currentSelectedRecord.value?.isRoot || false
-        const { result: deletedRecords } = await deleteDeposit(depositId, { applyForRoot })
+        const { result: deletedRecords } = await deleteDeposit({ id: targetDelete })
 
         dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
-        isVisibleDeleteModal.value = false
-        isVisibleModalActionBar.value = false
       } finally {
+        isVisibleModalActionBar.value = false
+        isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
+        resetConfirmAllRecord()
       }
 
       totalRecords.value = totalRecords.value > 0 ? totalRecords.value - 1 : totalRecords.value
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message: purpose
           ? t('deposit.deposit_list.delete_success', { purpose })
@@ -502,7 +562,12 @@ export default defineComponent({
       // save filters search to store
       store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
-      router.push({ name: 'deposit-edit', params: { id: depositId } })
+      if (currentSelectedRecord.value.rootDepositId === null) {
+        router.push({ name: 'deposit-edit', params: { id: depositId, isEditRoot: false } })
+      } else {
+        isModifyDepositRoot.value = true
+        typeModifyDepositRoot.value = TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
+      }
     }
 
     const onCloseModalAction = () => {
@@ -710,10 +775,8 @@ export default defineComponent({
     )
 
     return {
-      isCheckAllRowTable,
       bankAccountId,
       currentPage,
-      isIndeterminateCheckAllRow,
       currentSelectedRowKeys,
       bankAccountList,
       tabListGroup,
@@ -721,7 +784,6 @@ export default defineComponent({
       totalRecords,
       activeKeyGroupTab,
       tableKey,
-      isDisabledSelectAllRows,
       currentSelectedRecord,
       confirmedSelectedDepositRecord,
       confirmedSelectedPurpose,
@@ -730,7 +792,11 @@ export default defineComponent({
       unconfirmRecordSeleted,
       modalActionRef,
       pageSize,
+      typeModifyDepositRoot,
 
+      isCheckAllRowTable,
+      isDisabledSelectAllRows,
+      isIndeterminateCheckAllRow,
       isLoadingDataTable,
       isVisibleModalActionBar,
       isVisibleDeleteModal,
@@ -738,6 +804,7 @@ export default defineComponent({
       isLoadingExportCsv,
       isVisibleConfirmDepositModal,
       isVisibleUnconfirmModal,
+      isModifyDepositRoot,
 
       checkRead,
       updateParamRequestDeposit,
@@ -759,7 +826,8 @@ export default defineComponent({
       handleClickOutsideTable,
       onCloseModalAction,
       handleChangeFilterMonth,
-      onAddRecordDeposit
+      onAddRecordDeposit,
+      onDeleteDepositRoots
     }
   }
 })
@@ -775,6 +843,17 @@ export default defineComponent({
     span {
       text-decoration: underline;
     }
+  }
+
+  .confirm-buttons {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    margin-left: 24px;
+    gap: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 100%;
   }
 }
 </style>

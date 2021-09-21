@@ -17,12 +17,12 @@ export default {
     return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   },
 
-  getDepositDetail(depositId) {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}` })
+  getDepositDetail(depositId, params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}`, params })
   },
 
-  deleteDeposit(depositId, params) {
-    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/${depositId}`, params })
+  deleteDeposit(data) {
+    return apiCaller({ method: 'DELETE', url: RESOURCES.deposit, data })
   },
 
   confirmDeposit(data) {

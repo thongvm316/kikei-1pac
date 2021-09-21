@@ -96,10 +96,7 @@ export default defineComponent({
       default: false
     },
 
-    targetProjectSelectedCreatedById: {
-      type: Number,
-      required: true
-    }
+    targetProjectSelectedCreatedById: Number
   },
 
   setup(props) {

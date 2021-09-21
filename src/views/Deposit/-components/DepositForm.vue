@@ -7,10 +7,12 @@
     class="deposit-form"
     @submit="onSubmitForm"
   >
+    <!-- date -->
     <a-form-item name="date" :label="$t('deposit.new.date')">
       <a-date-picker v-model:value="params.date" placeholder="YYYY/MM/DD" />
     </a-form-item>
 
+    <!-- type -->
     <a-form-item name="type" :label="$t('deposit.new.type')">
       <a-radio-group v-model:value="params.type">
         <a-radio :value="10">{{ $t('deposit.new.type_deposit') }}</a-radio>
@@ -26,6 +28,7 @@
       </a-radio-group>
     </a-form-item>
 
+    <!-- category -->
     <a-form-item name="categoryId" :label="$t('deposit.new.category')">
       <a-select
         v-model:value="params.categoryId"
@@ -39,6 +42,7 @@
       </a-select>
     </a-form-item>
 
+    <!-- subcategory -->
     <a-form-item name="subcategoryId" :label="$t('deposit.new.sub_category')">
       <a-select
         v-if="!isCompanySelection"
@@ -74,6 +78,7 @@
       </div>
     </a-form-item>
 
+    <!-- purpose -->
     <a-form-item name="purpose" :label="$t('deposit.new.purpose')">
       <a-input
         v-model:value="params.purpose"
@@ -82,6 +87,7 @@
       />
     </a-form-item>
 
+    <!-- statistics month -->
     <a-form-item name="statisticsMonth" :label="$t('deposit.new.statistics_month')">
       <a-month-picker v-model:value="params.statisticsMonth" placeholder="YYYY/MM" />
     </a-form-item>
@@ -99,6 +105,7 @@
       </a-select>
     </a-form-item>
 
+    <!-- withdrawal Bank Account -->
     <a-form-item name="withdrawalBankAccountId" :label="$t('deposit.new.withdrawal_bank_account')">
       <a-select
         v-model:value="params.withdrawalBankAccountId"
@@ -113,6 +120,7 @@
       </a-select>
     </a-form-item>
 
+    <!-- withdrawal money -->
     <a-form-item name="withdrawalMoney" :label="$t('deposit.new.withdrawal_money')">
       <a-input-number
         v-model:value="params.withdrawalMoney"
@@ -132,6 +140,7 @@
     </a-form-item>
 
     <div v-if="isAdvandceCurrency" class="u-pl-20">
+      <!-- deposit Bank Account -->
       <a-form-item name="depositBankAccountId" :label="$t('deposit.new.deposit_bank_account')">
         <a-select
           v-model:value="params.depositBankAccountId"
@@ -146,6 +155,7 @@
         </a-select>
       </a-form-item>
 
+      <!-- deposit Money -->
       <a-form-item name="depositMoney" :label="$t('deposit.new.deposit_money')">
         <a-input-number
           v-model:value="params.depositMoney"
@@ -160,6 +170,7 @@
       </a-form-item>
     </div>
 
+    <!-- tags -->
     <a-form-item name="tags" :label="$t('deposit.new.tag')">
       <div class="deposit-form__tags has-max-width">
         <a-input
@@ -185,12 +196,14 @@
       </p>
     </a-form-item>
 
+    <!-- memo -->
     <a-form-item name="memo" :label="$t('deposit.new.memo')">
       <a-input v-model:value="params.memo" :placeholder="$t('deposit.new.memo_place_holder')" class="has-max-width" />
     </a-form-item>
 
+    <!-- repeated -->
     <a-form-item name="repeated" :label="$t('deposit.new.repeat')">
-      <a-radio-group v-model:value="params.repeated" :disabled="isDisableEditField">
+      <a-radio-group v-model:value="params.repeated" :disabled="isDisableEditField && !isEditRoot">
         <a-radio :value="1">{{ $t('deposit.new.daily') }}</a-radio>
         <a-radio :value="2">{{ $t('deposit.new.weekly') }}</a-radio>
         <a-radio :value="3">{{ $t('deposit.new.monthly') }}</a-radio>
@@ -200,12 +213,14 @@
     </a-form-item>
 
     <div class="u-pl-20">
+      <!-- repeated_end_month -->
       <a-form-item v-if="params.repeated === 3" name="repeated_end_month">
-        <a-checkbox v-model:checked="isRepeatedEndMonth" :disabled="isDisableEditField">
+        <a-checkbox v-model:checked="isRepeatedEndMonth" :disabled="isDisableEditField && !isEditRoot">
           {{ $t('deposit.new.repeated_end_month') }}</a-checkbox
         >
       </a-form-item>
 
+      <!-- repeated Expired Date -->
       <a-form-item
         v-if="params.repeated !== 0 && params.repeated !== null"
         name="repeatedExpiredDate"
@@ -214,7 +229,7 @@
       >
         <a-date-picker
           v-model:value="params.repeatedExpiredDate"
-          :disabled="isDisableEditField"
+          :disabled="isDisableEditField && !isEditRoot"
           placeholder="YYYY/MM/DD"
         />
 
@@ -224,6 +239,7 @@
       </a-form-item>
     </div>
 
+    <!-- confirmed -->
     <a-form-item name="confirmed" :label="$t('deposit.new.confirmed')">
       <a-checkbox v-model:checked="params.confirmed" :disabled="isDisabledSubmit">
         {{ $t('deposit.new.confirmed') }}
@@ -239,6 +255,7 @@
       </button>
     </a-form-item>
 
+    <!-- cancel, submit form -->
     <a-form-item>
       <a-button type="default" class="deposit-form__submit-btn" @click="onCancelForm">
         {{ $t('deposit.new.cancel') }}
@@ -307,6 +324,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
+    const isEditRoot = route.params?.isEditRoot === 'true'
 
     // form
     const depositNewRef = ref()
@@ -695,7 +713,7 @@ export default defineComponent({
     const callEditDeposit = async (depositDataRequest) => {
       const depositId = route.params.id
       const response = await updateDeposit(depositId, depositDataRequest, {
-        applyForRoot: depositDataRequest?.isRoot || false
+        isUpdateRoot: isEditRoot
       })
 
       if (response.status === 200) {
@@ -765,18 +783,29 @@ export default defineComponent({
 
     // copy or edit deposit
     const fetchDepositDetail = async () => {
-      let depositId = undefined
+      const isEditDepositParam = route.params?.isEditDeposit === 'true'
+      const rootDepositId = route.params?.rootDepositId
+      let depositId
 
-      if (props.isEditDeposit) {
+      if ((props.isEditDeposit && !isEditRoot) || (isEditDepositParam && !isEditRoot)) {
+        // edit deposit child
         depositId = route.params.id
+      } else if (isEditRoot) {
+        // edit deposit root
+        depositId = rootDepositId
       } else {
+        // clone deposit
         depositId = route.query?.selectedId
         router.replace({ query: {} })
         depositId && (isCloneDeposit.value = true)
       }
 
+      const paramsRequest = {
+        is_get_root: isEditRoot
+      }
+
       if (!depositId) return
-      const { result = {} } = await getDepositDetail(depositId)
+      const { result = {} } = await getDepositDetail(depositId, paramsRequest)
 
       params.value = {
         ...params.value,
@@ -910,6 +939,7 @@ export default defineComponent({
       isRepeatedExpiredDateCorrect,
       isVisibleUnconfirmModal,
       isLoadingUnconfirmRequest,
+      isEditRoot,
 
       onSelectWithdrawalMoney,
       onSelectDepositMoney,

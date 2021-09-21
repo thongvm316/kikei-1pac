@@ -6,7 +6,7 @@ export default {
     type_unclear_money: '不明',
     type_none: '-',
     delete_deposit: '{purpose}を削除してもよろしいですか？',
-    delete_deposit_multiple: '削除してもよろしいですか？',
+    delete_deposit_multiple: 'チェクした項目を削除してもよろしですか？',
     delete_success: '{purpose}を削除されました',
     delete_success_multiple: '削除されました',
     select_bank_placeholder: '口座選択',
@@ -130,7 +130,7 @@ export default {
   confirm_modal: {
     title: '確定',
     message: '{purpose}を確定してもよろしいですか？',
-    message_multiple: '確定してもよろしいですか？',
+    message_multiple: 'チェクした項目を確定してもよろしですか？',
     cancel_btn: 'キャンセル',
     confirm_btn: '確定',
     confirm_success: '{purpose}が確定されました',

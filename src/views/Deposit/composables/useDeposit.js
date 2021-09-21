@@ -66,9 +66,9 @@ export const getSubCategory = async (params) => {
   }
 }
 
-export const deleteDeposit = async (id, params) => {
+export const deleteDeposit = async (dataRequest) => {
   try {
-    const { data } = await DepositService.deleteDeposit(id, params)
+    const { data } = await DepositService.deleteDeposit(dataRequest)
 
     return data
   } catch (error) {
@@ -85,9 +85,9 @@ export const createDeposit = async (data) => {
   }
 }
 
-export const getDepositDetail = async (id) => {
+export const getDepositDetail = async (id, params) => {
   try {
-    const { data } = await DepositService.getDepositDetail(id)
+    const { data } = await DepositService.getDepositDetail(id, params)
 
     return data
   } catch (error) {
