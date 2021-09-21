@@ -288,8 +288,8 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // permission
-      const { getGroups } = useGetGroupListService()
-      const { result } = await getGroups()
+      const { getGroupsFinancing } = useGetGroupListService()
+      const { result } = await getGroupsFinancing()
 
       // Get filters financing from store
       const filtersFinancingStore = store.getters['financing/filters'] || {}

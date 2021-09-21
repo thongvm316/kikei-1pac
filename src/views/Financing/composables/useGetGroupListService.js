@@ -2,10 +2,10 @@ import services from '@/services'
 const GroupService = services.get('GroupService')
 
 export default function useGetGroupListService() {
-  const getGroups = async () => {
+  const getGroupsFinancing = async () => {
     // eslint-disable-next-line no-useless-catch
     try {
-      const response = await GroupService.getGroups()
+      const response = await GroupService.getGroupsFinancing()
       return response.data
     } catch (e) {
       throw e
@@ -13,6 +13,6 @@ export default function useGetGroupListService() {
   }
 
   return {
-    getGroups
+    getGroupsFinancing
   }
 }
