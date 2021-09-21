@@ -14,7 +14,8 @@
             onChange: onSelectChangeRow,
             onSelectAll: onSelectAllChangeRows,
             selectedRowKeys: currentSelectedRowKeys,
-            getCheckboxProps: (record) => ({ disabled: record.confirmed })
+            getCheckboxProps: (record) => ({ disabled: record.confirmed }),
+            order: 3
           }
     "
     :pagination="false"
@@ -22,6 +23,12 @@
     :locale="localeTable"
     @change="changeDepositTable"
   >
+    <template #renderProjectRead="{ text: read }">
+      <div class="column-read">
+        <p class="point-status" :style="{ backgroundColor: tagsAction(read).backgroundColor }"></p>
+      </div>
+    </template>
+
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
@@ -140,6 +147,14 @@ export default defineComponent({
     const columnNotShowList = ['confirmed']
 
     const columnsDeposit = [
+      {
+        dataIndex: 'read',
+        key: 'read',
+        slots: {
+          customRender: 'renderProjectRead'
+        },
+        width: 32
+      },
       {
         title: '入出金日',
         dataIndex: 'date',
@@ -290,6 +305,14 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    const tagsAction = (status) => {
+      if (!status) {
+        return { backgroundColor: '#F5222D' }
+      } else {
+        return { backgroundColor: 'transparent' }
+      }
+    }
+
     onBeforeMount(() => {
       // get inner height
       getInnerHeight()
@@ -308,6 +331,7 @@ export default defineComponent({
       currencyCodeText,
       TYPE_MODIFY_DEPOSIT_ROOT,
 
+      tagsAction,
       onSelectChangeRow,
       onSelectAllChangeRows,
       onCustomRow,
@@ -321,6 +345,25 @@ export default defineComponent({
 <style lang="scss">
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
+
+.deposit-table {
+  .column-read {
+    width: 12px;
+    height: 12px;
+
+    .point-status {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      border-radius: 50%;
+      background-color: red;
+    }
+
+    .text-status {
+      margin-bottom: 0;
+    }
+  }
+}
 
 .ant-table-wrapper.deposit-table {
   .ant-table-column-sorters {

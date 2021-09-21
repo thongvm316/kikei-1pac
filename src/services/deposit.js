@@ -31,5 +31,9 @@ export default {
 
   unconfirmDeposit(data) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/unconfirm`, data })
+  },
+
+  getRecordRead(projectId) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/read/${projectId}` })
   }
 }
