@@ -109,11 +109,15 @@ export default defineComponent({
 
     const handleEdit = () => {
       const isEditRoot = optionValue.value === EDIT_OPTIONS[1].value
-      const id = isEditRoot ? props.currentSelectedRecord.rootDepositId : props.currentSelectedRecord.id
 
       router.push({
         name: 'deposit-edit',
-        params: { id, isEditRoot }
+        params: {
+          isEditDeposit: true,
+          id: props.currentSelectedRecord.id,
+          rootDepositId: isEditRoot ? props.currentSelectedRecord.rootDepositId : null,
+          isEditRoot
+        }
       })
     }
 

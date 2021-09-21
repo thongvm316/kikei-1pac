@@ -307,7 +307,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
-    const isEditRoot = route.params?.isEditRoot || false
+    const isEditRoot = route.params?.isEditRoot === 'true'
 
     // form
     const depositNewRef = ref()
@@ -766,11 +766,18 @@ export default defineComponent({
 
     // copy or edit deposit
     const fetchDepositDetail = async () => {
-      let depositId = undefined
+      const isEditDepositParam = route.params?.isEditDeposit === 'true'
+      const rootDepositId = route.params?.rootDepositId
+      let depositId
 
-      if (props.isEditDeposit) {
+      if ((props.isEditDeposit && !isEditRoot) || (isEditDepositParam && !isEditRoot)) {
+        // edit deposit child
         depositId = route.params.id
+      } else if (isEditRoot) {
+        // edit deposit root
+        depositId = rootDepositId
       } else {
+        // clone deposit
         depositId = route.query?.selectedId
         router.replace({ query: {} })
         depositId && (isCloneDeposit.value = true)
