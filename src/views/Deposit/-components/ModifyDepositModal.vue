@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, watch } from 'vue'
+import { defineComponent, ref, onBeforeMount, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
@@ -76,8 +76,8 @@ export default defineComponent({
     // table params
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
-    const totalChildDeposit = ref(0)
     const currentSelectedRowKeysMutation = ref()
+    const totalChildDeposit = computed(() => currentSelectedRowKeysMutation.value.length)
 
     const EDIT_OPTIONS = [
       {
@@ -136,8 +136,7 @@ export default defineComponent({
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
 
-        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null)
-        totalChildDeposit.value = data.result?.meta.totalRecords || 0
+        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null).filter((item) => !item.confirmed)
       } catch (err) {
         dataTableDeposit.value = []
       } finally {
@@ -157,7 +156,9 @@ export default defineComponent({
 
     watch(
       () => optionValue.value,
-      () => (currentSelectedRowKeysMutation.value = props.currentSelectedRowKeys)
+      (val) => {
+        if (val === 2) currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
+      }
     )
 
     return {
