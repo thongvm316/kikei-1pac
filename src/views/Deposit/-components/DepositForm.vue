@@ -16,13 +16,13 @@
     <a-form-item name="type" :label="$t('deposit.new.type')">
       <a-radio-group v-model:value="params.type">
         <a-radio :value="10">{{ $t('deposit.new.type_deposit') }}</a-radio>
-        <a-radio :value="20" :disabled="params.adProject !== null && isEditDeposit">
+        <a-radio :value="20" :disabled="params.adProject !== null && isEditDeposit && !isEditRoot">
           {{ $t('deposit.new.type_withdrawal') }}
         </a-radio>
-        <a-radio :value="30" :disabled="params.adProject !== null && isEditDeposit">
+        <a-radio :value="30" :disabled="params.adProject !== null && isEditDeposit && !isEditRoot">
           {{ $t('deposit.new.type_transfer') }}
         </a-radio>
-        <a-radio :value="40" :disabled="params.adProject !== null && isEditDeposit">
+        <a-radio :value="40" :disabled="params.adProject !== null && isEditDeposit && !isEditRoot">
           {{ $t('deposit.new.type_unclear') }}
         </a-radio>
       </a-radio-group>
@@ -92,6 +92,7 @@
       <a-month-picker v-model:value="params.statisticsMonth" placeholder="YYYY/MM" />
     </a-form-item>
 
+    <!-- group -->
     <a-form-item name="groupId" :label="$t('deposit.new.group')">
       <a-select
         v-model:value="params.groupId"
