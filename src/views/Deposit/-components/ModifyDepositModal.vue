@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, watch } from 'vue'
+import { defineComponent, ref, onBeforeMount, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
@@ -76,10 +76,14 @@ export default defineComponent({
     // table params
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
-    const totalChildDeposit = ref(0)
     const currentSelectedRowKeysMutation = ref()
+    const totalChildDeposit = computed(() =>
+      props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT.DELETE
+        ? currentSelectedRowKeysMutation.value?.length
+        : dataTableDeposit.value.length
+    )
 
-    const EDIT_OPTIONS = [
+    const EDIT_OPTIONS = computed(() => [
       {
         id: 1,
         label: 'この入出金',
@@ -87,10 +91,10 @@ export default defineComponent({
       },
       {
         id: 2,
-        label: '全ての入出金',
+        label: props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT.EDIT ? '全ての入出金' : '選択した入出金',
         value: 2
       }
-    ]
+    ])
 
     const onChangeOption = () => {}
 
@@ -108,7 +112,7 @@ export default defineComponent({
     }
 
     const handleEdit = () => {
-      const isEditRoot = optionValue.value === EDIT_OPTIONS[1].value
+      const isEditRoot = optionValue.value === EDIT_OPTIONS.value[1].value
 
       router.push({
         name: 'deposit-edit',
@@ -131,13 +135,12 @@ export default defineComponent({
         groupId: props.groupId,
         rootDepositId
       }
-      const paramsRequest = { pageNumber: 1, pageSize: 50, ...params }
+      const paramsRequest = { pageNumber: 1, pageSize: 9999, ...params }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
 
-        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null)
-        totalChildDeposit.value = data.result?.meta.totalRecords || 0
+        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null).filter((item) => !item.confirmed)
       } catch (err) {
         dataTableDeposit.value = []
       } finally {
@@ -151,13 +154,15 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      optionValue.value = EDIT_OPTIONS[0].value
+      optionValue.value = EDIT_OPTIONS.value[0].value
       fetchDatatableDeposit()
     })
 
     watch(
       () => optionValue.value,
-      () => (currentSelectedRowKeysMutation.value = props.currentSelectedRowKeys)
+      (val) => {
+        if (val === 2) currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
+      }
     )
 
     return {
