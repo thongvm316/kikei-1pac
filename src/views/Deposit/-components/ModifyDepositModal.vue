@@ -131,7 +131,7 @@ export default defineComponent({
         groupId: props.groupId,
         rootDepositId
       }
-      const paramsRequest = { pageNumber: 1, pageSize: 50, ...params }
+      const paramsRequest = { pageNumber: 1, pageSize: 9999, ...params }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
