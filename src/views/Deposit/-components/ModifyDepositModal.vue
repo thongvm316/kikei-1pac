@@ -77,9 +77,13 @@ export default defineComponent({
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
     const currentSelectedRowKeysMutation = ref()
-    const totalChildDeposit = computed(() => currentSelectedRowKeysMutation.value.length)
+    const totalChildDeposit = computed(() =>
+      props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT.DELETE
+        ? currentSelectedRowKeysMutation.value?.length
+        : dataTableDeposit.value.length
+    )
 
-    const EDIT_OPTIONS = [
+    const EDIT_OPTIONS = computed(() => [
       {
         id: 1,
         label: 'この入出金',
@@ -87,10 +91,10 @@ export default defineComponent({
       },
       {
         id: 2,
-        label: '全ての入出金',
+        label: props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT.EDIT ? '全ての入出金' : '選択した入出金',
         value: 2
       }
-    ]
+    ])
 
     const onChangeOption = () => {}
 
@@ -108,7 +112,7 @@ export default defineComponent({
     }
 
     const handleEdit = () => {
-      const isEditRoot = optionValue.value === EDIT_OPTIONS[1].value
+      const isEditRoot = optionValue.value === EDIT_OPTIONS.value[1].value
 
       router.push({
         name: 'deposit-edit',
@@ -150,7 +154,7 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      optionValue.value = EDIT_OPTIONS[0].value
+      optionValue.value = EDIT_OPTIONS.value[0].value
       fetchDatatableDeposit()
     })
 
