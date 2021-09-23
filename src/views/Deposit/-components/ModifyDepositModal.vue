@@ -133,14 +133,15 @@ export default defineComponent({
 
       const dataRequest = {
         groupId: props.groupId,
-        rootDepositId
+        rootDepositId,
+        confirmed: [false]
       }
       const paramsRequest = { pageNumber: 1, pageSize: 9999, ...params }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
 
-        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null).filter((item) => !item.confirmed)
+        dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null)
       } catch (err) {
         dataTableDeposit.value = []
       } finally {
