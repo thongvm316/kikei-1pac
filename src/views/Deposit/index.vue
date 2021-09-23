@@ -518,27 +518,24 @@ export default defineComponent({
       if (targetDelete.length < 1) return
 
       try {
+        const filtersDepositStore = store.state.deposit?.filters || {}
         isLoadingDataTable.value = true
-        const { result: deletedRecords } = await deleteDeposit({ id: targetDelete })
-
-        dataDeposit.value = dataDeposit.value.filter((item) => !deletedRecords.data.includes(item.id))
+        await deleteDeposit({ id: targetDelete })
+        updateParamRequestDeposit(deepCopy(filtersDepositStore))
       } finally {
         isVisibleModalActionBar.value = false
         isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
         resetConfirmAllRecord()
+        // show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          duration: 5,
+          message: purpose
+            ? t('deposit.deposit_list.delete_success', { purpose })
+            : t('deposit.deposit_list.delete_success_multiple')
+        })
       }
-
-      totalRecords.value = totalRecords.value > 0 ? totalRecords.value - 1 : totalRecords.value
-
-      // show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'successfully',
-        duration: 5,
-        message: purpose
-          ? t('deposit.deposit_list.delete_success', { purpose })
-          : t('deposit.deposit_list.delete_success_multiple')
-      })
     }
 
     const onCopyRecordDeposit = () => {
