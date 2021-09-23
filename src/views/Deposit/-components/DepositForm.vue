@@ -114,7 +114,7 @@
         class="has-max-width"
       >
         <template v-for="bankAccount in bankAccountList" :key="bankAccount.id">
-          <a-select-option :value="bankAccount.id" @click="onSelectWithdrawalMoney(bankAccount.currencyCode)">
+          <a-select-option :value="bankAccount.id" @click="onSelectWithdrawalBank(bankAccount.currencyCode)">
             {{ bankAccount.name }}
           </a-select-option>
         </template>
@@ -149,7 +149,7 @@
           class="has-max-width"
         >
           <template v-for="bankAccount in bankAccountList" :key="bankAccount.id">
-            <a-select-option :value="bankAccount.id" @click="onSelectDepositMoney(bankAccount.currencyCode)">
+            <a-select-option :value="bankAccount.id" @click="onSelectDepositBank(bankAccount.currencyCode)">
               {{ bankAccount.name }}
             </a-select-option>
           </template>
@@ -376,9 +376,9 @@ export default defineComponent({
       statisticsMonth: null,
       groupId: undefined,
       withdrawalBankAccountId: undefined,
-      withdrawalMoney: 0,
+      withdrawalMoney: null,
       depositBankAccountId: undefined,
-      depositMoney: 0,
+      depositMoney: null,
       tags: [],
       memo: '',
       numberOfDividedMonth: 0,
@@ -446,11 +446,11 @@ export default defineComponent({
     const depositFormRules = ref(deepCopy(rules))
 
     /* --------------------- methods ------------------- */
-    const onSelectWithdrawalMoney = (currency) => {
+    const onSelectWithdrawalBank = (currency) => {
       withdrawalMoneyCurrency.value = currency
     }
 
-    const onSelectDepositMoney = (currency) => {
+    const onSelectDepositBank = (currency) => {
       depositMoneyCurrency.value = currency
     }
 
@@ -942,8 +942,8 @@ export default defineComponent({
       isLoadingUnconfirmRequest,
       isEditRoot,
 
-      onSelectWithdrawalMoney,
-      onSelectDepositMoney,
+      onSelectWithdrawalBank,
+      onSelectDepositBank,
       handleInputTagConfirm,
       handleCloseTag,
       handleOpenModalCompany,
