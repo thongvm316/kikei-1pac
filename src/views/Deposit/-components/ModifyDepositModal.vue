@@ -184,6 +184,7 @@ export default defineComponent({
 
     const onChangeOption = (event) => {
       if (event.target.value === EDIT_OPTIONS.value[1].value) {
+        currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
         nextTick(() => {
           const tableContent = document.querySelector('.modal-modify-deposit-js .ant-table-body')
           if (!tableContent) return
