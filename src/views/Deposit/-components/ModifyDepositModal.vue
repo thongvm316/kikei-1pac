@@ -158,9 +158,7 @@ export default defineComponent({
         }
 
         // add id selected if is delete all deposit child
-        if (pageNumber.value === 1 && isCheckAllRowTable.value) {
-          currentSelectedRowKeysMutation.value = newDataDeposit.map((item) => item.id)
-        } else if (isCheckAllRowTable.value) {
+        if (isCheckAllRowTable.value) {
           currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
         }
 
