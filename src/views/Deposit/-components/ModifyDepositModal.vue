@@ -28,6 +28,7 @@
         v-model:data-deposit="dataTableDeposit"
         v-model:is-loading-data-table="isLoadingDataTable"
         v-model:current-selected-row-keys="currentSelectedRowKeysMutation"
+        v-model:check-all-row-table="isCheckAllRowTable"
         :is-table-modal="true"
         :type-modify-deposit-root="typeModifyDepositRoot"
         :current-selected-record-id="currentSelectedRecord.id"
@@ -52,7 +53,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, watch, computed, nextTick } from 'vue'
+import { defineComponent, ref, onBeforeMount, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import DepositTable from '@/views/Deposit/-components/DepositTable'
 import { getDeposit, createDataTableFormat } from '@/views/Deposit/composables/useDeposit'
@@ -81,13 +82,16 @@ export default defineComponent({
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
     const currentSelectedRowKeysMutation = ref([])
+    const isCheckAllRowTable = ref(false)
 
     // pagination
     const pageNumber = ref(1)
     const totalPages = ref(0)
     const totalChildDeposit = ref(0)
 
-    const totalDeleteDeposit = computed(() => currentSelectedRowKeysMutation.value?.length)
+    const totalDeleteDeposit = computed(() =>
+      isCheckAllRowTable.value ? totalChildDeposit.value : currentSelectedRowKeysMutation.value?.length
+    )
 
     const EDIT_OPTIONS = computed(() => [
       {
@@ -144,12 +148,20 @@ export default defineComponent({
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
+        const newDataDeposit = createDataTableFormat(data.result?.data || [], null)
 
         // add data table
         if (pageNumber.value === 1) {
-          dataTableDeposit.value = createDataTableFormat(data.result?.data || [], null)
+          dataTableDeposit.value = newDataDeposit
         } else {
-          dataTableDeposit.value = [...dataTableDeposit.value, ...createDataTableFormat(data.result?.data || [], null)]
+          dataTableDeposit.value = [...dataTableDeposit.value, ...newDataDeposit]
+        }
+
+        // add id selected if is delete all deposit child
+        if (pageNumber.value === 1 && isCheckAllRowTable.value) {
+          currentSelectedRowKeysMutation.value = newDataDeposit.map((item) => item.id)
+        } else if (isCheckAllRowTable.value) {
+          currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
         }
 
         // update paginations
@@ -172,31 +184,19 @@ export default defineComponent({
       fetchDatatableDeposit()
     })
 
-    // watch(
-    //   () => optionValue.value,
-    //   (val) => {
-    //     if (val === 2) currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
-    //   }
-    // )
-
     const onChangeOption = (event) => {
       if (event.target.value === EDIT_OPTIONS.value[1].value) {
         nextTick(() => {
           const tableContent = document.querySelector('.modal-modify-deposit-js .ant-table-body')
+          if (!tableContent) return
 
-          if (tableContent) {
-            tableContent.addEventListener('scroll', () => {
-              // checking whether a selector is well defined
-              const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-              if (per >= 100 && !isLoadingDataTable.value) {
-                pageNumber.value = pageNumber.value + 1
-
-                if (pageNumber.value <= totalPages.value) {
-                  fetchDatatableDeposit()
-                }
-              }
-            })
-          }
+          tableContent.addEventListener('scroll', () => {
+            const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+            if (per >= 100 && !isLoadingDataTable.value) {
+              pageNumber.value = pageNumber.value + 1
+              if (pageNumber.value <= totalPages.value) fetchDatatableDeposit()
+            }
+          })
         })
       }
     }
@@ -210,6 +210,7 @@ export default defineComponent({
       totalDeleteDeposit,
       TYPE_MODIFY_DEPOSIT_ROOT,
       currentSelectedRowKeysMutation,
+      isCheckAllRowTable,
 
       handleCancel,
       handleEdit,
