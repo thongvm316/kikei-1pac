@@ -28,7 +28,6 @@
         v-model:data-deposit="dataTableDeposit"
         v-model:is-loading-data-table="isLoadingDataTable"
         v-model:current-selected-row-keys="currentSelectedRowKeysMutation"
-        v-model:check-all-row-table="isCheckAllRowTable"
         :is-table-modal="true"
         :type-modify-deposit-root="typeModifyDepositRoot"
         :current-selected-record-id="currentSelectedRecord.id"
@@ -82,16 +81,13 @@ export default defineComponent({
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
     const currentSelectedRowKeysMutation = ref([])
-    const isCheckAllRowTable = ref(false)
 
     // pagination
     const pageNumber = ref(1)
     const totalPages = ref(0)
     const totalChildDeposit = ref(0)
 
-    const totalDeleteDeposit = computed(() =>
-      isCheckAllRowTable.value ? totalChildDeposit.value : currentSelectedRowKeysMutation.value?.length
-    )
+    const totalDeleteDeposit = computed(() => currentSelectedRowKeysMutation.value?.length)
 
     const EDIT_OPTIONS = computed(() => [
       {
@@ -158,9 +154,7 @@ export default defineComponent({
         }
 
         // add id selected if is delete all deposit child
-        if (isCheckAllRowTable.value) {
-          currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
-        }
+        currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
 
         // update paginations
         totalPages.value = data?.result?.meta?.totalPages || 0
@@ -209,8 +203,6 @@ export default defineComponent({
       totalDeleteDeposit,
       TYPE_MODIFY_DEPOSIT_ROOT,
       currentSelectedRowKeysMutation,
-      isCheckAllRowTable,
-
       handleCancel,
       handleEdit,
       handleDelete,
