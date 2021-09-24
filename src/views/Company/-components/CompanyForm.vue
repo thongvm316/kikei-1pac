@@ -323,7 +323,7 @@ export default defineComponent({
         const { updateCompany } = useUpdateCompanyService(id, data)
         await updateCompany()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({ name: 'company' }).catch((err) => err)
+        await router.push({ name: 'company', query: route.query }).catch((err) => err)
       } catch (err) {
         checkErrorsApi(err)
         throw err

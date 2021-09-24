@@ -190,7 +190,7 @@ export default {
     }
 
     const initialStateFilter = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       date_from_to: [null, null],
       show_by: 1,
@@ -202,7 +202,7 @@ export default {
     const filter = reactive({ ...initialStateFilter })
 
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -287,21 +287,18 @@ export default {
     }
 
     const onChangeTabGroup = async (value) => {
+      isDisabledDisplay.value = value === 0
+      isDisabledBank.value = value === 0
+      isDisabledCurrency.value = false
+
+      filter.bank_account_ids = bankAccountList?.value[0]?.id
+
       // Check show tab all
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
-        filter.bank_account_ids = bankAccountList.value[0].id
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        isDisabledCurrency.value = false
-        updateDataFilterRequest({ data: { group_id: filter.group_id } })
+        updateDataFilterRequest({ data: { group_id: value } })
       } else {
         filter.show_by = 0
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-        isDisabledDisplay.value = true
-        isDisabledBank.value = true
-        isDisabledCurrency.value = false
-
         updateDataFilterRequest({ data: { group_id: null } })
       }
 
@@ -382,6 +379,8 @@ export default {
         filter.group_id = groupList?.value[groupList.value.length - 1].id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
+
+        updateDataFilterRequest({ data: { group_id: groupID } })
       } else {
         filter.group_id = groupID
         isDisabledDisplay.value = false
@@ -389,6 +388,8 @@ export default {
 
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
+
+        updateDataFilterRequest({ data: { group_id: groupID } })
       }
     }
 
