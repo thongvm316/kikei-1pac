@@ -475,9 +475,6 @@ export default defineComponent({
     }
 
     const onAddRecordDeposit = () => {
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-
       router.push({ name: 'deposit-new' })
     }
 
@@ -515,10 +512,10 @@ export default defineComponent({
       if (targetDelete.length < 1) return
 
       try {
-        const filtersDepositStore = store.state.deposit?.filters || {}
         isLoadingDataTable.value = true
         await deleteDeposit({ id: targetDelete })
-        updateParamRequestDeposit(deepCopy(filtersDepositStore))
+
+        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
       } finally {
         isVisibleModalActionBar.value = false
         isVisibleDeleteModal.value = false
@@ -539,9 +536,6 @@ export default defineComponent({
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
 
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-
       router.push({
         name: 'deposit-new',
         query: { selectedId: depositId }
@@ -551,9 +545,6 @@ export default defineComponent({
     const onEditRecordDeposit = () => {
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
-
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       if (currentSelectedRecord.value.rootDepositId === null) {
         router.push({ name: 'deposit-edit', params: { id: depositId, isEditRoot: false } })
@@ -673,9 +664,6 @@ export default defineComponent({
 
       // reset row checkbox
       resetConfirmAllRecord()
-
-      // update modal search deposit
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
     }
 
     const checkRead = async (evt) => {
@@ -743,9 +731,6 @@ export default defineComponent({
         )
       }
 
-      // update modal search deposit
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-
       router.replace({ query: { tab: groupId } })
     })
 
@@ -764,6 +749,9 @@ export default defineComponent({
 
         // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+
+        // save filters search to store
+        store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
       }
     )
 
