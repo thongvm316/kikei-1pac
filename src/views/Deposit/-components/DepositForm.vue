@@ -130,7 +130,7 @@
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
         :precision="0"
-        :min="isAllowNegativeMoney ? undefined : 0"
+        :min="isAllowNegativeMoney ? undefined : null"
       />
       <span v-if="withdrawalMoneyCurrency" class="deposit-form__currency-unit">
         {{ `(${withdrawalMoneyCurrency})` }}
@@ -165,7 +165,7 @@
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
           :precision="0"
-          :min="isAllowNegativeMoney ? undefined : 0"
+          :min="isAllowNegativeMoney ? undefined : null"
         />
         <span v-if="depositMoneyCurrency" class="deposit-form__currency-unit">{{ `(${depositMoneyCurrency})` }}</span>
       </a-form-item>
@@ -421,7 +421,7 @@ export default defineComponent({
           message: t('deposit.error_message.money'),
           trigger: 'change',
           type: 'number',
-          validator: async (_, value) => (value === 0 ? Promise.reject('') : Promise.resolve())
+          validator: async (_, value) => (!value ? Promise.reject('') : Promise.resolve())
         }
       ],
       depositBankAccountId: [
@@ -438,7 +438,7 @@ export default defineComponent({
           message: t('deposit.error_message.money'),
           trigger: 'change',
           type: 'number',
-          validator: async (_, value) => (value === 0 ? Promise.reject('') : Promise.resolve())
+          validator: async (_, value) => (!value ? Promise.reject('') : Promise.resolve())
         }
       ],
       repeated: [{ required: true, message: t('deposit.error_message.repeated'), trigger: 'change', type: 'number' }]
