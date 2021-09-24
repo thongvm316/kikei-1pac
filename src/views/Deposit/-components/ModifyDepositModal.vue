@@ -151,10 +151,11 @@ export default defineComponent({
           dataTableDeposit.value = newDataDeposit
         } else {
           dataTableDeposit.value = [...dataTableDeposit.value, ...newDataDeposit]
+          currentSelectedRowKeysMutation.value = [
+            ...currentSelectedRowKeysMutation.value,
+            ...newDataDeposit.map((item) => item.id)
+          ]
         }
-
-        // add id selected if is delete all deposit child
-        currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
 
         // update paginations
         totalPages.value = data?.result?.meta?.totalPages || 0
