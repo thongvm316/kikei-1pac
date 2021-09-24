@@ -141,9 +141,8 @@
 
   <delete-deposit-modal
     v-if="isVisibleDeleteModal"
-    ref="modalDeleteRef"
     v-model:visible="isVisibleDeleteModal"
-    :current-selected-record="currentSelectedRecord"
+    v-model:current-selected-record="currentSelectedRecord"
     @on-delete-deposit-record="onDeleteDepositRecord($event)"
   />
 
@@ -163,8 +162,8 @@
     v-if="isModifyDepositRoot"
     v-model:visible="isModifyDepositRoot"
     v-model:current-selected-row-keys="currentSelectedRowKeys"
+    v-model:current-selected-record="currentSelectedRecord"
     :group-id="activeKeyGroupTab"
-    :current-selected-record="currentSelectedRecord"
     :type-modify-deposit-root="typeModifyDepositRoot"
     @on-delete-deposit-roots="onDeleteDepositRoots($event)"
   />
@@ -254,7 +253,6 @@ export default defineComponent({
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
     const typeModifyDepositRoot = ref('')
-    const modalDeleteRef = ref()
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -377,10 +375,9 @@ export default defineComponent({
     // close action bar
     const handleClickOutsideTable = (event) => {
       const elModalModifyDeposit = document.querySelector('.modal-modify-deposit-js')
+      const elDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
 
-      const elNotOutsideList = [modalActionRef.value?.$el, modalDeleteRef.value?.$el, elModalModifyDeposit].filter(
-        Boolean
-      )
+      const elNotOutsideList = [modalActionRef.value?.$el, elDeleteDeposit, elModalModifyDeposit].filter(Boolean)
       if (elNotOutsideList.length === 0) return
 
       const isElOutside = elNotOutsideList.every((el) => {

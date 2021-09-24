@@ -105,6 +105,7 @@ export default defineComponent({
     const handleCancel = () => {
       emit('update:currentSelectedRowKeys', [])
       emit('update:visible', false)
+      emit('update:currentSelectedRecord', null)
     }
 
     const handleDelete = () => {
