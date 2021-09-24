@@ -169,7 +169,7 @@ export default defineComponent({
       }
 
       const query = {
-        page_number: route.query.page_number || 1,
+        page_number: route.query.page_number,
         page_size: 50,
         order_by: 'created_at desc',
         ...route.query,
@@ -246,11 +246,6 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      params.value = {
-        page_number: 1,
-        page_size: 50,
-        order_by: 'created_at desc'
-      }
       await router.push({ name: 'company', query: { ...params.value, ...filter.value } })
       await fetchList({ ...params.value }, { ...filter.value })
     }
@@ -272,10 +267,6 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      params.value = {
-        page_number: 1,
-        page_size: 50
-      }
       await fetchList(params.value)
     }
 
@@ -379,8 +370,7 @@ export default defineComponent({
       handleClickOutdideTable,
       customRow,
       handleChange,
-      onFilterChange,
-      fetchList
+      onFilterChange
     }
   }
 })

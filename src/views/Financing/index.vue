@@ -20,11 +20,11 @@
   </section>
 </template>
 <script>
-import { defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import moment from 'moment'
-import { remove } from 'lodash-es'
+import { isEmpty, remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 
@@ -35,7 +35,6 @@ import { convertDataByDates, convertDataByMonth, convertDataCsv } from '@/helper
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
-import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
 
 export default defineComponent({
   name: 'Index',
@@ -78,7 +77,7 @@ export default defineComponent({
 
     // data for request financing
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -286,28 +285,6 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    onBeforeMount(async () => {
-      // permission
-      const { getGroupsFinancing } = useGetGroupListService()
-      const { result } = await getGroupsFinancing()
-
-      // Get filters financing from store
-      const filtersFinancingStore = store.getters['financing/filters'] || {}
-      if (filtersFinancingStore) {
-        Object.assign(requestParamsData.value, filtersFinancingStore)
-
-        // permission
-        requestParamsData.value.data = {
-          ...requestParamsData.value.data,
-          group_id: result.data[0].id
-        }
-
-        // fetch data table
-        await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
-      }
-      updateDataRequest.value = requestParamsData.value
-    })
-
     onMounted(async () => {
       // get inner height
       getInnerHeight()
@@ -342,11 +319,14 @@ export default defineComponent({
       () => store.state.financing.filters,
       () => {
         remove(dataRowsTableFinancing.value)
-        updateParamRequestFinancing({
-          params: {
-            pageNumber: 1
-          }
-        })
+
+        if (!isEmpty(store.state.financing.filters)) {
+          updateParamRequestFinancing({
+            params: {
+              pageNumber: 1
+            }
+          })
+        }
       }
     )
 
@@ -386,8 +366,7 @@ export default defineComponent({
       fetchDataTableFinancing,
       convertDataTableHeader,
       convertDataTableRows,
-      exportFinancingCsvFile,
-      updateParamRequestFinancing
+      exportFinancingCsvFile
     }
   }
 })

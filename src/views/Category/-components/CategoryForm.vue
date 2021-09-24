@@ -197,7 +197,7 @@ export default defineComponent({
       try {
         const { updateCategory } = useUpdateCategoryService(id, data)
         await updateCategory()
-        await router.push({ name: 'category' })
+        await router.push({ name: 'category', query: route.query })
       } catch (err) {
         throw err
       }

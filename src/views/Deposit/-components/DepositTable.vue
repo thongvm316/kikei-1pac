@@ -75,14 +75,7 @@
       <a-button v-if="record.confirmed && isAdmin" type="danger" @click="$emit('handle-open-unconfirm-modal', record)">
         取消
       </a-button>
-      <a-button
-        v-else
-        :disabled="record.confirmed"
-        type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', record)"
-      >
-        確定
-      </a-button>
+      <a-button v-else :disabled="record.confirmed" type="primary" @click="handleConfirmedRow(record)"> 確定 </a-button>
     </template>
 
     <template #purpose="{ record }">
@@ -108,6 +101,7 @@ import humps from 'humps'
 import { useStore } from 'vuex'
 import { toOrderBy } from '@/helpers/table'
 import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
+import useGetRecordRead from '@/views/Deposit/composables/useGetRecordRead'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -313,6 +307,18 @@ export default defineComponent({
       }
     }
 
+    const checkRead = async (evt) => {
+      const { getRecordRead } = useGetRecordRead(evt.id)
+      await getRecordRead()
+      evt.read = true
+    }
+
+    const handleConfirmedRow = async (record) => {
+      if (!record.read) checkRead(record)
+
+      emit('on-open-confirm-deposit-record-modal', record)
+    }
+
     onBeforeMount(() => {
       // get inner height
       getInnerHeight()
@@ -331,6 +337,7 @@ export default defineComponent({
       currencyCodeText,
       TYPE_MODIFY_DEPOSIT_ROOT,
 
+      handleConfirmedRow,
       tagsAction,
       onSelectChangeRow,
       onSelectAllChangeRows,

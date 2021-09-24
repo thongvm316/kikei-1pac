@@ -71,7 +71,7 @@ import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
 import { forEach, includes, isArray, keys, map } from 'lodash-es'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
-import { refreshSubCategoryTo } from '@/helpers/check-refresh-cate-sub'
+import { refreshCategory, refreshSubCategoryTo } from '@/helpers/check-refresh-cate-sub'
 
 export default defineComponent({
   name: 'Index',
@@ -180,33 +180,33 @@ export default defineComponent({
         sorter.order = ''
       }
 
+      let filter = {}
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (key === 'category_id' && typeof value === 'string') {
+            filter[key] = map([value], (i) => Number(i))
+          } else {
+            filter[key] = value
+          }
+        })
+      }
+
       params.value = {
+        ...filter,
         page_number: pagination.current,
         page_size: pagination.pageSize,
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
-      }
-
-      if (keys(route.query).length > 0) {
-        forEach(route.query, (value, key) => {
-          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-            if (isArray(value)) {
-              filter.value[key] = map([...value], (i) => Number(i))
-            } else {
-              filter.value[key] = value
-            }
-          }
-        })
       }
 
       await router.push({
         name: 'subcategory',
         query: {
           ...params.value,
-          ...filter.value
+          ...filter
         }
       })
 
-      await fetchList(params.value, filter.value)
+      await fetchList(params.value, filter)
     }
 
     const onFilterChange = async (evt) => {
@@ -230,7 +230,7 @@ export default defineComponent({
         key_search: evt.key_search === '' ? '' : evt.key_search
       }
       await router.push({ name: 'subcategory', query: queryDelete.value })
-      await fetchList({ page_number: 1, page_size: 50, order_by: 'name asc' }, queryDelete.value)
+      await fetchList(params.value, queryDelete.value)
     }
 
     const handleBack = () => {
@@ -280,10 +280,6 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      params.value = {
-        page_number: 1,
-        page_size: 50
-      }
       await fetchList(params.value, queryDelete.value)
     }
 

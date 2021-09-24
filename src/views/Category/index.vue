@@ -177,7 +177,7 @@ export default defineComponent({
       refreshCategory(route.query, body)
 
       const query = {
-        page_number: route.query.page_number || 1,
+        page_number: route.query.page_number,
         page_size: 50,
         order_by: 'name asc',
         ...route.query,
@@ -237,12 +237,6 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      params.value = {
-        page_number: 1,
-        page_size: 50,
-        order_by: 'name asc',
-        ...filter.value
-      }
       await router.push({ name: 'category', query: { ...params.value, ...filter.value } })
       await fetchList(params.value, filter.value)
     }
@@ -264,10 +258,6 @@ export default defineComponent({
       }
       openDelete.value = false
       recordVisible.value.visible = false
-      params.value = {
-        page_number: 1,
-        page_size: 50
-      }
       await fetchList(params.value)
     }
 
