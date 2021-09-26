@@ -689,9 +689,8 @@ export default defineComponent({
 
           props.isEditDeposit ? callEditDeposit(depositDataRequest) : callAddDeposit(depositDataRequest)
         }
-      } finally {
-        isLoading.value = false
-      }
+        // eslint-disable-next-line no-empty
+      } catch {}
     }
 
     const callAddDeposit = async (depositDataRequest) => {
@@ -709,6 +708,8 @@ export default defineComponent({
       if (response.data?.errors) {
         localErrors.value = response.data.errors
       }
+
+      isLoading.value = false
     }
 
     const callEditDeposit = async (depositDataRequest) => {
@@ -730,6 +731,8 @@ export default defineComponent({
       if (response.data?.errors) {
         localErrors.value = response.data.errors
       }
+
+      isLoading.value = false
     }
 
     // unconfirm
