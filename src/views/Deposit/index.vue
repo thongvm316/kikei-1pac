@@ -165,7 +165,7 @@
     v-model:current-selected-record="currentSelectedRecord"
     :group-id="activeKeyGroupTab"
     :type-modify-deposit-root="typeModifyDepositRoot"
-    @on-delete-deposit-roots="onDeleteDepositRoots($event)"
+    @on-delete-deposit-root="onDeleteDepositRoot($event)"
   />
 </template>
 
@@ -182,6 +182,7 @@ import {
   getGroups,
   getBankAccounts,
   deleteDeposit,
+  deleteDepositRoot,
   createDataTableFormat,
   confirmDeposit,
   unconfirmDeposit
@@ -253,6 +254,7 @@ export default defineComponent({
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
     const typeModifyDepositRoot = ref('')
+    const deleteRootOptions = ref()
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -478,17 +480,19 @@ export default defineComponent({
       router.push({ name: 'deposit-new' })
     }
 
-    const onDeleteDepositRoots = (event) => {
+    const onDeleteDepositRoot = (event) => {
       if (event.optionDelete === 1) {
         if (currentSelectedRecord.value.confirmed) return
 
         isVisibleDeleteModal.value = true
+        deleteRootOptions.value = { isDeleteRootAll: false }
       } else {
         if (event.currentSelectedRowKeys.length < 1) return
 
         currentSelectedRecord.value = {}
         currentSelectedRowKeys.value = event.currentSelectedRowKeys
         isVisibleDeleteModal.value = true
+        deleteRootOptions.value = omit(event, ['currentSelectedRowKeys'])
       }
       isModifyDepositRoot.value = false
     }
@@ -513,7 +517,12 @@ export default defineComponent({
 
       try {
         isLoadingDataTable.value = true
-        await deleteDeposit({ id: targetDelete })
+
+        if (deleteRootOptions.value.isDeleteRootAll) {
+          await deleteDepositRoot(deleteRootOptions.value.idRoot, { exceptId: deleteRootOptions.value.exceptIdList })
+        } else {
+          await deleteDeposit({ id: targetDelete })
+        }
 
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
       } finally {
@@ -521,6 +530,7 @@ export default defineComponent({
         isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
         resetConfirmAllRecord()
+
         // show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
@@ -817,7 +827,7 @@ export default defineComponent({
       onCloseModalAction,
       handleChangeFilterMonth,
       onAddRecordDeposit,
-      onDeleteDepositRoots
+      onDeleteDepositRoot
     }
   }
 })

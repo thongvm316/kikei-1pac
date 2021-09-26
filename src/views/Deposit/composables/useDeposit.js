@@ -172,3 +172,13 @@ export const unconfirmDeposit = async (depositId) => {
     throw error
   }
 }
+
+export const deleteDepositRoot = async (id, dataRequest) => {
+  try {
+    const { data } = await DepositService.deleteDepositRoot(id, dataRequest)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}

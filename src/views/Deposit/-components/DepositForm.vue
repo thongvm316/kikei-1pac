@@ -679,7 +679,6 @@ export default defineComponent({
 
     // handle validator when submit form
     const onSubmitForm = async () => {
-      isLoading.value = true
       try {
         const validateRes = await depositNewRef.value.validate()
         isRepeatedExpiredDateCorrect.value = checkRepeatedExpriedDate()
@@ -687,6 +686,7 @@ export default defineComponent({
         if (validateRes && isRepeatedExpiredDateCorrect.value) {
           const depositDataRequest = convertFormToDataRequest(params.value)
 
+          isLoading.value = true
           props.isEditDeposit ? callEditDeposit(depositDataRequest) : callAddDeposit(depositDataRequest)
         }
         // eslint-disable-next-line no-empty

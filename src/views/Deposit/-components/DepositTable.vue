@@ -119,6 +119,7 @@ export default defineComponent({
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
     isVisibleModalActionBar: Boolean,
+    isDeleteRootAll: Boolean,
     isTableModal: {
       type: Boolean,
       default: false
@@ -269,6 +270,9 @@ export default defineComponent({
         'update:currentSelectedRowKeys',
         selectedRows.map((item) => item.key)
       )
+
+      // use for delete root
+      emit('update:isDeleteRootAll', selectedRows.length > 0)
     }
 
     const onCustomRow = (record) => {

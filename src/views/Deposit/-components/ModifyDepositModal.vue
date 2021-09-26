@@ -3,7 +3,7 @@
     :visible="visible"
     width="85%"
     class="modal-modify-deposit modal-modify-deposit-js"
-    :title="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT'] ? '入出金編集' : '入出金削除'"
+    :title="isEditDepositMode ? '入出金編集' : '入出金削除'"
     @cancel="handleCancel"
   >
     <template #footer>
@@ -16,11 +16,7 @@
       </div>
 
       <p v-if="optionValue === 2" class="modal-modify-deposit__deposit-count">
-        {{
-          `入出金が "${
-            typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT'] ? totalChildDeposit : totalDeleteDeposit
-          }" ある`
-        }}
+        {{ `入出金が "${isEditDepositMode ? totalChildDeposit : totalDeleteDeposit}" ある` }}
       </p>
 
       <DepositTable
@@ -28,6 +24,7 @@
         v-model:data-deposit="dataTableDeposit"
         v-model:is-loading-data-table="isLoadingDataTable"
         v-model:current-selected-row-keys="currentSelectedRowKeysMutation"
+        v-model:isDeleteRootAll="isDeleteRootAll"
         :is-table-modal="true"
         :type-modify-deposit-root="typeModifyDepositRoot"
         :current-selected-record-id="currentSelectedRecord.id"
@@ -36,16 +33,8 @@
 
       <div class="u-mt-24 u-mb-16">
         <a-button type="default" @click="handleCancel">{{ $t('deposit.confirm_modal.cancel_btn') }}</a-button>
-        <a-button v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']" type="primary" @click="handleEdit"
-          >編集</a-button
-        >
-        <a-button
-          v-if="typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['DELETE']"
-          type="danger"
-          @click="handleDelete"
-        >
-          削除
-        </a-button>
+        <a-button v-if="isEditDepositMode" type="primary" @click="handleEdit">編集</a-button>
+        <a-button v-else type="danger" :disabled="isDisableDelete" @click="handleDelete"> 削除 </a-button>
       </div>
     </template>
   </a-modal>
@@ -81,13 +70,27 @@ export default defineComponent({
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
     const currentSelectedRowKeysMutation = ref([])
+    const isDeleteRootAll = ref(true)
 
     // pagination
     const pageNumber = ref(1)
     const totalPages = ref(0)
     const totalChildDeposit = ref(0)
 
-    const totalDeleteDeposit = computed(() => currentSelectedRowKeysMutation.value?.length)
+    const isEditDepositMode = computed(() => props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT'])
+    const exceptionDeposit = computed(() =>
+      dataTableDeposit.value.filter((item) => !currentSelectedRowKeysMutation.value.includes(item.id))
+    )
+    const totalDeleteDeposit = computed(() => totalChildDeposit.value - exceptionDeposit.value.length)
+    const isDisableDelete = computed(() => {
+      if (optionValue.value === EDIT_OPTIONS.value[0].value) return false
+
+      if (isDeleteRootAll.value) {
+        return exceptionDeposit.value.length === dataTableDeposit.value.length
+      } else {
+        return currentSelectedRowKeysMutation.value.length === 0
+      }
+    })
 
     const EDIT_OPTIONS = computed(() => [
       {
@@ -110,10 +113,14 @@ export default defineComponent({
 
     const handleDelete = () => {
       const emitData = {
+        idRoot: props.currentSelectedRecord?.rootDepositId,
         optionDelete: optionValue.value,
-        currentSelectedRowKeys: currentSelectedRowKeysMutation.value
+        currentSelectedRowKeys: currentSelectedRowKeysMutation.value,
+        exceptIdList: exceptionDeposit.value.map((item) => item.id),
+        isDeleteRootAll: isDeleteRootAll.value
       }
-      emit('on-delete-deposit-roots', emitData)
+
+      emit('on-delete-deposit-root', emitData)
     }
 
     const handleEdit = () => {
@@ -205,6 +212,10 @@ export default defineComponent({
       totalDeleteDeposit,
       TYPE_MODIFY_DEPOSIT_ROOT,
       currentSelectedRowKeysMutation,
+      isEditDepositMode,
+      isDeleteRootAll,
+      isDisableDelete,
+
       handleCancel,
       handleEdit,
       handleDelete,
