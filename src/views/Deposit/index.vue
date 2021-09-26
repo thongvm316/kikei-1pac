@@ -254,7 +254,7 @@ export default defineComponent({
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
     const typeModifyDepositRoot = ref('')
-    const deleteRootOptions = ref()
+    const deleteRootOptions = ref({ isDeleteRootAll: false })
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -518,17 +518,14 @@ export default defineComponent({
       try {
         isLoadingDataTable.value = true
 
-        if (deleteRootOptions.value.isDeleteRootAll) {
+        if (deleteRootOptions.value?.isDeleteRootAll) {
           await deleteDepositRoot(deleteRootOptions.value.idRoot, { exceptId: deleteRootOptions.value.exceptIdList })
         } else {
           await deleteDeposit({ id: targetDelete })
         }
 
+        // refresh data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
-      } finally {
-        isVisibleModalActionBar.value = false
-        isVisibleDeleteModal.value = false
-        isLoadingDataTable.value = false
         resetConfirmAllRecord()
 
         // show notification
@@ -539,6 +536,10 @@ export default defineComponent({
             ? t('deposit.deposit_list.delete_success', { purpose })
             : t('deposit.deposit_list.delete_success_multiple')
         })
+      } finally {
+        isVisibleModalActionBar.value = false
+        isVisibleDeleteModal.value = false
+        isLoadingDataTable.value = false
       }
     }
 
