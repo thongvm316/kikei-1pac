@@ -27,6 +27,7 @@ export default defineComponent({
 
     const handleCancel = () => {
       emit('update:visible', false)
+      emit('update:currentSelectedRecord', null)
     }
 
     const handleDeleteDeposit = () => {

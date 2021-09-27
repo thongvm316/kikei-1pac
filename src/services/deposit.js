@@ -25,6 +25,10 @@ export default {
     return apiCaller({ method: 'DELETE', url: RESOURCES.deposit, data })
   },
 
+  deleteDepositRoot(id, data) {
+    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/root/${id}`, data })
+  },
+
   confirmDeposit(data) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/confirm`, data })
   },

@@ -114,7 +114,7 @@
         class="has-max-width"
       >
         <template v-for="bankAccount in bankAccountList" :key="bankAccount.id">
-          <a-select-option :value="bankAccount.id" @click="onSelectWithdrawalMoney(bankAccount.currencyCode)">
+          <a-select-option :value="bankAccount.id" @click="onSelectWithdrawalBank(bankAccount.currencyCode)">
             {{ bankAccount.name }}
           </a-select-option>
         </template>
@@ -130,7 +130,7 @@
         :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
         :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
         :precision="0"
-        :min="isAllowNegativeMoney ? undefined : 0"
+        :min="isAllowNegativeMoney ? undefined : null"
       />
       <span v-if="withdrawalMoneyCurrency" class="deposit-form__currency-unit">
         {{ `(${withdrawalMoneyCurrency})` }}
@@ -149,7 +149,7 @@
           class="has-max-width"
         >
           <template v-for="bankAccount in bankAccountList" :key="bankAccount.id">
-            <a-select-option :value="bankAccount.id" @click="onSelectDepositMoney(bankAccount.currencyCode)">
+            <a-select-option :value="bankAccount.id" @click="onSelectDepositBank(bankAccount.currencyCode)">
               {{ bankAccount.name }}
             </a-select-option>
           </template>
@@ -165,7 +165,7 @@
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
           :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
           :precision="0"
-          :min="isAllowNegativeMoney ? undefined : 0"
+          :min="isAllowNegativeMoney ? undefined : null"
         />
         <span v-if="depositMoneyCurrency" class="deposit-form__currency-unit">{{ `(${depositMoneyCurrency})` }}</span>
       </a-form-item>
@@ -376,9 +376,9 @@ export default defineComponent({
       statisticsMonth: null,
       groupId: undefined,
       withdrawalBankAccountId: undefined,
-      withdrawalMoney: 0,
+      withdrawalMoney: null,
       depositBankAccountId: undefined,
-      depositMoney: 0,
+      depositMoney: null,
       tags: [],
       memo: '',
       numberOfDividedMonth: 0,
@@ -421,7 +421,7 @@ export default defineComponent({
           message: t('deposit.error_message.money'),
           trigger: 'change',
           type: 'number',
-          validator: async (_, value) => (value === 0 ? Promise.reject('') : Promise.resolve())
+          validator: async (_, value) => (!value ? Promise.reject('') : Promise.resolve())
         }
       ],
       depositBankAccountId: [
@@ -438,7 +438,7 @@ export default defineComponent({
           message: t('deposit.error_message.money'),
           trigger: 'change',
           type: 'number',
-          validator: async (_, value) => (value === 0 ? Promise.reject('') : Promise.resolve())
+          validator: async (_, value) => (!value ? Promise.reject('') : Promise.resolve())
         }
       ],
       repeated: [{ required: true, message: t('deposit.error_message.repeated'), trigger: 'change', type: 'number' }]
@@ -446,11 +446,11 @@ export default defineComponent({
     const depositFormRules = ref(deepCopy(rules))
 
     /* --------------------- methods ------------------- */
-    const onSelectWithdrawalMoney = (currency) => {
+    const onSelectWithdrawalBank = (currency) => {
       withdrawalMoneyCurrency.value = currency
     }
 
-    const onSelectDepositMoney = (currency) => {
+    const onSelectDepositBank = (currency) => {
       depositMoneyCurrency.value = currency
     }
 
@@ -679,7 +679,6 @@ export default defineComponent({
 
     // handle validator when submit form
     const onSubmitForm = async () => {
-      isLoading.value = true
       try {
         const validateRes = await depositNewRef.value.validate()
         isRepeatedExpiredDateCorrect.value = checkRepeatedExpriedDate()
@@ -687,11 +686,11 @@ export default defineComponent({
         if (validateRes && isRepeatedExpiredDateCorrect.value) {
           const depositDataRequest = convertFormToDataRequest(params.value)
 
+          isLoading.value = true
           props.isEditDeposit ? callEditDeposit(depositDataRequest) : callAddDeposit(depositDataRequest)
         }
-      } finally {
-        isLoading.value = false
-      }
+        // eslint-disable-next-line no-empty
+      } catch {}
     }
 
     const callAddDeposit = async (depositDataRequest) => {
@@ -709,6 +708,8 @@ export default defineComponent({
       if (response.data?.errors) {
         localErrors.value = response.data.errors
       }
+
+      isLoading.value = false
     }
 
     const callEditDeposit = async (depositDataRequest) => {
@@ -730,6 +731,8 @@ export default defineComponent({
       if (response.data?.errors) {
         localErrors.value = response.data.errors
       }
+
+      isLoading.value = false
     }
 
     // unconfirm
@@ -942,8 +945,8 @@ export default defineComponent({
       isLoadingUnconfirmRequest,
       isEditRoot,
 
-      onSelectWithdrawalMoney,
-      onSelectDepositMoney,
+      onSelectWithdrawalBank,
+      onSelectDepositBank,
       handleInputTagConfirm,
       handleCloseTag,
       handleOpenModalCompany,

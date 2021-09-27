@@ -141,9 +141,8 @@
 
   <delete-deposit-modal
     v-if="isVisibleDeleteModal"
-    ref="modalDeleteRef"
     v-model:visible="isVisibleDeleteModal"
-    :current-selected-record="currentSelectedRecord"
+    v-model:current-selected-record="currentSelectedRecord"
     @on-delete-deposit-record="onDeleteDepositRecord($event)"
   />
 
@@ -163,10 +162,10 @@
     v-if="isModifyDepositRoot"
     v-model:visible="isModifyDepositRoot"
     v-model:current-selected-row-keys="currentSelectedRowKeys"
+    v-model:current-selected-record="currentSelectedRecord"
     :group-id="activeKeyGroupTab"
-    :current-selected-record="currentSelectedRecord"
     :type-modify-deposit-root="typeModifyDepositRoot"
-    @on-delete-deposit-roots="onDeleteDepositRoots($event)"
+    @on-delete-deposit-root="onDeleteDepositRoot($event)"
   />
 </template>
 
@@ -183,6 +182,7 @@ import {
   getGroups,
   getBankAccounts,
   deleteDeposit,
+  deleteDepositRoot,
   createDataTableFormat,
   confirmDeposit,
   unconfirmDeposit
@@ -254,7 +254,7 @@ export default defineComponent({
     const modalActionRef = ref()
     const isModifyDepositRoot = ref(false)
     const typeModifyDepositRoot = ref('')
-    const modalDeleteRef = ref()
+    const deleteRootOptions = ref({ isDeleteRootAll: false })
 
     // check all row
     const isCheckAllRowTable = ref(false)
@@ -377,10 +377,9 @@ export default defineComponent({
     // close action bar
     const handleClickOutsideTable = (event) => {
       const elModalModifyDeposit = document.querySelector('.modal-modify-deposit-js')
+      const elDeleteDeposit = document.querySelector('.modal-delete-deposit-js')
 
-      const elNotOutsideList = [modalActionRef.value?.$el, modalDeleteRef.value?.$el, elModalModifyDeposit].filter(
-        Boolean
-      )
+      const elNotOutsideList = [modalActionRef.value?.$el, elDeleteDeposit, elModalModifyDeposit].filter(Boolean)
       if (elNotOutsideList.length === 0) return
 
       const isElOutside = elNotOutsideList.every((el) => {
@@ -478,23 +477,22 @@ export default defineComponent({
     }
 
     const onAddRecordDeposit = () => {
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-
       router.push({ name: 'deposit-new' })
     }
 
-    const onDeleteDepositRoots = (event) => {
+    const onDeleteDepositRoot = (event) => {
       if (event.optionDelete === 1) {
         if (currentSelectedRecord.value.confirmed) return
 
         isVisibleDeleteModal.value = true
+        deleteRootOptions.value = { isDeleteRootAll: false }
       } else {
         if (event.currentSelectedRowKeys.length < 1) return
 
         currentSelectedRecord.value = {}
         currentSelectedRowKeys.value = event.currentSelectedRowKeys
         isVisibleDeleteModal.value = true
+        deleteRootOptions.value = omit(event, ['currentSelectedRowKeys'])
       }
       isModifyDepositRoot.value = false
     }
@@ -518,15 +516,18 @@ export default defineComponent({
       if (targetDelete.length < 1) return
 
       try {
-        const filtersDepositStore = store.state.deposit?.filters || {}
         isLoadingDataTable.value = true
-        await deleteDeposit({ id: targetDelete })
-        updateParamRequestDeposit(deepCopy(filtersDepositStore))
-      } finally {
-        isVisibleModalActionBar.value = false
-        isVisibleDeleteModal.value = false
-        isLoadingDataTable.value = false
+
+        if (deleteRootOptions.value?.isDeleteRootAll) {
+          await deleteDepositRoot(deleteRootOptions.value.idRoot, { exceptId: deleteRootOptions.value.exceptIdList })
+        } else {
+          await deleteDeposit({ id: targetDelete })
+        }
+
+        // refresh data table
+        fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
         resetConfirmAllRecord()
+
         // show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
@@ -535,15 +536,16 @@ export default defineComponent({
             ? t('deposit.deposit_list.delete_success', { purpose })
             : t('deposit.deposit_list.delete_success_multiple')
         })
+      } finally {
+        isVisibleModalActionBar.value = false
+        isVisibleDeleteModal.value = false
+        isLoadingDataTable.value = false
       }
     }
 
     const onCopyRecordDeposit = () => {
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
-
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       router.push({
         name: 'deposit-new',
@@ -554,9 +556,6 @@ export default defineComponent({
     const onEditRecordDeposit = () => {
       const depositId = currentSelectedRecord.value?.id || ''
       if (!depositId) return
-
-      // save filters search to store
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
 
       if (currentSelectedRecord.value.rootDepositId === null) {
         router.push({ name: 'deposit-edit', params: { id: depositId, isEditRoot: false } })
@@ -676,9 +675,6 @@ export default defineComponent({
 
       // reset row checkbox
       resetConfirmAllRecord()
-
-      // update modal search deposit
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
     }
 
     const checkRead = async (evt) => {
@@ -746,9 +742,6 @@ export default defineComponent({
         )
       }
 
-      // update modal search deposit
-      store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
-
       router.replace({ query: { tab: groupId } })
     })
 
@@ -767,6 +760,9 @@ export default defineComponent({
 
         // fetch data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+
+        // save filters search to store
+        store.commit('deposit/STORE_DEPOSIT_FILTER', paramRequestDataDeposit.value)
       }
     )
 
@@ -832,7 +828,7 @@ export default defineComponent({
       onCloseModalAction,
       handleChangeFilterMonth,
       onAddRecordDeposit,
-      onDeleteDepositRoots
+      onDeleteDepositRoot
     }
   }
 })

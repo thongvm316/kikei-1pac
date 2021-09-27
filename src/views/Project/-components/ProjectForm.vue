@@ -401,11 +401,11 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: 0,
+      money: null,
       tags: [],
       memo: '',
       adProjectOrders: [],
-      tax: 0
+      tax: null
     })
     const localErrors = ref({})
     const loading = ref(false)
