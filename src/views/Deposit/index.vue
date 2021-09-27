@@ -540,6 +540,7 @@ export default defineComponent({
         isVisibleModalActionBar.value = false
         isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
+        deleteRootOptions.value = { isDeleteRootAll: false }
       }
     }
 
