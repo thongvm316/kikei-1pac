@@ -416,7 +416,7 @@ export default defineComponent({
         : (isShowResetPass.value = false)
 
       // group list
-      const groupsReponse = await getGroups()
+      const groupsReponse = await getGroups({ allGroup: true })
       const groupsListData = groupsReponse?.result?.data || []
       if (groupsListData.length > 1) {
         // add item
