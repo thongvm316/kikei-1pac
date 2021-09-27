@@ -201,7 +201,6 @@ export default defineComponent({
 
           tableContent.addEventListener('scroll', () => {
             const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-            console.log(per)
             if (per >= 98 && !isLoadingDataTable.value) {
               pageNumber.value = pageNumber.value + 1
               if (pageNumber.value <= totalPages.value) fetchDatatableDeposit()
