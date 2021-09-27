@@ -81,7 +81,10 @@ export default defineComponent({
     const exceptionDeposit = computed(() =>
       dataTableDeposit.value.filter((item) => !currentSelectedRowKeysMutation.value.includes(item.id))
     )
-    const totalDeleteDeposit = computed(() => totalChildDeposit.value - exceptionDeposit.value.length)
+    const totalDeleteDeposit = computed(() => {
+      if (isDeleteRootAll.value) return totalChildDeposit.value - exceptionDeposit.value.length
+      return currentSelectedRowKeysMutation.value.length
+    })
     const isDisableDelete = computed(() => {
       if (optionValue.value === EDIT_OPTIONS.value[0].value) return false
 
@@ -159,6 +162,9 @@ export default defineComponent({
           dataTableDeposit.value = newDataDeposit
         } else {
           dataTableDeposit.value = [...dataTableDeposit.value, ...newDataDeposit]
+        }
+
+        if (pageNumber.value > 1 && isDeleteRootAll.value) {
           currentSelectedRowKeysMutation.value = [
             ...currentSelectedRowKeysMutation.value,
             ...newDataDeposit.map((item) => item.id)
@@ -188,6 +194,7 @@ export default defineComponent({
     const onChangeOption = (event) => {
       if (event.target.value === EDIT_OPTIONS.value[1].value) {
         currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
+
         nextTick(() => {
           const tableContent = document.querySelector('.modal-modify-deposit-js .ant-table-body')
           if (!tableContent) return
