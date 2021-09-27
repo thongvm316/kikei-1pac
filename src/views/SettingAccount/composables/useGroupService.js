@@ -2,9 +2,9 @@
 import services from '@/services'
 const GroupService = services.get('GroupService')
 
-export const getGroups = async () => {
+export const getGroups = async (params) => {
   try {
-    const { data = {} } = await GroupService.getGroups()
+    const { data = {} } = await GroupService.getGroups(params)
 
     return data
   } catch (e) {

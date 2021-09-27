@@ -310,7 +310,7 @@ export default defineComponent({
       templatesPermission.value = templateRes.data.result.data
 
       // fetch group
-      const groupReponse = await getGroups()
+      const groupReponse = await getGroups({ allGroup: true })
       groupList.value = groupReponse?.result?.data || []
 
       // permission list
