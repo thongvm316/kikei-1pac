@@ -864,8 +864,8 @@ export default defineComponent({
         if (oldGroupId && oldGroupId !== groupId) {
           params.value.withdrawalBankAccountId = undefined
           params.value.depositBankAccountId = undefined
-          params.value.withdrawalMoney = 0
-          params.value.depositMoney = 0
+          params.value.withdrawalMoney = null
+          params.value.depositMoney = null
           withdrawalMoneyCurrency.value = ''
           depositMoneyCurrency.value = ''
         }
