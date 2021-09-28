@@ -13,8 +13,8 @@
     <a-modal v-model:visible="isSubmit" class="modal-account-success-confirm" :closable="false">
       <template #footer>
         <div class="group-text">
-          <p>招待メールが送信されました。</p>
-          <p>アカウントのアクティベートには、ユーザーにお知らせください。</p>
+          <p>{{ $t('modal.text_line1') }}</p>
+          <p>{{ $t('modal.text_line2') }}</p>
         </div>
         <a-button key="submit" type="primary" html-type="submit" @click="handleConfirm">
           {{ $t('modal.handle_account_success') }}
