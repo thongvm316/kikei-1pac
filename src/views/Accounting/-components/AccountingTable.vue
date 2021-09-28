@@ -195,7 +195,7 @@ export default defineComponent({
       const data = {
         groupId: props.groupId,
         type: record?.divisionType ? [record.divisionType] : [],
-        categoryId: record?.categoryId || [],
+        categoryId: record?.categoryId && record?.categoryId[0] !== 0 ? record.categoryId : [],
         subcategoryId: [],
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
