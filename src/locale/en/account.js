@@ -41,7 +41,6 @@ export default {
   status_cancle_status: 'You has canceled status “ Confirming” success. This account change back to deactivated',
   status_change_deactive_to_active: 'You has changed account to “Active” success. Waiting user confirm email.',
   status_change_active_to_deactive: 'You has changed account to “Deactive” success.',
-  created_account: 'An invitation email has been sent. Please notify the user to activate the account',
 
   csv: {
     all_group: 'グループ'

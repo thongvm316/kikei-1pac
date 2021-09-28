@@ -449,8 +449,11 @@ export default defineComponent({
         //show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
-          duration: 10,
-          message: locale.value === 'en' ? t('account.created_account') : t('account.created_account')
+          duration: 5,
+          message:
+            locale.value === 'en'
+              ? getDataSubmit.value.username + 'created account success'
+              : getDataSubmit.value.username + ' が追加されました'
         })
         await router.push({ name: 'account', query: route.query })
       } catch (err) {
