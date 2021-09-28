@@ -10,6 +10,18 @@
       @is-checked="form.active = $event"
     />
 
+    <a-modal v-model:visible="isSubmit" class="modal-account-success-confirm" :closable="false">
+      <template #footer>
+        <div class="group-text">
+          <p>招待メールが送信されました。</p>
+          <p>アカウントのアクティベートには、ユーザーにお知らせください。</p>
+        </div>
+        <a-button key="submit" type="primary" html-type="submit" @click="handleConfirm">
+          {{ $t('modal.handle_account_success') }}
+        </a-button>
+      </template>
+    </a-modal>
+
     <!-- Form -->
     <form @submit="onSubmit">
       <!-- Full name -->
@@ -204,9 +216,11 @@ export default defineComponent({
     const isCheckedRadio = ref(false)
     const isActivate = ref(false)
     const isPending = ref(false)
+    const isSubmit = ref(false)
 
     const groupList = ref([])
     const groupListAllowedAccess = ref([])
+    const getDataSubmit = ref({})
 
     const templatesPermission = ref()
 
@@ -340,6 +354,10 @@ export default defineComponent({
       router.push({ name: 'account', params: route.params, query: route.query })
     }
 
+    const handleClosePopupSuccess = () => {
+      isSubmit.value = false
+    }
+
     const valueSubmit = computed(() => {
       let data = { ...form.value }
 
@@ -423,20 +441,23 @@ export default defineComponent({
       }
     }
 
-    const createAccount = async (data) => {
+    const handleConfirm = async () => {
       // eslint-disable-next-line no-useless-catch
       try {
-        const { createAccount } = useCreateAccountService(data)
+        const { createAccount } = useCreateAccountService(getDataSubmit.value)
         await createAccount()
         //show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
           message:
-            locale.value === 'en' ? data.username + 'created account success' : data.username + ' が追加されました'
+            locale.value === 'en'
+              ? getDataSubmit.value.username + 'created account success'
+              : getDataSubmit.value.username + ' が追加されました'
         })
         await router.push({ name: 'account', query: route.query })
       } catch (err) {
+        isSubmit.value = false
         checkErrorsApi(err)
         throw err
       }
@@ -446,6 +467,11 @@ export default defineComponent({
       tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
       verifyErrors(tmpErrors.value, t('account.content'))
+    }
+
+    const createAccount = async (data) => {
+      isSubmit.value = true
+      getDataSubmit.value = data
     }
 
     const verifyErrors = (errors, msg) => {
@@ -556,6 +582,9 @@ export default defineComponent({
       valueSubmit,
       isActivate,
       isPending,
+      isSubmit,
+      handleClosePopupSuccess,
+      handleConfirm,
       handleChange,
       handleCancel,
       updateAccount,
