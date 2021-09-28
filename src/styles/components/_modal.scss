@@ -84,6 +84,30 @@
   }
 }
 
+.modal-account-success-confirm {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .ant-modal-content {
+    .ant-modal-footer {
+      padding: 16px 36px;
+      
+      p {
+        margin-bottom: 0;
+        font-size: 14px;
+        line-height: 22px;
+      }
+      
+      .group-text {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
 .ant-checkbox + span {
   padding: 0 8px 0 4px;
 }

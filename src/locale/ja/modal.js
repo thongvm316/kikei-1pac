@@ -44,6 +44,7 @@ export default {
   handle_rp_save_cancel: 'キャンセル',
   handle_rp_save_ok: 'パスワードをリセットする',
   handle_account: '確定',
+  handle_account_success: '了解',
   title_save_email: 'メールアドレスの変更がおこなわれました',
   title_save_password: 'パスワードの変更',
   upload_new: '新しい写真をアップロード',
