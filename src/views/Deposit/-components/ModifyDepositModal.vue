@@ -193,12 +193,15 @@ export default defineComponent({
 
     const onChangeOption = (event) => {
       if (event.target.value === EDIT_OPTIONS.value[1].value) {
+        // set default delete deposit
+        isDeleteRootAll.value = true
         currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
 
         nextTick(() => {
           const tableContent = document.querySelector('.modal-modify-deposit-js .ant-table-body')
           if (!tableContent) return
 
+          // event scroll table
           tableContent.addEventListener('scroll', () => {
             const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
             if (per >= 98 && !isLoadingDataTable.value) {
