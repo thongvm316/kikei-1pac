@@ -70,7 +70,7 @@ export default defineComponent({
     const isLoadingDataTable = ref(false)
     const dataTableDeposit = ref([])
     const currentSelectedRowKeysMutation = ref([])
-    const isDeleteRootAll = ref(true)
+    const isDeleteRootAll = ref(false)
 
     // pagination
     const pageNumber = ref(1)
@@ -169,6 +169,8 @@ export default defineComponent({
             ...currentSelectedRowKeysMutation.value,
             ...newDataDeposit.map((item) => item.id)
           ]
+        } else if (pageNumber.value === 1 && !isEditDepositMode.value) {
+          currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
         }
 
         // update paginations
@@ -188,17 +190,19 @@ export default defineComponent({
 
     onBeforeMount(() => {
       optionValue.value = EDIT_OPTIONS.value[0].value
-      fetchDatatableDeposit()
     })
 
     const onChangeOption = (event) => {
       if (event.target.value === EDIT_OPTIONS.value[1].value) {
-        currentSelectedRowKeysMutation.value = dataTableDeposit.value.map((item) => item.id)
+        // set default delete deposit
+        isDeleteRootAll.value = true
+        fetchDatatableDeposit()
 
         nextTick(() => {
           const tableContent = document.querySelector('.modal-modify-deposit-js .ant-table-body')
           if (!tableContent) return
 
+          // event scroll table
           tableContent.addEventListener('scroll', () => {
             const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
             if (per >= 98 && !isLoadingDataTable.value) {
