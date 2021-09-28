@@ -13,8 +13,8 @@
     <a-modal v-model:visible="isSubmit" class="modal-account-success-confirm" :closable="false">
       <template #footer>
         <div class="group-text">
-          <p>招待メールが送信されました。</p>
-          <p>アカウントのアクティベートには、ユーザーにお知らせください。</p>
+          <p>{{ $t('modal.text_line1') }}</p>
+          <p>{{ $t('modal.text_line2') }}</p>
         </div>
         <a-button key="submit" type="primary" html-type="submit" @click="handleConfirm">
           {{ $t('modal.handle_account_success') }}
@@ -449,11 +449,8 @@ export default defineComponent({
         //show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
-          duration: 5,
-          message:
-            locale.value === 'en'
-              ? getDataSubmit.value.username + 'created account success'
-              : getDataSubmit.value.username + ' が追加されました'
+          duration: 10,
+          message: locale.value === 'en' ? t('account.created_account') : t('account.created_account')
         })
         await router.push({ name: 'account', query: route.query })
       } catch (err) {

@@ -49,6 +49,8 @@ export default {
   submit: 'Submit',
   save: 'Save',
   back: 'Back',
+  text_line1: 'An invitation email has been sent.',
+  text_line2: 'Please let the user know to activate your account.',
 
   errorMessage: {
     img: 'Profile image must be JPG or PNG.',

@@ -41,6 +41,7 @@ export default {
   status_cancle_status: '「確認待ち」のステータスをキャンセルしました。このアカウントが元の「無効」に戻ります',
   status_change_deactive_to_active: 'アカウントを「有効」に変更しました。ユーザーがメールアドレス確認をお待ちください',
   status_change_active_to_deactive: 'アカウントを「無効」に変更しました。',
+  created_account: '招待メールが送信されました。 アカウントのアクティベートには、ユーザーにお知らせください。',
 
   csv: {
     all_group: 'グループ'

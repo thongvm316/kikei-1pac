@@ -51,6 +51,8 @@ export default {
   submit: '登録',
   save: '保存',
   back: '戻る',
+  text_line1: '招待メールが送信されました。',
+  text_line2: 'アカウントのアクティベートには、ユーザーにお知らせください。',
 
   errorMessage: {
     img: 'プロフィール写真は、1 MB 以下の PNGまたはJPG である必要があります',
