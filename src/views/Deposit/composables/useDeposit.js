@@ -36,6 +36,16 @@ export const getGroups = async () => {
   }
 }
 
+export const getGroupsForAccount = async (featureKey, params) => {
+  try {
+    const { data } = await GroupService.getGroupsForAccount(featureKey, params)
+
+    return data
+  } catch (e) {
+    throw e
+  }
+}
+
 export const getBankAccounts = async (params) => {
   try {
     const { data } = await BankAccountsService.getBankAccounts(params)

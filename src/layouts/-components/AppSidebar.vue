@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { find } from 'lodash-es'
@@ -156,38 +156,40 @@ export default defineComponent({
     const skipMenuList = ['dashboard']
 
     // check page access
-    const isAdmin = store.state.auth?.authProfile?.isAdmin || false
-    const permissionList = store.state?.account?.permissions || []
-    const navListAccess = navList
-      .filter((page) => {
-        if (isAdmin || skipMenuList.indexOf(page.name) !== -1 || (!page.featureKey && page.children)) return true
+    const navListAccess = computed(() => {
+      const permissionList = store.state?.account?.permissions || []
 
-        // filter page
-        const groupAccess = permissionList.filter((group) => {
-          const groupFound = find(group.permissions, { featureKey: page.featureKey })
-          return groupFound && groupFound.permissionKey !== 3
-        })
+      return navList
+        .filter((page) => {
+          if (skipMenuList.indexOf(page.name) !== -1 || (!page.featureKey && page.children)) return true
 
-        return groupAccess.length > 0
-      })
-      .map((page) => {
-        if (!page.children) return page
-
-        // filter children page
-        const children = page.children.filter((childrenPage) => {
+          // filter page
           const groupAccess = permissionList.filter((group) => {
-            const groupFound = find(group.permissions, { featureKey: childrenPage.featureKey })
+            const groupFound = find(group.permissions, { featureKey: page.featureKey })
             return groupFound && groupFound.permissionKey !== 3
           })
 
           return groupAccess.length > 0
         })
+        .map((page) => {
+          if (!page.children) return page
 
-        return {
-          ...page,
-          children
-        }
-      })
+          // filter children page
+          const children = page.children.filter((childrenPage) => {
+            const groupAccess = permissionList.filter((group) => {
+              const groupFound = find(group.permissions, { featureKey: childrenPage.featureKey })
+              return groupFound && groupFound.permissionKey !== 3
+            })
+
+            return groupAccess.length > 0
+          })
+
+          return {
+            ...page,
+            children
+          }
+        })
+    })
 
     // collapse sidebar
     const isCollapse = ref(false)
@@ -212,7 +214,7 @@ export default defineComponent({
 
     watch(isCollapse, () => {
       activeKey.value = isCollapse.value
-        ? navListAccess.filter((item) => item.children).map((item) => item.name)
+        ? navListAccess.value.filter((item) => item.children).map((item) => item.name)
         : preActiveKeys.value
 
       // disable transition panel in first time
