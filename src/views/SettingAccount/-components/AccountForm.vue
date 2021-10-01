@@ -107,6 +107,20 @@
         </div>
       </div>
 
+      <!-- Role user -->
+      <div class="u-mt-16">
+        <div class="form-content">
+          <label class="form-label">ユーザータイプ </label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.isAdmin">
+              <a-radio value="user">ユーザー</a-radio>
+              <a-radio value="admin">アドミン</a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+      </div>
+
       <!-- Memo -->
       <div class="u-mt-16">
         <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
@@ -232,7 +246,7 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      isAdmin: false,
+      isAdmin: 'user',
       groupPermissions: []
     })
 
