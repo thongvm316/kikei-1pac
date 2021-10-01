@@ -179,7 +179,7 @@ import moment from 'moment'
 
 import {
   getDeposit,
-  getGroups,
+  getGroupsForAccount,
   getBankAccounts,
   deleteDeposit,
   deleteDepositRoot,
@@ -687,19 +687,8 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // fetch group list
-      const groupsReponse = await getGroups()
-      const groupList = groupsReponse.result?.data || []
-
-      // get group access
-      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
-      const permissionList = store.state?.account?.permissions || []
-      const groupIdAccess = permissionList
-        .filter((group) => {
-          const groupFound = find(group.permissions, { featureKey: 2 })
-          return isAdmin || (groupFound && groupFound.permissionKey !== 3)
-        })
-        .map((group) => group.groupId)
-      tabListGroup.value = groupList.filter((group) => groupIdAccess.indexOf(group.id) !== -1)
+      const groupsReponse = await getGroupsForAccount(2)
+      tabListGroup.value = groupsReponse.result?.data || []
 
       // get filters deposit from store
       const filtersDepositStore = store.state.deposit?.filters || {}
