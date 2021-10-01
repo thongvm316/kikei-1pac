@@ -113,7 +113,7 @@
           <label class="form-label">ユーザータイプ </label>
 
           <div class="form-input">
-            <a-radio-group v-model:value="form.isAdmin">
+            <a-radio-group v-model:value="form.role">
               <a-radio value="user">ユーザー</a-radio>
               <a-radio value="admin">アドミン</a-radio>
             </a-radio-group>
@@ -246,7 +246,7 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      isAdmin: 'user',
+      role: 'user',
       groupPermissions: []
     })
 
