@@ -461,9 +461,8 @@ router.beforeEach(async (to, _, next) => {
     }
 
     // check access
-    const isAdmin = store.state?.auth?.authProfile?.isAdmin || false
     let isPageAccess = true
-    if (permissionList.length !== 0 && !isAdmin) {
+    if (permissionList.length !== 0) {
       let isPageAccessFound = false
       to.matched.forEach((item) => {
         if (isPageAccessFound) return

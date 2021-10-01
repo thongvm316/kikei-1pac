@@ -155,18 +155,9 @@ export default defineComponent({
     const isDashboardEmpty = ref(false)
 
     const setBlocksActive = () => {
-      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
       const permissionList = store.state?.account?.permissions || []
 
       blockList.value = blockList.value.map((block) => {
-        if (isAdmin) {
-          return {
-            ...block,
-            groupListAccess: groupList.value,
-            isActive: true
-          }
-        }
-
         const groupIdAccess = permissionList
           .filter((group) => {
             const groupFound = find(group.permissions, { featureKey: block.featureKey })
