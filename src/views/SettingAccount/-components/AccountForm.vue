@@ -2,8 +2,8 @@
   <div class="setting-account-form">
     <!--    Modal Account-->
     <modal-setting-acount
-      v-model:visible="showModalActivate"
-      :show-modal-activate="showModalActivate"
+      v-model:visible="isShowModalActivate"
+      :show-modal-activate="isShowModalActivate"
       :is-checked-radio="isCheckedRadio"
       :is-activate="isActivate"
       :is-pending="isPending"
@@ -114,8 +114,7 @@
 
           <div class="form-input">
             <a-radio-group v-model:value="form.role">
-              <a-radio value="user">ユーザー</a-radio>
-              <a-radio value="admin">アドミン</a-radio>
+              <a-radio v-for="role in ROLE_LIST" :key="role.id" :value="role.value">{{ role.label }}</a-radio>
             </a-radio-group>
           </div>
         </div>
@@ -226,7 +225,7 @@ export default defineComponent({
 
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
-    const showModalActivate = ref(false)
+    const isShowModalActivate = ref(false)
     const isCheckedRadio = ref(false)
     const isActivate = ref(false)
     const isPending = ref(false)
@@ -246,11 +245,25 @@ export default defineComponent({
       types: [],
       memo: '',
       active: true,
-      role: 'user',
+      isAdmin: false,
+      role: null,
       groupPermissions: []
     })
 
     const tmpErrors = ref()
+
+    const ROLE_LIST = [
+      {
+        id: 1,
+        value: 'USER',
+        label: 'ユーザー'
+      },
+      {
+        id: 2,
+        value: 'ADMIN',
+        label: 'アドミン'
+      }
+    ]
 
     const createPermissionDefault = () => {
       const groupPermissionsDefault = []
@@ -347,13 +360,18 @@ export default defineComponent({
       if ('id' in route.params && route.name === 'account-edit') {
         isDisableEditField.value = true
 
+        // group permissions
         const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
         const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
 
-        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsModify }
+        // role
+        const role = route.meta['detail']?.isAdmin || false ? ROLE_LIST[1].value : ROLE_LIST[0].value
+
+        form.value = { ...form.value, ...route.meta['detail'], role, groupPermissions: groupPermissionsModify }
       } else {
         isHiddenField.value = true
-        form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
+        const role = ROLE_LIST[0].value
+        form.value = { ...form.value, role, groupPermissions: groupPermissionsDefault }
       }
     })
 
@@ -401,7 +419,10 @@ export default defineComponent({
         })
 
       data.groupPermissions = groupPermissions
+      data.isAdmin = data.role === ROLE_LIST[1].value
+
       delete data.id
+      delete data.role
 
       return data
     })
@@ -563,15 +584,15 @@ export default defineComponent({
     const handleChange = (evt) => {
       form.value.active = evt.target.value
       if (valueSubmit.value.active && valueSubmit.value.status === 'deactive') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isCheckedRadio.value = true
       }
       if (!valueSubmit.value.active && valueSubmit.value.status === 'activate') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isActivate.value = true
       }
       if (!valueSubmit.value.active && valueSubmit.value.status === 'pending_verification') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isPending.value = true
       }
     }
@@ -584,19 +605,22 @@ export default defineComponent({
       form,
       TYPE,
       ACTIVE,
-      isHiddenField,
-      isDisableEditField,
       groupList,
       templatesPermission,
       groupListAllowedAccess,
-      isMissingPermission,
-      onSubmit,
-      showModalActivate,
-      isCheckedRadio,
       valueSubmit,
+      ROLE_LIST,
+
+      isHiddenField,
+      isDisableEditField,
+      isMissingPermission,
+      isShowModalActivate,
+      isCheckedRadio,
       isActivate,
       isPending,
       isSubmit,
+
+      onSubmit,
       handleClosePopupSuccess,
       handleConfirm,
       handleChange,
