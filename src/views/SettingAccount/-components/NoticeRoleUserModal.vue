@@ -1,8 +1,8 @@
 <template>
-  <a-modal v-model:visible="visible" class="noticeRoleUserModal" centered title="" width="485px" :closable="false">
+  <a-modal v-model:visible="visible" class="noticeRoleUserModal" centered width="485px" :closable="false">
     <template #footer>
       <p>更新された機能はご使用できるように、ユーザーにログアウトして再ログインするのをお知らせください。</p>
-      <a-button type="primary" @click="handleCancel">了解</a-button>
+      <a-button type="primary" @click="$emit('update:visible', false)">了解</a-button>
     </template>
   </a-modal>
 </template>
@@ -15,25 +15,18 @@ export default defineComponent({
 
   emits: ['update:visible'],
 
-  setup(_, { emit }) {
+  setup() {
     const visible = ref()
 
-    const handleCancel = () => {
-      emit('update:visible', false)
-    }
-
     return {
-      visible,
-      handleCancel
+      visible
     }
   }
 })
 </script>
 
 <style lang="scss">
-.noticeRoleUserModal {
-  .ant-modal-footer {
-    padding: 16px 62px;
-  }
+.noticeRoleUserModal .ant-modal-footer {
+  padding: 16px 62px;
 }
 </style>
