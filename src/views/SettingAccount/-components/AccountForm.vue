@@ -113,7 +113,7 @@
           <label class="form-label">ユーザータイプ </label>
 
           <div class="form-input">
-            <a-radio-group v-model:value="form.role">
+            <a-radio-group v-model:value="form.role" @change="isVisibleNoticeRoleUserModal = true">
               <a-radio v-for="role in ROLE_LIST" :key="role.id" :value="role.value">{{ role.label }}</a-radio>
             </a-radio-group>
           </div>
@@ -186,6 +186,8 @@
         </a-button>
       </div>
     </form>
+
+    <NoticeRoleUserModal v-model:visible="isVisibleNoticeRoleUserModal" />
   </div>
 </template>
 
@@ -207,13 +209,15 @@ import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import ModalSettingAcount from '@/components/ModalSettingAcount'
+import NoticeRoleUserModal from './NoticeRoleUserModal.vue'
 
 export default defineComponent({
   name: 'AccountForm',
 
   components: {
     ModalSettingAcount,
-    PermissionTable
+    PermissionTable,
+    NoticeRoleUserModal
   },
 
   setup() {
@@ -264,6 +268,8 @@ export default defineComponent({
         label: 'アドミン'
       }
     ]
+
+    const isVisibleNoticeRoleUserModal = ref()
 
     const createPermissionDefault = () => {
       const groupPermissionsDefault = []
@@ -610,6 +616,7 @@ export default defineComponent({
       groupListAllowedAccess,
       valueSubmit,
       ROLE_LIST,
+      isVisibleNoticeRoleUserModal,
 
       isHiddenField,
       isDisableEditField,
