@@ -182,10 +182,16 @@
           {{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" class="btn-submit u-ml-12">
-          {{ $route.name === 'account-edit' ? $t('common.edit') : $t('common.new') }}
+          {{ isEditPage ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
     </form>
+
+    <NoticeRoleUserModal
+      v-if="isEditPage && isVisibleNoticeRoleUserModal"
+      v-model:visible="isVisibleNoticeRoleUserModal"
+      @on-submit-notice-modal="updateAccount(valueSubmit)"
+    />
   </div>
 </template>
 
@@ -207,13 +213,15 @@ import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import ModalSettingAcount from '@/components/ModalSettingAcount'
+import NoticeRoleUserModal from './NoticeRoleUserModal.vue'
 
 export default defineComponent({
   name: 'AccountForm',
 
   components: {
     ModalSettingAcount,
-    PermissionTable
+    PermissionTable,
+    NoticeRoleUserModal
   },
 
   setup() {
@@ -236,6 +244,7 @@ export default defineComponent({
     const getDataSubmit = ref({})
 
     const templatesPermission = ref()
+    const currentRole = ref()
 
     let form = ref({
       accountGroupId: 1,
@@ -264,6 +273,8 @@ export default defineComponent({
         label: 'アドミン'
       }
     ]
+
+    const isVisibleNoticeRoleUserModal = ref()
 
     const createPermissionDefault = () => {
       const groupPermissionsDefault = []
@@ -345,6 +356,8 @@ export default defineComponent({
       return groupPermissionsModify
     }
 
+    const isEditPage = computed(() => route.name === 'account-edit')
+
     onMounted(async () => {
       // template permissions
       const templateRes = await getPermissionTemplate()
@@ -357,7 +370,7 @@ export default defineComponent({
       // permission list
       const groupPermissionsDefault = createPermissionDefault()
 
-      if ('id' in route.params && route.name === 'account-edit') {
+      if ('id' in route.params && isEditPage.value) {
         isDisableEditField.value = true
 
         // group permissions
@@ -366,6 +379,7 @@ export default defineComponent({
 
         // role
         const role = route.meta['detail']?.isAdmin || false ? ROLE_LIST[1].value : ROLE_LIST[0].value
+        currentRole.value = role
 
         form.value = { ...form.value, ...route.meta['detail'], role, groupPermissions: groupPermissionsModify }
       } else {
@@ -432,8 +446,12 @@ export default defineComponent({
     })
 
     const onSubmit = handleSubmit(() => {
-      if (route.name === 'account-edit') {
-        updateAccount(valueSubmit.value)
+      if (isEditPage.value) {
+        if (form.value.role !== currentRole.value) {
+          isVisibleNoticeRoleUserModal.value = true
+        } else {
+          updateAccount(valueSubmit.value)
+        }
       } else {
         createAccount(valueSubmit.value)
       }
@@ -610,6 +628,8 @@ export default defineComponent({
       groupListAllowedAccess,
       valueSubmit,
       ROLE_LIST,
+      isVisibleNoticeRoleUserModal,
+      isEditPage,
 
       isHiddenField,
       isDisableEditField,
