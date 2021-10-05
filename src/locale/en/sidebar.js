@@ -10,5 +10,6 @@ export default {
   logs: '活動記録',
   account: '登録アカウント',
   bank: 'Bank',
-  bankAccount: 'Bank Account'
+  bankAccount: 'Bank Account',
+  company_information: '会社情報・売上目標設定'
 }
