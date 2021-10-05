@@ -187,7 +187,10 @@
       </div>
     </form>
 
-    <NoticeRoleUserModal v-model:visible="isVisibleNoticeRoleUserModal" />
+    <NoticeRoleUserModal
+      v-if="$route.name === 'account-edit' && isVisibleNoticeRoleUserModal"
+      v-model:visible="isVisibleNoticeRoleUserModal"
+    />
   </div>
 </template>
 
