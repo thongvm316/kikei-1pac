@@ -694,45 +694,49 @@ export default defineComponent({
     }
 
     const callAddDeposit = async (depositDataRequest) => {
-      const response = await createDeposit(depositDataRequest)
-      if (response.status === 200) {
-        const purpose = depositDataRequest.purpose
+      try {
+        const response = await createDeposit(depositDataRequest)
+        if (response.status === 200) {
+          const purpose = depositDataRequest.purpose
 
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: t('deposit.new.create_success', { purpose })
-        })
-        router.push({ name: 'deposit' })
-        return
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'successfully',
+            message: t('deposit.new.create_success', { purpose })
+          })
+          router.push({ name: 'deposit' })
+          return
+        }
+        if (response.data?.errors) {
+          localErrors.value = response.data.errors
+        }
+      } finally {
+        isLoading.value = false
       }
-      if (response.data?.errors) {
-        localErrors.value = response.data.errors
-      }
-
-      isLoading.value = false
     }
 
     const callEditDeposit = async (depositDataRequest) => {
-      const depositId = route.params.id
-      const response = await updateDeposit(depositId, depositDataRequest, {
-        isUpdateRoot: isEditRoot
-      })
-
-      if (response.status === 200) {
-        const purpose = depositDataRequest.purpose
-
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: t('deposit.new.update_success', { purpose })
+      try {
+        const depositId = route.params.id
+        const response = await updateDeposit(depositId, depositDataRequest, {
+          isUpdateRoot: isEditRoot
         })
-        router.push({ name: 'deposit' })
-        return
-      }
-      if (response.data?.errors) {
-        localErrors.value = response.data.errors
-      }
 
-      isLoading.value = false
+        if (response.status === 200) {
+          const purpose = depositDataRequest.purpose
+
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'successfully',
+            message: t('deposit.new.update_success', { purpose })
+          })
+          router.push({ name: 'deposit' })
+          return
+        }
+        if (response.data?.errors) {
+          localErrors.value = response.data.errors
+        }
+      } finally {
+        isLoading.value = false
+      }
     }
 
     // unconfirm
@@ -864,8 +868,8 @@ export default defineComponent({
         if (oldGroupId && oldGroupId !== groupId) {
           params.value.withdrawalBankAccountId = undefined
           params.value.depositBankAccountId = undefined
-          params.value.withdrawalMoney = 0
-          params.value.depositMoney = 0
+          params.value.withdrawalMoney = null
+          params.value.depositMoney = null
           withdrawalMoneyCurrency.value = ''
           depositMoneyCurrency.value = ''
         }

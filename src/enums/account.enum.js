@@ -87,6 +87,13 @@ export const PAGE_PERMISSIONS = [
     text: 'sidebar.logs',
     isGroupPermission: false,
     path: '/setting/logs'
+  },
+  {
+    id: 9,
+    value: 11,
+    text: 'sidebar.company_information',
+    isGroupPermission: false,
+    path: '/setting/company_information'
   }
 ]
 

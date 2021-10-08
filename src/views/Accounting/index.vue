@@ -89,7 +89,7 @@ import moment from 'moment'
 import { find } from 'lodash-es'
 
 import AccountingTable from './-components/AccountingTable'
-import { getGroups, getPeriods, getDeposit, getWithdrawal, getTotal } from './composables/useAccounting'
+import { getGroupsForAccount, getPeriods, getDeposit, getWithdrawal, getTotal } from './composables/useAccounting'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -316,26 +316,14 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // fetch group list
-      const groupsReponse = await getGroups()
-      const groupList = groupsReponse.result?.data || []
-
-      // get group access
-      const isAdmin = store.state.auth?.authProfile?.isAdmin || false
-      const permissionList = store.state?.account?.permissions || []
-      const groupIdAccess = permissionList
-        .filter((group) => {
-          const groupFound = find(group.permissions, { featureKey: 4 })
-          return isAdmin || (groupFound && groupFound.permissionKey !== 3)
-        })
-        .map((group) => group.groupId)
-
-      tabListGroup.value = groupList.filter((group) => groupIdAccess.indexOf(group.id) !== -1)
+      const groupsReponse = await getGroupsForAccount(4)
+      tabListGroup.value = groupsReponse.result?.data || []
 
       // set group active
       const filtersAccountingStore = store.state?.accounting?.filters || {}
       if (filtersAccountingStore.groupId) {
         activeKeyGroup.value = filtersAccountingStore.groupId
-      } else if (groupList.length > 0) {
+      } else if (tabListGroup.value.length > 0) {
         activeKeyGroup.value = tabListGroup.value[0].id
       }
 

@@ -2,8 +2,8 @@
   <div class="setting-account-form">
     <!--    Modal Account-->
     <modal-setting-acount
-      v-model:visible="showModalActivate"
-      :show-modal-activate="showModalActivate"
+      v-model:visible="isShowModalActivate"
+      :show-modal-activate="isShowModalActivate"
       :is-checked-radio="isCheckedRadio"
       :is-activate="isActivate"
       :is-pending="isPending"
@@ -13,8 +13,8 @@
     <a-modal v-model:visible="isSubmit" class="modal-account-success-confirm" :closable="false">
       <template #footer>
         <div class="group-text">
-          <p>招待メールが送信されました。</p>
-          <p>アカウントのアクティベートには、ユーザーにお知らせください。</p>
+          <p>{{ $t('modal.text_line1') }}</p>
+          <p>{{ $t('modal.text_line2') }}</p>
         </div>
         <a-button key="submit" type="primary" html-type="submit" @click="handleConfirm">
           {{ $t('modal.handle_account_success') }}
@@ -107,6 +107,19 @@
         </div>
       </div>
 
+      <!-- Role user -->
+      <div class="u-mt-16">
+        <div class="form-content">
+          <label class="form-label">ユーザータイプ </label>
+
+          <div class="form-input">
+            <a-radio-group v-model:value="form.role">
+              <a-radio v-for="role in ROLE_LIST" :key="role.id" :value="role.value">{{ role.label }}</a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+      </div>
+
       <!-- Memo -->
       <div class="u-mt-16">
         <Field v-slot="{ field, handleChange }" v-model="form.memo" :name="$t('account.memo')">
@@ -169,10 +182,16 @@
           {{ $t('common.cancel') }}
         </a-button>
         <a-button key="submit" type="primary" html-type="submit" class="btn-submit u-ml-12">
-          {{ $route.name === 'account-edit' ? $t('common.edit') : $t('common.new') }}
+          {{ isEditPage ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
     </form>
+
+    <NoticeRoleUserModal
+      v-if="isEditPage && isVisibleNoticeRoleUserModal"
+      v-model:visible="isVisibleNoticeRoleUserModal"
+      @on-submit-notice-modal="updateAccount(valueSubmit)"
+    />
   </div>
 </template>
 
@@ -194,13 +213,15 @@ import { getPermissionTemplate } from '../composables/usePermissionService'
 import PermissionTable from './PermissionTable'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import ModalSettingAcount from '@/components/ModalSettingAcount'
+import NoticeRoleUserModal from './NoticeRoleUserModal.vue'
 
 export default defineComponent({
   name: 'AccountForm',
 
   components: {
     ModalSettingAcount,
-    PermissionTable
+    PermissionTable,
+    NoticeRoleUserModal
   },
 
   setup() {
@@ -212,7 +233,7 @@ export default defineComponent({
 
     const isHiddenField = ref(false)
     const isDisableEditField = ref(false)
-    const showModalActivate = ref(false)
+    const isShowModalActivate = ref(false)
     const isCheckedRadio = ref(false)
     const isActivate = ref(false)
     const isPending = ref(false)
@@ -223,6 +244,7 @@ export default defineComponent({
     const getDataSubmit = ref({})
 
     const templatesPermission = ref()
+    const currentRole = ref()
 
     let form = ref({
       accountGroupId: 1,
@@ -233,10 +255,26 @@ export default defineComponent({
       memo: '',
       active: true,
       isAdmin: false,
+      role: null,
       groupPermissions: []
     })
 
     const tmpErrors = ref()
+
+    const ROLE_LIST = [
+      {
+        id: 1,
+        value: 'USER',
+        label: 'ユーザー'
+      },
+      {
+        id: 2,
+        value: 'ADMIN',
+        label: 'アドミン'
+      }
+    ]
+
+    const isVisibleNoticeRoleUserModal = ref()
 
     const createPermissionDefault = () => {
       const groupPermissionsDefault = []
@@ -318,6 +356,8 @@ export default defineComponent({
       return groupPermissionsModify
     }
 
+    const isEditPage = computed(() => route.name === 'account-edit')
+
     onMounted(async () => {
       // template permissions
       const templateRes = await getPermissionTemplate()
@@ -330,16 +370,22 @@ export default defineComponent({
       // permission list
       const groupPermissionsDefault = createPermissionDefault()
 
-      if ('id' in route.params && route.name === 'account-edit') {
+      if ('id' in route.params && isEditPage.value) {
         isDisableEditField.value = true
 
+        // group permissions
         const groupPermissionsRequested = route.meta['detail']?.groupPermissions || []
         const groupPermissionsModify = updateGroupPermissionsDefault(groupPermissionsDefault, groupPermissionsRequested)
 
-        form.value = { ...form.value, ...route.meta['detail'], groupPermissions: groupPermissionsModify }
+        // role
+        const role = route.meta['detail']?.isAdmin || false ? ROLE_LIST[1].value : ROLE_LIST[0].value
+        currentRole.value = role
+
+        form.value = { ...form.value, ...route.meta['detail'], role, groupPermissions: groupPermissionsModify }
       } else {
         isHiddenField.value = true
-        form.value = { ...form.value, groupPermissions: groupPermissionsDefault }
+        const role = ROLE_LIST[0].value
+        form.value = { ...form.value, role, groupPermissions: groupPermissionsDefault }
       }
     })
 
@@ -387,7 +433,10 @@ export default defineComponent({
         })
 
       data.groupPermissions = groupPermissions
+      data.isAdmin = data.role === ROLE_LIST[1].value
+
       delete data.id
+      delete data.role
 
       return data
     })
@@ -397,8 +446,12 @@ export default defineComponent({
     })
 
     const onSubmit = handleSubmit(() => {
-      if (route.name === 'account-edit') {
-        updateAccount(valueSubmit.value)
+      if (isEditPage.value) {
+        if (form.value.role !== currentRole.value) {
+          isVisibleNoticeRoleUserModal.value = true
+        } else {
+          updateAccount(valueSubmit.value)
+        }
       } else {
         createAccount(valueSubmit.value)
       }
@@ -549,15 +602,15 @@ export default defineComponent({
     const handleChange = (evt) => {
       form.value.active = evt.target.value
       if (valueSubmit.value.active && valueSubmit.value.status === 'deactive') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isCheckedRadio.value = true
       }
       if (!valueSubmit.value.active && valueSubmit.value.status === 'activate') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isActivate.value = true
       }
       if (!valueSubmit.value.active && valueSubmit.value.status === 'pending_verification') {
-        showModalActivate.value = true
+        isShowModalActivate.value = true
         isPending.value = true
       }
     }
@@ -570,19 +623,24 @@ export default defineComponent({
       form,
       TYPE,
       ACTIVE,
-      isHiddenField,
-      isDisableEditField,
       groupList,
       templatesPermission,
       groupListAllowedAccess,
-      isMissingPermission,
-      onSubmit,
-      showModalActivate,
-      isCheckedRadio,
       valueSubmit,
+      ROLE_LIST,
+      isVisibleNoticeRoleUserModal,
+      isEditPage,
+
+      isHiddenField,
+      isDisableEditField,
+      isMissingPermission,
+      isShowModalActivate,
+      isCheckedRadio,
       isActivate,
       isPending,
       isSubmit,
+
+      onSubmit,
       handleClosePopupSuccess,
       handleConfirm,
       handleChange,
