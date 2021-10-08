@@ -20,6 +20,7 @@ import set_password from './set_password'
 import change_password from './change_password'
 import profile from './profile'
 import activate_password from './activate_password'
+import company_infomation from './company_infomation'
 
 export default {
   errors,
@@ -43,5 +44,6 @@ export default {
   set_password,
   change_password,
   profile,
-  activate_password
+  activate_password,
+  company_infomation
 }

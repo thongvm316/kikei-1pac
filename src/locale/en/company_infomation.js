@@ -1,0 +1,60 @@
+export default {
+  registered_name: 'Company name (registered name)',
+  display_name: 'Company name (display name)',
+  address: 'Address',
+  postal_code: 'Postal code',
+  telephone_number: 'Telephone number',
+  representative_name: 'Representative name',
+  in_roman_letters: 'Representative name (in Roman letters)',
+  fiscal_year: 'Fiscal year',
+  period: 'Period',
+  sales_target_setting: 'Sales target setting',
+  country: 'Country',
+  year_period: 'Year/period',
+  target_money: 'The goal',
+  earnings: 'Earnings',
+  achievement_rate: 'Achievement rate',
+  header_close: 'Close',
+  electronic_seal: 'Electronic seal',
+  year: 'Year',
+  as_of_month: 'As of the month',
+  month: 'Month',
+  day: 'Day',
+  no_num: 'No.',
+  upload_image: 'Upload image',
+
+  please_enter: 'Please enter',
+  please_enter_period: '0',
+  please_enter_sales: '0',
+
+  JP: 'Country Japan',
+  VN: 'Vietnam',
+  US: 'United States of America',
+
+  VND: 'VND',
+  JPY: 'JPY',
+  USD: 'USD',
+
+  select_option_empty: 'Please Select',
+
+  error_registered_name: 'Company name (registered name)',
+  error_display_name: 'Company name (display name)',
+  error_address: 'Address',
+  error_postal_code: 'Postal code',
+  error_phone_number: 'Phone number',
+  error_representative_name: 'Full name',
+  error_in_roman_letters: 'Name (in Roman letters)',
+  error_target_money: 'Target',
+
+  empty_image: 'Please upload your seal',
+  empty_date: 'Please select a business year',
+
+  conflict_name: 'Company name (display name) existed',
+  conflict_phone_number: 'Phone number has existed',
+  conflict_registered_name: 'Company name (registered name) existed',
+  required_target_money: 'Please enter a sales target amount of less than 15 digits',
+
+  delete_tab: 'Deleted',
+  update_tab: 'Successfully updated',
+  create_tab: 'Successfully created'
+}

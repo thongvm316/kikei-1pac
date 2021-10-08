@@ -1,0 +1,60 @@
+export default {
+  registered_name: '会社名（登記名）',
+  name: '会社名（表示名）',
+  address: '住所',
+  postal_code: '郵便番号',
+  phone_number: '電話番号',
+  representative_name: '代表者氏名',
+  in_roman_letters: '代表者氏名（ローマ字）',
+  fiscal_year: '事業年度',
+  period: '期',
+  sales_target_setting: '売上目標設定',
+  country: '国',
+  year_period: '年度 / 期',
+  target_money: '目標',
+  earnings: '売上',
+  achievement_rate: '達成率',
+  header_close: '閉じる',
+  electronic_seal: '電子印鑑',
+  year: '年',
+  as_of_month: '月現在',
+  month: '月',
+  day: '日',
+  no_num: '第',
+  upload_image: '画像をアップロード',
+
+  please_enter: '入力してください',
+  please_enter_period: '0',
+  please_enter_sales: '0',
+
+  JP: '日本',
+  VN: 'ベトナム',
+  US: 'アメリカ合衆国',
+
+  VND: 'VND',
+  JPY: 'JPY',
+  USD: 'USD',
+
+  select_option_empty: '選択してください',
+
+  error_registered_name: '会社名（登録名）',
+  error_name: '会社名（表示名）',
+  error_address: '住所',
+  error_postal_code: '郵便番号',
+  error_phone_number: '電話番号',
+  error_representative_name: '氏名',
+  error_in_roman_letters: '氏名（ローマ字）',
+  error_target_money: '目標',
+
+  empty_image: '印鑑をアプロードして下さい',
+  empty_date: '事業年度を選択して下さい',
+
+  conflict_name: '会社名（表示名）が存在しました',
+  conflict_phone_number: '「電話番号」が存在しました',
+  conflict_registered_name: '会社名（登記名）が存在しました',
+  required_target_money: '15桁未満の売上目標金額を入力してください',
+
+  delete_tab: 'が削除されました',
+  update_tab: 'が更新されました',
+  create_tab: 'が追加されました'
+}

@@ -10,6 +10,7 @@ import dashboard from './dashboard'
 import account from './account'
 import loading from './loading'
 import token from './token'
+import company from './company-infomation'
 
 const state = {}
 
@@ -31,7 +32,8 @@ const store = createStore({
     dashboard,
     account,
     loading,
-    token
+    token,
+    company
   },
   state,
   getters,
