@@ -18,6 +18,8 @@ import ChartService from './chart'
 import DashboardService from './dashboard'
 import PermissionService from './permission'
 import ProfileService from './profile'
+import CompanyInfomationGroupService from './company-infomation'
+import CountryService from './country'
 
 const repositories = {
   StorageService,
@@ -39,7 +41,9 @@ const repositories = {
   ChartService,
   DashboardService,
   PermissionService,
-  ProfileService
+  ProfileService,
+  CompanyInfomationGroupService,
+  CountryService
 }
 
 export default {

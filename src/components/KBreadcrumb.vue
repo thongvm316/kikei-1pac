@@ -242,6 +242,14 @@ export default defineComponent({
         }
       ],
 
+      // company information
+      'company-information': [
+        {
+          path: '/setting/company-information',
+          breadcrumbName: t('breadcrumb.company_information')
+        }
+      ],
+
       // logs
       logs: [
         {
