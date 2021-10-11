@@ -10,7 +10,15 @@
         />
       </div>
 
-      <div class="u-flex u-items-center">
+      <div class="head-buttons">
+        <a-tooltip color="#fff" title="ごみ箱">
+          <a-button type="link" @click="isVisibleRecoverDepositModal = true">
+            <template #icon>
+              <span class="btn-icon" :style="{ height: '28px' }"><recover-icon /></span>
+            </template>
+          </a-button>
+        </a-tooltip>
+
         <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
           <a-button type="link" :loading="isLoadingExportCsv" @click="exportDepositAsCsvFile">
             <template #icon>
@@ -19,7 +27,7 @@
           </a-button>
         </a-tooltip>
 
-        <a-button type="primary" class="u-ml-16" @click="onAddRecordDeposit">
+        <a-button type="primary" @click="onAddRecordDeposit">
           <template #icon>
             <span class="btn-icon"><line-add-icon /></span>
           </template>
@@ -143,6 +151,7 @@
     v-if="isVisibleDeleteModal"
     v-model:visible="isVisibleDeleteModal"
     v-model:current-selected-record="currentSelectedRecord"
+    v-model:loading="isLoadingOkButtonDeleteDepositModal"
     @on-delete-deposit-record="onDeleteDepositRecord($event)"
   />
 
@@ -158,7 +167,7 @@
     @on-unconfirm-deposit="onUnconfirmDeposit"
   />
 
-  <ModifyDepositModal
+  <modify-deposit-modal
     v-if="isModifyDepositRoot"
     v-model:visible="isModifyDepositRoot"
     v-model:current-selected-row-keys="currentSelectedRowKeys"
@@ -166,6 +175,14 @@
     :group-id="activeKeyGroupTab"
     :type-modify-deposit-root="typeModifyDepositRoot"
     @on-delete-deposit-root="onDeleteDepositRoot($event)"
+  />
+
+  <recover-deposit-modal
+    v-if="isVisibleRecoverDepositModal"
+    v-model:visible="isVisibleRecoverDepositModal"
+    v-model:current-selected-row-keys="currentSelectedRowKeys"
+    :group-id="activeKeyGroupTab"
+    @on-restore-deposit="onRestoreDeposit($event)"
   />
 </template>
 
@@ -200,11 +217,13 @@ import ConfirmDepositModal from './-components/ConfirmDepositModal'
 import ModalActionBar from '@/components/ModalActionBar'
 import ModalUnconfirm from './-components/UnconfirmDepositModal'
 import ModifyDepositModal from './-components/ModifyDepositModal'
+import RecoverDepositModal from './-components/RecoverDepositModal.vue'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
 import CheckWhiteIcon from '@/assets/icons/ico_check_white.svg'
+import RecoverIcon from '@/assets/icons/ico_recover.svg'
 
 export default defineComponent({
   name: 'DepositPage',
@@ -213,6 +232,7 @@ export default defineComponent({
     CheckWhiteIcon,
     DeleteWhiteIcon,
     LineDownIcon,
+    RecoverIcon,
     LineAddIcon,
     DepositTable,
     SearchDepositModal,
@@ -220,7 +240,8 @@ export default defineComponent({
     ConfirmDepositModal,
     ModalActionBar,
     ModalUnconfirm,
-    ModifyDepositModal
+    ModifyDepositModal,
+    RecoverDepositModal
   },
 
   setup() {
@@ -228,6 +249,9 @@ export default defineComponent({
     const route = useRoute()
     const { t } = useI18n()
     const store = useStore()
+
+    // recover modal
+    const isVisibleRecoverDepositModal = ref()
 
     // pagination
     const currentPage = ref(1)
@@ -295,6 +319,8 @@ export default defineComponent({
       data: {},
       params: { pageNumber: 1, pageSize: pageSize.value }
     })
+
+    const isLoadingOkButtonDeleteDepositModal = ref()
 
     const updateParamRequestDeposit = ({ data = {}, params = {} }) => {
       paramRequestDataDeposit.value = {
@@ -515,6 +541,7 @@ export default defineComponent({
       const targetDelete = emitKey === 'multiple' ? currentSelectedRowKeys.value : [currentSelectedRecord.value?.id]
       const purpose = currentSelectedRecord.value?.purpose
       if (targetDelete.length < 1) return
+      isLoadingOkButtonDeleteDepositModal.value = true
 
       try {
         isLoadingDataTable.value = true
@@ -542,6 +569,7 @@ export default defineComponent({
         isVisibleDeleteModal.value = false
         isLoadingDataTable.value = false
         deleteRootOptions.value = { isDeleteRootAll: false }
+        isLoadingOkButtonDeleteDepositModal.value = false
       }
     }
 
@@ -685,6 +713,18 @@ export default defineComponent({
       evt.read = true
     }
 
+    const onRestoreDeposit = async (count) => {
+      // reset data table
+      await fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+
+      // show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'successfully',
+        duration: 5,
+        message: `入出金が${count}戻されました`
+      })
+    }
+
     onBeforeMount(async () => {
       // fetch group list
       const groupsReponse = await getGroupsForAccount(2)
@@ -797,6 +837,8 @@ export default defineComponent({
       isVisibleConfirmDepositModal,
       isVisibleUnconfirmModal,
       isModifyDepositRoot,
+      isVisibleRecoverDepositModal,
+      isLoadingOkButtonDeleteDepositModal,
 
       checkRead,
       updateParamRequestDeposit,
@@ -819,7 +861,8 @@ export default defineComponent({
       onCloseModalAction,
       handleChangeFilterMonth,
       onAddRecordDeposit,
-      onDeleteDepositRoot
+      onDeleteDepositRoot,
+      onRestoreDeposit
     }
   }
 })
@@ -846,6 +889,12 @@ export default defineComponent({
     top: 50%;
     transform: translateY(-50%);
     left: 100%;
+  }
+
+  .head-buttons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
 }
 </style>
