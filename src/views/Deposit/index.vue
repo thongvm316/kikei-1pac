@@ -528,7 +528,6 @@ export default defineComponent({
         deleteType === 'multiple' ||
         (!currentSelectedRecord.value?.confirmed && currentSelectedRecord.value?.rootDepositId === null)
       ) {
-        currentSelectedRecord.value = {}
         isVisibleDeleteModal.value = true
       } else if (currentSelectedRecord.value?.rootDepositId) {
         isModifyDepositRoot.value = true
