@@ -145,14 +145,14 @@ export default defineComponent({
             featureKey: 7
           },
           {
-            name: 'logs',
-            label: t('sidebar.logs'),
-            featureKey: 10
-          },
-          {
             name: 'company-information',
             label: t('sidebar.company_information'),
             featureKey: 11
+          },
+          {
+            name: 'logs',
+            label: t('sidebar.logs'),
+            featureKey: 10
           }
         ]
       }

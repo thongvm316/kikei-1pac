@@ -54,6 +54,7 @@ import useGetAllGroupService from '@/views/CompanyInformation/compasables/useGet
 import useGetTabIDService from '@/views/CompanyInformation/compasables/useGetTabIDService'
 import useGetListSaleTargetService from '@/views/CompanyInformation/compasables/useGetListSaleTargetService'
 import { useStore } from 'vuex'
+import { camelCaseKeysToUnderscore } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -112,15 +113,18 @@ export default defineComponent({
         await fetchListForm(allGroup?.value[0]?.id)
         let indexOf = allGroup.value.length - 1
 
-        if (value) {
+        if (value === '1') {
           handleChooseTab(allGroup.value[indexOf].id)
           activeKey.value = allGroup.value[indexOf].id
           store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
-        } else if (value === undefined) {
-          activeKey.value = allGroup?.value[0]?.id
-        } else {
+        } else if (value === '2') {
+          handleChooseTab(activeKey.value)
+          store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', false)
+        } else if (value === '3') {
           handleChooseTab(allGroup.value[indexOf].id)
           activeKey.value = allGroup.value[indexOf].id
+        } else {
+          activeKey.value = allGroup?.value[0]?.id
         }
       } else {
         checkEmpty.value = true
@@ -180,7 +184,7 @@ export default defineComponent({
       () => store.state.company.isCreated,
       () => {
         if (store.state.company.isCreated) {
-          let created = true
+          let created = '1'
           checkCreate.value = false
           panes.value = []
           getAllGroup(created)
@@ -189,10 +193,22 @@ export default defineComponent({
     )
 
     watch(
+      () => store.state.company.isUpdateTab,
+      () => {
+        if (store.state.company.isUpdateTab) {
+          let update = '2'
+          checkCreate.value = false
+          panes.value = []
+          getAllGroup(update)
+        }
+      }
+    )
+
+    watch(
       () => store.state.company.isDeleted,
       () => {
         if (store.state.company.isDeleted) {
-          let deleted = false
+          let deleted = '3'
           checkCreate.value = false
           panes.value = []
           getAllGroup(deleted)
