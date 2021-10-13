@@ -1,6 +1,6 @@
 <template>
   <section class="project-detail">
-    <div class="project-detail__dashboard">dashboard table</div>
+    <total-revenue-table />
 
     <div class="project-detail__wrapper">
       <div class="project-detail__forms">
@@ -17,14 +17,17 @@
 <script>
 import { defineComponent, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
 import { getProject } from '../composables/useProject'
 import ProjectForm from '../-components/ProjectForm'
+import TotalRevenueTable from '../-components/TotalRevenueTable'
 
 export default defineComponent({
   name: 'ProjectEditPage',
 
   components: {
-    ProjectForm
+    ProjectForm,
+    TotalRevenueTable
   },
 
   setup() {
