@@ -58,6 +58,7 @@ export default defineComponent({
   &__wrapper {
     display: flex;
     gap: 32px;
+    margin-top: 32px;
   }
 
   &__dashboard {

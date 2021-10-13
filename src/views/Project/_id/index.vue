@@ -4,7 +4,12 @@
 
     <div class="project-detail__wrapper">
       <div class="project-detail__forms">
-        <project-form :project="project" edit />
+        <project-form
+          v-model:is-loaded-overview-table="isLoadedOverviewTable"
+          :project="project"
+          edit
+          @on-submit-edit-project-form="onSubmitEditProjectForm"
+        />
 
         <div class="project-detail__financing">Financing tabel</div>
       </div>
@@ -15,13 +20,12 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount } from 'vue'
+import { defineComponent, onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { getProject } from '../composables/useProject'
 import ProjectForm from '../-components/ProjectForm'
 import TotalRevenueTable from '../-components/TotalRevenueTable'
-
 export default defineComponent({
   name: 'ProjectEditPage',
 
@@ -34,8 +38,10 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const project = {}
+    const isLoadedOverviewTable = ref()
 
     const fetchProject = async () => {
+      isLoadedOverviewTable.value = true
       const paramRequest = {
         timezone: 0 - new Date().getTimezoneOffset() / 60,
         isEdit: true
@@ -50,12 +56,19 @@ export default defineComponent({
       }
     }
 
+    const onSubmitEditProjectForm = async () => {
+      await fetchProject()
+      isLoadedOverviewTable.value = false
+    }
+
     onBeforeMount(() => {
       fetchProject()
     })
 
     return {
-      project
+      project,
+      isLoadedOverviewTable,
+      onSubmitEditProjectForm
     }
   }
 })
@@ -66,6 +79,7 @@ export default defineComponent({
   &__wrapper {
     display: flex;
     gap: 32px;
+    margin-top: 32px;
   }
 
   &__dashboard {

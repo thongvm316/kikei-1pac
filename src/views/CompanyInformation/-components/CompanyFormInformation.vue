@@ -899,7 +899,7 @@ export default defineComponent({
 
   .line-8 {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
 
     &__left {
       margin-right: 24px;

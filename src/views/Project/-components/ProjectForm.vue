@@ -7,226 +7,436 @@
     layout="vertical"
     @submit="onSubmit"
   >
-    <!-- companyID -->
-    <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
-      <div>
-        <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
-        <p v-if="!edit" class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
-      </div>
+    <a-spin :spinning="isLoadedOverviewTable">
+      <table class="table-form">
+        <thead>
+          <tr>
+            <th>プロジェクト概要</th>
+            <th>
+              <a-button v-if="!isEditing" type="default" @click="isEditing = true">
+                <template #icon>
+                  <span class="btn-icon">
+                    <edit-icon />
+                  </span>
+                </template>
+                編集
+              </a-button>
+              <a-button v-if="isEditing" type="default" @click="cancelEditOverViewForm">キャンセル</a-button>
+              <a-button
+                v-if="isEditing"
+                type="primary"
+                :loading="loading"
+                :style="{ marginLeft: '8px' }"
+                @click="onSubmit"
+                >登録</a-button
+              >
+            </th>
+          </tr>
+        </thead>
 
-      <p v-if="localErrors['companyId']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['companyId']}`) }}
-      </p>
-    </a-form-item>
-    <!-- companyID -->
+        <tbody>
+          <!-- companyID -->
+          <tr>
+            <td>クライアント名</td>
+            <td>
+              <a-form-item name="companyId" :class="{ 'has-error': localErrors['companyId'] }">
+                <div>
+                  <span
+                    v-if="!!companyOwnerData"
+                    :class="['u-text-12', isEditing ? 'u-text-grey-55' : 'u-text-grey-15']"
+                    >{{ companyOwnerData.name }}</span
+                  >
+                  <p v-if="!edit" class="u-ml-8 modal-link" @click="openCompanySearchForm('owner')">選択</p>
+                </div>
 
-    <!-- code -->
-    <a-form-item name="code" label="プロジェクトコード">
-      <a-input
-        v-model:value="projectParams.code"
-        :disabled="edit"
-        :style="{ width: '300px' }"
-        placeholder="GXX-YYYY-ZZZ"
-      />
-      <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
+                <p v-if="localErrors['companyId']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['companyId']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- companyID -->
 
-      <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
-        {{ $t(`common.local_error.${localErrors['code']}`) }}
-      </p>
-    </a-form-item>
-    <!-- code -->
+          <!-- name -->
+          <tr>
+            <td>プロジェクト名</td>
 
-    <!-- name -->
-    <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
-      <a-input v-model:value="projectParams.name" placeholder="入力してください" :style="{ width: '300px' }" />
+            <td>
+              <a-form-item name="name" :class="{ 'has-error': localErrors['name'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.name }}</span>
+                <a-input
+                  v-if="isEditing"
+                  v-model:value="projectParams.name"
+                  placeholder="入力してください"
+                  :style="{ width: '300px' }"
+                />
 
-      <p v-if="localErrors['name']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['name']}`) }}
-      </p>
-    </a-form-item>
-    <!-- name -->
+                <p v-if="localErrors['name']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['name']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- name -->
 
-    <!-- clientInCharge -->
-    <a-form-item name="clientInCharge" label="顧客担当">
-      <a-input
-        v-model:value="projectParams.clientInCharge"
-        placeholder="入力してください"
-        :style="{ width: '300px' }"
-      />
-    </a-form-item>
-    <!-- clientInCharge -->
+          <!-- code -->
+          <tr>
+            <td>プロジェクトコード</td>
 
-    <!-- type -->
-    <a-form-item v-if="edit" name="type" label="区分">
-      <p class="mb-0">{{ $t(`project.type_${projectParams.type}`) }}</p>
-    </a-form-item>
-    <a-form-item v-else name="type" label="区分">
-      <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
-    </a-form-item>
-    <!-- type -->
+            <td>
+              <a-form-item name="code">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.code }}</span>
+                <a-input
+                  v-if="isEditing"
+                  v-model:value="projectParams.code"
+                  :disabled="edit"
+                  :style="{ width: '300px' }"
+                  placeholder="GXX-YYYY-ZZZ"
+                />
+                <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
 
-    <!-- status -->
-    <a-form-item name="statusId" label="ステータス" :class="{ 'has-error': localErrors['statusId'] }">
-      <a-select v-model:value="projectParams.statusId" placeholder="選択してください" :style="{ width: '164px' }">
-        <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
-          {{ status.name }}
-        </a-select-option>
-      </a-select>
+                <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
+                  {{ $t(`common.local_error.${localErrors['code']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- code -->
 
-      <p v-if="localErrors['statusId']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['statusId']}`) }}
-      </p>
-    </a-form-item>
-    <!-- status -->
+          <!-- clientInCharge -->
+          <tr>
+            <td>顧客担当</td>
 
-    <!-- accuracy -->
-    <a-form-item name="accuracyId" label="受注確度" :class="{ 'has-error': localErrors['statusId'] }">
-      <a-select v-model:value="projectParams.accuracyId" placeholder="選択してください" :style="{ width: '164px' }">
-        <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
-          {{ accuracy.code }} ({{ accuracy.name }})
-        </a-select-option>
-      </a-select>
+            <td>
+              <a-form-item name="clientInCharge">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.clientInCharge }}</span>
+                <a-input
+                  v-if="isEditing"
+                  v-model:value="projectParams.clientInCharge"
+                  placeholder="入力してください"
+                  :style="{ width: '300px' }"
+                />
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- clientInCharge -->
 
-      <p v-if="localErrors['accuracyId']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['accuracyId']}`) }}
-      </p>
-    </a-form-item>
-    <!-- accuracy -->
+          <!-- type -->
+          <tr>
+            <td>区分</td>
 
-    <!-- release date -->
-    <a-form-item name="releaseDate" label="リリース日（予定）">
-      <a-date-picker v-model:value="projectParams.releaseDate" format="YYYY/MM/DD" placeholder="YYYY/MM/DD" />
-    </a-form-item>
-    <!-- release date -->
+            <td>
+              <a-form-item v-if="edit" name="type">
+                <span class="u-text-grey-15 u-text-12">{{ $t(`project.type_${projectParams.type}`) }}</span>
+              </a-form-item>
+              <a-form-item v-else name="type">
+                <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- type -->
 
-    <!-- statistics month -->
-    <a-form-item
-      v-if="projectParams.type === 0"
-      name="statisticsMonth"
-      label="計上予定月"
-      :class="{ 'has-error': localErrors['statisticFromMonth'] }"
-    >
-      <a-month-picker
-        v-model:value="projectParams.statisticsMonth"
-        :style="{ width: '164px' }"
-        format="YYYY/MM"
-        placeholder="YYYY/MM"
-      >
-        <template #suffixIcon>
-          <calendar-outlined />
-        </template>
-      </a-month-picker>
+          <!-- status -->
+          <tr>
+            <td>ステータス</td>
+            <td>
+              <a-form-item name="statusId" :class="{ 'has-error': localErrors['statusId'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ statusName?.name }}</span>
+                <a-select
+                  v-if="isEditing"
+                  v-model:value="projectParams.statusId"
+                  placeholder="選択してください"
+                  :style="{ width: '300px' }"
+                >
+                  <a-select-option v-for="status in dataStatuses" :key="status.id" :value="status.id">
+                    {{ status.name }}
+                  </a-select-option>
+                </a-select>
 
-      <p v-if="localErrors['statisticFromMonth']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
-      </p>
-    </a-form-item>
+                <p v-if="localErrors['statusId']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['statusId']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- status -->
 
-    <a-form-item
-      v-else
-      name="statisticsMonths"
-      label="計上予定月"
-      :class="{ 'has-error': localErrors['statisticFromMonth'] }"
-    >
-      <a-range-picker
-        v-model:value="projectParams.statisticsMonths"
-        :style="{ width: '300px' }"
-        format="YYYY/MM"
-        :mode="['month', 'month']"
-        :placeholder="['YYYY/MM', 'YYYY/MM']"
-        @panelChange="handleChangeStatisticsDateValue"
-      >
-        <template #suffixIcon>
-          <calendar-outlined />
-        </template>
-      </a-range-picker>
+          <!-- accuracy -->
+          <tr>
+            <td>受注確度</td>
+            <td>
+              <a-form-item name="accuracyId" :class="{ 'has-error': localErrors['statusId'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ accuracyName?.name }}</span>
+                <a-select
+                  v-if="isEditing"
+                  v-model:value="projectParams.accuracyId"
+                  placeholder="選択してください"
+                  :style="{ width: '300px' }"
+                >
+                  <a-select-option v-for="accuracy in dataAccuracies" :key="accuracy.id" :value="accuracy.id">
+                    {{ accuracy.code }} ({{ accuracy.name }})
+                  </a-select-option>
+                </a-select>
 
-      <p v-if="localErrors['statisticFromMonth']" class="u-text-additional-red-6">
-        {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
-      </p>
-    </a-form-item>
-    <!-- statistics month -->
+                <p v-if="localErrors['accuracyId']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['accuracyId']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- accuracy -->
 
-    <!-- groupID -->
-    <a-form-item name="groupId" label="請求グループ" :class="{ 'has-error': localErrors['groupId'] }">
-      <a-select v-model:value="projectParams.groupId" placeholder="選択してください" :style="{ width: '164px' }">
-        <a-select-option
-          v-for="group in dataGroups"
-          :key="group.id"
-          :value="group.id"
-          @click="onSelectGroup(group.depositCurrencyCode)"
-        >
-          {{ group.name }}
-        </a-select-option>
-      </a-select>
-      <p v-if="localErrors['groupId']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['groupId']}`) }}
-      </p>
-    </a-form-item>
-    <!-- groupID -->
+          <!-- release date -->
+          <tr>
+            <td>リリース日（予定）</td>
 
-    <!-- director -->
-    <a-form-item name="director" label="ディレクタ（予定）">
-      <a-input v-model:value="projectParams.director" placeholder="入力してください" :style="{ width: '300px' }" />
-    </a-form-item>
-    <!-- director -->
+            <td>
+              <a-form-item name="releaseDate">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{
+                  Filter.moment_l(projectParams.releaseDate)
+                }}</span>
+                <a-date-picker
+                  v-if="isEditing"
+                  v-model:value="projectParams.releaseDate"
+                  :style="{ width: '150px' }"
+                  format="YYYY/MM/DD"
+                  placeholder="YYYY/MM/DD"
+                />
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- release date -->
 
-    <!-- accountID -->
-    <a-form-item name="accountId" label="営業担当" :class="{ 'has-error': localErrors['accountId'] }">
-      <a-select v-model:value="projectParams.accountId" placeholder="入力してください" :style="{ width: '164px' }">
-        <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
-          {{ account.fullname }}
-        </a-select-option>
-      </a-select>
-      <p v-if="localErrors['accountId']" class="ant-form-explain">
-        {{ $t(`common.local_error.${localErrors['accountId']}`) }}
-      </p>
-    </a-form-item>
-    <!-- accountID -->
-    <div class="moneyWrapper">
-      <!-- money -->
-      <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
-        <a-input-number
-          v-model:value="projectParams.money"
-          placeholder="入力してください"
-          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-          :precision="0"
-          :style="{ width: '300px' }"
-        />
-        <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
-        <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
-          <a-button type="link" @click="isHistoryMoneyModalOpen = true">
-            <template #icon>
-              <span :style="{ height: '16px' }" class="btn-icon"><history-icon /></span>
-            </template>
-          </a-button>
-        </a-tooltip>
-        <p v-if="localErrors['money']" class="ant-form-explain">
-          {{ $t(`common.local_error.${localErrors['money']}`) }}
-        </p>
+          <!-- statistics month -->
+          <tr>
+            <td>計上予定月</td>
 
-        <!-- history money edit -->
-        <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
-      </a-form-item>
-      <!-- money -->
+            <td>
+              <a-form-item
+                v-if="projectParams.type === 0"
+                name="statisticsMonth"
+                :class="{ 'has-error': localErrors['statisticFromMonth'] }"
+              >
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{
+                  Filter.moment_yyyy_mm(projectParams.statisticsMonth)
+                }}</span>
+                <a-month-picker
+                  v-if="isEditing"
+                  v-model:value="projectParams.statisticsMonth"
+                  :style="{ width: '150px' }"
+                  format="YYYY/MM"
+                  placeholder="YYYY/MM"
+                >
+                  <template #suffixIcon>
+                    <calendar-outlined />
+                  </template>
+                </a-month-picker>
 
-      <!-- tax -->
-      <a-form-item name="tax" label="税金">
-        <a-input-number
-          v-model:value="projectParams.tax"
-          :precision="0"
-          :style="{ width: '68px' }"
-          :min="0"
-          :max="100"
-        />
+                <p v-if="localErrors['statisticFromMonth']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
+                </p>
+              </a-form-item>
 
-        <span class="u-ml-8 u-text-grey-75">%</span>
-      </a-form-item>
-      <!-- tax -->
-    </div>
+              <a-form-item v-else name="statisticsMonths" :class="{ 'has-error': localErrors['statisticFromMonth'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{
+                  `${Filter.moment_yyyy_mm(projectParams.statisticsMonths[0])} -
+                ${Filter.moment_yyyy_mm(projectParams.statisticsMonths[1])}`
+                }}</span>
+                <a-range-picker
+                  v-if="isEditing"
+                  v-model:value="projectParams.statisticsMonths"
+                  :style="{ width: '300px' }"
+                  format="YYYY/MM"
+                  :mode="['month', 'month']"
+                  :placeholder="['YYYY/MM', 'YYYY/MM']"
+                  @panelChange="handleChangeStatisticsDateValue"
+                >
+                  <template #suffixIcon>
+                    <calendar-outlined />
+                  </template>
+                </a-range-picker>
+
+                <p v-if="localErrors['statisticFromMonth']" class="u-text-additional-red-6">
+                  {{ $t(`common.local_error.${localErrors['statisticFromMonth']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- statistics month -->
+
+          <!-- groupID -->
+          <tr>
+            <td>請求グループ</td>
+
+            <td>
+              <a-form-item name="groupId" :class="{ 'has-error': localErrors['groupId'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ groupName?.name }}</span>
+                <a-select
+                  v-if="isEditing"
+                  v-model:value="projectParams.groupId"
+                  placeholder="選択してください"
+                  :style="{ width: '300px' }"
+                >
+                  <a-select-option
+                    v-for="group in dataGroups"
+                    :key="group.id"
+                    :value="group.id"
+                    @click="onSelectGroup(group.depositCurrencyCode)"
+                  >
+                    {{ group.name }}
+                  </a-select-option>
+                </a-select>
+                <p v-if="localErrors['groupId']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['groupId']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- groupID -->
+
+          <!-- director -->
+          <tr>
+            <td>ディレクタ（予定）</td>
+
+            <td>
+              <a-form-item name="director">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.director }}</span>
+                <a-input
+                  v-if="isEditing"
+                  v-model:value="projectParams.director"
+                  placeholder="入力してください"
+                  :style="{ width: '300px' }"
+                />
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- director -->
+
+          <!-- accountID -->
+          <tr>
+            <td>営業担当</td>
+            <td>
+              <a-form-item name="accountId" :class="{ 'has-error': localErrors['accountId'] }">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ accountName?.fullname }}</span>
+                <a-select
+                  v-if="isEditing"
+                  v-model:value="projectParams.accountId"
+                  placeholder="入力してください"
+                  :style="{ width: '300px' }"
+                >
+                  <a-select-option v-for="account in dataAccounts" :key="account.id" :value="account.id">
+                    {{ account.fullname }}
+                  </a-select-option>
+                </a-select>
+                <p v-if="localErrors['accountId']" class="ant-form-explain">
+                  {{ $t(`common.local_error.${localErrors['accountId']}`) }}
+                </p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- accountID -->
+
+          <!-- money -->
+          <tr>
+            <td>金額</td>
+
+            <td>
+              <div class="moneyWrapper">
+                <!-- money -->
+                <a-form-item name="money" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
+                  <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.money }}</span>
+                  <a-input-number
+                    v-if="isEditing"
+                    v-model:value="projectParams.money"
+                    placeholder="入力してください"
+                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :precision="0"
+                    :style="{ width: '300px' }"
+                  />
+                  <span v-if="depositCurrencyCode" class="u-ml-8">{{ `(${depositCurrencyCode})` }}</span>
+                  <p v-if="localErrors['money']" class="ant-form-explain">
+                    {{ $t(`common.local_error.${localErrors['money']}`) }}
+                  </p>
+                </a-form-item>
+
+                <!-- tax -->
+                <div class="u-flex u-items-center">
+                  <span class="u-mr-8">税金:</span>
+                  <a-form-item name="tax">
+                    <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.tax }}</span>
+                    <a-input-number
+                      v-if="isEditing"
+                      v-model:value="projectParams.tax"
+                      :precision="0"
+                      :style="{ width: '68px' }"
+                      :min="0"
+                      :max="100"
+                    />
+
+                    <span class="u-ml-8">%</span>
+                  </a-form-item>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- money -->
+
+          <!-- tag  -->
+          <tr>
+            <td>タグ</td>
+
+            <td>
+              <a-form-item name="tags">
+                <a-input
+                  v-if="isEditing"
+                  v-model:value="valueTag"
+                  placeholder="タグを入力してください"
+                  :style="{ width: '300px' }"
+                  @pressEnter="createTag"
+                />
+
+                <div v-if="projectParams.tags.length > 0" class="tags-container">
+                  <a-tooltip
+                    v-for="(tag, index) in projectParams.tags"
+                    :key="index"
+                    :title="tag"
+                    overlay-class-name="project-form-tags__tooltip"
+                  >
+                    <a-tag :closable="isEditing" @close="removeTag($event, index)">
+                      {{ tag }}
+                    </a-tag>
+                  </a-tooltip>
+                </div>
+
+                <p v-if="isEditing" class="text-grey-55 u-mt-2">※タグを入力して「Enter」を押してください</p>
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- tag  -->
+
+          <!-- memo -->
+          <tr>
+            <td>メモ</td>
+
+            <td>
+              <a-form-item name="memo">
+                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.memo }}</span>
+                <a-textarea
+                  v-if="isEditing"
+                  v-model:value="projectParams.memo"
+                  placeholder="入力してください"
+                  :style="{ width: '355px' }"
+                />
+              </a-form-item>
+            </td>
+          </tr>
+          <!-- memo -->
+        </tbody>
+      </table>
+    </a-spin>
 
     <!-- projectOrders -->
-    <a-form-item name="adProjectOrders" label="外注">
+    <!-- <a-form-item name="adProjectOrders" label="外注">
       <div class="outsource u-pl-20">
         <table>
           <tbody>
@@ -288,50 +498,8 @@
 
         <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)</p>
       </div>
-    </a-form-item>
+    </a-form-item> -->
     <!-- projectOrders -->
-
-    <!-- tag  -->
-    <a-form-item name="tags" label="タグ">
-      <a-input
-        v-model:value="valueTag"
-        placeholder="タグを入力してください"
-        :style="{ width: '300px', border: 0, zIndex: 1 }"
-        @pressEnter="createTag"
-      />
-
-      <div v-if="projectParams.tags.length > 0" class="tags-container">
-        <a-tooltip
-          v-for="(tag, index) in projectParams.tags"
-          :key="index"
-          :title="tag"
-          overlay-class-name="project-form-tags__tooltip"
-        >
-          <a-tag closable @close="removeTag($event, index)">
-            {{ tag }}
-          </a-tag>
-        </a-tooltip>
-      </div>
-
-      <p class="text-grey-55 u-mt-2">※タグを入力して「Enter」を押してください</p>
-    </a-form-item>
-
-    <!-- tag  -->
-
-    <!-- memo -->
-    <a-form-item name="memo" label="メモ">
-      <a-textarea
-        v-model:value="projectParams.memo"
-        placeholder="入力してください"
-        :style="{ width: '300px', height: '160px' }"
-      />
-    </a-form-item>
-    <!-- memo -->
-
-    <a-form-item>
-      <a-button type="default" @click="$router.go(-1)">キャンセル</a-button>
-      <a-button type="primary" :loading="loading" :style="{ marginLeft: '8px' }" @click="onSubmit">登録</a-button>
-    </a-form-item>
   </a-form>
 
   <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
@@ -356,11 +524,11 @@ import {
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
-import MoneyHistoryModal from './MoneyHistoryModal.vue'
+import Filter from '@/filters'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import HistoryIcon from '@/assets/icons/ico_history.svg'
+// import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import EditIcon from '@/assets/icons/ico_edit.svg'
 
 export default defineComponent({
   name: 'ProjectForm',
@@ -368,9 +536,8 @@ export default defineComponent({
   components: {
     CalendarOutlined,
     ModalSelectCompany,
-    LineAddIcon,
-    HistoryIcon,
-    MoneyHistoryModal
+    // LineAddIcon,
+    EditIcon
   },
 
   props: {
@@ -378,16 +545,24 @@ export default defineComponent({
       type: Object,
       required: true
     },
-    edit: Boolean
+    edit: Boolean,
+    isLoadedOverviewTable: {
+      type: Boolean,
+      default: false
+    }
   },
 
-  setup(props) {
+  emits: ['on-submit-edit-project-form', 'update:is-loaded-overview-table'],
+
+  setup(props, { emit }) {
     const projectProp = props.project
     const edit = props.edit
     const projectFormRef = ref()
     const store = useStore()
     const router = useRouter()
     const { t } = useI18n()
+
+    const isEditing = ref()
 
     const projectParams = ref({
       companyId: null,
@@ -425,7 +600,10 @@ export default defineComponent({
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
 
-    const isHistoryMoneyModalOpen = ref()
+    const statusName = computed(() => find(dataStatuses.value, { id: projectParams.value.statusId }))
+    const accuracyName = computed(() => find(dataAccuracies.value, { id: projectParams.value.accuracyId }))
+    const groupName = computed(() => find(dataGroups.value, { id: projectParams.value.groupId }))
+    const accountName = computed(() => find(dataAccounts.value, { id: projectParams.value.accountId }))
 
     const handleChangeStatisticsDateValue = (val) => {
       projectParams.value.statisticsMonths = val
@@ -605,6 +783,8 @@ export default defineComponent({
       if (projectParams.value.adProjectOrders) {
         initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
       }
+
+      emit('update:is-loaded-overview-table', false)
     }
     /* -------------------- ./init data when project props ------------------------- */
 
@@ -674,6 +854,7 @@ export default defineComponent({
     }
 
     const callEditProject = async () => {
+      loading.value = true
       const response = await editProject(projectProp.value.id, projectDataRequest.value)
       if (response.status === 200) {
         const name = projectDataRequest.value.name
@@ -682,7 +863,11 @@ export default defineComponent({
           variant: 'successfully',
           message: t('project.flash_message.update_success', { name })
         })
-        router.push({ name: 'project' })
+
+        emit('on-submit-edit-project-form')
+        isEditing.value = false
+        loading.value = false
+
         return
       }
       if (response.data?.errors) {
@@ -690,6 +875,7 @@ export default defineComponent({
 
         if (localErrors.value.adProjectOrders) {
           addProjectOrdersErrors()
+          loading.value = false
         }
       }
     }
@@ -738,6 +924,11 @@ export default defineComponent({
       initProjectPropData()
     })
 
+    const cancelEditOverViewForm = () => {
+      isEditing.value = false
+      initProjectPropData()
+    }
+
     return {
       projectFormRef,
       projectParams,
@@ -755,7 +946,11 @@ export default defineComponent({
       localProjectOrders,
       totalMoneyOutsourcing,
       depositCurrencyCode,
-      isHistoryMoneyModalOpen,
+      isEditing,
+      statusName,
+      accuracyName,
+      groupName,
+      accountName,
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,
@@ -764,7 +959,9 @@ export default defineComponent({
       createTag,
       removeTag,
       handleChangeStatisticsDateValue,
-      onSelectGroup
+      onSelectGroup,
+      cancelEditOverViewForm,
+      Filter
     }
   }
 })
@@ -816,7 +1013,7 @@ export default defineComponent({
   }
 
   .ant-form-item {
-    margin-bottom: 16px;
+    margin-bottom: 0;
   }
 
   .ant-form-item-label > label.ant-form-item-required {
@@ -837,8 +1034,8 @@ export default defineComponent({
   }
 
   .tags-container {
-    width: 300px;
-    padding: 4px 10px 0 12px;
+    width: 350px;
+    padding: 4px 10px 0 0;
     background-color: $color-grey-100;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
@@ -871,6 +1068,7 @@ export default defineComponent({
     color: $color-grey-75;
     font-size: 12px;
     line-height: 18px;
+    margin-bottom: 0;
   }
 
   .ant-radio-wrapper {
@@ -879,6 +1077,56 @@ export default defineComponent({
 
   .ant-form-item-label {
     padding: 0 0 4px;
+  }
+
+  table.table-form {
+    font-size: 14px;
+    color: $color-grey-15;
+    border: 1px solid $color-grey-75;
+    width: 100%;
+    background-color: $color-grey-100;
+
+    thead {
+      background-color: $color-grey-92;
+      color: $color-grey-15;
+      font-weight: 700;
+      font-size: 16px;
+
+      th:first-child {
+        padding-left: 32px;
+        width: 30%;
+        white-space: nowrap;
+      }
+    }
+
+    tbody {
+      td {
+        padding: 13px;
+
+        &:first-child {
+          font-size: 12px;
+          border-right: 1px solid $color-grey-75;
+          color: $color-primary-9;
+          font-weight: 700;
+          width: 60px;
+          background-color: $color-grey-92;
+          padding-left: 32px;
+        }
+      }
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid $color-grey-75;
+    }
+
+    th {
+      padding: 12px;
+    }
+
+    &__text {
+      color: red;
+    }
   }
 }
 
@@ -891,6 +1139,7 @@ export default defineComponent({
 
 .moneyWrapper {
   display: flex;
+  align-items: flex-start;
   gap: 32px;
 }
 </style>
