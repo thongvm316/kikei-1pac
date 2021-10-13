@@ -395,7 +395,9 @@
                   @pressEnter="createTag"
                 />
 
-                <div v-if="projectParams.tags.length > 0" class="tags-container">
+                <p v-if="isEditing" class="text-grey-55 u-mt-2 mb-0">※タグを入力して「Enter」を押してください</p>
+
+                <div v-if="projectParams.tags.length > 0" :class="['tags-container', isEditing && 'isEditing']">
                   <a-tooltip
                     v-for="(tag, index) in projectParams.tags"
                     :key="index"
@@ -407,8 +409,6 @@
                     </a-tag>
                   </a-tooltip>
                 </div>
-
-                <p v-if="isEditing" class="text-grey-55 u-mt-2">※タグを入力して「Enter」を押してください</p>
               </a-form-item>
             </td>
           </tr>
@@ -1034,11 +1034,13 @@ export default defineComponent({
   }
 
   .tags-container {
-    width: 350px;
-    padding: 4px 10px 0 0;
     background-color: $color-grey-100;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
+
+    &.isEditing {
+      margin-top: 8px;
+    }
 
     .ant-tag {
       background-color: $color-grey-85;
