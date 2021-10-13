@@ -1,6 +1,6 @@
 <template>
   <a-table
-    :class="['deposit-table', isTableModal && 'is-table-modal']"
+    :class="['deposit-table', isTableModal && 'is-table-modal', isRecoverModal && 'is-recover-modal']"
     :loading="isLoadingDataTable"
     :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
     :row-class-name="onAddRowClass"
@@ -118,9 +118,13 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    isRecoverModal: {
+      type: Boolean,
+      default: false
+    },
     typeModifyDepositRoot: {
       type: String,
-      default: 'EDIT'
+      default: undefined
     },
     currentSelectedRecordId: {
       type: Number,
@@ -391,6 +395,10 @@ export default defineComponent({
 
   &.is-table-modal table thead .ant-checkbox-wrapper {
     display: block;
+  }
+
+  &.is-table-modal.is-recover-modal thead .ant-checkbox-wrapper {
+    display: none;
   }
 
   td {

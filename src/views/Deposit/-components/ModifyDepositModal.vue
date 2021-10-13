@@ -19,7 +19,7 @@
         {{ `入出金が "${isEditDepositMode ? totalChildDeposit : totalDeleteDeposit}" ある` }}
       </p>
 
-      <DepositTable
+      <deposit-table
         v-if="optionValue === 2"
         v-model:data-deposit="dataTableDeposit"
         v-model:is-loading-data-table="isLoadingDataTable"
@@ -76,6 +76,7 @@ export default defineComponent({
     const pageNumber = ref(1)
     const totalPages = ref(0)
     const totalChildDeposit = ref(0)
+    const currentSortStr = ref()
 
     const isEditDepositMode = computed(() => props.typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT'])
     const exceptionDeposit = computed(() =>
@@ -151,7 +152,7 @@ export default defineComponent({
         rootDepositId,
         confirmed: [false]
       }
-      const paramsRequest = { pageNumber: pageNumber.value, pageSize: 50, ...params }
+      const paramsRequest = { orderBy: currentSortStr.value, pageNumber: pageNumber.value, pageSize: 50, ...params }
 
       try {
         const { data = {} } = await getDeposit(dataRequest, paramsRequest)
@@ -184,8 +185,10 @@ export default defineComponent({
     }
 
     const onSortTable = (emitData) => {
-      const currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
-      fetchDatatableDeposit({ orderBy: currentSortStr })
+      dataTableDeposit.value = []
+      pageNumber.value = 1
+      currentSortStr.value = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
+      fetchDatatableDeposit({ orderBy: currentSortStr.value })
     }
 
     onBeforeMount(() => {

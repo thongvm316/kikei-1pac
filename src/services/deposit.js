@@ -39,5 +39,9 @@ export default {
 
   getRecordRead(projectId) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/read/${projectId}` })
+  },
+
+  recoverDeposit(data) {
+    return apiCaller({ method: 'PATCH', url: `${RESOURCES.deposit}/restore`, data })
   }
 }
