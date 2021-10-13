@@ -13,6 +13,8 @@
       class="close-modal-delete"
     />
 
+    <!--    <modal-leave-group-setting v-model:visible="modalLeave" />-->
+
     <form @submit="onSubmit">
       <!-- Registered name -->
       <div class="form-group">
@@ -256,7 +258,7 @@
 
             <Field
               v-slot="{ field, handleChange, errors }"
-              v-model="form.period.name"
+              v-model="form.period_name"
               name="period"
               rules="input_required|numeric"
             >
@@ -337,7 +339,7 @@
 
       <!-- Sales target setting -->
       <div class="form-group line-10">
-        <label class="form-label-line9">{{ $t('company_infomation.sales_target_setting') }}<span>*</span></label>
+        <label class="form-label-line10">{{ $t('company_infomation.sales_target_setting') }}<span>*</span></label>
         <div class="sales-group">
           <p>
             {{ dateStart[0] }}<span>{{ $t('company_infomation.year') }}</span
@@ -353,7 +355,7 @@
 
           <Field
             v-slot="{ field, handleChange, errors }"
-            v-model="form.group_revenue_target.money"
+            v-model="form.money"
             name="target_money"
             rules="input_required|numeric"
           >
@@ -376,7 +378,7 @@
             </div>
           </Field>
 
-          <Field v-slot="{ field, handleChange }" v-model="form.group_revenue_target.currency_id" name="currency_code">
+          <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="currency_code">
             <div class="form-content">
               <div class="form-input">
                 <a-select
@@ -395,22 +397,20 @@
         </div>
       </div>
 
-      <!-- Collapse Table -->
-      <a-collapse v-model:activeKey="activeKey" :expand-icon-position="'right'" @change="handleCollapse">
-        <a-collapse-panel
-          :header="showHeader ? $t('company_infomation.header_close') : ''"
-          :show-arrow="showTable"
-          @click="handleClickCollapsePanel"
-        >
-        </a-collapse-panel>
-      </a-collapse>
-      <company-table-infomation v-if="showTable" :get-data-table="getDataTable" />
+      <company-table-infomation v-show="showTable" :get-data-table="getDataTable" />
+      <div class="show-table" @click="handleCollapse">
+        <p v-show="showTable">{{ $t('company_infomation.header_close') }}</p>
+        <icon-cher-von-right id="icon-right" :class="{ 'transition-right': showTable }" />
+      </div>
 
       <!-- Action Section Submit & Cancel -->
       <div class="card-footer">
         <template v-if="showBtnDel">
           <a-button class="btn-delete-danger" style="margin-right: 16px" @click="handleDeleteRecord">
             {{ $t('modal.delete') }}
+          </a-button>
+          <a-button class="btn-close" style="margin-right: 16px" @click="handleRevertRecord">
+            {{ $t('modal.revert') }}
           </a-button>
         </template>
         <template v-else>
@@ -429,7 +429,7 @@
 <script>
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
-import { isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
+import { isEmpty, keys, omit, pick, split, uniqueId } from 'lodash-es'
 import { currentDate } from '@/helpers/extend-financing'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
@@ -445,12 +445,21 @@ import { CalendarOutlined } from '@ant-design/icons-vue'
 import ModalUploadElectronicSeal from '@/components/ModalUploadElectronicSeal'
 import CompanyTableInfomation from '@/views/CompanyInformation/-components/CompanyTableInfomation'
 import ModalDeleteCompanyInfomation from '@/components/ModalDeleteCompanyInfomation'
+import IconCherVonRight from '@/assets/icons/ico_chervon_right.svg'
 import moment from 'moment'
+// import ModalLeaveGroupSetting from '@/components/ModalLeaveGroupSetting'
 
 export default defineComponent({
   name: 'CompanyFormInformation',
 
-  components: { ModalDeleteCompanyInfomation, CompanyTableInfomation, ModalUploadElectronicSeal, CalendarOutlined },
+  components: {
+    // ModalLeaveGroupSetting,
+    ModalDeleteCompanyInfomation,
+    CompanyTableInfomation,
+    ModalUploadElectronicSeal,
+    CalendarOutlined,
+    IconCherVonRight
+  },
 
   props: {
     getDetailTab: {
@@ -495,6 +504,7 @@ export default defineComponent({
       representative_name: '',
       representative_name_latin: '',
       fiscal_year: [null, null],
+      period_name: '',
       period: {
         finished_date: '',
         id: 0,
@@ -506,6 +516,8 @@ export default defineComponent({
         id: 0,
         money: ''
       },
+      money: '',
+      currency_id: 1,
       company_seal: '',
       current_year: moment().year(),
       current_month: moment().format('MM')
@@ -522,6 +534,7 @@ export default defineComponent({
     const showHeader = ref(false)
     const openDelete = ref(false)
     const showTable = ref(false)
+    const modalLeave = ref(false)
 
     const tmpErrors = ref()
     const image = ref()
@@ -536,6 +549,7 @@ export default defineComponent({
     const currencyList = ref([])
     const getDataTable = ref([])
     const getTargetTab = ref([])
+    const saveDate = ref({})
     const propsDataDelete = ref({})
 
     const idTab = ref(1)
@@ -555,10 +569,13 @@ export default defineComponent({
     )
 
     watch(getDetailTab, (value) => {
-      showBtnDel.value = value
+      showBtnDel.value = camelCaseKeysToUnderscore(value)
       form.value = {
         ...form.value,
-        ...camelCaseKeysToUnderscore(value)
+        ...showBtnDel.value,
+        period_name: showBtnDel.value.period.name,
+        currency_id: showBtnDel.value.group_revenue_target.currency_id,
+        money: showBtnDel.value.group_revenue_target.money
       }
 
       form.value.fiscal_year[0] = currentDate(form.value.period.started_date)
@@ -610,13 +627,15 @@ export default defineComponent({
       form.value.fiscal_year[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
       form.value.fiscal_year[1] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[1])
 
-      if (!dateString[0] && !dateString[1]) form.value.fiscal_year[1] = null
+      if (!dateString[0] && !dateString[1]) {
+        saveDate.value = showBtnDel.value.period
+      } else {
+        form.value.period.started_date = form.value.fiscal_year[0]
+        form.value.period.finished_date = form.value.fiscal_year[1]
 
-      form.value.period.started_date = form.value.fiscal_year[0]
-      form.value.period.finished_date = form.value.fiscal_year[1]
-
-      dateStart.value = [...split(form.value.period.started_date, '-')]
-      dateFinish.value = [...split(form.value.period.finished_date, '-')]
+        dateStart.value = [...split(form.value.period.started_date, '-')]
+        dateFinish.value = [...split(form.value.period.finished_date, '-')]
+      }
 
       checkDate.value = false
       isClickSubmit.value = false
@@ -682,10 +701,7 @@ export default defineComponent({
 
     const handleCollapse = async () => {
       showHeader.value = !showHeader.value
-      showTable.value = true
-    }
-
-    const handleClickCollapsePanel = () => {
+      showTable.value = !showTable.value
       getDataTable.value = getTargetTab.value
     }
 
@@ -712,11 +728,7 @@ export default defineComponent({
       }
     })
 
-    const updateCompany = async (value) => {
-      let data = {
-        ...value,
-        company_seal: base64result.value
-      }
+    const updateCompany = async (data) => {
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateCompanyInfomation } = useUpdateCompanyInfomationService(tabId.value, data)
@@ -726,8 +738,13 @@ export default defineComponent({
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
-          message: locale.value === 'en' ? t('company_infomation.update_tab') : t('company_infomation.update_tab')
+          message:
+            locale.value === 'en'
+              ? t('company_infomation.update_tab') + data.registered_name
+              : data.registered_name + t('company_infomation.update_tab')
         })
+
+        store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
       } catch (err) {
         checkErrorsApi(err)
         throw err
@@ -801,6 +818,29 @@ export default defineComponent({
       }
     }
 
+    const handleRevertRecord = () => {
+      form.value = {
+        ...form.value,
+        ...showBtnDel.value
+      }
+
+      form.value.period_name = form.value.period.name
+
+      image.value = form.value.company_seal
+
+      form.value.money = form.value.group_revenue_target.money
+      form.value.currency_id = form.value.group_revenue_target.currency_id
+
+      form.value.fiscal_year[0] = form.value.period.started_date
+      form.value.fiscal_year[1] = form.value.period.finished_date
+
+      form.value.period.started_date = form.value.fiscal_year[0]
+      form.value.period.finished_date = form.value.fiscal_year[1]
+
+      dateStart.value = [...split(form.value.period.started_date, '-')]
+      dateFinish.value = [...split(form.value.period.finished_date, '-')]
+    }
+
     const replaceField = (text, field) => {
       if (isClickSubmit.value) {
         checkImgInuse.value = true
@@ -827,9 +867,19 @@ export default defineComponent({
           showBtnDel.value = false
           checkImgInuse.value = false
           checkDate.value = false
+          isClickSubmit.value = false
           dateStart.value = []
           dateFinish.value = []
           store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', false)
+        }
+      }
+    )
+
+    watch(
+      () => store.state.company.checkSideBar,
+      () => {
+        if (store.state.company.checkSideBar) {
+          modalLeave.value = true
         }
       }
     )
@@ -865,7 +915,6 @@ export default defineComponent({
       openDelete,
       propsDataDelete,
       showTable,
-      handleClickCollapsePanel,
       handleCollapse,
       replaceField,
       handleCancel,
@@ -875,7 +924,8 @@ export default defineComponent({
       onFileChange,
       resetUploadImage,
       handleClickSubmit,
-      handleDeleteRecord
+      handleDeleteRecord,
+      handleRevertRecord
     }
   }
 })
@@ -956,7 +1006,7 @@ export default defineComponent({
     }
   }
 
-  .form-label-line9 {
+  .form-label-line10 {
     span {
       color: #cd201f;
       margin-left: 6px;
@@ -965,6 +1015,29 @@ export default defineComponent({
 
   .line-10 {
     margin-bottom: 0;
+  }
+
+  .show-table {
+    display: flex;
+    justify-content: end;
+    border: 1px solid #d9d9d9;
+    max-width: 750px;
+    align-items: center;
+    height: 32px;
+    padding-right: 18px;
+    border-radius: 0 0 2px 2px;
+    background-color: #ffffff;
+    cursor: pointer;
+
+    p {
+      margin: 0 10px 0 0;
+      padding: 5px 0;
+    }
+
+    .transition-right {
+      transition: 0.3s;
+      transform: rotate(-90deg);
+    }
   }
 
   .ant-table-wrapper {
@@ -1003,8 +1076,6 @@ export default defineComponent({
       margin-top: 0 !important;
 
       input {
-        width: 216px;
-        margin-right: 12px;
         text-align: end;
       }
     }
@@ -1016,6 +1087,7 @@ export default defineComponent({
 
   .container {
     padding: 0;
+    margin: 0;
 
     .form-label-line8 {
       span {

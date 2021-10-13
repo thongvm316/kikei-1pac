@@ -3,7 +3,9 @@ import {
   STORE_COMPANY_INFOMATION_ISCREATED,
   STORE_COMPANY_INFOMATION_REMOVE,
   STORE_COMPANY_INFOMATION_DELETED,
-  STORE_COMPANY_INFOMATION_CHANGE
+  STORE_COMPANY_INFOMATION_CHANGE,
+  STORE_COMPANY_INFOMATION_UPDATE,
+  STORE_COMPANY_INFOMATION_CHECKSIDEBAR
 } from '../mutation-types'
 
 const mutations = {
@@ -25,6 +27,14 @@ const mutations = {
 
   [STORE_COMPANY_INFOMATION_CHANGE](state, payload) {
     state.isChangeTab = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_UPDATE](state, payload) {
+    state.isUpdateTab = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_CHECKSIDEBAR](state, payload) {
+    state.checkSideBar = payload
   }
 }
 
