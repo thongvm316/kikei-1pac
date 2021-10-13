@@ -1,5 +1,5 @@
 <template>
-  <a-modal :visible="visible" width="85%" class="modal-project-costs" :title="title" @cancel="handleCancel">
+  <a-modal :visible="visible" width="656px" class="modal-project-costs" :title="title" @cancel="handleCancel">
     <template #footer>
       <div class="cost-tabs-wrapper">
         <a-button v-if="activeKey === COST_TYPES[0].key" class="cost-tabs-clone" @click="handleCloneCost">
@@ -12,17 +12,9 @@
         <a-tabs v-model:activeKey="activeKey" :animated="false" class="cost-tabs">
           <a-tab-pane v-for="tab in COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
             <div
-              v-for="(costItem, costItemIndex) in tab.key === COST_TYPES[0].key
-                ? costState?.predict
-                : costState?.actual"
+              v-for="costItem in tab.key === COST_TYPES[0].key ? costState?.predict : costState?.actual"
               :key="costItem.id"
-              :class="[
-                'cost-tabs__tab--item',
-                costItemIndex + 1 ===
-                (tab.key === COST_TYPES[0].key ? costState?.predict.length : costState?.actual.length)
-                  ? 'u-mb-24'
-                  : 'u-mb-12'
-              ]"
+              class="cost-tabs__tab--item"
             >
               <!-- name -->
               <a-input v-model:value="costItem.name" placeholder="企業名">{{ costItem.name }}</a-input>
@@ -62,7 +54,7 @@
               <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
             </div>
 
-            <a-button @click="handleAddCostItem">
+            <a-button class="cost-tabs__tab--add-item" @click="handleAddCostItem">
               <template #icon>
                 <span class="btn-icon"><line-add-icon /></span>
               </template>
@@ -265,11 +257,14 @@ export default defineComponent({
 
       &--item {
         @include flexbox(null, null);
-        // margin-bottom: 12px;
 
-        // &:last-child {
-        //   margin-bottom: 24px;
-        // }
+        & + .cost-tabs__tab--item {
+          margin-top: 12px;
+        }
+
+        & + .cost-tabs__tab--add-item {
+          margin-top: 24px;
+        }
       }
     }
   }
