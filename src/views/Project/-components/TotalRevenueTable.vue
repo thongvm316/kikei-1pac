@@ -9,16 +9,16 @@
     :scroll="{ x: 1400 }"
   >
     <template #customRenderRevenue="{ text }">
-      {{ text !== null ? $filters.number_with_commas(text) + ' (VND)' : '-' }}
+      {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
     <template #customRenderTotalProfit="{ text }">
-      {{ text !== null ? $filters.number_with_commas(text) + ' (VND)' : '-' }}
+      {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
     <template #customRenderProfitRate="{ text }">
       {{ text !== null ? $filters.number_with_commas(text, 2) + '%' : '-' }}
     </template>
     <template #customRenderCost="{ text }">
-      {{ text !== null ? $filters.number_with_commas(text) + ' (VND)' : '-' }}
+      {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
     <template #customRenderCostRate="{ text }">
       {{ text !== null ? $filters.number_with_commas(text, 2) + '%' : '-' }}
@@ -31,7 +31,7 @@ import { defineComponent, ref } from 'vue'
 import { uniqueId } from 'lodash-es'
 
 export default defineComponent({
-  name: 'ProjectEditPage',
+  name: 'TotalRevenueTable',
 
   setup() {
     const isLoadingTable = ref(false)

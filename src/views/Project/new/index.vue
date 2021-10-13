@@ -5,7 +5,7 @@
     <div class="project-detail__wrapper">
       <div class="project-detail__forms">
         <project-form :project="project" />
-        <div class="project-detail__financing">Financing tabel</div>
+        <budget-table />
       </div>
 
       <div class="project-detail__history">History</div>
@@ -20,13 +20,15 @@ import { useRoute } from 'vue-router'
 import { getProject } from '../composables/useProject'
 import ProjectForm from '../-components/ProjectForm'
 import TotalRevenueTable from '../-components/TotalRevenueTable'
+import BudgetTable from '../-components/BudgetTable'
 
 export default defineComponent({
   name: 'ProjectNewPage',
 
   components: {
     ProjectForm,
-    TotalRevenueTable
+    TotalRevenueTable,
+    BudgetTable
   },
 
   setup() {
