@@ -40,7 +40,9 @@
     <a-form-item name="name" label="プロジェクト名" :class="{ 'has-error': localErrors['name'] }">
       <a-input v-model:value="projectParams.name" placeholder="入力してください" :style="{ width: '300px' }" />
 
-      <p v-if="localErrors['name']" class="ant-form-explain">{{ $t(`common.local_error.${localErrors['name']}`) }}</p>
+      <p v-if="localErrors['name']" class="ant-form-explain">
+        {{ $t(`common.local_error.${localErrors['name']}`) }}
+      </p>
     </a-form-item>
     <!-- name -->
 
@@ -748,7 +750,6 @@ export default defineComponent({
       dataAccuracies,
       loading,
       valueTag,
-      edit,
       isCompanySearchFormOpen,
       companyOwnerData,
       localProjectOrders,
