@@ -1122,11 +1122,9 @@ export default defineComponent({
   }
 
   .table-form {
-    font-size: 14px;
     color: $color-grey-15;
     border: 1px solid $color-grey-75;
     width: 100%;
-    background-color: $color-grey-100;
     border-bottom: 0;
 
     thead {
@@ -1139,6 +1137,7 @@ export default defineComponent({
         padding-left: 32px;
         width: 30%;
         white-space: nowrap;
+        min-width: 169px;
       }
 
       th {
@@ -1149,6 +1148,7 @@ export default defineComponent({
 
     table.table-body {
       width: 100%;
+      background-color: $color-grey-100;
 
       td {
         padding: 13px;
@@ -1164,6 +1164,7 @@ export default defineComponent({
           padding-left: 32px;
           white-space: nowrap;
           width: 30%;
+          min-width: 169px;
         }
       }
     }
