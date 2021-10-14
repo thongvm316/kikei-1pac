@@ -544,7 +544,7 @@ export default defineComponent({
 
     /* -------------------- init data when project props ------------------------- */
     const initProjectPropData = () => {
-      if (!projectProp.value || (projectProp.value && !projectProp.value)) return
+      if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
       Object.keys(projectParams.value).forEach((key) => {
         if (projectPropValue[key]) projectParams.value[key] = deepCopy(projectPropValue[key])
