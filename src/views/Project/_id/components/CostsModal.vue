@@ -2,7 +2,12 @@
   <a-modal :visible="visible" width="656px" class="modal-project-costs" :title="title" @cancel="handleCancel">
     <template #footer>
       <div class="cost-tabs-wrapper">
-        <a-button v-if="activeKey === COST_TYPES[0].key" class="cost-tabs-clone" @click="handleCloneCost">
+        <a-button
+          v-if="activeKey === PROJECT_COST_TYPES[0].key"
+          :disabled="isDisableCloneCost"
+          class="cost-tabs-clone"
+          @click="handleCloneCost"
+        >
           <template #icon>
             <span class="btn-icon"><copy-icon /></span>
           </template>
@@ -10,9 +15,9 @@
         </a-button>
 
         <a-tabs v-model:activeKey="activeKey" :animated="false" class="cost-tabs">
-          <a-tab-pane v-for="tab in COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
+          <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
             <div
-              v-for="costItem in tab.key === COST_TYPES[0].key ? costState?.predict : costState?.actual"
+              v-for="costItem in tab.key === PROJECT_COST_TYPES[0].key ? costState?.predict : costState?.actual"
               :key="costItem.id"
               class="cost-tabs__tab--item"
             >
@@ -28,6 +33,7 @@
                 :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                 :precision="0"
                 :min="0"
+                :max="999999999999"
                 :style="{ width: '175px' }"
               />
 
@@ -42,11 +48,11 @@
               >
                 <a-select-option
                   v-for="currency in currencyList"
-                  :key="currency.name"
+                  :key="currency.id"
                   :value="currency.id"
-                  :label="currency.name"
+                  :label="currency.code"
                 >
-                  {{ currency.name }}
+                  {{ currency.code }}
                 </a-select-option>
               </a-select>
 
@@ -54,7 +60,7 @@
               <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
             </div>
 
-            <a-button class="cost-tabs__tab--add-item" @click="handleAddCostItem">
+            <a-button :loading="isDataLoading" class="cost-tabs__tab--add-item" @click="handleAddCostItem">
               <template #icon>
                 <span class="btn-icon"><line-add-icon /></span>
               </template>
@@ -65,26 +71,41 @@
       </div>
 
       <div class="total-cost">
-        <div>外注費合計:</div>
-        <div>
-          <div>999,999,999,999,999 (JPY)</div>
-          <div>999,999,999,999,999 (VND)</div>
+        <div class="u-mr-12">外注費合計:</div>
+        <div v-if="totalCosts.length !== 0">
+          <div v-for="currencyTotal in totalCosts" :key="currencyTotal.code">
+            {{ `${$filters.number_with_commas(currencyTotal.total)} (${currencyTotal.code})` }}
+          </div>
         </div>
+        <div v-else>0</div>
       </div>
 
       <div class="cost-submit">
-        <a-button @click="handleCancel">キャンセル</a-button>
-        <a-button type="primary" class="u-ml-12" @click="handleSubmit">登録</a-button>
+        <a-button :disabled="isSubmitLoading" @click="handleCancel">キャンセル</a-button>
+        <a-button :loading="isSubmitLoading" type="primary" class="u-ml-12" @click="handleSubmit">登録</a-button>
       </div>
     </template>
   </a-modal>
 </template>
 
 <script>
-import { defineComponent, ref, computed, reactive } from 'vue'
-import { find, uniqueId } from 'lodash-es'
+import { defineComponent, ref, computed, reactive, onBeforeMount } from 'vue'
+import { useRoute } from 'vue-router'
+import { find, uniqueId, sumBy } from 'lodash-es'
 
-import { COST_MODAL_TYPES } from '@/enums/project.enum'
+import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
+import { getCurrencyList } from '../../composables/useCurrency'
+import {
+  getOrderCostList,
+  upsertOrderCost,
+  deleteOrderCost,
+  getDirectCostList,
+  upsertDirectCost,
+  deleteDirectCost,
+  getMaterialCostList,
+  upsertMaterialCost,
+  deleteMaterialCost
+} from '../../composables/useCosts'
 
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
@@ -104,107 +125,180 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const activeKey = ref('1')
+    const route = useRoute()
 
-    const COST_TYPES = [
-      {
-        key: '1',
-        text: '予測',
-        value: 1
-      },
-      {
-        key: '2',
-        text: '実績',
-        value: 2
-      }
-    ]
-
-    const currencyList = [
-      {
-        id: 1,
-        name: 'VND'
-      },
-      {
-        id: 2,
-        name: 'JPY'
-      },
-      {
-        id: 3,
-        name: 'USD'
-      }
-    ]
-
+    const projectId = Number(route.params?.id)
     const defaultCostItem = {
-      projectId: null,
+      projectId: projectId,
       projectCostsType: null,
       name: '',
       money: null,
       currencyId: null
     }
+    const UNIQUE_ID_PREFIX = '__cost__'
 
+    const activeKey = ref('1')
+    const currencyList = ref([])
     const costState = reactive({
       predict: [],
       actual: []
     })
+    const isDataLoading = ref(false)
+    const isSubmitLoading = ref(false)
 
-    const constTypeId = computed(() => {
-      const costFound = find(COST_MODAL_TYPES, { id: props.costModalType })
-      if (costFound) return costFound.id
-      return null
+    const isOrderCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[0].id)
+    const isMaterialCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[1].id)
+    const isDirectCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[2].id)
+
+    const isDisableCloneCost = computed(() => costState.predict.filter((item) => !!item.name).length === 0)
+
+    const currencyIdDefault = computed(() => {
+      const JPYFound = find(currencyList.value, { code: 'JPY' })
+      if (!JPYFound) return null
+      return JPYFound.id
+    })
+
+    const totalCosts = computed(() => {
+      return currencyList.value
+        .map((currency) => {
+          let total = null
+
+          const predictFiltered = costState.predict.filter(
+            (cost) => cost.currencyId === currency.id && cost.money !== null
+          )
+          if (predictFiltered.length > 0) {
+            total = total ? total + sumBy(predictFiltered, 'money') : sumBy(predictFiltered, 'money')
+          }
+
+          const actualFiltered = costState.actual.filter(
+            (cost) => cost.currencyId === currency.id && cost.money !== null
+          )
+          if (actualFiltered.length > 0) {
+            total = total ? total + sumBy(actualFiltered, 'money') : sumBy(actualFiltered, 'money')
+          }
+
+          return { total, code: currency.code }
+        })
+        .filter((item) => item.total !== null)
+    })
+
+    const createCostItem = (costTypeIndex) => ({
+      ...defaultCostItem,
+      id: uniqueId(UNIQUE_ID_PREFIX),
+      projectCostsType: PROJECT_COST_TYPES[costTypeIndex].value,
+      currencyId: currencyIdDefault.value
     })
 
     const handleAddCostItem = () => {
-      if (activeKey.value === COST_TYPES[0].key) {
-        costState.predict = [
-          ...costState.predict,
-          { ...defaultCostItem, id: uniqueId('__cost__'), projectCostsType: COST_TYPES[0].value }
-        ]
-      } else if (activeKey.value === COST_TYPES[1].key) {
-        costState.actual = [
-          ...costState.actual,
-          { ...defaultCostItem, id: uniqueId('__cost__'), projectCostsType: COST_TYPES[1].value }
-        ]
+      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
+        costState.predict = [...costState.predict, createCostItem(0)]
+      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
+        costState.actual = [...costState.actual, createCostItem(1)]
       }
-
-      console.log('new state', costState)
     }
 
     const handleDeleteCostItem = (itemId) => {
-      if (activeKey.value === COST_TYPES[0].key) {
+      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
         costState.predict = costState.predict.filter((item) => item.id !== itemId)
-      } else if (activeKey.value === COST_TYPES[1].key) {
+      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
         costState.actual = costState.actual.filter((item) => item.id !== itemId)
       }
     }
 
     const handleCloneCost = () => {
       costState.actual = costState.predict
-      activeKey.value = COST_TYPES[1].key
+      activeKey.value = PROJECT_COST_TYPES[1].key
     }
 
     const handleCancel = () => {
       emit('update:visible', false)
     }
 
-    const handleSubmit = () => {
-      console.log('costState: ', costState)
+    const convertDataToSubmit = () => {
+      let data = []
+      data.push(...costState.predict)
+      data.push(...costState.actual)
 
-      if (constTypeId.value === COST_MODAL_TYPES[0].id) {
-        console.log('submit modal 3')
-      } else if (constTypeId.value === COST_MODAL_TYPES[1].id) {
-        console.log('submit modal 4')
-      } else if (constTypeId.value === COST_MODAL_TYPES[2].id) {
-        console.log('submit modal 5')
-      }
-
-      emit('update:visible', false)
+      return data
+        .filter((item) => !!item.name)
+        .map((item) => {
+          if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
+          if (item.money === null) item.money = 0
+          return item
+        })
     }
 
+    const handleSubmit = async () => {
+      // remove id auto generate
+      const dataRequest = convertDataToSubmit()
+
+      try {
+        isSubmitLoading.value = true
+
+        if (isOrderCostModal.value) {
+          await upsertOrderCost({ projectOrderCosts: dataRequest })
+        } else if (isMaterialCostModal.value) {
+          await upsertMaterialCost({ projectMaterialCosts: dataRequest })
+        } else if (isDirectCostModal.value) {
+          await upsertDirectCost({ projectDirectCosts: dataRequest })
+        }
+
+        // noti
+
+        emit('update:visible', false)
+      } finally {
+        isSubmitLoading.value = false
+      }
+    }
+
+    onBeforeMount(async () => {
+      isDataLoading.value = true
+
+      // get currency list
+      const currencyReponse = await getCurrencyList()
+      currencyList.value = currencyReponse?.result?.data || []
+
+      // get direct list
+      try {
+        const paramsRequest = {
+          projectId,
+          projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`
+        }
+        let responseRequest = null
+
+        if (isOrderCostModal.value) {
+          responseRequest = await getOrderCostList(paramsRequest)
+        } else if (isMaterialCostModal.value) {
+          responseRequest = await getMaterialCostList(paramsRequest)
+        } else if (isDirectCostModal.value) {
+          responseRequest = await getDirectCostList(paramsRequest)
+        }
+
+        const reponseData = responseRequest?.result?.data || []
+        costState.predict = reponseData.filter((item) => item.projectCostsType === PROJECT_COST_TYPES[0].value)
+        costState.actual = reponseData.filter((item) => item.projectCostsType === PROJECT_COST_TYPES[1].value)
+        // eslint-disable-next-line no-empty
+      } catch {}
+
+      // create default items
+      if (costState.predict.length === 0 && costState.actual.length === 0) {
+        costState.predict = new Array(3).fill(undefined).map(() => createCostItem(0))
+        costState.actual = new Array(3).fill(undefined).map(() => createCostItem(1))
+      }
+
+      isDataLoading.value = false
+    })
+
     return {
-      COST_TYPES,
+      PROJECT_COST_TYPES,
       activeKey,
       costState,
       currencyList,
+      totalCosts,
+
+      isDisableCloneCost,
+      isSubmitLoading,
+      isDataLoading,
 
       handleAddCostItem,
       handleDeleteCostItem,
@@ -243,12 +337,18 @@ export default defineComponent({
     z-index: 1;
     margin-top: 6px;
     border: 0;
-    color: $color-grey-55;
+    color: $color-primary-6;
 
-    &:hover {
-      color: $color-grey-100;
-      border-color: $color-primary-6;
+    &:hover:not(.ant-btn[disabled]) {
+      span {
+        text-decoration: underline;
+      }
     }
+  }
+
+  .cost-tabs-clone.ant-btn[disabled] {
+    color: $color-grey-55;
+    background-color: $color-grey-100;
   }
 
   .cost-tabs {

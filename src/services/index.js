@@ -20,6 +20,9 @@ import PermissionService from './permission'
 import ProfileService from './profile'
 import CompanyInfomationGroupService from './company-infomation'
 import CountryService from './country'
+import DirectCostsService from './direct-costs'
+import MaterialCostsService from './material-costs'
+import OrderCostsService from './order-costs'
 
 const repositories = {
   StorageService,
@@ -43,7 +46,10 @@ const repositories = {
   PermissionService,
   ProfileService,
   CompanyInfomationGroupService,
-  CountryService
+  CountryService,
+  DirectCostsService,
+  MaterialCostsService,
+  OrderCostsService
 }
 
 export default {
