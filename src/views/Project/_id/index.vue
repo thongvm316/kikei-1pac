@@ -4,10 +4,9 @@
 
     <div class="project-detail__wrapper">
       <div class="project-detail__forms">
-        <project-form
+        <project-edit-form
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
-          edit
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
 
@@ -24,7 +23,7 @@ import { defineComponent, onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { getProject } from '../composables/useProject'
-import ProjectForm from '../-components/ProjectForm'
+import ProjectEditForm from './components/ProjectEditForm.vue'
 import TotalRevenueTable from '../-components/TotalRevenueTable'
 import BudgetTable from '../-components/BudgetTable'
 
@@ -32,7 +31,7 @@ export default defineComponent({
   name: 'ProjectEditPage',
 
   components: {
-    ProjectForm,
+    ProjectEditForm,
     TotalRevenueTable,
     BudgetTable
   },

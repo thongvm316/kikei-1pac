@@ -60,7 +60,6 @@
                                 :class="['u-text-12', isEditing ? 'u-text-grey-55' : 'u-text-grey-15']"
                                 >{{ companyOwnerData.name }}</span
                               >
-                              <p v-if="!edit" class="u-ml-8 modal-link" @click="openCompanySearchForm('owner')">選択</p>
                             </div>
 
                             <p v-if="localErrors['companyId']" class="ant-form-explain">
@@ -103,11 +102,10 @@
                             <a-input
                               v-if="isEditing"
                               v-model:value="projectParams.code"
-                              :disabled="edit"
+                              :disabled="true"
                               :style="{ width: '300px' }"
                               placeholder="GXX-YYYY-ZZZ"
                             />
-                            <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
 
                             <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
                               {{ $t(`common.local_error.${localErrors['code']}`) }}
@@ -142,11 +140,8 @@
                         <td>区分</td>
 
                         <td>
-                          <a-form-item v-if="edit" name="type">
+                          <a-form-item name="type">
                             <span class="u-text-grey-15 u-text-12">{{ $t(`project.type_${projectParams.type}`) }}</span>
-                          </a-form-item>
-                          <a-form-item v-else name="type">
-                            <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
                           </a-form-item>
                         </td>
                       </tr>
@@ -543,19 +538,18 @@
 <script>
 import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { find } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
-import { useAccountList } from '../composables/useAccountList'
-import { useGroupList } from '../composables/useGroupList'
-import { getProjectAccuracies, getProjectStatuses, addProject, editProject } from '../composables/useProject'
+import { useAccountList } from '../../composables/useAccountList'
+import { useGroupList } from '../../composables/useGroupList'
+import { getProjectAccuracies, getProjectStatuses, editProject } from '../../composables/useProject'
 import {
   initProjectOutsouringOrders,
   toProjectOutsouringOrdersRequestData,
   addProjectOrder
-} from '../composables/useProjectOrders'
+} from '../../composables/useProjectOrders'
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
@@ -568,7 +562,7 @@ import EditIcon from '@/assets/icons/ico_edit.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
-  name: 'ProjectForm',
+  name: 'ProjectEditForm',
 
   components: {
     CalendarOutlined,
@@ -583,7 +577,6 @@ export default defineComponent({
       type: Object,
       required: true
     },
-    edit: Boolean,
     isLoadedOverviewTable: {
       type: Boolean,
       default: false
@@ -593,11 +586,10 @@ export default defineComponent({
   emits: ['on-submit-edit-project-form', 'update:is-loaded-overview-table'],
 
   setup(props, { emit }) {
+    // eslint-disable-next-line vue/no-setup-props-destructure
     const projectProp = props.project
-    const edit = props.edit
     const projectFormRef = ref()
     const store = useStore()
-    const router = useRouter()
     const { t } = useI18n()
 
     const isEditing = ref()
@@ -859,7 +851,7 @@ export default defineComponent({
       try {
         const validateRes = await projectFormRef.value.validate()
         if (validateRes) {
-          edit ? callEditProject() : callAddProject()
+          callEditProject()
         }
       } catch (e) {
         console.log(e)
@@ -870,26 +862,6 @@ export default defineComponent({
       localProjectOrders.value.forEach((item, index) => {
         item.errors = localErrors.value.adProjectOrders[index] || {}
       })
-    }
-
-    const callAddProject = async () => {
-      const response = await addProject(projectDataRequest.value)
-      if (response.status === 200) {
-        const name = projectDataRequest.value?.name || ''
-
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: t('project.flash_message.create_success', { name })
-        })
-        router.push({ name: 'project' })
-        return
-      }
-      if (response.data?.errors) {
-        localErrors.value = response.data.errors
-        if (localErrors.value.adProjectOrders) {
-          addProjectOrdersErrors()
-        }
-      }
     }
 
     const callEditProject = async () => {
