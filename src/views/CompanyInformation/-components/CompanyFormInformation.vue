@@ -733,9 +733,14 @@ export default defineComponent({
       let data = {
         ...value,
         group_revenue_target: {
+          ...value.group_revenue_target,
           currency_id: value.currency_id
         }
       }
+
+      delete data.currency_id
+      delete data.period_name
+      delete data.fiscal_year
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateCompanyInfomation } = useUpdateCompanyInfomationService(tabId.value, data)
