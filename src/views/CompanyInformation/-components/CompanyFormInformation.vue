@@ -378,15 +378,10 @@
             </div>
           </Field>
 
-          <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="currency_code">
+          <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="currency">
             <div class="form-content">
               <div class="form-input">
-                <a-select
-                  v-model:value="field.value"
-                  :placeholder="$t('company_infomation.select_option_empty')"
-                  class="form-select"
-                  @change="handleChange"
-                >
+                <a-select v-model:value="field.value" class="form-select" @change="handleChange">
                   <a-select-option v-for="currency in currencyList" :key="currency.id" :value="currency.id">
                     {{ $t(`company_infomation.${currency.code}`) }}
                   </a-select-option>
@@ -589,6 +584,11 @@ export default defineComponent({
         image.value = form.value.company_seal
       }
 
+      if (form.value.currency_id === 0) {
+        form.value.currency_id = currencyList.value[0].id
+        form.value.group_revenue_target.currency_id = currencyList.value[0].id
+      }
+
       showTable.value = false
       showHeader.value = false
     })
@@ -729,7 +729,13 @@ export default defineComponent({
       }
     })
 
-    const updateCompany = async (data) => {
+    const updateCompany = async (value) => {
+      let data = {
+        ...value,
+        group_revenue_target: {
+          currency_id: value.currency_id
+        }
+      }
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateCompanyInfomation } = useUpdateCompanyInfomationService(tabId.value, data)
