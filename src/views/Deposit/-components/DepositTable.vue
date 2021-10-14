@@ -241,6 +241,7 @@ export default defineComponent({
       }
     ].filter((col) => {
       if (!props.isTableModal) return true
+      if (props.isRecoverModal) columnNotShowList.push('read')
       return columnNotShowList.indexOf(col.dataIndex) === -1
     })
 
