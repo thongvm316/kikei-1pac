@@ -23,9 +23,9 @@ import { defineComponent, onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { getProject } from '../composables/useProject'
-import ProjectEditForm from './components/ProjectEditForm.vue'
-import TotalRevenueTable from '../-components/TotalRevenueTable'
-import BudgetTable from '../-components/BudgetTable'
+import ProjectEditForm from './components/ProjectEditForm'
+import TotalRevenueTable from './components/TotalRevenueTable'
+import BudgetTable from './components/BudgetTable'
 
 export default defineComponent({
   name: 'ProjectEditPage',
@@ -84,13 +84,6 @@ export default defineComponent({
     margin-top: 32px;
   }
 
-  &__dashboard {
-    width: 100%;
-    height: 100px;
-    background-color: green;
-    margin-bottom: 32px;
-  }
-
   &__forms {
     flex-basis: 60%;
   }
@@ -99,12 +92,6 @@ export default defineComponent({
     flex-basis: 40%;
     height: 500px;
     background-color: chocolate;
-  }
-
-  &__financing {
-    height: 500px;
-    background-color: purple;
-    margin-top: 24px;
   }
 }
 </style>
