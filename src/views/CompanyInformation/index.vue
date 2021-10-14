@@ -54,7 +54,6 @@ import useGetAllGroupService from '@/views/CompanyInformation/compasables/useGet
 import useGetTabIDService from '@/views/CompanyInformation/compasables/useGetTabIDService'
 import useGetListSaleTargetService from '@/views/CompanyInformation/compasables/useGetListSaleTargetService'
 import { useStore } from 'vuex'
-import { camelCaseKeysToUnderscore } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'Index',
@@ -93,6 +92,7 @@ export default defineComponent({
 
       checkCreate.value = true
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', false)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
     }
 
     const getAllGroup = async (value) => {
@@ -110,7 +110,6 @@ export default defineComponent({
           })
         })
 
-        await fetchListForm(allGroup?.value[0]?.id)
         let indexOf = allGroup.value.length - 1
 
         if (value === '1') {
@@ -125,6 +124,7 @@ export default defineComponent({
           activeKey.value = allGroup.value[indexOf].id
         } else {
           activeKey.value = allGroup?.value[0]?.id
+          await fetchListForm(allGroup?.value[0]?.id)
         }
       } else {
         checkEmpty.value = true
