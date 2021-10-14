@@ -5,7 +5,9 @@ const state = {
   isDeleted: false,
   isChangeTab: false,
   isUpdateTab: false,
-  checkSideBar: false
+  checkSideBar: false,
+  leaveGroup: true,
+  navName: {}
 }
 
 export default state

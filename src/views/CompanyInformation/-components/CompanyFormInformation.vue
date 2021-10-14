@@ -13,7 +13,7 @@
       class="close-modal-delete"
     />
 
-    <!--    <modal-leave-group-setting v-model:visible="modalLeave" />-->
+    <modal-leave-group-setting v-model:visible="modalLeave" />
 
     <form @submit="onSubmit">
       <!-- Registered name -->
@@ -429,7 +429,7 @@
 <script>
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
-import { isEmpty, keys, omit, pick, split, uniqueId } from 'lodash-es'
+import { isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
 import { currentDate } from '@/helpers/extend-financing'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
@@ -447,13 +447,13 @@ import CompanyTableInfomation from '@/views/CompanyInformation/-components/Compa
 import ModalDeleteCompanyInfomation from '@/components/ModalDeleteCompanyInfomation'
 import IconCherVonRight from '@/assets/icons/ico_chervon_right.svg'
 import moment from 'moment'
-// import ModalLeaveGroupSetting from '@/components/ModalLeaveGroupSetting'
+import ModalLeaveGroupSetting from '@/components/ModalLeaveGroupSetting'
 
 export default defineComponent({
   name: 'CompanyFormInformation',
 
   components: {
-    // ModalLeaveGroupSetting,
+    ModalLeaveGroupSetting,
     ModalDeleteCompanyInfomation,
     CompanyTableInfomation,
     ModalUploadElectronicSeal,
@@ -691,6 +691,7 @@ export default defineComponent({
       emit('handleCancle', true)
       store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
     }
 
     const handleClickSubmit = () => {
@@ -915,6 +916,7 @@ export default defineComponent({
       openDelete,
       propsDataDelete,
       showTable,
+      modalLeave,
       handleCollapse,
       replaceField,
       handleCancel,

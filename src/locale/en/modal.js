@@ -52,6 +52,10 @@ export default {
   back: 'Back',
   text_line1: 'An invitation email has been sent.',
   text_line2: 'Please let the user know to activate your account.',
+  group_setting_line1: 'Do not save the company creation.',
+  group_setting_line2: 'It will be lost when you leave this page.',
+  leave: 'Leave',
+  leave_group: 'Leave the page',
 
   errorMessage: {
     img: 'Profile image must be JPG or PNG.',

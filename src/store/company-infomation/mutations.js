@@ -5,7 +5,9 @@ import {
   STORE_COMPANY_INFOMATION_DELETED,
   STORE_COMPANY_INFOMATION_CHANGE,
   STORE_COMPANY_INFOMATION_UPDATE,
-  STORE_COMPANY_INFOMATION_CHECKSIDEBAR
+  STORE_COMPANY_INFOMATION_CHECKSIDEBAR,
+  STORE_COMPANY_INFOMATION_LEAVEGROUP,
+  STORE_COMPANY_INFOMATION_NAVNAME
 } from '../mutation-types'
 
 const mutations = {
@@ -35,6 +37,14 @@ const mutations = {
 
   [STORE_COMPANY_INFOMATION_CHECKSIDEBAR](state, payload) {
     state.checkSideBar = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_LEAVEGROUP](state, payload) {
+    state.leaveGroup = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_NAVNAME](state, payload) {
+    state.navName = payload
   }
 }
 
