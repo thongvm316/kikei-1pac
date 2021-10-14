@@ -140,7 +140,7 @@ export const getOrderCostList = async (params) => {
 export const upsertOrderCost = async (data) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const response = await DirectCostsService.upsert(data)
+    const response = await OrderCostsService.upsert(data)
     return response?.data || {}
   } catch (e) {
     throw e

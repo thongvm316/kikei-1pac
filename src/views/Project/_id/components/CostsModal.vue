@@ -16,56 +16,58 @@
 
         <a-tabs v-model:activeKey="activeKey" :animated="false" class="cost-tabs">
           <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
-            <div
-              v-for="costItem in tab.key === PROJECT_COST_TYPES[0].key ? costState?.predict : costState?.actual"
-              :key="costItem.id"
-              class="cost-tabs__tab--item"
-            >
-              <!-- name -->
-              <a-input v-model:value="costItem.name" placeholder="企業名">{{ costItem.name }}</a-input>
-
-              <!-- money -->
-              <a-input-number
-                v-model:value="costItem.money"
-                placeholder="0"
-                class="u-ml-12"
-                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                :precision="0"
-                :min="0"
-                :max="999999999999"
-                :style="{ width: '175px' }"
-              />
-
-              <!-- curency -->
-              <a-select
-                v-model:value="costItem.currencyId"
-                show-arrow
-                option-label-prop="label"
-                class="u-ml-8"
-                :style="{ width: '135px' }"
-                :default-active-first-option="false"
+            <a-spin :spinning="isDataLoading">
+              <div
+                v-for="costItem in tab.key === PROJECT_COST_TYPES[0].key ? costState?.predict : costState?.actual"
+                :key="costItem.id"
+                class="cost-tabs__tab--item"
               >
-                <a-select-option
-                  v-for="currency in currencyList"
-                  :key="currency.id"
-                  :value="currency.id"
-                  :label="currency.code"
+                <!-- name -->
+                <a-input v-model:value="costItem.name" placeholder="企業名">{{ costItem.name }}</a-input>
+
+                <!-- money -->
+                <a-input-number
+                  v-model:value="costItem.money"
+                  placeholder="0"
+                  class="u-ml-12"
+                  :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  :precision="0"
+                  :min="0"
+                  :max="999999999999"
+                  :style="{ width: '175px' }"
+                />
+
+                <!-- curency -->
+                <a-select
+                  v-model:value="costItem.currencyId"
+                  show-arrow
+                  option-label-prop="label"
+                  class="u-ml-8"
+                  :style="{ width: '135px' }"
+                  :default-active-first-option="false"
                 >
-                  {{ currency.code }}
-                </a-select-option>
-              </a-select>
+                  <a-select-option
+                    v-for="currency in currencyList"
+                    :key="currency.id"
+                    :value="currency.id"
+                    :label="currency.code"
+                  >
+                    {{ currency.code }}
+                  </a-select-option>
+                </a-select>
 
-              <!-- button delete -->
-              <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
-            </div>
+                <!-- button delete -->
+                <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
+              </div>
 
-            <a-button :loading="isDataLoading" class="cost-tabs__tab--add-item" @click="handleAddCostItem">
-              <template #icon>
-                <span class="btn-icon"><line-add-icon /></span>
-              </template>
-              外注を追加
-            </a-button>
+              <a-button class="cost-tabs__tab--add-item" @click="handleAddCostItem">
+                <template #icon>
+                  <span class="btn-icon"><line-add-icon /></span>
+                </template>
+                外注を追加
+              </a-button>
+            </a-spin>
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -123,6 +125,8 @@ export default defineComponent({
     title: String,
     costModalType: Number
   },
+
+  emits: ['fetchOrderCostList', 'fetchMaterialCostList', 'fetchDirectCostList', 'update:visible'],
 
   setup(props, { emit }) {
     const route = useRoute()
@@ -237,10 +241,13 @@ export default defineComponent({
 
         if (isOrderCostModal.value) {
           await upsertOrderCost({ projectOrderCosts: dataRequest })
+          emit('fetchOrderCostList')
         } else if (isMaterialCostModal.value) {
           await upsertMaterialCost({ projectMaterialCosts: dataRequest })
+          emit('fetchMaterialCostList')
         } else if (isDirectCostModal.value) {
           await upsertDirectCost({ projectDirectCosts: dataRequest })
+          emit('fetchDirectCostList')
         }
 
         // noti
