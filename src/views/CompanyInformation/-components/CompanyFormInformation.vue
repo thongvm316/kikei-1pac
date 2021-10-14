@@ -395,7 +395,7 @@
       <company-table-infomation v-show="showTable" :get-data-table="getDataTable" />
       <div class="show-table" @click="handleCollapse">
         <p v-show="showTable">{{ $t('company_infomation.header_close') }}</p>
-        <icon-cher-von-right id="icon-right" :class="{ 'transition-right': showTable }" />
+        <icon-cher-von-right id="icon-right" :class="showTable ? 'transition-top' : 'transition-bottom'" />
       </div>
 
       <!-- Action Section Submit & Cancel -->
@@ -733,9 +733,14 @@ export default defineComponent({
       let data = {
         ...value,
         group_revenue_target: {
+          ...value.group_revenue_target,
           currency_id: value.currency_id
         }
       }
+
+      delete data.currency_id
+      delete data.period_name
+      delete data.fiscal_year
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateCompanyInfomation } = useUpdateCompanyInfomationService(tabId.value, data)
@@ -1042,9 +1047,14 @@ export default defineComponent({
       padding: 5px 0;
     }
 
-    .transition-right {
+    .transition-top {
       transition: 0.3s;
       transform: rotate(-90deg);
+    }
+
+    .transition-bottom {
+      transition: 0.3s;
+      transform: rotate(90deg);
     }
   }
 
