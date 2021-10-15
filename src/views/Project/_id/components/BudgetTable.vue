@@ -2,19 +2,18 @@
   <a-collapse v-model:activeKey="activeKey" class="project-budget-table">
     <a-collapse-panel key="1" header="予算">
       <a-form layout="vertical">
-        <table class="table-body">
-          <tbody>
-            <!-- order, material, direct cost -->
-            <a-spin
-              v-for="costList in [
-                { costType: COST_MODAL_TYPES[0].id, loading: isOrderCostLoading, data: orderCostList },
-                { costType: COST_MODAL_TYPES[1].id, loading: isMaterialCostLoading, data: materialCostList },
-                { costType: COST_MODAL_TYPES[2].id, loading: isDirectCostLoading, data: directCostList }
-              ]"
-              :key="costList.costType"
-              :spinning="costList.loading"
-            >
-              <tr>
+        <a-spin :spinning="isOrderCostLoading || isMaterialCostLoading || isDirectCostLoading">
+          <table class="table-body">
+            <tbody>
+              <!-- order, material, direct cost -->
+              <tr
+                v-for="costList in [
+                  { costType: COST_MODAL_TYPES[0].id, data: orderCostList },
+                  { costType: COST_MODAL_TYPES[1].id, data: materialCostList },
+                  { costType: COST_MODAL_TYPES[2].id, data: directCostList }
+                ]"
+                :key="costList.costType"
+              >
                 <td v-if="costList.costType === COST_MODAL_TYPES[0].id">外注費</td>
                 <td v-else-if="costList.costType === COST_MODAL_TYPES[1].id">直接材料費</td>
                 <td v-else>直接経費</td>
@@ -77,9 +76,9 @@
                   </table>
                 </td>
               </tr>
-            </a-spin>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </a-spin>
       </a-form>
     </a-collapse-panel>
   </a-collapse>
@@ -311,7 +310,6 @@ export default defineComponent({
         border-right: 1px solid $color-grey-75;
         color: $color-primary-9;
         font-weight: 700;
-        width: 60px;
         background-color: $color-grey-94;
         padding-left: 32px;
         white-space: nowrap;

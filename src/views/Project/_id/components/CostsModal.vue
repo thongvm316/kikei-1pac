@@ -65,7 +65,7 @@
                 <template #icon>
                   <span class="btn-icon"><line-add-icon /></span>
                 </template>
-                外注を追加
+                {{ isOrderCostModal ? '外注を追加' : isMaterialCostModal ? '材料費を追加' : '経費を追加' }}
               </a-button>
             </a-spin>
           </a-tab-pane>
@@ -73,13 +73,13 @@
       </div>
 
       <div class="total-cost">
-        <div class="u-mr-12">外注費合計:</div>
-        <div v-if="totalCosts.length !== 0">
+        <div class="total-cost__left">外注費合計:</div>
+        <div v-if="totalCosts.length !== 0" class="total-cost__right">
           <div v-for="currencyTotal in totalCosts" :key="currencyTotal.code">
             {{ `${$filters.number_with_commas(currencyTotal.total)} (${currencyTotal.code})` }}
           </div>
         </div>
-        <div v-else>0</div>
+        <div v-else class="total-cost__left">0</div>
       </div>
 
       <div class="cost-submit">
@@ -147,13 +147,13 @@ export default defineComponent({
       predict: [],
       actual: []
     })
+    const costDeleteList = ref([])
+
     const isDataLoading = ref(false)
     const isSubmitLoading = ref(false)
-
     const isOrderCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[0].id)
     const isMaterialCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[1].id)
     const isDirectCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[2].id)
-
     const isDisableCloneCost = computed(() => costState.predict.filter((item) => !!item.name).length === 0)
 
     const currencyIdDefault = computed(() => {
@@ -207,10 +207,18 @@ export default defineComponent({
       } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
         costState.actual = costState.actual.filter((item) => item.id !== itemId)
       }
+
+      if (itemId.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
+        costDeleteList.value = [...costDeleteList.value, itemId]
+      }
     }
 
     const handleCloneCost = () => {
-      costState.actual = costState.predict
+      costState.actual = costState.predict.map((cost) => ({
+        ...cost,
+        id: uniqueId(UNIQUE_ID_PREFIX),
+        projectCostsType: PROJECT_COST_TYPES[1].value
+      }))
       activeKey.value = PROJECT_COST_TYPES[1].key
     }
 
@@ -238,20 +246,26 @@ export default defineComponent({
 
       try {
         isSubmitLoading.value = true
+        const paramsDelete = { id: costDeleteList.value }
 
         if (isOrderCostModal.value) {
+          paramsDelete.id.length !== 0 && (await deleteOrderCost(paramsDelete))
           await upsertOrderCost({ projectOrderCosts: dataRequest })
+
           emit('fetchOrderCostList')
         } else if (isMaterialCostModal.value) {
+          paramsDelete.id.length !== 0 && (await deleteMaterialCost(paramsDelete))
           await upsertMaterialCost({ projectMaterialCosts: dataRequest })
+
           emit('fetchMaterialCostList')
         } else if (isDirectCostModal.value) {
+          paramsDelete.id.length !== 0 && (await deleteDirectCost(paramsDelete))
           await upsertDirectCost({ projectDirectCosts: dataRequest })
+
           emit('fetchDirectCostList')
         }
 
-        // noti
-
+        costDeleteList.value = []
         emit('update:visible', false)
       } finally {
         isSubmitLoading.value = false
@@ -306,6 +320,9 @@ export default defineComponent({
       isDisableCloneCost,
       isSubmitLoading,
       isDataLoading,
+      isOrderCostModal,
+      isMaterialCostModal,
+      isDirectCostModal,
 
       handleAddCostItem,
       handleDeleteCostItem,
@@ -380,6 +397,14 @@ export default defineComponent({
     @include flexbox(flex-end, null);
     padding-top: 16px;
     border-top: 1px dashed $color-grey-85;
+
+    &__left {
+      margin-right: 12px;
+    }
+
+    &__right {
+      text-align: right;
+    }
   }
 
   .cost-submit {
