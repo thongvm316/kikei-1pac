@@ -15,7 +15,7 @@
 
     <modal-leave-group-setting v-model:visible="modalLeave" />
 
-    <form @submit="onSubmit">
+    <form @submit.prevent="onSubmit">
       <!-- Registered name -->
       <div class="form-group">
         <Field
@@ -734,13 +734,20 @@ export default defineComponent({
         ...value,
         group_revenue_target: {
           ...value.group_revenue_target,
-          currency_id: value.currency_id
+          currency_id: value.currency_id,
+          money: value.money
+        },
+        period: {
+          ...value.period,
+          name: value.period_name
         }
       }
 
       delete data.currency_id
       delete data.period_name
       delete data.fiscal_year
+      delete data.money
+
       // eslint-disable-next-line no-useless-catch
       try {
         const { updateCompanyInfomation } = useUpdateCompanyInfomationService(tabId.value, data)
@@ -752,8 +759,8 @@ export default defineComponent({
           duration: 5,
           message:
             locale.value === 'en'
-              ? t('company_infomation.update_tab') + data.registered_name
-              : data.registered_name + t('company_infomation.update_tab')
+              ? t('company_infomation.update_tab') + data.name
+              : data.name + t('company_infomation.update_tab')
         })
 
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
@@ -779,8 +786,22 @@ export default defineComponent({
       pick(value.group_revenue_target, keys(value.group_revenue_target))
 
       let data = {
-        ...value
+        ...value,
+        group_revenue_target: {
+          ...value.group_revenue_target,
+          currency_id: value.currency_id,
+          money: value.money
+        },
+        period: {
+          ...value.period,
+          name: value.period_name
+        }
       }
+
+      delete data.currency_id
+      delete data.period_name
+      delete data.fiscal_year
+      delete data.money
 
       // eslint-disable-next-line no-useless-catch
       try {
