@@ -554,6 +554,7 @@ export default defineComponent({
         // refresh data table
         fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
         resetConfirmAllRecord()
+        currentSelectedRecord.value = {}
 
         // show notification
         store.commit('flash/STORE_FLASH_MESSAGE', {
