@@ -153,6 +153,11 @@ export default defineComponent({
             name: 'company-information',
             label: t('sidebar.company_information'),
             featureKey: 11
+          },
+          {
+            name: 'balance-registration',
+            label: t('sidebar.balance_registration'),
+            featureKey: 11
           }
         ]
       }

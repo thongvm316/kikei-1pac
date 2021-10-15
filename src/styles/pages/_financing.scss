@@ -4,7 +4,9 @@
     flex-direction: column;
     flex-wrap: wrap;
 
-    &--top, &--middle, &--bottom {
+    &--top,
+    &--middle,
+    &--bottom {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -17,7 +19,6 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
-
         .form-group {
           margin-right: 32px;
         }
@@ -106,7 +107,7 @@
   }
 
   .ant-tooltip-inner {
-    background: #fff
+    background: #fff;
   }
 }
 
@@ -138,7 +139,7 @@
       }
 
       .text--red {
-        color: #F5222D;
+        color: #f5222d;
 
         .icon-warning {
           display: none;
@@ -183,6 +184,4 @@
       padding-right: 32px;
     }
   }
-
-
 }
