@@ -1,87 +1,115 @@
 <template>
-  <a-collapse v-model:activeKey="activeKey" class="project-budget-table">
-    <a-collapse-panel key="1" header="予算">
-      <a-form layout="vertical">
-        <a-spin :spinning="isOrderCostLoading || isMaterialCostLoading || isDirectCostLoading">
-          <table class="table-body">
-            <tbody>
-              <!-- order, material, direct cost -->
-              <tr
-                v-for="costList in [
-                  { costType: COST_MODAL_TYPES[0].id, data: orderCostList },
-                  { costType: COST_MODAL_TYPES[1].id, data: materialCostList },
-                  { costType: COST_MODAL_TYPES[2].id, data: directCostList }
-                ]"
-                :key="costList.costType"
-              >
-                <td v-if="costList.costType === COST_MODAL_TYPES[0].id">外注費</td>
-                <td v-else-if="costList.costType === COST_MODAL_TYPES[1].id">直接材料費</td>
-                <td v-else>直接経費</td>
+  <div class="project-budget-table">
+    <div class="project-budget-table__head">
+      <div class="project-budget-table__head--left">
+        <div class="table-title">予算</div>
+      </div>
+      <div class="project-budget-table__head--right">
+        <div>
+          <a-button v-if="!isEditing" type="default" @click="isEditing = true">
+            <template #icon>
+              <span class="btn-icon">
+                <edit-icon />
+              </span>
+            </template>
+            編集
+          </a-button>
+          <a-button v-if="isEditing" type="default" @click="handleCancelEditForm">キャンセル</a-button>
+          <a-button v-if="isEditing" type="primary" :loading="loading" :style="{ marginLeft: '8px' }" @click="onSubmit">
+            登録
+          </a-button>
+        </div>
 
-                <!-- content -->
-                <td>
-                  <table class="table-cost">
-                    <tbody>
-                      <template
-                        v-for="contentList in [
-                          { type: 1, data: costList?.data?.predict, total: costList?.data?.totalPredict },
-                          { type: 2, data: costList?.data?.actual, total: costList?.data?.totalActual }
-                        ]"
-                        :key="contentList.type"
-                      >
-                        <tr>
-                          <td>{{ contentList.type === 1 ? '外注費' : '実績' }}</td>
-                          <td class="table-cost__content">
-                            <tr v-for="costItem in contentList.data" :key="costItem.id">
-                              <td>{{ costItem.name }}</td>
-                              <td>{{ $filters.number_with_commas(costItem.money) + ` (${costItem.currencyCode})` }}</td>
-                            </tr>
-                          </td>
-                          <td>
-                            <a-button
-                              v-if="contentList.type === 1"
-                              type="link"
-                              @click="handleOpenCostModal(costList.costType)"
-                            >
-                              <template #icon>
-                                <span class="btn-icon"><edit-icon /></span>
-                              </template>
-                            </a-button>
-                          </td>
-                        </tr>
+        <DownOutlined :class="['arrow-icon', isCollapse && 'isCollapse']" @click="isCollapse = !isCollapse" />
+      </div>
+    </div>
 
-                        <tr class="table-cost__total">
-                          <td></td>
-                          <td class="table-cost__content">
-                            <tr>
-                              <td></td>
-                              <td>
-                                <div class="table-cost__total--content">
-                                  <div class="u-mr-12">合計</div>
+    <a-collapse :active-key="isCollapse ? [] : [1]" :bordered="false" class="project-budget-table__collapse">
+      <a-collapse-panel key="1">
+        <a-form layout="vertical">
+          <a-spin :spinning="isOrderCostLoading || isMaterialCostLoading || isDirectCostLoading">
+            <table class="table-body">
+              <tbody>
+                <!-- order, material, direct cost -->
+                <tr
+                  v-for="costList in [
+                    { costType: COST_MODAL_TYPES[0].id, data: orderCostList },
+                    { costType: COST_MODAL_TYPES[1].id, data: materialCostList },
+                    { costType: COST_MODAL_TYPES[2].id, data: directCostList }
+                  ]"
+                  :key="costList.costType"
+                >
+                  <td v-if="costList.costType === COST_MODAL_TYPES[0].id">外注費</td>
+                  <td v-else-if="costList.costType === COST_MODAL_TYPES[1].id">直接材料費</td>
+                  <td v-else>直接経費</td>
 
-                                  <div v-if="contentList.total?.length !== 0">
-                                    <div v-for="totalItem in contentList.total" :key="totalItem.id">
-                                      {{ $filters.number_with_commas(totalItem.total) + ` (${totalItem.code})` }}
+                  <!-- content -->
+                  <td class="table-body__content">
+                    <table class="table-cost">
+                      <tbody>
+                        <template
+                          v-for="contentList in [
+                            { type: 1, data: costList?.data?.predict, total: costList?.data?.totalPredict },
+                            { type: 2, data: costList?.data?.actual, total: costList?.data?.totalActual }
+                          ]"
+                          :key="contentList.type"
+                        >
+                          <tr>
+                            <td class="table-cost__type">{{ contentList.type === 1 ? '外注費' : '実績' }}</td>
+                            <td class="table-cost__content">
+                              <tr v-for="costItem in contentList.data" :key="costItem.id">
+                                <td class="table-cost__content--name">{{ costItem.name }}</td>
+                                <td class="table-cost__content--money">
+                                  {{ $filters.number_with_commas(costItem.money) + ` (${costItem.currencyCode})` }}
+                                </td>
+                              </tr>
+                            </td>
+                            <td class="table-cost__edit">
+                              <a-button
+                                v-if="contentList.type === 1"
+                                type="link"
+                                @click="handleOpenCostModal(costList.costType)"
+                              >
+                                <template #icon>
+                                  <edit-large-icon />
+                                </template>
+                              </a-button>
+                            </td>
+                          </tr>
+
+                          <tr class="table-cost__total">
+                            <td></td>
+                            <td class="table-cost__content">
+                              <tr>
+                                <td></td>
+                                <td>
+                                  <div class="table-cost__total--content">
+                                    <div class="u-mr-12">合計</div>
+
+                                    <div v-if="contentList.total?.length !== 0">
+                                      <div v-for="totalItem in contentList.total" :key="totalItem.id">
+                                        {{ $filters.number_with_commas(totalItem.total) + ` (${totalItem.code})` }}
+                                      </div>
                                     </div>
+                                    <div v-else>0</div>
                                   </div>
-                                  <div v-else>0</div>
-                                </div>
-                              </td>
-                            </tr>
-                          </td>
-                          <td></td>
-                        </tr>
-                      </template>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </a-spin>
-      </a-form>
-    </a-collapse-panel>
-  </a-collapse>
+                                </td>
+                              </tr>
+                            </td>
+                            <td></td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </a-spin>
+        </a-form>
+      </a-collapse-panel>
+    </a-collapse>
+  </div>
 
   <CostsModal
     v-if="isCostsModalOpen"
@@ -106,20 +134,25 @@ import { getOrderCostList, getDirectCostList, getMaterialCostList } from '../../
 import { getCurrencyList } from '../../composables/useCurrency'
 
 import EditIcon from '@/assets/icons/ico_edit.svg'
+import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
+import { DownOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
 
   components: {
     CostsModal,
-    EditIcon
+    EditIcon,
+    EditLargeIcon,
+    DownOutlined
   },
 
   setup() {
     const route = useRoute()
     const projectId = Number(route.params?.id)
 
-    const activeKey = ref(['1'])
+    const isCollapse = ref(false)
+    const isEditing = ref(false)
 
     // costs modal
     const isCostsModalOpen = ref(false)
@@ -149,6 +182,11 @@ export default defineComponent({
       totalActual: []
     })
     const currencyList = ref([])
+
+    const handleCancelEditForm = () => {
+      isEditing.value = false
+      // fetch data...
+    }
 
     const handleOpenCostModal = (typeId) => {
       const costFound = find(COST_MODAL_TYPES, { id: typeId })
@@ -264,19 +302,21 @@ export default defineComponent({
     })
 
     return {
+      isEditing,
+      isCollapse,
       isCostsModalOpen,
       isOrderCostLoading,
       isMaterialCostLoading,
       isDirectCostLoading,
 
       COST_MODAL_TYPES,
-      activeKey,
       titleCostModal,
       costModalType,
       orderCostList,
       materialCostList,
       directCostList,
 
+      handleCancelEditForm,
       handleOpenCostModal,
       fetchOrderCostList,
       fetchMaterialCostList,
@@ -293,7 +333,42 @@ export default defineComponent({
 .project-budget-table {
   margin-top: 24px;
 
-  .ant-collapse-content > .ant-collapse-content-box {
+  &__head {
+    @include flexbox(center, center);
+    padding: 12px 32px;
+    background-color: $color-grey-92;
+    border: 1px solid $color-grey-75;
+
+    &--left {
+      .table-title {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 24px;
+      }
+    }
+
+    &--right {
+      @include flexbox(space-between, center);
+      flex-grow: 1;
+      padding-left: 24px;
+
+      .arrow-icon {
+        color: $color-grey-55;
+        transition: transform 0.2s;
+
+        &.isCollapse {
+          transform: rotate(-180deg);
+          transition: transform 0.2s;
+        }
+      }
+    }
+  }
+
+  .ant-collapse-header {
+    display: none;
+  }
+
+  .ant-collapse-borderless > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {
     padding: 0;
   }
 
@@ -315,7 +390,12 @@ export default defineComponent({
         white-space: nowrap;
         width: 30%;
         min-width: 169px;
+        vertical-align: top;
       }
+    }
+
+    td.table-body__content {
+      padding: 2px 32px 16px 16px;
     }
   }
 
@@ -341,6 +421,18 @@ export default defineComponent({
       }
     }
 
+    td.table-cost__type {
+      padding-top: 18px;
+    }
+
+    td.table-cost__content {
+      padding-top: 12px;
+    }
+
+    td.table-cost__edit {
+      padding-top: 10px;
+    }
+
     &__content {
       width: 100%;
 
@@ -353,6 +445,30 @@ export default defineComponent({
         text-align: right;
         font-size: 12px;
       }
+
+      td.table-cost__content--name {
+        max-width: 165px;
+        white-space: normal;
+        width: 100%;
+      }
+
+      td.table-cost__content--money {
+        white-space: nowrap;
+        padding-left: 12px;
+      }
+
+      td.table-cost__content--name,
+      td.table-cost__content--money {
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+    }
+
+    &__edit {
+      button {
+        height: 24px;
+        width: 24px;
+      }
     }
 
     &__total {
@@ -361,7 +477,7 @@ export default defineComponent({
 
       &--content {
         @include flexbox(flex-end, null);
-        padding: 8px 0 16px;
+        padding-bottom: 16px;
       }
 
       &:last-child {

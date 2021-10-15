@@ -23,7 +23,9 @@
                 class="cost-tabs__tab--item"
               >
                 <!-- name -->
-                <a-input v-model:value="costItem.name" placeholder="企業名">{{ costItem.name }}</a-input>
+                <a-input v-model:value="costItem.name" class="cost-name" placeholder="企業名">
+                  {{ costItem.name }}
+                </a-input>
 
                 <!-- money -->
                 <a-input-number
@@ -35,7 +37,7 @@
                   :precision="0"
                   :min="0"
                   :max="999999999999"
-                  :style="{ width: '175px' }"
+                  :style="{ width: '180px' }"
                 />
 
                 <!-- curency -->
@@ -44,7 +46,7 @@
                   show-arrow
                   option-label-prop="label"
                   class="u-ml-8"
-                  :style="{ width: '135px' }"
+                  :style="{ width: '80px' }"
                   :default-active-first-option="false"
                 >
                   <a-select-option
@@ -214,6 +216,12 @@ export default defineComponent({
     }
 
     const handleCloneCost = () => {
+      costState.actual.forEach((cost) => {
+        if (cost.id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
+          costDeleteList.value = [...costDeleteList.value, cost.id]
+        }
+      })
+
       costState.actual = costState.predict.map((cost) => ({
         ...cost,
         id: uniqueId(UNIQUE_ID_PREFIX),
@@ -380,7 +388,7 @@ export default defineComponent({
       padding: 16px 0;
 
       &--item {
-        @include flexbox(null, null);
+        @include flexbox(center, center);
 
         & + .cost-tabs__tab--item {
           margin-top: 12px;
@@ -388,6 +396,11 @@ export default defineComponent({
 
         & + .cost-tabs__tab--add-item {
           margin-top: 24px;
+        }
+
+        .cost-name {
+          width: auto;
+          flex-grow: 1;
         }
       }
     }
@@ -415,6 +428,9 @@ export default defineComponent({
   .btn-danger {
     border: 1px solid $color-additional-red-5;
     color: $color-additional-red-5;
+    height: 24px;
+    width: 44px;
+    padding: 0 4px;
   }
 }
 </style>
