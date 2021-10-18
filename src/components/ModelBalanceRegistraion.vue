@@ -2,8 +2,8 @@
   <a-modal v-model:visible="open" :title="$t('modal.title_balance')" @cancel="handleCancel">
     <template #footer>
       <p>{{ $t('modal.desc_balance_input') }}</p>
-      <a-button key="back" class="btn-close" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
-      <a-button key="submit" type="primary" html-type="submit" @click="handleConfirm">
+      <a-button key="submit" @click="handleConfirm">{{ $t('modal.cancel') }}</a-button>
+      <a-button key="back" class="btn-close" type="primary" html-type="submit" @click="handleCancel">
         {{ $t('modal.handle_balance') }}
       </a-button>
     </template>
@@ -34,13 +34,13 @@ export default defineComponent({
 
     const handleCancel = () => {
       context.emit('update:visible', false)
-      context.emit('confirm-cancle-update')
+      context.emit('cancle-model')
       open.value = false
     }
 
     const handleConfirm = () => {
       context.emit('update:visible', false)
-      context.emit('cancle-model')
+      context.emit('confirm-cancle-update')
       open.value = false
     }
 

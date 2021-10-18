@@ -5,8 +5,7 @@ const BankAccountsService = services.get('BankAccountsService')
 
 export const getGroups = async () => {
   try {
-    const { data } = await GroupService.getGroups()
-
+    const { data } = await GroupService.getGroupsForAccount()
     return data
   } catch (e) {
     throw e

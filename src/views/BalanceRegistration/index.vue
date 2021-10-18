@@ -60,7 +60,7 @@
         :row-key="(record) => record.month"
         :loading="isLoading"
         :pagination="false"
-        :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
+        :scroll="{ x: 1200, y: height - 295 }"
         :locale="localeTable"
         size="middle"
       >
@@ -115,6 +115,7 @@
             :style="{ zIndex: zIndexForm }"
             v-if="record.action && !record.is_future"
             type="primary"
+            @focus="onFocus"
             @click="onConfirmEditRow(record)"
           >
             {{ $t('balance_registration.confirm_edit') }}
@@ -138,8 +139,9 @@ import { FormOutlined } from '@ant-design/icons-vue'
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import { exportCSVFile } from '@/helpers/export-csv-file'
+import { FEATURE_KEY } from '@/enums/balance-registrasion'
 import ModelBalanceRegistration from '@/components/ModelBalanceRegistraion.vue'
-import { getGroups, getBankAccounts } from '@/views/BalanceRegistration/compasables/useBalanceRegistration'
+import { getGroupsForAccount, getBankAccounts } from '@/views/BalanceRegistration/compasables/useBalanceRegistration'
 import useGetListBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useListBalanceRegistrationService'
 import useCreateOrUpdateBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useCreateOrUpdateBalanceRegistration'
 
@@ -213,11 +215,11 @@ export default defineComponent({
     // Fetch data filter
     const fetchGroupList = async () => {
       try {
-        let groups = await getGroups()
+        let groups = await getGroupsForAccount(FEATURE_KEY, {})
         groupList.value = groups.result?.data
         filter.value.group_id = groups.result?.data[0].id
       } catch (e) {
-        console.log(e)
+        throw e
       }
     }
 
@@ -259,10 +261,10 @@ export default defineComponent({
     const exportObj = reactive({
       fileTitle: 'Balance Registration',
       labels: [
-        { header: t('balance_registration.csv.header.month'), field: 'month', formatBy: 'moment_yyyy_mm' },
-        { header: t('balance_registration.csv.header.update_at'), field: 'updateAt', formatBy: 'moment_l' },
-        { header: t('balance_registration.csv.header.balance'), field: 'balance' },
-        { header: t('balance_registration.csv.header.currency_code'), field: 'currencyCode' }
+        { header: t('balance_registration.month'), field: 'month', formatBy: 'moment_yyyy_mm' },
+        { header: t('balance_registration.UpdatedAt'), field: 'updateAt', formatBy: 'moment_l' },
+        { header: t('balance_registration.balance'), field: 'balance' },
+        { header: t('balance_registration.action'), field: 'currencyCode' }
       ],
       items: []
     })
@@ -299,11 +301,13 @@ export default defineComponent({
       }
     }
 
+    // check error api
     const checkErrorsApi = (err) => {
       tmpErrors.value = camelToSnakeCase(err.response.data.errors)
       verifyErrors(tmpErrors.value, t('balance_registration.content'))
     }
 
+    //verify error
     const verifyErrors = (errors, msg) => {
       for (let item in errors) {
         setFieldError(item, msg)
