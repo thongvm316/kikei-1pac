@@ -2,6 +2,24 @@
   <div class="financing__header">
     <div class="financing__header--top u-mx-32">
       <div class="financing__header--wrap">
+        <template v-if="isTabAllGroup">
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.company') }}:</label>
+
+            <div class="form-select">
+              <a-select
+                v-model:value="groupCompany.group_id"
+                class="dropdown-company"
+                allow-clear
+                @change="onChangeCompany"
+              >
+                <a-select-option v-for="item in groupListTabAll" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </div>
+          </div>
+        </template>
         <!--Stages-->
         <div class="form-group">
           <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
@@ -15,43 +33,45 @@
           </div>
         </div>
         <!--./Stages -->
-        <!--Date From-->
-        <div class="form-group">
-          <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
+        <template v-if="!isTabAllGroup">
+          <!--Date From-->
+          <div class="form-group">
+            <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
-          <div class="form-select">
-            <a-range-picker
-              v-model:value="filter.date_from_to"
-              :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
-              :style="{ width: '260px' }"
-              :placeholder="filter.show_by ? ['YYYY/MM/DD', 'YYYY/MM/DD'] : ['YYYY/MM', 'YYYY/MM']"
-              @change="onChangeDate"
-            >
-              <template #suffixIcon>
-                <CalendarOutlined />
-              </template>
-            </a-range-picker>
-          </div>
-        </div>
-        <!--./Date From -->
-        <!-- Display -->
-        <div class="form-group">
-          <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
-
-          <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
-              <a-radio
-                v-for="item in SHOW_BY"
-                :key="item.id"
-                :value="item.id"
-                :disabled="item.id === 1 ? isDisabledDisplay : false"
+            <div class="form-select">
+              <a-range-picker
+                v-model:value="filter.date_from_to"
+                :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
+                :style="{ width: '260px' }"
+                :placeholder="filter.show_by ? ['YYYY/MM/DD', 'YYYY/MM/DD'] : ['YYYY/MM', 'YYYY/MM']"
+                @change="onChangeDate"
               >
-                {{ $t(`financing.financing_list.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
+                <template #suffixIcon>
+                  <CalendarOutlined />
+                </template>
+              </a-range-picker>
+            </div>
           </div>
-        </div>
-        <!-- ./Display -->
+          <!--./Date From -->
+          <!-- Display -->
+          <div class="form-group">
+            <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
+
+            <div class="form-checkbox">
+              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
+                <a-radio
+                  v-for="item in SHOW_BY"
+                  :key="item.id"
+                  :value="item.id"
+                  :disabled="item.id === 1 ? isDisabledDisplay : false"
+                >
+                  {{ $t(`financing.financing_list.${item.value}`) }}
+                </a-radio>
+              </a-radio-group>
+            </div>
+          </div>
+          <!-- ./Display -->
+        </template>
       </div>
       <!-- Download CSV -->
       <a-tooltip placement="topLeft" title="CSV ファイルダウンロード">
@@ -121,7 +141,7 @@
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
-import { isEmpty, remove } from 'lodash-es'
+import { isEmpty, remove, dropRight } from 'lodash-es'
 import { useRouter } from 'vue-router'
 import moment from 'moment'
 
@@ -162,6 +182,7 @@ export default {
     const router = useRouter()
 
     const groupList = ref([])
+    const groupListTabAll = ref([])
     const periodList = ref([])
     const periodDefault = ref([])
     const bankAccountList = ref([])
@@ -177,6 +198,7 @@ export default {
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
+    const isTabAllGroup = ref(false)
 
     const initialGroup = {
       id: 0,
@@ -199,6 +221,10 @@ export default {
       currency_code: null
     }
 
+    const groupCompany = ref({
+      group_id: 1
+    })
+
     const filter = reactive({ ...initialStateFilter })
 
     const initialDataRequest = {
@@ -219,11 +245,18 @@ export default {
     const updateDataFilterRequest = ({ data = {}, params = {} }) => {
       dataFilterRequest.value = {
         data: { ...dataFilterRequest.value.data, ...data },
-        params: { ...dataFilterRequest.value.params, ...params }
+        params: { ...dataFilterRequest.value.params, ...params },
+        group_id: groupCompany.value.group_id
       }
     }
 
     // Handle filter
+    const onChangeCompany = async (event) => {
+      await fetchPeriodList(event)
+      filter.period_id = periodList.value[0].id
+      updateDataFilterRequest({ data: { group_id: null, period_id: periodList.value[0].id }, group_id: event })
+    }
+
     const onChangePeriod = async (event) => {
       filter.date_from_to = [null, null]
       fromDateRangePicker.value = null
@@ -252,7 +285,7 @@ export default {
       filter.period_id = null
       isDisabledPeriod.value = !(dateString[0] === null && dateString[1] === null)
 
-      if (dateString[0] === '' && dateString[1] === '') {
+      if (dateString[0] === null && dateString[1] === null) {
         periodDefault.value = findCurrentPeriod(periodList.value)
         filter.period_id = periodDefault.value?.id || null
       }
@@ -290,16 +323,26 @@ export default {
       isDisabledDisplay.value = value === 0
       isDisabledBank.value = value === 0
       isDisabledCurrency.value = false
+      filter.period_id = null
 
       filter.bank_account_ids = bankAccountList?.value[0]?.id
 
       // Check show tab all
       if (value !== 0) {
+        isTabAllGroup.value = false
         await fetchBankAccounts({ group_id: value })
-        updateDataFilterRequest({ data: { group_id: value } })
+        await fetchPeriodList(value)
+        filter.period_id = periodList.value[0].id
+        updateDataFilterRequest({ data: { group_id: value, period_id: filter.period_id } })
       } else {
         filter.show_by = 0
-        updateDataFilterRequest({ data: { group_id: null } })
+        isTabAllGroup.value = true
+        await fetchPeriodList(groupCompany.value.group_id)
+        filter.period_id = periodList.value[0].id
+        filter.date_from_to[0] = filter.date_from_to[1] = null
+        updateDataFilterRequest({
+          data: { group_id: null, from_date: null, to_date: null, period_id: periodList.value[0].id }
+        })
       }
 
       updateDataFilterRequest({
@@ -323,6 +366,7 @@ export default {
     }
 
     const onChangeViewMode = async (mode) => {
+      filter.period_id = null
       if (mode) {
         await router.push({ name: 'financing-chart' })
       }
@@ -341,6 +385,7 @@ export default {
       const { getGroupsFinancing } = useGetGroupListService()
       const { result } = await getGroupsFinancing()
 
+      groupListTabAll.value = dropRight(result?.data, 0)
       groupList.value = result?.data
       groupList.value.push(initialGroup)
     }
@@ -373,7 +418,8 @@ export default {
 
     const handleGroupDefault = async (groupID) => {
       if (!groupID) {
-        await fetchPeriodList(1)
+        groupCompany.value.group_id = store.getters['financing/filters'].group_id || {}
+        await fetchPeriodList(groupCompany.value.group_id)
         await fetchBankAccounts({ group_id: 1 })
 
         filter.group_id = groupList?.value[groupList.value.length - 1].id
@@ -398,8 +444,7 @@ export default {
         filter.period_id = periodID
       } else {
         if (periodList.value) {
-          periodDefault.value = findCurrentPeriod(periodList.value)
-          filter.period_id = periodDefault.value?.id || null
+          filter.period_id = periodList.value[0].id
         }
       }
     }
@@ -465,6 +510,7 @@ export default {
         // Set group ID id by store
         groupID = filtersFinancingStore.group_id
         await handleGroupDefault(groupID)
+        if (!groupID) isTabAllGroup.value = true
 
         // Set period ID id by store
         periodID = filtersFinancingStore.period_id
@@ -494,7 +540,8 @@ export default {
       () => dataFilterRequest.value,
       () => {
         const data = Object.assign({}, dataFilterRequest.value.data)
-        store.commit('financing/STORE_FINANCING_FILTER', { data })
+        const company = Object.assign({}, dataFilterRequest.value)
+        store.commit('financing/STORE_FINANCING_FILTER', { data, ...company })
         emit('onFilterRequest', dataFilterRequest.value)
       }
     )
@@ -525,6 +572,9 @@ export default {
       isDisabledBank,
       isDisabledCurrency,
       dataFilterRequest,
+      isTabAllGroup,
+      groupListTabAll,
+      groupCompany,
       SHOW_BY,
       VIEW_MODE,
       onChangePeriod,
@@ -537,7 +587,8 @@ export default {
       onExportFinancingCsv,
       fetchGroupList,
       fetchPeriodList,
-      fetchCurrency
+      fetchCurrency,
+      onChangeCompany
     }
   }
 }

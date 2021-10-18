@@ -5,6 +5,7 @@ export default {
     title_search: '検索',
     group: 'グループ',
     stages: '期間',
+    company: '企業:',
     date: '日付',
     date_start: '日付開始',
     date_finish: '日付終了',
