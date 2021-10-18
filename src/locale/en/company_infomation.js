@@ -45,6 +45,7 @@ export default {
   error_representative_name: 'Full name',
   error_in_roman_letters: 'Name (in Roman letters)',
   error_target_money: 'Target',
+  error_empty_number: 'Please enter a number',
 
   empty_image: 'Please upload your seal',
   empty_date: 'Please select a business year',
