@@ -5,5 +5,6 @@ export default {
   action: '',
   confirm_edit: '確定',
   edit: '編集',
-  empty_text_table: '該当するアカウントが見つかりませんでした。'
+  none_record: '今月までの残高を入力してください',
+  empty_text_table: '該当するデータが見つかりませんでした '
 }

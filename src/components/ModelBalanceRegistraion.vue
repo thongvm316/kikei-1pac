@@ -16,31 +16,36 @@ export default defineComponent({
   name: 'ModelBalanceRegistration',
 
   props: {
-    updateBalanceRequest: {
-      type: Object
+    showModelUpdateBalance: {
+      type: Boolean,
+      require: true
     }
   },
 
-  setup(props) {
-    const { updateBalanceRequest } = toRefs(props)
-    const open = ref(false)
-    const isPendingTo = ref(true)
+  emits: ['update:visible', 'confirm-cancle-update', 'cancle-model'],
 
-    watch(updateBalanceRequest, (val) => {
+  setup(props, context) {
+    const { showModelUpdateBalance } = toRefs(props)
+    const open = ref(false)
+
+    watch(showModelUpdateBalance, (val) => {
       open.value = val
     })
 
     const handleCancel = () => {
+      context.emit('update:visible', false)
+      context.emit('confirm-cancle-update')
       open.value = false
     }
 
     const handleConfirm = () => {
+      context.emit('update:visible', false)
+      context.emit('cancle-model')
       open.value = false
     }
 
     return {
       open,
-      isPendingTo,
       handleCancel,
       handleConfirm
     }

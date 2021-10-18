@@ -1,13 +1,24 @@
 <template>
   <div class="balance-registration">
-    <model-balance-registration v-model:visible="isShowModalUpdate" />
+    <div class="blance-mask" v-if="isUpdating" @click="handleClickMask"></div>
+    <model-balance-registration
+      v-model:visible="open"
+      :show-model-update-balance="open"
+      @confirmCancleUpdate="handleConfirmCancleUpdate"
+      @cancleModel="handleCancleModel"
+    />
     <div class="balance">
       <div class="balance__header">
         <div class="balance__header-export-csv">
           <div class="balance__header-export-csv-button">
             <!-- csv -->
             <a-tooltip color="#fff" :title="$t('deposit.deposit_list.export_csv')">
-              <a-button class="u-mr-16" type="link">
+              <a-button
+                class="u-mr-16"
+                type="link"
+                :loading="isLoadingExportCsv"
+                @click="exportBalanceRegistrationAsCsvFile"
+              >
                 <template #icon>
                   <span class="btn-icon" :style="{ height: '28px' }"><line-down-icon /></span>
                 </template>
@@ -49,7 +60,6 @@
         :row-key="(record) => record.month"
         :loading="isLoading"
         :pagination="false"
-        :custom-row="customRow"
         :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
         :locale="localeTable"
         size="middle"
@@ -68,10 +78,12 @@
                 <div class="form-content">
                   <div class="form-input">
                     <a-input-number
+                      v-if="record.action"
                       :value="field.value"
                       :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                       @change="handleChange"
+                      :style="{ zIndex: zIndexForm }"
                       class="input_balance"
                     />
                     <label class="form-label">
@@ -83,10 +95,13 @@
             </div>
           </form>
           <div class="balance-future" v-else-if="record.is_future && !record.action">
-            <span class="balance-future-content">N/A</span>
+            <a-tooltip color="#fff" :title="$t('balance_registration.none_record')">
+              <span class="balance-future-content">N/A</span>
+            </a-tooltip>
           </div>
+          <div class="balance-future" v-else-if="record.balance === 0 && !record.action"></div>
           <div class="form-content" v-else>
-            <span class="form-input">
+            <span>
               {{ $filters.number_with_commas(record.balance) }}
             </span>
             <label class="form-label">
@@ -95,7 +110,13 @@
           </div>
         </template>
         <template #action="{ record }">
-          <a-button v-if="record.action && !record.is_future" type="primary" @click="onConfirmEditRow(record)">
+          <a-button
+            class="btn-confirm-edit"
+            :style="{ zIndex: zIndexForm }"
+            v-if="record.action && !record.is_future"
+            type="primary"
+            @click="onConfirmEditRow(record)"
+          >
             {{ $t('balance_registration.confirm_edit') }}
           </a-button>
           <div class="balance-future" v-else-if="record.is_future"></div>
@@ -109,15 +130,18 @@
 </template>
 <script>
 import { defineComponent, ref, reactive, onBeforeMount, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { FormOutlined } from '@ant-design/icons-vue'
-import useGetListBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useListBalanceRegistrationService'
-import { getGroups, getBankAccounts } from '@/views/BalanceRegistration/compasables/useBalanceRegistration'
-import LineDownIcon from '@/assets/icons/ico_line-down.svg'
-import { Field } from 'vee-validate'
-import useCreateOrUpdateBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useCreateOrUpdateBalanceRegistration'
-import ModelBalanceRegistration from '@/components/ModelBalanceRegistraion.vue'
 import moment from 'moment'
+import { useI18n } from 'vue-i18n'
+import { useForm, Field } from 'vee-validate'
+import { useStore } from 'vuex'
+import { FormOutlined } from '@ant-design/icons-vue'
+import LineDownIcon from '@/assets/icons/ico_line-down.svg'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { exportCSVFile } from '@/helpers/export-csv-file'
+import ModelBalanceRegistration from '@/components/ModelBalanceRegistraion.vue'
+import { getGroups, getBankAccounts } from '@/views/BalanceRegistration/compasables/useBalanceRegistration'
+import useGetListBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useListBalanceRegistrationService'
+import useCreateOrUpdateBalanceRegistrationService from '@/views/BalanceRegistration/compasables/useCreateOrUpdateBalanceRegistration'
 
 export default defineComponent({
   name: 'Index',
@@ -125,26 +149,27 @@ export default defineComponent({
   components: { LineDownIcon, FormOutlined, Field, ModelBalanceRegistration },
 
   setup() {
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
+    const store = useStore()
+    const { setFieldError } = useForm()
     const groupList = ref([])
     const filter = ref({})
+    const zIndexForm = ref(1001)
     const isLoading = ref(true)
     const bankAccountList = ref([])
+    const isLoadingExportCsv = ref()
     const isDisabledBank = ref(false)
-    const isShowModalUpdate = ref(false)
+    const isUpdating = ref(false)
+    const open = ref(false)
     const tableList = ref([])
+    const tmpErrors = ref()
     const height = ref(0)
     const form = ref({
       bank_account_id: '',
       month: '',
       balance: 0
     })
-    const state = reactive({ selectedRowKeys: [] })
-    const recordVisible = ref({})
     const isFutureRecord = ref(false)
-    let tempRow = reactive([])
-
-    var isUpdating = false
     const columns = [
       {
         title: t('balance_registration.month'),
@@ -187,19 +212,27 @@ export default defineComponent({
 
     // Fetch data filter
     const fetchGroupList = async () => {
-      let groups = await getGroups()
-      groupList.value = groups.result?.data
-      filter.group_id = groups.result?.data[0].id
+      try {
+        let groups = await getGroups()
+        groupList.value = groups.result?.data
+        filter.value.group_id = groups.result?.data[0].id
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     // Fetch banks account
     const fetchBankAccountList = async (groupId) => {
-      let bankAccount = await getBankAccounts({ groupId: groupId })
-      bankAccountList.value = bankAccount.result?.data || []
-      if (bankAccountList.value.length > 0) {
-        filter.value.bank_account_id = bankAccountList.value[0].id
-      } else {
-        filter.value.bank_account_id = 0
+      try {
+        let bankAccount = await getBankAccounts({ groupId: groupId })
+        bankAccountList.value = bankAccount.result?.data || []
+        if (bankAccountList.value.length > 0) {
+          filter.value.bank_account_id = bankAccountList.value[0].id
+        } else {
+          filter.value.bank_account_id = null
+        }
+      } catch (e) {
+        console.log(e)
       }
     }
 
@@ -207,7 +240,7 @@ export default defineComponent({
     const fetchRegistrationBalance = async (bankAccountId) => {
       isLoading.value = true
       try {
-        if (bankAccountId != 0) {
+        if (bankAccountId != null) {
           let { getLists } = await useGetListBalanceRegistrationService({ bank_account_id: bankAccountId })
           let { result } = await getLists()
           let data = await convertDataRenderTable(result?.data)
@@ -215,10 +248,36 @@ export default defineComponent({
         } else {
           tableList.value = []
         }
+      } catch (e) {
+        throw e
       } finally {
         isLoading.value = false
       }
     }
+
+    /* --------------------- handle export CSV ------------------- */
+    const exportObj = reactive({
+      fileTitle: 'Balance Registration',
+      labels: [
+        { header: t('balance_registration.csv.header.month'), field: 'month', formatBy: 'moment_yyyy_mm' },
+        { header: t('balance_registration.csv.header.update_at'), field: 'updateAt', formatBy: 'moment_l' },
+        { header: t('balance_registration.csv.header.balance'), field: 'balance' },
+        { header: t('balance_registration.csv.header.currency_code'), field: 'currencyCode' }
+      ],
+      items: []
+    })
+
+    const exportBalanceRegistrationAsCsvFile = async () => {
+      isLoadingExportCsv.value = true
+      let { getLists } = await useGetListBalanceRegistrationService({ bank_account_id: filter.value.bank_account_id })
+      let { result } = await getLists()
+
+      isLoadingExportCsv.value = false
+      const balanceRegistrationItems = result.data
+      exportObj.items = balanceRegistrationItems
+      exportCSVFile(exportObj)
+    }
+    /* --------------------- handle export CSV ------------------- */
 
     // update registration balance
     const updateBalanceRegistration = async (id, value) => {
@@ -229,8 +288,25 @@ export default defineComponent({
       try {
         const { createOrUpdate } = await useCreateOrUpdateBalanceRegistrationService(id, data)
         await createOrUpdate()
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          duration: 5,
+          message: locale.value === 'en' ? data.month + 'update balance success' : data.month + ' が追加されました'
+        })
       } catch (err) {
+        checkErrorsApi(err)
         throw err
+      }
+    }
+
+    const checkErrorsApi = (err) => {
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
+      verifyErrors(tmpErrors.value, t('balance_registration.content'))
+    }
+
+    const verifyErrors = (errors, msg) => {
+      for (let item in errors) {
+        setFieldError(item, msg)
       }
     }
 
@@ -246,10 +322,6 @@ export default defineComponent({
       return records
     }
 
-    const handleClickOutdideInput = () => {
-      //isShowModalUpdate.value = true
-    }
-
     // on change group
     const onChangeGroup = async () => {
       await fetchBankAccountList(filter.value.group_id)
@@ -261,59 +333,53 @@ export default defineComponent({
       await fetchRegistrationBalance(filter.value.bank_account_id)
     }
 
-    // select row in table
-    const selectRow = (record) => {
-      recordVisible.value = { ...record }
-      if (tempRow.length && tempRow[0] === record.id) {
-        state.selectedRowKeys = []
-        tempRow = []
-        recordVisible.value.visible = false
-      } else {
-        state.selectedRowKeys = [record.id]
-        tempRow = [record.id]
-        recordVisible.value.visible = true
-      }
-    }
-
-    const customRow = (record) => {
-      return {
-        onClick: () => {
-          selectRow(record)
-        }
-      }
+    // handle click mask
+    const handleClickMask = async () => {
+      open.value = true
+      zIndexForm.value = 0
     }
 
     // handle click button edit
-    const handleEditRow = (record) => {
-      if (isUpdating) {
-        isShowModalUpdate.value = true
-      } else {
-        form.value.balance = record.balance
-        record.action = true
-        console.log(isUpdating)
-      }
-      isUpdating = true
+    const handleEditRow = async (record) => {
+      form.value.balance = record.balance
+      isUpdating.value = true
+      record.action = true
+      zIndexForm.value = 1001
+    }
+
+    const handleConfirmCancleUpdate = async () => {
+      isUpdating.value = false
+      zIndexForm.value = 0
+      await fetchRegistrationBalance(filter.value.bank_account_id)
+    }
+
+    const handleCancleModel = async () => {
+      zIndexForm.value = 1001
     }
 
     // handle confirm edit
     const onConfirmEditRow = async (record) => {
-      console.log(isUpdating)
-      isLoading.value = true
-      isUpdating = false
       try {
         record.action = false
+        isLoading.value = true
+        open.value = false
+        isUpdating.value = false
         form.value.bank_account_id = filter.value.bank_account_id
         form.value.month = record.month
         let data = { ...form.value }
         let bankAccountId = filter.value.bank_account_id
-        await updateBalanceRegistration(record.id, data)
+        if (record.balance != form.value.balance) {
+          await updateBalanceRegistration(record.id, data)
+        }
         await fetchRegistrationBalance(bankAccountId)
+        zIndexForm.value = 0
       } catch (e) {
         console.log(e)
       }
       isLoading.value = false
     }
 
+    // show text table empty
     const localeTable = {
       emptyText: t('balance_registration.empty_text_table')
     }
@@ -324,11 +390,12 @@ export default defineComponent({
       window.addEventListener('resize', getInnerHeight)
 
       await fetchGroupList()
-      await fetchBankAccountList(filter.group_id)
+      await fetchBankAccountList(filter.value.group_id)
       await fetchRegistrationBalance(filter.value.bank_account_id)
     })
 
     onUnmounted(() => {
+      open.value = true
       window.removeEventListener('resize', getInnerHeight)
     })
 
@@ -344,13 +411,17 @@ export default defineComponent({
       localeTable,
       form,
       isFutureRecord,
-      isShowModalUpdate,
+      isUpdating,
+      open,
+      zIndexForm,
+      handleCancleModel,
+      handleConfirmCancleUpdate,
       onChangeGroup,
       onChangeBankAccount,
       handleEditRow,
       onConfirmEditRow,
-      customRow,
-      handleClickOutdideInput
+      handleClickMask,
+      exportBalanceRegistrationAsCsvFile
     }
   }
 })
@@ -427,5 +498,18 @@ export default defineComponent({
 }
 .ant-input-number-input {
   text-align: end;
+}
+
+.blance-mask {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+}
+
+.ant-modal-wrap {
+  z-index: 1002;
 }
 </style>
