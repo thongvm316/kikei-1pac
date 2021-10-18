@@ -45,6 +45,7 @@ export default {
   error_representative_name: '氏名',
   error_in_roman_letters: '氏名（ローマ字）',
   error_target_money: '目標',
+  error_empty_number: '数字を入力してください',
 
   empty_image: '印鑑をアプロードして下さい',
   empty_date: '事業年度を選択して下さい',

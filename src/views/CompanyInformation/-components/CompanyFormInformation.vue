@@ -161,7 +161,12 @@
               />
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="phone_number" class="errors">
-                {{ replaceField(message, 'phone_number') }}
+                <template v-if="message === 'phone_numberは数字のみ使用できます'">
+                  {{ $t('company_infomation.error_empty_number') }}
+                </template>
+                <template v-else>
+                  {{ replaceField(message, 'phone_number') }}
+                </template>
               </ErrorMessage>
             </div>
           </div>
@@ -372,7 +377,12 @@
                 />
                 <!-- Error message -->
                 <ErrorMessage v-slot="{ message }" as="span" name="target_money" class="errors">
-                  {{ replaceField(message, 'target_money') }}
+                  <template v-if="message === 'target_moneyは数字のみ使用できます'">
+                    {{ $t('company_infomation.error_empty_number') }}
+                  </template>
+                  <template v-else>
+                    {{ replaceField(message, 'target_money') }}
+                  </template>
                 </ErrorMessage>
               </div>
             </div>
