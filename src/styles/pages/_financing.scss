@@ -21,6 +21,12 @@
         align-items: center;
         .form-group {
           margin-right: 32px;
+          
+          .dropdown-company {
+            .ant-select-selector {
+              width: 300px;
+            }
+          }
         }
       }
 

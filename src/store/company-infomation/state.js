@@ -3,7 +3,11 @@ const state = {
   isCreated: {},
   isRemove: false,
   isDeleted: false,
-  isChangeTab: false
+  isChangeTab: false,
+  isUpdateTab: false,
+  checkSideBar: false,
+  leaveGroup: true,
+  navName: {}
 }
 
 export default state
