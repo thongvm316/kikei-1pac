@@ -13,7 +13,9 @@
         <budget-table />
       </div>
 
-      <div class="project-detail__history">History</div>
+      <div class="project-detail__history">
+        <ProjectHistory :project-history="project?.value?.adProjectHistories" />
+      </div>
     </div>
   </section>
 </template>
@@ -26,6 +28,7 @@ import { getProject } from '../composables/useProject'
 import ProjectEditForm from './components/ProjectEditForm'
 import TotalRevenueTable from './components/TotalRevenueTable'
 import BudgetTable from './components/BudgetTable'
+import ProjectHistory from './components/ProjectHistory.vue'
 
 export default defineComponent({
   name: 'ProjectEditPage',
@@ -33,7 +36,8 @@ export default defineComponent({
   components: {
     ProjectEditForm,
     TotalRevenueTable,
-    BudgetTable
+    BudgetTable,
+    ProjectHistory
   },
 
   setup() {
@@ -91,7 +95,6 @@ export default defineComponent({
   &__history {
     flex-basis: 40%;
     height: 500px;
-    background-color: chocolate;
   }
 }
 </style>

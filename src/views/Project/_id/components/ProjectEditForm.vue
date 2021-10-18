@@ -400,6 +400,110 @@
                       </tr>
                       <!-- money -->
 
+                      <!-- projectOrders -->
+                      <tr>
+                        <td>外注</td>
+                        <td>
+                          <a-form-item name="adProjectOrders">
+                            <div class="outsource">
+                              <table class="project-oder">
+                                <tbody>
+                                  <template v-for="(order, index) in localProjectOrders" :key="order.key">
+                                    <tr class="outsource__item">
+                                      <td
+                                        :class="[
+                                          {
+                                            'has-error': order.errors && order.errors['companyId'],
+                                            'u-flex u-flex-col': isEditing
+                                          }
+                                        ]"
+                                      >
+                                        <p>会社名</p>
+                                        <div class="outsource__company-info">
+                                          <p v-if="order.companyId" class="text-grey-500">{{ order.companyName }}</p>
+                                          <p
+                                            v-if="isEditing"
+                                            class="modal-link"
+                                            @click="openCompanySearchForm('outsource', index)"
+                                          >
+                                            選択
+                                          </p>
+                                        </div>
+                                      </td>
+
+                                      <td :class="['u-pl-40', { 'has-error': order.errors && order.errors['money'] }]">
+                                        <p>金額</p>
+                                        <p v-if="!isEditing">{{ order.money }}</p>
+                                        <a-input-number
+                                          v-else
+                                          v-model:value="order.money"
+                                          placeholder="入力してください"
+                                          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                          :precision="0"
+                                          :style="{ width: '164px' }"
+                                        />
+                                      </td>
+
+                                      <td class="u-pl-8">
+                                        <p class="u-mt-24 u-text-grey-75">(JPY)</p>
+                                      </td>
+
+                                      <td v-if="!order.id" class="u-pl-8">
+                                        <a-button
+                                          size="small"
+                                          class="u-mt-24"
+                                          type="danger"
+                                          ghost
+                                          @click="removeProjectOrder(order)"
+                                          >削除</a-button
+                                        >
+                                      </td>
+                                    </tr>
+
+                                    <tr
+                                      v-if="
+                                        isEditing &&
+                                        ((order.errors && order.errors['companyId']) ||
+                                          (order.errors && order.errors['money']))
+                                      "
+                                    >
+                                      <td class="u-pb-12">
+                                        <p class="u-text-additional-red-6">
+                                          {{ order.errors && $t(`common.local_error.${order.errors['companyId']}`) }}
+                                        </p>
+                                      </td>
+                                      <td class="u-pl-40 u-pb-12">
+                                        <p class="u-text-additional-red-6">
+                                          {{ order.errors && $t(`common.local_error.${order.errors['money']}`) }}
+                                        </p>
+                                      </td>
+                                      <td></td>
+                                    </tr>
+                                  </template>
+                                </tbody>
+                              </table>
+
+                              <a-button
+                                v-if="isEditing"
+                                type="default"
+                                class="outsource__btn"
+                                @click="addDummyProjectOrder"
+                              >
+                                <template #icon>
+                                  <span class="btn-icon"><line-add-icon /></span>
+                                </template>
+                                外注を追加
+                              </a-button>
+
+                              <p class="outsource__total">
+                                外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)
+                              </p>
+                            </div>
+                          </a-form-item>
+                        </td>
+                      </tr>
+                      <!-- projectOrders -->
+
                       <!-- tag  -->
                       <tr>
                         <td>タグ</td>
@@ -466,69 +570,7 @@
     </a-spin>
 
     <!-- projectOrders -->
-    <!-- <a-form-item name="adProjectOrders" label="外注">
-      <div class="outsource u-pl-20">
-        <table>
-          <tbody>
-            <template v-for="(order, index) in localProjectOrders" :key="order.key">
-              <tr class="outsource__item">
-                <td :class="['u-flex u-flex-col', { 'has-error': order.errors && order.errors['companyId'] }]">
-                  <p>会社名</p>
-                  <div class="outsource__company-info">
-                    <p v-if="order.companyId" class="text-grey-500">{{ order.companyName }}</p>
-                    <p class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
-                  </div>
-                </td>
 
-                <td :class="['u-pl-40', { 'has-error': order.errors && order.errors['money'] }]">
-                  <p>金額</p>
-                  <a-input-number
-                    v-model:value="order.money"
-                    placeholder="入力してください"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :precision="0"
-                    :style="{ width: '164px' }"
-                  />
-                </td>
-
-                <td class="u-pl-8">
-                  <p class="u-mt-24 u-text-grey-75">(JPY)</p>
-                </td>
-
-                <td v-if="!order.id" class="u-pl-8">
-                  <a-button size="small" class="u-mt-24" type="danger" ghost @click="removeProjectOrder(order)"
-                    >削除</a-button
-                  >
-                </td>
-              </tr>
-
-              <tr>
-                <td class="u-pb-12">
-                  <p v-if="order.errors && order.errors['companyId']" class="u-text-additional-red-6">
-                    {{ order.errors && $t(`common.local_error.${order.errors['companyId']}`) }}
-                  </p>
-                </td>
-                <td class="u-pl-40 u-pb-12">
-                  <p v-if="order.errors && order.errors['money']" class="u-text-additional-red-6">
-                    {{ order.errors && $t(`common.local_error.${order.errors['money']}`) }}
-                  </p>
-                </td>
-                <td></td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-
-        <a-button type="default" class="outsource__btn" @click="addDummyProjectOrder">
-          <template #icon>
-            <span class="btn-icon"><line-add-icon /></span>
-          </template>
-          外注を追加
-        </a-button>
-
-        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)</p>
-      </div>
-    </a-form-item> -->
     <!-- projectOrders -->
   </a-form>
 
@@ -1137,6 +1179,23 @@ export default defineComponent({
           white-space: nowrap;
           width: 30%;
           min-width: 169px;
+        }
+      }
+
+      .project-oder {
+        td {
+          border: 0;
+          width: auto;
+          background-color: transparent;
+          min-width: auto;
+          color: $color-grey-15;
+          font-weight: 400;
+          // padding-top: 0;
+          // padding-bottom: 0;
+
+          &:first-child {
+            padding-left: 0;
+          }
         }
       }
     }
