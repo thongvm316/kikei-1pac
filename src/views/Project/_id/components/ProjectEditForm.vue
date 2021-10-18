@@ -360,7 +360,7 @@
                         <td>金額</td>
 
                         <td>
-                          <div class="moneyWrapper">
+                          <div class="moneyWrapper u-whitespace-nowrap">
                             <!-- money -->
                             <a-form-item name="money" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
                               <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.money }}</span>

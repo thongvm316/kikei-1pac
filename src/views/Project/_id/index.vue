@@ -86,6 +86,7 @@ export default defineComponent({
     display: flex;
     gap: 32px;
     margin-top: 32px;
+    overflow-x: auto;
   }
 
   &__forms {

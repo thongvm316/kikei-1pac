@@ -18,7 +18,7 @@
         <div class="project-history__body">
           <template v-if="projectHistory && projectHistory.length > 0">
             <div v-for="item in projectHistory" :key="item.index" class="project-history__item">
-              <p class="u-text-weight-700">{{ item.createdAt }}</p>
+              <p class="u-text-weight-700">{{ moment(item.createdAt).format('YYYY-MM-DD - HH:mm') }}</p>
               <p>{{ item.username }}</p>
               <p class="u-flex">
                 <span class="u-whitespace-nowrap">変更箇所：</span><span>{{ item.fieldName }}</span>
@@ -43,6 +43,7 @@
 import HistoryIcon from '@/assets/icons/ico_history.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { defineComponent, ref } from 'vue'
+import moment from 'moment'
 
 export default defineComponent({
   name: 'ProjectHistory',
@@ -63,7 +64,8 @@ export default defineComponent({
     const isCollapse = ref()
 
     return {
-      isCollapse
+      isCollapse,
+      moment
     }
   }
 })
@@ -100,7 +102,7 @@ export default defineComponent({
     transition: transform 0.2s;
 
     &.isCollapse {
-      transform: rotate(-180deg);
+      transform: rotate(90deg);
       transition: transform 0.2s;
     }
   }

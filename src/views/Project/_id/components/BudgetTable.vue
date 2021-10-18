@@ -376,6 +376,14 @@ export default defineComponent({
     width: 100%;
     background-color: $color-grey-100;
 
+    > tbody {
+      border-right: 1px solid $color-grey-75;
+
+      > tr:not(:last-child) {
+        border-bottom: 5px solid $color-grey-75;
+      }
+    }
+
     td {
       padding: 13px;
       border-bottom: 1px solid $color-grey-75;
