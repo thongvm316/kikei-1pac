@@ -9,7 +9,7 @@ export default {
     return apiCaller({ method: 'POST', url: `${RESOURCES.balance_registration}/search`, data })
   },
 
-  createOrUpdateRegistration(id,data) {
+  createOrUpdateRegistration(id, data) {
     return apiCaller({ method: 'POST', url: `${RESOURCES.balance_registration}/${id}`, data })
-  },
+  }
 }

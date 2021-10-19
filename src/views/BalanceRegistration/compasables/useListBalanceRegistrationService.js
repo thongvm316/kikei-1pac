@@ -2,7 +2,7 @@ import services from '@/services'
 const BalanceRegistrationService = services.get('BalanceRegistrationService')
 
 export default function useGetListBalanceRegistrationService(data) {
-  const getLists = async () => {
+  const listBalance = async () => {
     // eslint-disable-next-line no-useless-catch
     try {
       const response = await BalanceRegistrationService.getListBalanceRegistration(data)
@@ -12,5 +12,5 @@ export default function useGetListBalanceRegistrationService(data) {
     }
   }
 
-  return { getLists }
+  return { listBalance }
 }

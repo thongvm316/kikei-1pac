@@ -13,7 +13,7 @@
 <script>
 import { defineComponent, toRefs, watch, ref } from 'vue'
 export default defineComponent({
-  name: 'ModelBalanceRegistration',
+  name: 'ModalBalanceRegistration',
 
   props: {
     showModelUpdateBalance: {
@@ -22,7 +22,7 @@ export default defineComponent({
     }
   },
 
-  emits: ['update:visible', 'confirm-cancle-update', 'cancle-model'],
+  emits: ['update:visible', 'on-handle-confirm', 'cancle-modal'],
 
   setup(props, context) {
     const { showModelUpdateBalance } = toRefs(props)
@@ -34,13 +34,13 @@ export default defineComponent({
 
     const handleCancel = () => {
       context.emit('update:visible', false)
-      context.emit('cancle-model')
+      context.emit('cancle-modal')
       open.value = false
     }
 
     const handleConfirm = () => {
       context.emit('update:visible', false)
-      context.emit('confirm-cancle-update')
+      context.emit('on-handle-confirm')
       open.value = false
     }
 
