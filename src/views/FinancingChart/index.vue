@@ -234,9 +234,9 @@ export default defineComponent({
     // Handle filter
     const onChangeCompany = async (event) => {
       await fetchPeriodList(event)
-      filter.period_id = periodList.value[0].id
+      filter.period_id = findCurrentPeriod(periodList.value).id
       updateParamRequestFinancing({
-        data: { group_id: null, from_date: null, to_date: null, period_id: periodList.value[0].id }
+        data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
       })
     }
 
@@ -273,7 +273,7 @@ export default defineComponent({
             })
           }
 
-          filter.period_id = !dateString[0] && !dateString[1] ? periodList.value[0].id : null
+          filter.period_id = !dateString[0] && !dateString[1] ? periodCurrentFound?.id : null
           filter.date_from_to[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
           filter.date_from_to[1] =
             getDiffDays(dateString[0], dateString[1]) > 59
@@ -329,12 +329,19 @@ export default defineComponent({
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
-        updateParamRequestFinancing({
-          data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1] }
-        })
+        if (!filter.date_from_to[0]) {
+          filter.period_id = findCurrentPeriod(periodList.value).id
+          updateParamRequestFinancing({
+            data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1], period_id: filter.period_id }
+          })
+        } else {
+          updateParamRequestFinancing({
+            data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1] }
+          })
+        }
       } else {
         await fetchPeriodList(groupCompany.value.group_id)
-        filter.period_id = periodList.value[0].id
+        filter.period_id = findCurrentPeriod(periodList.value).id
         updateParamRequestFinancing({
           data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
         })
