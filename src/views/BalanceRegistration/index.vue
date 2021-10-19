@@ -241,7 +241,9 @@ export default defineComponent({
         if (bankAccountId != null) {
           const { listBalance } = await useGetListBalanceRegistrationService({ bankAccountId: bankAccountId })
           const { result } = await listBalance()
+          console.log(result)
           const { records } = await convertDataRenderTable(result?.data)
+          console.log(records)
           tableList.value = records
         } else {
           tableList.value = []
@@ -267,7 +269,7 @@ export default defineComponent({
 
     const exportBalanceRegistrationAsCsvFile = async () => {
       isLoadingExportCsv.value = true
-      const { listBalance } = await useGetListBalanceRegistrationService({ bankAccountId: filter.value.bankAccountId })
+      const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: filter.value.bankAccountId })
       const { result } = await listBalance()
 
       isLoadingExportCsv.value = false
@@ -311,11 +313,12 @@ export default defineComponent({
     }
 
     //convert data for show record future
-    const convertDataRenderTable = async (records) => {
+    const convertDataRenderTable = (records) => {
       records = records.map((record) => {
         record.isFuture = moment(record.month).format('YYYY-MM') > moment().format('YYYY-MM')
+        return record
       })
-      return records
+      return { records }
     }
 
     // on change group
@@ -349,7 +352,7 @@ export default defineComponent({
       await fetchRegistrationBalance(filter.value.bankAccountId)
     }
 
-    const handleCancleModel = async () => {
+    const handleCancleModal = async () => {
       zIndexForm.value = 1001
     }
 
@@ -357,22 +360,23 @@ export default defineComponent({
     const onConfirmEditRow = async (record) => {
       try {
         record.action = false
-        isLoading.value = true
+        isLoadingDataTable.value = true
         open.value = false
         isUpdating.value = false
         form.value.bankAccountId = filter.value.bankAccountId
         form.value.month = record.month
-        const data = { ...form.value }
+        const balanceUpdate = { ...form.value }
         const bankAccountId = filter.value.bankAccountId
         if (record.balance != form.value.balance) {
-          await updateBalanceRegistration(record.id, data)
+          await updateBalanceRegistration(record.id, balanceUpdate)
         }
         await fetchRegistrationBalance(bankAccountId)
         zIndexForm.value = 0
+        console.log(isUpdating)
       } catch (e) {
         throw e
       }
-      isLoading.value = false
+      isLoadingDataTable.value = false
     }
 
     // show text table empty
@@ -411,7 +415,7 @@ export default defineComponent({
       isUpdating,
       open,
       zIndexForm,
-      handleCancleModel,
+      handleCancleModal,
       handleConfirmCancleUpdate,
       onChangeGroup,
       onChangeBankAccount,
