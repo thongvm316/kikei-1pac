@@ -16,25 +16,25 @@ export default defineComponent({
   name: 'ModalBalanceRegistration',
 
   props: {
-    showModelUpdateBalance: {
+    showModalUpdateBalance: {
       type: Boolean,
       require: true
     }
   },
 
-  emits: ['update:visible', 'on-handle-confirm', 'cancle-modal'],
+  emits: ['update:visible', 'on-handle-confirm', 'cancel-modal'],
 
   setup(props, context) {
-    const { showModelUpdateBalance } = toRefs(props)
+    const { showModalUpdateBalance } = toRefs(props)
     const open = ref(false)
 
-    watch(showModelUpdateBalance, (val) => {
+    watch(showModalUpdateBalance, (val) => {
       open.value = val
     })
 
     const handleCancel = () => {
       context.emit('update:visible', false)
-      context.emit('cancle-modal')
+      context.emit('cancel-modal')
       open.value = false
     }
 
@@ -52,5 +52,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style scoped lang="scss"></style>

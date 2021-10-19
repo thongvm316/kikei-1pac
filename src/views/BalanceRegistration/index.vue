@@ -3,9 +3,9 @@
     <div class="blance-mask" v-if="isUpdating" @click="handleClickMask"></div>
     <modal-balance-registration
       v-model:visible="open"
-      :show-model-update-balance="open"
+      :show-modal-update-balance="open"
       @onHandleConfirm="handleConfirmCancleUpdate"
-      @cancleModal="handleCancleModal"
+      @cancelModal="handleCancelModal"
     />
     <div class="balance">
       <div class="balance__header">
@@ -224,11 +224,7 @@ export default defineComponent({
       try {
         const bankAccount = await getBankAccounts({ groupId: groupId })
         bankAccountList.value = bankAccount.result?.data || []
-        if (bankAccountList.value.length > 0) {
-          filter.value.bankAccountId = bankAccountList.value[0].id
-        } else {
-          filter.value.bankAccountId = null
-        }
+        filter.value.bankAccountId = bankAccountList.value.length > 0 ? bankAccountList.value[0].id : null
       } catch (e) {
         throw e
       }
@@ -238,10 +234,10 @@ export default defineComponent({
     const fetchRegistrationBalance = async (bankAccountId) => {
       isLoadingDataTable.value = true
       try {
-        if (bankAccountId != null) {
+        if (bankAccountId !== null) {
           const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: bankAccountId })
           const { result } = await listBalance()
-          const { records } = convertDataRenderTable(result?.data)
+          const records = convertDataRenderTable(result?.data)
           tableList.value = records
         } else {
           tableList.value = []
@@ -284,14 +280,19 @@ export default defineComponent({
       }
       // eslint-disable-next-line no-useless-catch
       try {
-        const { createOrUpdate } = await useCreateOrUpdateBalanceRegistrationService(id, data)
+        const { createOrUpdate } = useCreateOrUpdateBalanceRegistrationService(id, data)
         await createOrUpdate()
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
-          message: locale.value === 'en' ? data.month + 'update balance success' : data.month + ' が追加されました'
+          message: `${
+            locale.value === 'en'
+              ? data.month + t('balance_registration.edit_success')
+              : data.month + t('balance_registration.edit_success')
+          }`
         })
       } catch (err) {
+        console.log(err)
         checkErrorsApi(err)
         throw err
       }
@@ -316,7 +317,7 @@ export default defineComponent({
         record.isFuture = moment(record.month).format('YYYY-MM') > moment().format('YYYY-MM')
         return record
       })
-      return { records }
+      return records
     }
 
     // on change group
@@ -352,7 +353,7 @@ export default defineComponent({
     }
 
     // off modal notifi..
-    const handleCancleModal = async () => {
+    const handleCancelModal = async () => {
       zIndexForm.value = 1001
     }
 
@@ -367,7 +368,7 @@ export default defineComponent({
         form.value.month = record.month
         const balanceUpdate = { ...form.value }
         const bankAccountId = filter.value.bankAccountId
-        if (record.balance != form.value.balance) {
+        if (record.balance !== form.value.balance) {
           await updateBalanceRegistration(record.id, balanceUpdate)
         }
         await fetchRegistrationBalance(bankAccountId)
@@ -414,7 +415,7 @@ export default defineComponent({
       isUpdating,
       open,
       zIndexForm,
-      handleCancleModal,
+      handleCancelModal,
       handleConfirmCancleUpdate,
       onChangeGroup,
       onChangeBankAccount,

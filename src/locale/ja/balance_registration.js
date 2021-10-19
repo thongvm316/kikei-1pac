@@ -6,5 +6,6 @@ export default {
   confirm_edit: '確定',
   edit: '編集',
   none_record: '今月までの残高を入力してください',
-  empty_text_table: '該当するデータが見つかりませんでした '
+  empty_text_table: '該当するデータが見つかりませんでした ',
+  edit_success: ' が追加されました'
 }
