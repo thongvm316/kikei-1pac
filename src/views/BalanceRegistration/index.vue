@@ -344,12 +344,14 @@ export default defineComponent({
       zIndexForm.value = 1001
     }
 
+    // confirm cancle update
     const handleConfirmCancleUpdate = async () => {
       isUpdating.value = false
       zIndexForm.value = 0
       await fetchRegistrationBalance(filter.value.bankAccountId)
     }
 
+    // off modal notifi..
     const handleCancleModal = async () => {
       zIndexForm.value = 1001
     }
