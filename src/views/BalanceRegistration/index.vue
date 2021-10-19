@@ -239,11 +239,9 @@ export default defineComponent({
       isLoadingDataTable.value = true
       try {
         if (bankAccountId != null) {
-          const { listBalance } = await useGetListBalanceRegistrationService({ bankAccountId: bankAccountId })
+          const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: bankAccountId })
           const { result } = await listBalance()
-          console.log(result)
-          const { records } = await convertDataRenderTable(result?.data)
-          console.log(records)
+          const { records } = convertDataRenderTable(result?.data)
           tableList.value = records
         } else {
           tableList.value = []
@@ -372,7 +370,6 @@ export default defineComponent({
         }
         await fetchRegistrationBalance(bankAccountId)
         zIndexForm.value = 0
-        console.log(isUpdating)
       } catch (e) {
         throw e
       }
