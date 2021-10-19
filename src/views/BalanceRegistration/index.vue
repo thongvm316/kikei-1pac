@@ -151,7 +151,6 @@ export default defineComponent({
     const store = useStore()
     const { setFieldError } = useForm()
     const groupList = ref([])
-    const filter = ref({})
     const zIndexForm = ref(1001)
     const isLoadingDataTable = ref(true)
     const bankAccountList = ref([])
@@ -162,6 +161,7 @@ export default defineComponent({
     const tableList = ref([])
     const tmpErrors = ref()
     const height = ref(0)
+    const filter = ref({ groupId: 0, bankAccountId: 0 })
     const form = ref({
       bankAccountId: '',
       month: '',
