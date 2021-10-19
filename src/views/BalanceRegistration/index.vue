@@ -285,11 +285,7 @@ export default defineComponent({
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
-          message: `${
-            locale.value === 'en'
-              ? data.month + t('balance_registration.edit_success')
-              : data.month + t('balance_registration.edit_success')
-          }`
+          message: data.month + t('balance_registration.edit_success')
         })
       } catch (err) {
         console.log(err)
