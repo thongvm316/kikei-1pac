@@ -253,8 +253,8 @@ export default {
     // Handle filter
     const onChangeCompany = async (event) => {
       await fetchPeriodList(event)
-      filter.period_id = periodList.value[0].id
-      updateDataFilterRequest({ data: { group_id: null, period_id: periodList.value[0].id }, group_id: event })
+      filter.period_id = findCurrentPeriod(periodList.value).id
+      updateDataFilterRequest({ data: { group_id: null, period_id: filter.period_id }, group_id: event })
     }
 
     const onChangePeriod = async (event) => {
@@ -332,16 +332,16 @@ export default {
         isTabAllGroup.value = false
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
-        filter.period_id = periodList.value[0].id
+        filter.period_id = findCurrentPeriod(periodList.value).id
         updateDataFilterRequest({ data: { group_id: value, period_id: filter.period_id } })
       } else {
         filter.show_by = 0
         isTabAllGroup.value = true
         await fetchPeriodList(groupCompany.value.group_id)
-        filter.period_id = periodList.value[0].id
+        filter.period_id = findCurrentPeriod(periodList.value).id
         filter.date_from_to[0] = filter.date_from_to[1] = null
         updateDataFilterRequest({
-          data: { group_id: null, from_date: null, to_date: null, period_id: periodList.value[0].id }
+          data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
         })
       }
 
@@ -444,7 +444,8 @@ export default {
         filter.period_id = periodID
       } else {
         if (periodList.value) {
-          filter.period_id = periodList.value[0].id
+          filter.period_id = findCurrentPeriod(periodList.value).id
+          updateDataFilterRequest({ data: { period_id: filter.period_id } })
         }
       }
     }
