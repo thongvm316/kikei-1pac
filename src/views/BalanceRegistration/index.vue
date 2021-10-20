@@ -1,6 +1,6 @@
 <template>
   <div class="balance-registration">
-    <div class="blance-mask" v-if="isUpdating" @click="handleClickMask"></div>
+    <div class="balance-mask" v-if="isUpdating" @click="handleClickMask"></div>
     <modal-balance-registration
       v-model:visible="open"
       :show-modal-update-balance="open"
@@ -57,12 +57,21 @@
         :row-key="(record) => record.month"
         :loading="isLoadingDataTable"
         :pagination="false"
-        :scroll="{ x: 1200, y: height - 295 }"
+        :scroll="{ y: height - 279 }"
         :locale="localeTable"
         size="middle"
       >
         <template #month="{ record }">{{ $filters.moment_yyyy_mm(record.month) }}</template>
-        <template #updateAt="{ record }">{{ $filters.moment_l(record.updateAt) }}</template>
+        <template #updateAt="{ record }">
+          <div class="time-update-future" v-if="record.balance === 0">
+            <a-tooltip color="#fff" :title="$t('balance_registration.none_record')">
+              <span class="balance-future-content">N/A</span>
+            </a-tooltip>
+          </div>
+          <div v-else>
+            {{ $filters.moment_l(record.updateAt) }}
+          </div>
+        </template>
         <template #balance="{ record }">
           <form @submit="onSubmit" v-if="record.action">
             <div class="form-group">
@@ -91,12 +100,17 @@
               </Field>
             </div>
           </form>
-          <div class="balance-future" v-else-if="record.isFuture && !record.action">
+          <div
+            class="balance-future"
+            v-else-if="
+              (record.isFuture && !record.action) || (record.balance === 0 && !record.action && !record.isCurrent)
+            "
+          >
             <a-tooltip color="#fff" :title="$t('balance_registration.none_record')">
               <span class="balance-future-content">N/A</span>
             </a-tooltip>
           </div>
-          <div class="balance-future" v-else-if="record.balance === 0 && !record.action"></div>
+          <div class="balance-future" v-else-if="record.balance === 0 && !record.action && record.isCurrent"></div>
           <div class="form-content" v-else>
             <span>
               {{ $filters.number_with_commas(record.balance) }}
@@ -112,7 +126,6 @@
             :style="{ zIndex: zIndexForm }"
             v-if="record.action && !record.isFuture"
             type="primary"
-            @focus="onFocus"
             @click="onConfirmEditRow(record)"
           >
             {{ $t('balance_registration.confirm_edit') }}
@@ -147,7 +160,7 @@ export default defineComponent({
   components: { LineDownIcon, FormOutlined, Field, ModalBalanceRegistration },
 
   setup() {
-    const { t, locale } = useI18n()
+    const { t } = useI18n()
     const store = useStore()
     const { setFieldError } = useForm()
     const groupList = ref([])
@@ -237,8 +250,7 @@ export default defineComponent({
         if (bankAccountId !== null) {
           const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: bankAccountId })
           const { result } = await listBalance()
-          const records = convertDataRenderTable(result?.data)
-          tableList.value = records
+          tableList.value = convertDataRenderTable(result?.data)
         } else {
           tableList.value = []
         }
@@ -311,6 +323,7 @@ export default defineComponent({
     const convertDataRenderTable = (records) => {
       records = records.map((record) => {
         record.isFuture = moment(record.month).format('YYYY-MM') > moment().format('YYYY-MM')
+        record.isCurrent = moment(record.month).format('YYYY-MM') === moment().format('YYYY-MM')
         return record
       })
       return records
@@ -427,83 +440,111 @@ export default defineComponent({
 <style lang="scss">
 @import '@/styles/shared/mixins';
 @import '@/styles/shared/variables';
-.balance {
-  &__header {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-  }
 
-  &__header-export-csv {
-    @include flexbox(flex-end, flex-end);
-    flex-direction: column;
-    padding: 24px 32px 16px;
-  }
-  &__header-export-csv-button {
-    display: flex;
-    align-content: center;
-    padding-right: 4px;
+.balance-registration {
+  #list-table {
+    .ant-table-thead tr th:first-child {
+      padding-left: 32px;
+    }
 
-    button + button {
-      margin-left: 16px;
+    .ant-table-thead tr th:last-child {
+      padding-right: 32px;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 23px 16px 23px 32px;
     }
   }
-  &__header-filter-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .ant-tabs {
-      width: 100%;
-      height: 46px;
-      &-nav {
-        .ant-tabs-tab {
-          padding: 12px 0;
-          margin-right: 49px;
+
+  .balance {
+    &__header {
+      @include flexbox(normal, normal);
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+
+    &__header-export-csv {
+      @include flexbox(flex-end, flex-end);
+      flex-direction: column;
+      padding: 24px 32px 16px;
+    }
+
+    &__header-export-csv-button {
+      @include flexbox(normal, flex-end);
+      padding-right: 4px;
+
+      button + button {
+        margin-left: 16px;
+      }
+    }
+
+    &__header-filter-group {
+      @include flexbox(space-between, normal);
+      .ant-tabs {
+        width: 100%;
+        height: 46px;
+
+        &-nav {
+          .ant-tabs-tab {
+            padding: 12px 0;
+            margin-right: 49px;
+          }
         }
       }
     }
-  }
-  &__header-filter-bank-account {
-    display: flex;
-    align-content: center;
-    padding: 12px 32px;
-    .ant-select {
-      height: 32px;
-      width: 350px;
+
+    &__header-filter-bank-account {
+      @include flexbox(normal, center);
+      padding: 12px 32px;
+
+      .ant-select {
+        height: 32px;
+        width: 350px;
+      }
     }
   }
-}
 
-.form-content {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-.form-input {
-  flex-grow: 100;
-}
-.form-label {
-  flex-grow: 0;
-  margin-left: 8px;
-}
-.input_balance {
-  width: 300px;
-  font-size: 12px;
-}
-.ant-input-number-handler-wrap {
-  display: none;
-}
-.ant-input-number-input {
-  text-align: end;
-}
+  .form-content {
+    @include flexbox(flex-end, center);
+  }
 
-.blance-mask {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1001;
+  .form-input {
+    flex-grow: 100;
+  }
+
+  .form-label {
+    flex-grow: 0;
+    margin: 0;
+    padding: 0;
+    margin-left: 4px;
+  }
+
+  .input_balance {
+    width: 55%;
+    font-size: 12px;
+  }
+
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
+
+  .ant-input-number-input {
+    text-align: end;
+  }
+
+  .balance-mask {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+  }
+
+  .balance-future {
+    @include flexbox(flex-end, center);
+    height: 32px;
+  }
 }
 
 .ant-modal-wrap {
