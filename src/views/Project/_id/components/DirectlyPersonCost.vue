@@ -659,13 +659,16 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    border-bottom: none;
+    height: 500px;
 
     thead {
       background-color: $color-grey-92;
       color: $color-primary-9;
       font-weight: 700;
       font-size: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
 
       th {
         border-bottom: 1px solid $color-grey-75;
