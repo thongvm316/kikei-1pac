@@ -177,6 +177,11 @@ export default defineComponent({
             featureKey: 11
           },
           {
+            name: 'balance-registration',
+            label: t('sidebar.balance_registration'),
+            featureKey: 12
+          },
+          {
             name: 'logs',
             label: t('sidebar.logs'),
             featureKey: 10

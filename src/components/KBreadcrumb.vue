@@ -250,6 +250,14 @@ export default defineComponent({
         }
       ],
 
+      // balance registration
+      'balance-registration': [
+        {
+          path: '/setting/balance-registration',
+          breadcrumbName: t('breadcrumb.balance_registration')
+        }
+      ],
+
       // logs
       logs: [
         {

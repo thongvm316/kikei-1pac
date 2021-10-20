@@ -369,6 +369,18 @@ const routes = [
             ]
           },
           {
+            path: 'balance-registration',
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Balance Registration | ${APP_NAME}` },
+            children: [
+              {
+                path: '',
+                name: 'balance-registration',
+                component: lazyLoadRoute('BalanceRegistration')
+              }
+            ]
+          },
+          {
             path: 'company-information',
             name: 'company-information',
             component: lazyLoadRoute('CompanyInformation'),

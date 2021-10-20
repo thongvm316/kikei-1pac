@@ -11,5 +11,6 @@ export default {
   account: '登録アカウント',
   bank: 'Bank',
   bankAccount: 'Bank Account',
-  company_information: '会社情報・売上目標設定'
+  company_information: '会社情報・売上目標設定',
+  balance_registration:'銀行残高登録'
 }
