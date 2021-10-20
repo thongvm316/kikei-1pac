@@ -62,14 +62,14 @@ export default {
   account_0002: 'account is not valid',
   account_0003: 'account existed',
   account_0004: 'input is not valid',
-  account_0102: 'Don\'t have permission',
+  account_0102: "Don't have permission",
 
   template_permission_0000: 'No error',
   template_permission_0001: 'Template not found',
   template_permission_0002: 'Template is not valid',
   template_permission_0003: 'Template existed',
   template_permission_0004: 'Input is not valid',
-  template_permission_0102: 'Don\'t have permission',
+  template_permission_0102: "Don't have permission",
 
   profile_0000: 'No error',
   profile_0001: 'currency not found',
@@ -80,5 +80,7 @@ export default {
   chart_date_2m: 'For graph display, select a date within 2 months',
   data_chart_null: 'no data',
 
-  check_activate_token_0004: 'Email has verified'
+  check_activate_token_0004: 'Email has verified',
+
+  project_labor_direct_cost_0004: 'Input is not valid'
 }

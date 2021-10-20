@@ -67,5 +67,14 @@ export default {
     money: '「金額」を入力してください',
     tags: '※タグを入力して「Enter」を押してください',
     memo: '「メモ」を入力してください'
+  },
+
+  project_history: {
+    name: 'プロジェクト名',
+    client_in_charge: '顧客担当',
+    status_id: 'ステータス',
+    memo: 'メモ',
+    tag: 'タグ',
+    tax: '税金'
   }
 }

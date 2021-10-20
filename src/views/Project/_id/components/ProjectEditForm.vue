@@ -177,7 +177,9 @@
                         <td>受注確度</td>
                         <td>
                           <a-form-item name="accuracyId" :class="{ 'has-error': localErrors['statusId'] }">
-                            <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ accuracyName?.name }}</span>
+                            <span v-if="!isEditing" class="u-text-grey-15 u-text-12"
+                              >{{ accuracyName?.code }} ({{ accuracyName?.name }})</span
+                            >
                             <a-select
                               v-if="isEditing"
                               v-model:value="projectParams.accuracyId"
@@ -598,7 +600,7 @@ import ModalSelectCompany from '@/containers/ModalSelectCompany'
 import Filter from '@/filters'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
-// import LineAddIcon from '@/assets/icons/ico_line-add.svg'
+import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 // import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
@@ -609,7 +611,7 @@ export default defineComponent({
   components: {
     CalendarOutlined,
     ModalSelectCompany,
-    // LineAddIcon,
+    LineAddIcon,
     EditIcon,
     DownOutlined
   },
@@ -1190,8 +1192,6 @@ export default defineComponent({
           min-width: auto;
           color: $color-grey-15;
           font-weight: 400;
-          // padding-top: 0;
-          // padding-bottom: 0;
 
           &:first-child {
             padding-left: 0;

@@ -80,5 +80,7 @@ export default {
   chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
   data_chart_null: 'データなし',
 
-  check_activate_token_0004: 'メールアドレスが確認されました'
+  check_activate_token_0004: 'メールアドレスが確認されました',
+
+  project_labor_direct_cost_0004: '入力が無効です'
 }

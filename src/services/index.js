@@ -23,6 +23,7 @@ import CountryService from './country'
 import DirectCostsService from './direct-costs'
 import MaterialCostsService from './material-costs'
 import OrderCostsService from './order-costs'
+import PositionService from './position'
 
 const repositories = {
   StorageService,
@@ -49,7 +50,8 @@ const repositories = {
   CountryService,
   DirectCostsService,
   MaterialCostsService,
-  OrderCostsService
+  OrderCostsService,
+  PositionService
 }
 
 export default {

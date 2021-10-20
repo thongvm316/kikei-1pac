@@ -27,9 +27,106 @@
     <a-collapse :active-key="isCollapse ? [] : [1]" :bordered="false" class="project-budget-table__collapse">
       <a-collapse-panel key="1">
         <a-form layout="vertical">
-          <a-spin :spinning="isOrderCostLoading || isMaterialCostLoading || isDirectCostLoading">
+          <a-spin :spinning="isLoadingBudgetTable">
             <table class="table-body">
               <tbody>
+                <!-- 1 -->
+                <tr>
+                  <td>
+                    <p>受注金額</p>
+                  </td>
+
+                  <td class="table-body__content">
+                    <table class="table-cost">
+                      <tbody>
+                        <tr class="solid-bottom">
+                          <td class="table-cost__type">予測</td>
+                          <td class="table-cost__content">
+                            <tr>
+                              <td class="table-cost__content--name"></td>
+                              <td class="table-cost__content--money">999,999,999,999 (JPY)</td>
+                            </tr>
+                          </td>
+                          <td class="table-cost__edit"></td>
+                        </tr>
+
+                        <tr class="dashed-bottom">
+                          <td class="table-cost__type">見積</td>
+                          <td class="table-cost__content">
+                            <tr>
+                              <td class="table-cost__content--name"></td>
+                              <td class="table-cost__content--money">777,999,999,999 (JPY)</td>
+                            </tr>
+                          </td>
+                          <td class="table-cost__edit">
+                            <a-button type="link">
+                              <template #icon>
+                                <edit-large-icon />
+                              </template>
+                            </a-button>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="table-cost__type">請求</td>
+                          <td class="table-cost__content">
+                            <tr>
+                              <td class="table-cost__content--name"></td>
+                              <td class="table-cost__content--money">666,999,999,999 (JPY)</td>
+                            </tr>
+                          </td>
+                          <td class="table-cost__edit"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- 2 -->
+                <tr>
+                  <td>
+                    <p>直接労務費</p>
+                  </td>
+
+                  <td class="table-body__content">
+                    <table class="table-cost">
+                      <tbody>
+                        <tr class="solid-bottom">
+                          <td class="table-cost__type">予測</td>
+                          <td class="table-cost__content">
+                            <tr>
+                              <td class="table-cost__content--name"></td>
+                              <td class="table-cost__content--money">
+                                {{ $filters.number_with_commas(directlyPersonCost.predict) }} (JPY)
+                              </td>
+                            </tr>
+                          </td>
+                          <td class="table-cost__edit">
+                            <a-button type="link" @click="isOpenDirectlyCostModal = true">
+                              <template #icon>
+                                <edit-large-icon />
+                              </template>
+                            </a-button>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="table-cost__type">見積</td>
+                          <td class="table-cost__content">
+                            <tr>
+                              <td class="table-cost__content--name"></td>
+                              <td class="table-cost__content--money">
+                                {{ $filters.number_with_commas(directlyPersonCost.actual) }} (JPY)
+                              </td>
+                            </tr>
+                          </td>
+                          <td class="table-cost__edit"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
                 <!-- order, material, direct cost -->
                 <tr
                   v-for="costList in [
@@ -120,6 +217,13 @@
     @fetchMaterialCostList="fetchMaterialCostList"
     @fetchDirectCostList="fetchDirectCostList"
   />
+
+  <DirectlyPersonCost
+    v-if="isOpenDirectlyCostModal"
+    v-model:visible="isOpenDirectlyCostModal"
+    :project="project"
+    @on-submit-direct-person-cost-modal="onSubmitDirectPersonCostModal"
+  />
 </template>
 
 <script>
@@ -128,6 +232,7 @@ import { useRoute } from 'vue-router'
 import { find, sumBy } from 'lodash-es'
 
 import CostsModal from './CostsModal'
+import DirectlyPersonCost from './DirectlyPersonCost'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getOrderCostList, getDirectCostList, getMaterialCostList } from '../../composables/useCosts'
@@ -136,6 +241,7 @@ import { getCurrencyList } from '../../composables/useCurrency'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
+import { getLaborDirectCostList } from '../../composables/useProject'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -144,7 +250,12 @@ export default defineComponent({
     CostsModal,
     EditIcon,
     EditLargeIcon,
-    DownOutlined
+    DownOutlined,
+    DirectlyPersonCost
+  },
+
+  props: {
+    project: Object
   },
 
   setup() {
@@ -159,10 +270,11 @@ export default defineComponent({
     const titleCostModal = ref('')
     const costModalType = ref()
 
+    // directly person cost modal
+    const isOpenDirectlyCostModal = ref()
+
     // data
-    const isOrderCostLoading = ref(false)
-    const isMaterialCostLoading = ref(false)
-    const isDirectCostLoading = ref(false)
+    const isLoadingBudgetTable = ref(false)
     const orderCostList = reactive({
       predict: [],
       actual: [],
@@ -238,7 +350,7 @@ export default defineComponent({
       }
 
       try {
-        isOrderCostLoading.value = true
+        isLoadingBudgetTable.value = true
         const responseRequest = await getOrderCostList(params)
 
         const { predict, actual, totalPredict, totalActual } = convertListToDatatable(responseRequest)
@@ -247,7 +359,7 @@ export default defineComponent({
         orderCostList.totalPredict = totalPredict
         orderCostList.totalActual = totalActual
       } finally {
-        isOrderCostLoading.value = false
+        isLoadingBudgetTable.value = false
       }
     }
 
@@ -258,7 +370,7 @@ export default defineComponent({
       }
 
       try {
-        isMaterialCostLoading.value = true
+        isLoadingBudgetTable.value = true
         const responseRequest = await getMaterialCostList(params)
 
         const { predict, actual, totalPredict, totalActual } = convertListToDatatable(responseRequest)
@@ -267,7 +379,7 @@ export default defineComponent({
         materialCostList.totalPredict = totalPredict
         materialCostList.totalActual = totalActual
       } finally {
-        isMaterialCostLoading.value = false
+        isLoadingBudgetTable.value = false
       }
     }
 
@@ -278,7 +390,7 @@ export default defineComponent({
       }
 
       try {
-        isDirectCostLoading.value = true
+        isLoadingBudgetTable.value = true
         const responseRequest = await getDirectCostList(params)
 
         const { predict, actual, totalPredict, totalActual } = convertListToDatatable(responseRequest)
@@ -287,8 +399,42 @@ export default defineComponent({
         directCostList.totalPredict = totalPredict
         directCostList.totalActual = totalActual
       } finally {
-        isDirectCostLoading.value = false
+        isLoadingBudgetTable.value = false
       }
+    }
+
+    const directlyPersonCost = reactive({
+      predict: 0,
+      actual: 0
+    })
+
+    const fetchLaborDirectCostList = async () => {
+      try {
+        isLoadingBudgetTable.value = true
+        const { data } = await getLaborDirectCostList({
+          projectId,
+          projectCostsType: '1,2'
+        })
+
+        let predictCount = 0
+        let actualCount = 0
+        data.forEach((item) => {
+          if (item.projectCostsType === 1) {
+            predictCount += item.subtotal
+          } else {
+            actualCount += item.subtotal
+          }
+        })
+
+        directlyPersonCost.predict = predictCount
+        directlyPersonCost.actual = actualCount
+      } finally {
+        isLoadingBudgetTable.value = false
+      }
+    }
+
+    const onSubmitDirectPersonCostModal = async () => {
+      fetchLaborDirectCostList()
     }
 
     onBeforeMount(async () => {
@@ -299,15 +445,14 @@ export default defineComponent({
       fetchOrderCostList()
       fetchMaterialCostList()
       fetchDirectCostList()
+      fetchLaborDirectCostList()
     })
 
     return {
       isEditing,
       isCollapse,
       isCostsModalOpen,
-      isOrderCostLoading,
-      isMaterialCostLoading,
-      isDirectCostLoading,
+      isLoadingBudgetTable,
 
       COST_MODAL_TYPES,
       titleCostModal,
@@ -315,12 +460,15 @@ export default defineComponent({
       orderCostList,
       materialCostList,
       directCostList,
+      isOpenDirectlyCostModal,
+      directlyPersonCost,
 
       handleCancelEditForm,
       handleOpenCostModal,
       fetchOrderCostList,
       fetchMaterialCostList,
-      fetchDirectCostList
+      fetchDirectCostList,
+      onSubmitDirectPersonCostModal
     }
   }
 })
@@ -431,6 +579,7 @@ export default defineComponent({
 
     td.table-cost__type {
       padding-top: 18px;
+      padding-left: 0;
     }
 
     td.table-cost__content {
@@ -439,6 +588,7 @@ export default defineComponent({
 
     td.table-cost__edit {
       padding-top: 10px;
+      padding-left: 12px;
     }
 
     &__content {
@@ -495,6 +645,14 @@ export default defineComponent({
           padding-bottom: 0;
         }
       }
+    }
+
+    tr.solid-bottom {
+      border-bottom: 1px solid $color-grey-85;
+    }
+
+    tr.dashed-bottom {
+      border-bottom: 1px dashed $color-grey-85;
     }
   }
 }

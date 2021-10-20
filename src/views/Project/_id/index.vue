@@ -10,7 +10,7 @@
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
 
-        <budget-table />
+        <budget-table :project="project" />
       </div>
 
       <div class="project-detail__history">

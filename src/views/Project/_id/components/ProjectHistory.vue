@@ -21,7 +21,8 @@
               <p class="u-text-weight-700">{{ moment(item.createdAt).format('YYYY-MM-DD - HH:mm') }}</p>
               <p>{{ item.username }}</p>
               <p class="u-flex">
-                <span class="u-whitespace-nowrap">変更箇所：</span><span>{{ item.fieldName }}</span>
+                <span class="u-whitespace-nowrap">変更箇所：</span
+                ><span>{{ $t(`project.project_history.${item.fieldName}`) }}</span>
               </p>
               <p class="u-flex">
                 <span class="u-whitespace-nowrap">変更前：</span><span>{{ item.oldValue }}</span>
@@ -56,7 +57,7 @@ export default defineComponent({
   props: {
     projectHistory: {
       type: Array,
-      required: true
+      default: undefined
     }
   },
 
@@ -110,6 +111,8 @@ export default defineComponent({
   &__body {
     background-color: $color-grey-94;
     padding: 0 64px 0 32px;
+    height: 710px;
+    overflow-y: auto;
 
     p {
       margin-bottom: 4px;

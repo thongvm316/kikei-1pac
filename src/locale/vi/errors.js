@@ -25,5 +25,7 @@ export default {
   template_permission_0002: 'Template is not valid',
   template_permission_0003: 'Template existed',
   template_permission_0004: 'Input is not valid',
-  template_permission_0102: 'Don\'t have permission'
+  template_permission_0102: "Don't have permission",
+
+  project_labor_direct_cost_0004: 'Input is not valid'
 }
