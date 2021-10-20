@@ -300,7 +300,6 @@ export default defineComponent({
           message: data.month + t('balance_registration.edit_success')
         })
       } catch (err) {
-        console.log(err)
         checkErrorsApi(err)
         throw err
       }
@@ -384,8 +383,9 @@ export default defineComponent({
         zIndexForm.value = 0
       } catch (e) {
         throw e
+      } finally {
+        isLoadingDataTable.value = false
       }
-      isLoadingDataTable.value = false
     }
 
     // show text table empty
