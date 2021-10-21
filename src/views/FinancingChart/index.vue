@@ -8,12 +8,7 @@
               <label class="form-label">{{ $t('financing.financing_list.company') }}:</label>
 
               <div class="form-select">
-                <a-select
-                  v-model:value="groupCompany.group_id"
-                  class="dropdown-company"
-                  allow-clear
-                  @change="onChangeCompany"
-                >
+                <a-select v-model:value="groupCompany.group_id" class="dropdown-company" @change="onChangeCompany">
                   <a-select-option v-for="item in groupListTabAll" :key="item.id" :value="item.id">
                     {{ item.name }}
                   </a-select-option>
@@ -26,7 +21,7 @@
             <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
             <div class="form-select">
-              <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
+              <a-select v-model:value="filter.period_id" @change="onChangePeriod">
                 <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
                   {{ item.name }}
                 </a-select-option>
@@ -136,7 +131,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { dropRight, isEmpty, remove } from 'lodash-es'
+import { dropRight, forEach, isEmpty, remove } from 'lodash-es'
 
 import useGetGroupListService from '@/views/FinancingChart/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/FinancingChart/composables/useGetPeriodListService'
@@ -144,7 +139,7 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
+import { currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
@@ -234,7 +229,9 @@ export default defineComponent({
     // Handle filter
     const onChangeCompany = async (event) => {
       await fetchPeriodList(event)
-      filter.period_id = findCurrentPeriod(periodList.value).id
+      forEach(periodList.value, (value) => {
+        value.currentPeriod ? (filter.period_id = value.id) : null
+      })
       updateParamRequestFinancing({
         data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
       })
@@ -257,12 +254,14 @@ export default defineComponent({
     }
 
     const onChangeDate = async (value, dateString) => {
-      let periodCurrentFound = findCurrentPeriod(periodList.value)
+      forEach(periodList.value, (value) => {
+        value.currentPeriod ? (filter.period_id = value.id) : null
+      })
       if (dateString.length > 1) {
         if (!filter.show_by) {
           let checkDateUndefined = filter.date_from_to[0] === null && filter.date_from_to[1] === null
 
-          filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
+          filter.period_id = checkDateUndefined ? filter.period_id : null
           filter.date_from_to[0] = checkDateUndefined ? null : currentDate(value[0])
           filter.date_from_to[1] = checkDateUndefined ? null : currentDate(value[1])
         } else {
@@ -273,7 +272,7 @@ export default defineComponent({
             })
           }
 
-          filter.period_id = !dateString[0] && !dateString[1] ? periodCurrentFound?.id : null
+          filter.period_id = !dateString[0] && !dateString[1] ? filter.period_id : null
           filter.date_from_to[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
           filter.date_from_to[1] =
             getDiffDays(dateString[0], dateString[1]) > 59
@@ -330,7 +329,9 @@ export default defineComponent({
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
         if (!filter.date_from_to[0]) {
-          filter.period_id = findCurrentPeriod(periodList.value).id
+          forEach(periodList.value, (value) => {
+            value.currentPeriod ? (filter.period_id = value.id) : null
+          })
           updateParamRequestFinancing({
             data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1], period_id: filter.period_id }
           })
@@ -341,7 +342,9 @@ export default defineComponent({
         }
       } else {
         await fetchPeriodList(groupCompany.value.group_id)
-        filter.period_id = findCurrentPeriod(periodList.value).id
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
         updateParamRequestFinancing({
           data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
         })
@@ -544,8 +547,8 @@ export default defineComponent({
       filter.currency_code = currencyDefault?.code || null
       filter.bank_account_ids = bankAccountList?.value[0]?.id
       filter.period_id = null
-      filter.date_from_to[0] = currentDate()
-      filter.date_from_to[1] = addDaysInCurrentDate(null, 59)
+      filter.date_from_to[0] = currentDate() || null
+      filter.date_from_to[1] = addDaysInCurrentDate(null, 59) || null
       requestParamsData.value.data = {
         ...requestParamsData.value.data,
         group_id: groupList.value[0].id,

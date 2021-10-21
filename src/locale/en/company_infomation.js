@@ -46,9 +46,12 @@ export default {
   error_in_roman_letters: 'Name (in Roman letters)',
   error_target_money: 'Target',
   error_empty_number: 'Please enter a number',
+  error_period: 'Period',
 
   empty_image: 'Please upload your seal',
   empty_date: 'Please select a business year',
+  empty_date_past_future: 'The fiscal year must not exceed one year from the current period',
+  empty_period: 'Period has existed',
 
   conflict_name: 'Company name (display name) existed',
   conflict_phone_number: 'Phone number has existed',
