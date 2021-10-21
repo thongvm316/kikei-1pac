@@ -555,37 +555,6 @@ export default defineComponent({
       positionList.value = result.data
 
       await fetDataTable(activeKey.value)
-
-      // await createLaborDirectCostList({
-      //   project_labor_direct_cost: [
-      //     {
-      //       project_id: 75,
-      //       position_id: 2,
-      //       name: 'Testttt',
-      //       monthly_salary: 4000,
-      //       salary_currency_id: 1,
-      //       working_hours: 10,
-      //       overtime_hours_first: 1,
-      //       overtime_hours_second: 1.5,
-      //       allowance: 1000,
-      //       allowance_currency_id: 1,
-      //       project_costs_type: 1
-      //     },
-      //     {
-      //       project_id: 75,
-      //       position_id: 1,
-      //       name: 'Test 2',
-      //       monthly_salary: 3000,
-      //       salary_currency_id: 1,
-      //       working_hours: 10,
-      //       overtime_hours_first: 1,
-      //       overtime_hours_second: 1.5,
-      //       allowance: 1000,
-      //       allowance_currency_id: 1,
-      //       project_costs_type: 2
-      //     }
-      //   ]
-      // })
     })
 
     onUnmounted(() => {
@@ -647,6 +616,8 @@ export default defineComponent({
 
   &__submit-buttons {
     text-align: center;
+    margin-top: 24px;
+    margin-bottom: 16px;
   }
 
   &__filter {
@@ -659,7 +630,7 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    height: 500px;
+    max-height: 505px;
 
     thead {
       background-color: $color-grey-92;

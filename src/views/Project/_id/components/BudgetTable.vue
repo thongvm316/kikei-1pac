@@ -59,7 +59,7 @@
                             </tr>
                           </td>
                           <td class="table-cost__edit">
-                            <a-button type="link">
+                            <a-button type="link" @click="isOpenRevenueModal = true">
                               <template #icon>
                                 <edit-large-icon />
                               </template>
@@ -224,6 +224,8 @@
     :project="project"
     @on-submit-direct-person-cost-modal="onSubmitDirectPersonCostModal"
   />
+
+  <RevenueModal v-if="isOpenRevenueModal" v-model:visible="isOpenRevenueModal" />
 </template>
 
 <script>
@@ -233,6 +235,7 @@ import { find, sumBy } from 'lodash-es'
 
 import CostsModal from './CostsModal'
 import DirectlyPersonCost from './DirectlyPersonCost'
+import RevenueModal from './RevenueModal.vue'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getOrderCostList, getDirectCostList, getMaterialCostList } from '../../composables/useCosts'
@@ -251,7 +254,8 @@ export default defineComponent({
     EditIcon,
     EditLargeIcon,
     DownOutlined,
-    DirectlyPersonCost
+    DirectlyPersonCost,
+    RevenueModal
   },
 
   props: {
@@ -299,6 +303,9 @@ export default defineComponent({
       isEditing.value = false
       // fetch data...
     }
+
+    // revenue modal
+    const isOpenRevenueModal = ref()
 
     const handleOpenCostModal = (typeId) => {
       const costFound = find(COST_MODAL_TYPES, { id: typeId })
@@ -462,6 +469,7 @@ export default defineComponent({
       directCostList,
       isOpenDirectlyCostModal,
       directlyPersonCost,
+      isOpenRevenueModal,
 
       handleCancelEditForm,
       handleOpenCostModal,

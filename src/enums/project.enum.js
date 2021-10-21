@@ -41,3 +41,16 @@ export const PROJECT_COST_TYPES = Object.freeze([
     value: 2
   }
 ])
+
+export const PROJECT_REVENUE_TYPES = Object.freeze([
+  {
+    key: '1',
+    text: '見積',
+    value: 1
+  },
+  {
+    key: '2',
+    text: '請求',
+    value: 2
+  }
+])
