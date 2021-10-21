@@ -141,7 +141,7 @@
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
-import { isEmpty, remove, dropRight } from 'lodash-es'
+import { isEmpty, remove, dropRight, forEach } from 'lodash-es'
 import { useRouter } from 'vue-router'
 import moment from 'moment'
 
@@ -253,7 +253,9 @@ export default {
     // Handle filter
     const onChangeCompany = async (event) => {
       await fetchPeriodList(event)
-      filter.period_id = findCurrentPeriod(periodList.value).id
+      forEach(periodList.value, (value) => {
+        value.currentPeriod ? (filter.period_id = value.id) : null
+      })
       updateDataFilterRequest({ data: { group_id: null, period_id: filter.period_id }, group_id: event })
     }
 
@@ -332,13 +334,17 @@ export default {
         isTabAllGroup.value = false
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
-        filter.period_id = findCurrentPeriod(periodList.value).id
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
         updateDataFilterRequest({ data: { group_id: value, period_id: filter.period_id } })
       } else {
         filter.show_by = 0
         isTabAllGroup.value = true
         await fetchPeriodList(groupCompany.value.group_id)
-        filter.period_id = findCurrentPeriod(periodList.value).id
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
         filter.date_from_to[0] = filter.date_from_to[1] = null
         updateDataFilterRequest({
           data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
@@ -425,8 +431,6 @@ export default {
         filter.group_id = groupList?.value[groupList.value.length - 1].id
         isDisabledDisplay.value = true
         isDisabledBank.value = true
-
-        updateDataFilterRequest({ data: { group_id: groupID } })
       } else {
         filter.group_id = groupID
         isDisabledDisplay.value = false
@@ -434,19 +438,17 @@ export default {
 
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
-
-        updateDataFilterRequest({ data: { group_id: groupID } })
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
       }
+      updateDataFilterRequest({ data: { group_id: groupID, period_id: filter.period_id } })
     }
 
     const handlePeriodDefault = (periodID) => {
       if (periodID) {
         filter.period_id = periodID
-      } else {
-        if (periodList.value) {
-          filter.period_id = findCurrentPeriod(periodList.value).id
-          updateDataFilterRequest({ data: { period_id: filter.period_id } })
-        }
+        updateDataFilterRequest({ data: { period_id: filter.period_id } })
       }
     }
 

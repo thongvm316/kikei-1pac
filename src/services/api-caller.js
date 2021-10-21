@@ -15,6 +15,7 @@ const NAME_PAGE = [
   'profile.0004',
   'profile.0001',
   'check_activate_token.0004',
+  'group.0002',
   'group.0003',
   'group.0004'
 ]

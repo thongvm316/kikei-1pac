@@ -240,7 +240,7 @@
                   :format="'YYYY-MM-DD'"
                   :style="{ width: '256px' }"
                   :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
-                  :class="checkDate ? 'input_border' : ''"
+                  :class="checkDateEmpty ? 'input_border' : ''"
                   @change="onChangeDate"
                 >
                   <template #suffixIcon>
@@ -284,8 +284,23 @@
           </div>
         </div>
         <!-- Error message -->
+        <ErrorMessage v-slot="{ message }" as="span" name="period" class="errors">
+          <template v-if="message === 'periodは数字のみ使用できます'">
+            {{ $t('company_infomation.error_empty_number') }}
+          </template>
+          <template v-else>
+            {{ replaceField(message, 'period') }}
+          </template>
+        </ErrorMessage>
+
         <template v-if="checkDate">
           <span class="errors">{{ $t('company_infomation.empty_date') }}</span>
+        </template>
+        <template v-if="checkDatePastFuture">
+          <span class="errors">{{ $t('company_infomation.empty_date_past_future') }}</span>
+        </template>
+        <template v-if="checkDatePeriod">
+          <span class="errors">{{ $t('company_infomation.empty_period') }}</span>
         </template>
         <template v-else>
           <span></span>
@@ -434,7 +449,7 @@
 <script>
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
-import { isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
+import { forEach, isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
 import { currentDate } from '@/helpers/extend-financing'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
@@ -534,6 +549,10 @@ export default defineComponent({
     const checkImgEmpty = ref(false)
     const checkImgInuse = ref(false)
     const checkDate = ref(false)
+    const checkDateEmpty = ref(false)
+    const checkDatePastFuture = ref(false)
+    const checkDatePeriod = ref(false)
+    const checkPeriodEmpty = ref(false)
     const isClickSubmit = ref(false)
     const showBtnDel = ref(false)
     const showHeader = ref(false)
@@ -599,7 +618,6 @@ export default defineComponent({
         form.value.group_revenue_target.currency_id = currencyList.value[0].id
       }
 
-      showTable.value = false
       showHeader.value = false
     })
 
@@ -610,6 +628,7 @@ export default defineComponent({
     // Fetch list table
     watch(targetTab, (value) => {
       getTargetTab.value = value
+      getDataTable.value = value
     })
 
     watch(tabId, (value) => {
@@ -640,14 +659,16 @@ export default defineComponent({
       if (!dateString[0] && !dateString[1]) {
         saveDate.value = showBtnDel.value.period
       } else {
-        form.value.period.started_date = form.value.fiscal_year[0]
-        form.value.period.finished_date = form.value.fiscal_year[1]
-
         dateStart.value = [...split(form.value.period.started_date, '-')]
         dateFinish.value = [...split(form.value.period.finished_date, '-')]
       }
 
+      form.value.period.started_date = form.value.fiscal_year[0]
+      form.value.period.finished_date = form.value.fiscal_year[1]
+
       checkDate.value = false
+      checkDateEmpty.value = false
+      checkDatePastFuture.value = false
       isClickSubmit.value = false
     }
 
@@ -697,6 +718,7 @@ export default defineComponent({
     const handleCancel = () => {
       checkImgInuse.value = false
       checkDate.value = false
+      checkDateEmpty.value = false
       isClickSubmit.value = false
       emit('handleCancle', true)
       store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
@@ -773,6 +795,12 @@ export default defineComponent({
               : data.name + t('company_infomation.update_tab')
         })
 
+        checkDatePastFuture.value = false
+        checkDateEmpty.value = false
+        checkDatePeriod.value = false
+        checkImgInuse.value = false
+        checkDate.value = false
+
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
       } catch (err) {
         checkErrorsApi(err)
@@ -839,18 +867,27 @@ export default defineComponent({
     }
 
     const verifyErrors = (errs) => {
-      for (let item in errs) {
-        if (item === 'company_seal') {
+      forEach(errs, (value, key) => {
+        if (key === 'company_seal') {
           checkImgInuse.value = true
-        } else if (item === 'finished_date' || item === 'started_date') {
+        } else if (value === 'required') {
           checkDate.value = true
+          checkDateEmpty.value = true
+        } else if (value === 'started_date_not_more_than_one_year_from_today') {
+          checkDatePastFuture.value = true
+          checkDateEmpty.value = true
+          checkDatePeriod.value = false
+        } else if (value === 'no_older_than_one_year') {
+          checkDatePeriod.value = true
+        } else if (value === 'finished_date_must_be_bigger_or_equal_today') {
+          checkDatePastFuture.value = true
+          checkDateEmpty.value = true
+          checkDatePeriod.value = false
         }
-        locale.value === 'en'
-          ? (errs[item] = `${companyEnums.value[item]}`)
-          : (errs[item] = `${companyEnums.value[item]}`)
+        locale.value === 'en' ? (errs[key] = `${companyEnums.value[key]}`) : (errs[key] = `${companyEnums.value[key]}`)
 
-        setFieldError(item, errs[item])
-      }
+        setFieldError(key, errs[key])
+      })
     }
 
     const handleDeleteRecord = async () => {
@@ -885,9 +922,15 @@ export default defineComponent({
     }
 
     const replaceField = (text, field) => {
-      if (isClickSubmit.value) {
+      if (text === 'undefined') return
+
+      if (!store.state.company.isCreate) {
         checkImgInuse.value = true
         checkDate.value = true
+        checkDateEmpty.value = true
+      } else {
+        checkPeriodEmpty.value = true
+        checkDatePeriod.value = false
       }
       return text.replace(field, t(`company_infomation.error_${field}`))
     }
@@ -910,6 +953,7 @@ export default defineComponent({
           showBtnDel.value = false
           checkImgInuse.value = false
           checkDate.value = false
+          checkDateEmpty.value = false
           isClickSubmit.value = false
           dateStart.value = []
           dateFinish.value = []
@@ -947,6 +991,10 @@ export default defineComponent({
       periodList,
       checkImgInuse,
       checkDate,
+      checkDateEmpty,
+      checkDatePastFuture,
+      checkDatePeriod,
+      checkPeriodEmpty,
       activeKey,
       dateStart,
       dateFinish,
