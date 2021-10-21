@@ -4,7 +4,9 @@
     flex-direction: column;
     flex-wrap: wrap;
 
-    &--top, &--middle, &--bottom {
+    &--top,
+    &--middle,
+    &--bottom {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -17,10 +19,9 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
-
         .form-group {
           margin-right: 32px;
-          
+
           .dropdown-company {
             .ant-select-selector {
               width: 300px;
@@ -108,11 +109,11 @@
   }
 
   .ant-tooltip-arrow-content {
-    background: #fff;
+    background: $color-grey-100;
   }
 
   .ant-tooltip-inner {
-    background: #fff
+    background: $color-grey-100;
   }
 }
 
@@ -144,7 +145,7 @@
       }
 
       .text--red {
-        color: #F5222D;
+        color: $color-additional-red-6;
 
         .icon-warning {
           display: none;

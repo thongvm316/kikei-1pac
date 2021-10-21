@@ -94,6 +94,13 @@ export const PAGE_PERMISSIONS = [
     text: 'sidebar.company_information',
     isGroupPermission: false,
     path: '/setting/company_information'
+  },
+  {
+    id: 10,
+    value: 12,
+    text: 'sidebar.balance_registration',
+    isGroupPermission: false,
+    path: '/setting/balance-registration'
   }
 ]
 

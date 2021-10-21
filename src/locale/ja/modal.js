@@ -83,5 +83,8 @@ export default {
   error_password: '現在パスワード',
   error_name_profile: '「氏名」',
   check_password: '登録されたパスワードと異なります',
-  check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。'
+  check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。',
+  title_balance: '確定',
+  desc_balance_input: '入力中ですが入力をキャンセルしてもよろしいですか？',
+  handle_balance: '確定'
 }
