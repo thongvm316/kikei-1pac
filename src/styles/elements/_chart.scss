@@ -70,6 +70,7 @@
     position: relative;
     height: calc(100vh - 230px);
     background: #fff;
+    overflow-x: scroll;
 
     canvas {
       position: absolute;

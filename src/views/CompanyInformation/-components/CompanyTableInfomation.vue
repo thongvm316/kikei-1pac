@@ -39,6 +39,7 @@
 import { computed, defineComponent, toRefs, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { split } from 'lodash-es'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CompanyTableInfomation',
@@ -53,6 +54,7 @@ export default defineComponent({
 
   setup(props) {
     const { t } = useI18n()
+    const store = useStore()
 
     const { getDataTable } = toRefs(props)
 
@@ -112,6 +114,13 @@ export default defineComponent({
         periodName: fiscalDateAndName[2]
       }
     }
+
+    watch(
+      () => store.state.company.isCreate,
+      () => {
+        if (!store.state.company.isCreate) dataSource.value = []
+      }
+    )
 
     return {
       dataSource,

@@ -624,6 +624,12 @@ export default defineComponent({
       }
 
       showHeader.value = false
+      checkDate.value = false
+      checkPeriodConflict.value = false
+      checkDatePeriod.value = false
+      checkDatePastFuture.value = false
+      checkDateEmpty.value = false
+      checkPeriodConflictColor.value = false
     })
 
     watch(checkCreate, (value) => {
@@ -667,9 +673,6 @@ export default defineComponent({
         dateStart.value = [...split(form.value.period.started_date, '-')]
         dateFinish.value = [...split(form.value.period.finished_date, '-')]
       }
-
-      form.value.period.started_date = form.value.fiscal_year[0]
-      form.value.period.finished_date = form.value.fiscal_year[1]
 
       checkDate.value = false
       checkDateEmpty.value = false
@@ -740,7 +743,6 @@ export default defineComponent({
     const handleCollapse = async () => {
       showHeader.value = !showHeader.value
       showTable.value = !showTable.value
-      getDataTable.value = getTargetTab.value
     }
 
     const onSubmit = handleSubmit(() => {
@@ -776,7 +778,9 @@ export default defineComponent({
         },
         period: {
           ...value.period,
-          name: value.period_name
+          name: value.period_name,
+          started_date: form.value.fiscal_year[0],
+          finished_date: form.value.fiscal_year[1]
         }
       }
 
@@ -838,7 +842,9 @@ export default defineComponent({
         },
         period: {
           ...value.period,
-          name: value.period_name
+          name: value.period_name,
+          started_date: form.value.fiscal_year[0],
+          finished_date: form.value.fiscal_year[1]
         }
       }
 
@@ -923,6 +929,13 @@ export default defineComponent({
     }
 
     const handleRevertRecord = () => {
+      checkDate.value = false
+      checkPeriodConflict.value = false
+      checkDatePeriod.value = false
+      checkDatePastFuture.value = false
+      checkDateEmpty.value = false
+      checkPeriodConflictColor.value = false
+
       form.value = {
         ...form.value,
         ...showBtnDel.value
@@ -938,9 +951,6 @@ export default defineComponent({
       form.value.fiscal_year[0] = form.value.period.started_date
       form.value.fiscal_year[1] = form.value.period.finished_date
 
-      form.value.period.started_date = form.value.fiscal_year[0]
-      form.value.period.finished_date = form.value.fiscal_year[1]
-
       dateStart.value = [...split(form.value.period.started_date, '-')]
       dateFinish.value = [...split(form.value.period.finished_date, '-')]
     }
@@ -954,6 +964,7 @@ export default defineComponent({
         checkImgInuse.value = true
         checkDate.value = true
         checkDateEmpty.value = true
+        checkPeriodConflictColor.value = true
       } else {
         checkPeriodEmpty.value = true
         checkDatePeriod.value = false
@@ -980,6 +991,8 @@ export default defineComponent({
           checkImgInuse.value = false
           checkDate.value = false
           checkDateEmpty.value = false
+          checkPeriodConflictColor.value = false
+          showTable.value = false
           isClickSubmit.value = false
           dateStart.value = []
           dateFinish.value = []
