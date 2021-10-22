@@ -39,7 +39,12 @@
           </div>
           <!-- Bank Account -->
           <div class="balance__header-filter-bank-account">
-            <a-select v-model:value="filter.bankAccountId" :disabled="isDisabledBank" @change="onChangeBankAccount">
+            <a-select
+              v-model:value="filter.bankAccountId"
+              :notFoundContent="$t('balance_registration.empty_bank_account')"
+              :disabled="isDisabledBank"
+              @change="onChangeBankAccount"
+            >
               <a-select-option v-for="item in bankAccountList" :key="item.id" :value="item.id">
                 <span>
                   {{ item.currencyCode ? `${item.name} (${item.currencyCode})` : item.name }}
@@ -554,11 +559,20 @@ export default defineComponent({
   }
 }
 
+.ant-select-item-empty {
+  padding: 84px 8px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 400;
+  color: $color-grey-0;
+}
+
 .ant-modal-wrap {
   z-index: 1002;
 }
 
 .ant-table-placeholder {
   padding-top: 48px;
+  font-weight: 400;
 }
 </style>

@@ -7,5 +7,6 @@ export default {
   edit: '編集',
   none_record: '今月までの残高を入力してください',
   empty_text_table: '該当するデータが見つかりませんでした ',
-  edit_success: ' の残高が更新されました'
+  edit_success: ' の残高が更新されました',
+  empty_bank_account: '該当する銀行口座が見つかりませんでした'
 }
