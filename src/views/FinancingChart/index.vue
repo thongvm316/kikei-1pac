@@ -5,7 +5,7 @@
         <div class="financing__header--wrap">
           <template v-if="isTabAllGroup">
             <div class="form-group">
-              <label class="form-label">{{ $t('financing.financing_list.company') }}:</label>
+              <label class="form-label">{{ $t('financing.financing_list.company') }}</label>
 
               <div class="form-select">
                 <a-select v-model:value="groupCompany.group_id" class="dropdown-company" @change="onChangeCompany">
@@ -328,18 +328,13 @@ export default defineComponent({
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
-        if (!filter.date_from_to[0]) {
-          forEach(periodList.value, (value) => {
-            value.currentPeriod ? (filter.period_id = value.id) : null
-          })
-          updateParamRequestFinancing({
-            data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1], period_id: filter.period_id }
-          })
-        } else {
-          updateParamRequestFinancing({
-            data: { from_date: filter.date_from_to[0], to_date: filter.date_from_to[1] }
-          })
-        }
+        filter.date_from_to[0] = filter.date_from_to[1] = null
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
+        updateParamRequestFinancing({
+          data: { period_id: filter.period_id }
+        })
       } else {
         await fetchPeriodList(groupCompany.value.group_id)
         forEach(periodList.value, (value) => {

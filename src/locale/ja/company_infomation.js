@@ -52,6 +52,7 @@ export default {
   empty_date: '事業年度を選択して下さい',
   empty_date_past_future: '事業年度は、現在の期から1年を超えてはなりません',
   empty_period: '「期間」が存在しました',
+  empty_period_field: '期間が1年を超えています',
 
   conflict_name: '会社名（表示名）が存在しました',
   conflict_phone_number: '「電話番号」が存在しました',
