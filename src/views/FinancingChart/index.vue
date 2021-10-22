@@ -328,13 +328,15 @@ export default defineComponent({
       if (value !== 0) {
         await fetchBankAccounts({ group_id: value })
         await fetchPeriodList(value)
-        filter.date_from_to[0] = filter.date_from_to[1] = null
-        forEach(periodList.value, (value) => {
-          value.currentPeriod ? (filter.period_id = value.id) : null
-        })
-        updateParamRequestFinancing({
-          data: { period_id: filter.period_id }
-        })
+        if (requestParamsData.value.data.period_id) {
+          filter.date_from_to[0] = filter.date_from_to[1] = null
+          forEach(periodList.value, (value) => {
+            value.currentPeriod ? (filter.period_id = value.id) : null
+          })
+          updateParamRequestFinancing({
+            data: { period_id: filter.period_id }
+          })
+        }
       } else {
         await fetchPeriodList(groupCompany.value.group_id)
         forEach(periodList.value, (value) => {
