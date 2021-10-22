@@ -274,14 +274,22 @@ export default defineComponent({
     })
 
     const exportBalanceRegistrationAsCsvFile = async () => {
-      isLoadingExportCsv.value = true
-      const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: filter.value.bankAccountId })
-      const { result } = await listBalance()
+      try {
+        if (tableList.value.length > 0) {
+          isLoadingExportCsv.value = true
+          const { listBalance } = useGetListBalanceRegistrationService({ bankAccountId: filter.value.bankAccountId })
+          const { result } = await listBalance()
 
-      isLoadingExportCsv.value = false
-      const balanceRegistrationItems = result.data
-      exportObj.items = balanceRegistrationItems
-      exportCSVFile(exportObj)
+          isLoadingExportCsv.value = false
+          const balanceRegistrationItems = result.data
+          exportObj.items = balanceRegistrationItems
+          exportCSVFile(exportObj)
+        }
+      } catch (e) {
+        throw e
+      } finally {
+        isLoadingExportCsv.value = false
+      }
     }
     /* --------------------- handle export CSV ------------------- */
 
