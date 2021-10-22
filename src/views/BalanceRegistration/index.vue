@@ -297,7 +297,7 @@ export default defineComponent({
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
-          message: data.month + t('balance_registration.edit_success')
+          message: moment(data.month).format('YYYY-MM') + t('balance_registration.edit_success')
         })
       } catch (err) {
         checkErrorsApi(err)
@@ -404,7 +404,6 @@ export default defineComponent({
     })
 
     onUnmounted(() => {
-      open.value = true
       window.removeEventListener('resize', getInnerHeight)
     })
 
@@ -549,5 +548,9 @@ export default defineComponent({
 
 .ant-modal-wrap {
   z-index: 1002;
+}
+
+.ant-table-placeholder {
+  padding-top: 48px;
 }
 </style>
