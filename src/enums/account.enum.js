@@ -82,13 +82,6 @@ export const PAGE_PERMISSIONS = [
     path: '/setting/account'
   },
   {
-    id: 8,
-    value: 10,
-    text: 'sidebar.logs',
-    isGroupPermission: false,
-    path: '/setting/logs'
-  },
-  {
     id: 9,
     value: 11,
     text: 'sidebar.company_information',
@@ -101,6 +94,13 @@ export const PAGE_PERMISSIONS = [
     text: 'sidebar.balance_registration',
     isGroupPermission: false,
     path: '/setting/balance-registration'
+  },
+  {
+    id: 8,
+    value: 10,
+    text: 'sidebar.logs',
+    isGroupPermission: false,
+    path: '/setting/logs'
   }
 ]
 
