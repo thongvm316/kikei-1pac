@@ -4,7 +4,7 @@
       <div class="financing__header--wrap">
         <template v-if="isTabAllGroup">
           <div class="form-group">
-            <label class="form-label">{{ $t('financing.financing_list.company') }}:</label>
+            <label class="form-label">{{ $t('financing.financing_list.company') }}</label>
 
             <div class="form-select">
               <a-select

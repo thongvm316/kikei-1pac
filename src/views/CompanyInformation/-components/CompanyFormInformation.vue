@@ -262,7 +262,7 @@
             <p class="label-period">{{ $t('company_infomation.no_num') }}</p>
 
             <Field
-              v-slot="{ field, handleChange, errors }"
+              v-slot="{ field, handleChange }"
               v-model="form.period_name"
               name="period"
               rules="input_required|numeric"
@@ -273,7 +273,7 @@
                     :value="field.value"
                     :placeholder="$t('company_infomation.please_enter_period')"
                     class="w-300"
-                    :class="errors.length ? 'input_border' : ''"
+                    :class="checkPeriodConflictColor ? 'input_border' : ''"
                     @change="handleChange"
                   />
 
@@ -300,6 +300,9 @@
           <span class="errors">{{ $t('company_infomation.empty_date_past_future') }}</span>
         </template>
         <template v-if="checkDatePeriod">
+          <span class="errors">{{ $t('company_infomation.empty_period_field') }}</span>
+        </template>
+        <template v-if="checkPeriodConflict">
           <span class="errors">{{ $t('company_infomation.empty_period') }}</span>
         </template>
         <template v-else>
@@ -553,6 +556,8 @@ export default defineComponent({
     const checkDatePastFuture = ref(false)
     const checkDatePeriod = ref(false)
     const checkPeriodEmpty = ref(false)
+    const checkPeriodConflict = ref(false)
+    const checkPeriodConflictColor = ref(false)
     const isClickSubmit = ref(false)
     const showBtnDel = ref(false)
     const showHeader = ref(false)
@@ -800,6 +805,7 @@ export default defineComponent({
         checkDatePeriod.value = false
         checkImgInuse.value = false
         checkDate.value = false
+        checkPeriodConflictColor.value = false
 
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
       } catch (err) {
@@ -867,23 +873,41 @@ export default defineComponent({
     }
 
     const verifyErrors = (errs) => {
+      checkDate.value = false
+      checkPeriodConflict.value = false
+      checkDatePeriod.value = false
+      checkDatePastFuture.value = false
+      checkDateEmpty.value = false
+      checkPeriodConflictColor.value = false
+
       forEach(errs, (value, key) => {
         if (key === 'company_seal') {
           checkImgInuse.value = true
-        } else if (value === 'required') {
+        }
+
+        if ((value === 'required' && key === 'finished_date') || (value === 'required' && key === 'started_date')) {
           checkDate.value = true
           checkDateEmpty.value = true
-        } else if (value === 'started_date_not_more_than_one_year_from_today') {
-          checkDatePastFuture.value = true
-          checkDateEmpty.value = true
-          checkDatePeriod.value = false
-        } else if (value === 'no_older_than_one_year') {
-          checkDatePeriod.value = true
-        } else if (value === 'finished_date_must_be_bigger_or_equal_today') {
-          checkDatePastFuture.value = true
-          checkDateEmpty.value = true
-          checkDatePeriod.value = false
         }
+
+        if (key === 'period_name' && value === 'conflict') {
+          checkPeriodConflictColor.value = true
+          checkPeriodConflict.value = true
+        }
+
+        if (value === 'no_older_than_one_year') {
+          checkDatePeriod.value = true
+          checkDateEmpty.value = true
+        }
+
+        if (
+          value === 'started_date_not_more_than_one_year_from_today' ||
+          value === 'finished_date_must_be_bigger_or_equal_today'
+        ) {
+          checkDatePastFuture.value = true
+          checkDateEmpty.value = true
+        }
+
         locale.value === 'en' ? (errs[key] = `${companyEnums.value[key]}`) : (errs[key] = `${companyEnums.value[key]}`)
 
         setFieldError(key, errs[key])
@@ -923,6 +947,8 @@ export default defineComponent({
 
     const replaceField = (text, field) => {
       if (text === 'undefined') return
+
+      if (field === 'period') checkPeriodConflict.value = false
 
       if (!store.state.company.isCreate) {
         checkImgInuse.value = true
@@ -995,6 +1021,8 @@ export default defineComponent({
       checkDatePastFuture,
       checkDatePeriod,
       checkPeriodEmpty,
+      checkPeriodConflict,
+      checkPeriodConflictColor,
       activeKey,
       dateStart,
       dateFinish,

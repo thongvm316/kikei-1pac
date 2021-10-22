@@ -52,6 +52,7 @@ export default {
   empty_date: 'Please select a business year',
   empty_date_past_future: 'The fiscal year must not exceed one year from the current period',
   empty_period: 'Period has existed',
+  empty_period_field: 'The period is over one year',
 
   conflict_name: 'Company name (display name) existed',
   conflict_phone_number: 'Phone number has existed',

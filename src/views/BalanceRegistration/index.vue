@@ -1,6 +1,6 @@
 <template>
   <div class="balance-registration">
-    <div class="balance-mask" v-if="isUpdating" @click="handleClickMask"></div>
+    <div v-if="isUpdating" class="balance-mask" @click="handleClickMask"></div>
     <modal-balance-registration
       v-model:visible="open"
       :show-modal-update-balance="open"
@@ -63,7 +63,7 @@
       >
         <template #month="{ record }">{{ $filters.moment_yyyy_mm(record.month) }}</template>
         <template #updateAt="{ record }">
-          <div class="time-update-future" v-if="record.balance === 0">
+          <div v-if="record.balance === 0" class="time-update-future">
             <a-tooltip color="#fff" :title="$t('balance_registration.none_record')">
               <span class="balance-future-content">N/A</span>
             </a-tooltip>
@@ -73,7 +73,7 @@
           </div>
         </template>
         <template #balance="{ record }">
-          <form @submit="onSubmit" v-if="record.action">
+          <form v-if="record.action" @submit="onSubmit">
             <div class="form-group">
               <Field
                 v-slot="{ field, handleChange }"
@@ -88,9 +88,9 @@
                       :value="field.value"
                       :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                      @change="handleChange"
                       :style="{ zIndex: zIndexForm }"
                       class="input_balance"
+                      @change="handleChange"
                     />
                     <label class="form-label">
                       {{ record.currencyCode }}
@@ -101,17 +101,17 @@
             </div>
           </form>
           <div
-            class="balance-future"
             v-else-if="
               (record.isFuture && !record.action) || (record.balance === 0 && !record.action && !record.isCurrent)
             "
+            class="balance-future"
           >
             <a-tooltip color="#fff" :title="$t('balance_registration.none_record')">
               <span class="balance-future-content">N/A</span>
             </a-tooltip>
           </div>
-          <div class="balance-future" v-else-if="record.balance === 0 && !record.action && record.isCurrent"></div>
-          <div class="form-content" v-else>
+          <div v-else-if="record.balance === 0 && !record.action && record.isCurrent" class="balance-future"></div>
+          <div v-else class="form-content">
             <span>
               {{ $filters.number_with_commas(record.balance) }}
             </span>
@@ -122,16 +122,16 @@
         </template>
         <template #action="{ record }">
           <a-button
+            v-if="record.action && !record.isFuture"
             class="btn-confirm-edit"
             :style="{ zIndex: zIndexForm }"
-            v-if="record.action && !record.isFuture"
             type="primary"
             @click="onConfirmEditRow(record)"
           >
             {{ $t('balance_registration.confirm_edit') }}
           </a-button>
-          <div class="balance-future" v-else-if="record.isFuture"></div>
-          <a-button class="btn-edit" v-else @click="handleEditRow(record)">
+          <div v-else-if="record.isFuture" class="balance-future"></div>
+          <a-button v-else class="btn-edit" @click="handleEditRow(record)">
             <template #icon><FormOutlined /></template> {{ $t('balance_registration.edit') }}
           </a-button>
         </template>
