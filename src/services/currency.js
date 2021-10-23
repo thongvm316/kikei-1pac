@@ -14,5 +14,9 @@ export default {
 
   getCurrencyCompanyInfomation() {
     return apiCaller({ method: 'GET', url: `${RESOURCES.currency}` })
+  },
+
+  getCurrencyExchange() {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.currency}/list` })
   }
 }

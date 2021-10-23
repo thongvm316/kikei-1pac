@@ -11,3 +11,13 @@ export const getCurrencyList = async () => {
     throw e
   }
 }
+
+export const getCurrencyExchange = async () => {
+  try {
+    const { data } = await CurrencyService.getCurrencyExchange()
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}

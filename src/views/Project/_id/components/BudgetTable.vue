@@ -225,7 +225,7 @@
     @on-submit-direct-person-cost-modal="onSubmitDirectPersonCostModal"
   />
 
-  <RevenueModal v-if="isOpenRevenueModal" v-model:visible="isOpenRevenueModal" />
+  <RevenueModal v-if="isOpenRevenueModal" v-model:visible="isOpenRevenueModal" :project="project" />
 </template>
 
 <script>
@@ -244,7 +244,7 @@ import { getCurrencyList } from '../../composables/useCurrency'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
-import { getLaborDirectCostList } from '../../composables/useProject'
+import { getLaborDirectCostList, getRevenueList } from '../../composables/useProject'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -444,6 +444,14 @@ export default defineComponent({
       fetchLaborDirectCostList()
     }
 
+    const fetchRevenueList = async () => {
+      await getRevenueList({
+        projectId,
+        projectCostsType: '1,2',
+        month: '2021-10'
+      })
+    }
+
     onBeforeMount(async () => {
       // get currency list
       const currencyReponse = await getCurrencyList()
@@ -453,6 +461,7 @@ export default defineComponent({
       fetchMaterialCostList()
       fetchDirectCostList()
       fetchLaborDirectCostList()
+      fetchRevenueList()
     })
 
     return {

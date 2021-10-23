@@ -74,7 +74,7 @@
                 <table class="directly-person-cost__table">
                   <thead>
                     <tr>
-                      <th style="min-width: 158px">役職</th>
+                      <th style="min-width: 200px">役職</th>
                       <th style="min-width: 160px">氏名</th>
                       <th style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
@@ -94,12 +94,11 @@
 
                           <a-select
                             v-model:value="item.positionId"
-                            style="width: 76px"
-                            option-label-prop="label"
+                            style="width: 150px"
                             :default-active-first-option="false"
                           >
-                            <a-select-option v-for="position in positionList" :key="position.value">{{
-                              option.label
+                            <a-select-option v-for="position in positionList" :key="position.id">{{
+                              position?.name
                             }}</a-select-option>
                           </a-select>
                         </a-space>
@@ -325,7 +324,7 @@ export default defineComponent({
     const currencyList = ref([])
     const route = useRoute()
     const projectId = Number(route.params?.id)
-    const positionList = ref()
+    const positionList = ref([])
     const costState = reactive({
       predict: [],
       actual: []
@@ -458,7 +457,7 @@ export default defineComponent({
       overtimeDaysSecond: null,
       overtimeHoursFirst: null,
       overtimeHoursSecond: null,
-      positionId: 1,
+      positionId: null,
       projectId,
       salaryCurrencyId: 1,
       workingDays: null,
@@ -515,7 +514,7 @@ export default defineComponent({
       }
     }
 
-    const handleDeleteCostItem = async () => {
+    const handleDeleteCostItem = () => {
       checkedList.value.forEach((item) => {
         if (item.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
           costDeleteList.value = [...costDeleteList.value, item]
@@ -552,7 +551,7 @@ export default defineComponent({
       currencyList.value = currencyReponse?.result?.data || []
 
       const { result } = await getPositionList()
-      positionList.value = result.data
+      positionList.value = result?.data || []
 
       await fetDataTable(activeKey.value)
     })

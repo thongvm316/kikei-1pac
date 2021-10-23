@@ -148,3 +148,39 @@ export const deleteLaborDirectCostList = async (data) => {
     throw error
   }
 }
+
+export const getRevenueList = async (params) => {
+  try {
+    const { data } = await ProjectService.getRevenueList(params)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const upsertRevenueProject = async (data) => {
+  try {
+    await ProjectService.upsertRevenueProject(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getRevenueProject = async (params) => {
+  try {
+    const { data } = await ProjectService.getRevenueProject(params)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const deleteRevenueItem = async (data) => {
+  try {
+    await ProjectService.deleteRevenueItem(data)
+  } catch (error) {
+    throw error
+  }
+}

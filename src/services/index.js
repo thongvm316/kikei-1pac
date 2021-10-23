@@ -24,6 +24,7 @@ import DirectCostsService from './direct-costs'
 import MaterialCostsService from './material-costs'
 import OrderCostsService from './order-costs'
 import PositionService from './position'
+import RevenueService from './revenue'
 
 const repositories = {
   StorageService,
@@ -51,7 +52,8 @@ const repositories = {
   DirectCostsService,
   MaterialCostsService,
   OrderCostsService,
-  PositionService
+  PositionService,
+  RevenueService
 }
 
 export default {

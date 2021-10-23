@@ -56,5 +56,21 @@ export default {
 
   deleteLaborDirectCostList(data) {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.project}/labor-direct-cost/delete`, data })
+  },
+
+  getRevenueList(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.project}/revenue/list`, params })
+  },
+
+  upsertRevenueProject(data) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.project}/revenue/update`, data })
+  },
+
+  getRevenueProject(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.project}/revenue/list-detail`, params })
+  },
+
+  deleteRevenueItem(data) {
+    return apiCaller({ method: 'DELETE', url: `${RESOURCES.project}/revenue-item/delete`, data })
   }
 }

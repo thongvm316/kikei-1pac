@@ -63,7 +63,7 @@
                 <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
               </div>
 
-              <a-button class="cost-tabs__tab--add-item" @click="handleAddCostItem">
+              <a-button size="small" class="cost-tabs__tab--add-item" @click="handleAddCostItem">
                 <template #icon>
                   <span class="btn-icon"><line-add-icon /></span>
                 </template>
