@@ -44,7 +44,11 @@
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
-                              <td class="table-cost__content--money">999,999,999,999 (JPY)</td>
+                              <td class="table-cost__content--money">
+                                {{ $filters.number_with_commas(revenueCost?.predict?.total) }} ({{
+                                  revenueCost?.predict?.code
+                                }})
+                              </td>
                             </tr>
                           </td>
                           <td class="table-cost__edit"></td>
@@ -55,7 +59,11 @@
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
-                              <td class="table-cost__content--money">777,999,999,999 (JPY)</td>
+                              <td class="table-cost__content--money">
+                                {{ $filters.number_with_commas(revenueCost?.actual?.total) }} ({{
+                                  revenueCost?.actual?.code
+                                }})
+                              </td>
                             </tr>
                           </td>
                           <td class="table-cost__edit">
@@ -72,7 +80,12 @@
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
-                              <td class="table-cost__content--money">666,999,999,999 (JPY)</td>
+                              <td class="table-cost__content--money">
+                                {{
+                                  $filters.number_with_commas(revenueCost?.actual?.total - revenueCost?.predict?.total)
+                                }}
+                                ({{ revenueCost?.actual?.code }})
+                              </td>
                             </tr>
                           </td>
                           <td class="table-cost__edit"></td>
@@ -97,7 +110,9 @@
                             <tr>
                               <td class="table-cost__content--name"></td>
                               <td class="table-cost__content--money">
-                                {{ $filters.number_with_commas(directlyPersonCost.predict) }} (JPY)
+                                {{ $filters.number_with_commas(directlyPersonCost.predict) }} ({{
+                                  directlyPersonCost.code
+                                }})
                               </td>
                             </tr>
                           </td>
@@ -116,7 +131,9 @@
                             <tr>
                               <td class="table-cost__content--name"></td>
                               <td class="table-cost__content--money">
-                                {{ $filters.number_with_commas(directlyPersonCost.actual) }} (JPY)
+                                {{ $filters.number_with_commas(directlyPersonCost.actual) }} ({{
+                                  directlyPersonCost.code
+                                }})
                               </td>
                             </tr>
                           </td>
@@ -225,7 +242,12 @@
     @on-submit-direct-person-cost-modal="onSubmitDirectPersonCostModal"
   />
 
-  <RevenueModal v-if="isOpenRevenueModal" v-model:visible="isOpenRevenueModal" :project="project" />
+  <RevenueModal
+    v-if="isOpenRevenueModal"
+    v-model:visible="isOpenRevenueModal"
+    :project="project"
+    @on-submit-revenue-modal="onSubmitRevenueModal"
+  />
 </template>
 
 <script>
@@ -412,7 +434,8 @@ export default defineComponent({
 
     const directlyPersonCost = reactive({
       predict: 0,
-      actual: 0
+      actual: 0,
+      code: null
     })
 
     const fetchLaborDirectCostList = async () => {
@@ -425,6 +448,7 @@ export default defineComponent({
 
         let predictCount = 0
         let actualCount = 0
+
         data.forEach((item) => {
           if (item.projectCostsType === 1) {
             predictCount += item.subtotal
@@ -433,8 +457,11 @@ export default defineComponent({
           }
         })
 
+        const currency = find(currencyList.value, { id: data[0].salaryCurrencyId })
+
         directlyPersonCost.predict = predictCount
         directlyPersonCost.actual = actualCount
+        directlyPersonCost.code = currency.code
       } finally {
         isLoadingBudgetTable.value = false
       }
@@ -444,13 +471,37 @@ export default defineComponent({
       fetchLaborDirectCostList()
     }
 
+    const revenueCost = reactive({
+      predict: {
+        total: 0,
+        code: null
+      },
+      actual: {
+        total: 0,
+        code: null
+      }
+    })
+
     const fetchRevenueList = async () => {
-      await getRevenueList({
+      const { result } = await getRevenueList({
         projectId,
         projectCostsType: '1,2',
-        month: '2021-10'
+        month: null
+      })
+
+      result.data.forEach((item) => {
+        const currency = find(currencyList.value, { id: item.currencyId })
+        if (item.projectCostsType === 1) {
+          revenueCost.predict.total = item.total
+          revenueCost.predict.code = currency.code
+        } else {
+          revenueCost.actual.total = item.total
+          revenueCost.actual.code = currency.code
+        }
       })
     }
+
+    const onSubmitRevenueModal = () => fetchRevenueList()
 
     onBeforeMount(async () => {
       // get currency list
@@ -479,13 +530,15 @@ export default defineComponent({
       isOpenDirectlyCostModal,
       directlyPersonCost,
       isOpenRevenueModal,
+      revenueCost,
 
       handleCancelEditForm,
       handleOpenCostModal,
       fetchOrderCostList,
       fetchMaterialCostList,
       fetchDirectCostList,
-      onSubmitDirectPersonCostModal
+      onSubmitDirectPersonCostModal,
+      onSubmitRevenueModal
     }
   }
 })

@@ -1,12 +1,12 @@
 <template>
-  <a-modal :visible="visible" width="656px" class="modal-project-costs" :title="title" @cancel="handleCancel">
+  <a-modal :visible="visible" centered width="656px" class="modal-project-costs" :title="title" @cancel="handleCancel">
     <template #footer>
       <div class="cost-tabs-wrapper">
         <a-button
-          v-if="activeKey === PROJECT_COST_TYPES[0].key"
+          v-if="activeKey === PROJECT_COST_TYPES[1].key"
           :disabled="isDisableCloneCost"
           class="cost-tabs-clone"
-          @click="handleCloneCost"
+          @click="handleCloneCostState"
         >
           <template #icon>
             <span class="btn-icon"><copy-icon /></span>
@@ -14,55 +14,53 @@
           予測の内容をコピーする
         </a-button>
 
-        <a-tabs v-model:activeKey="activeKey" :animated="false" class="cost-tabs">
+        <a-tabs :active-key="activeKey" :animated="false" class="cost-tabs" @tabClick="tabClick">
           <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
             <a-spin :spinning="isDataLoading">
-              <div
-                v-for="costItem in tab.key === PROJECT_COST_TYPES[0].key ? costState?.predict : costState?.actual"
-                :key="costItem.id"
-                class="cost-tabs__tab--item"
-              >
-                <!-- name -->
-                <a-input v-model:value="costItem.name" class="cost-name" placeholder="企業名">
-                  {{ costItem.name }}
-                </a-input>
+              <template v-if="costState.length > 0">
+                <div v-for="costItem in costState" :key="costItem.id" class="cost-tabs__tab--item">
+                  <!-- name -->
+                  <a-input v-model:value="costItem.name" class="cost-name" placeholder="企業名">
+                    {{ costItem.name }}
+                  </a-input>
 
-                <!-- money -->
-                <a-input-number
-                  v-model:value="costItem.money"
-                  placeholder="0"
-                  class="u-ml-12"
-                  :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                  :precision="0"
-                  :min="0"
-                  :max="999999999999"
-                  :style="{ width: '180px' }"
-                />
+                  <!-- money -->
+                  <a-input-number
+                    v-model:value="costItem.money"
+                    placeholder="0"
+                    class="u-ml-12"
+                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                    :precision="0"
+                    :min="0"
+                    :max="999999999999"
+                    :style="{ width: '180px' }"
+                  />
 
-                <!-- curency -->
-                <a-select
-                  v-model:value="costItem.currencyId"
-                  show-arrow
-                  option-label-prop="label"
-                  class="u-ml-8"
-                  :style="{ width: '80px' }"
-                  :default-active-first-option="false"
-                >
-                  <a-select-option
-                    v-for="currency in currencyList"
-                    :key="currency.id"
-                    :value="currency.id"
-                    :label="currency.code"
+                  <!-- curency -->
+                  <a-select
+                    v-model:value="costItem.currencyId"
+                    show-arrow
+                    option-label-prop="label"
+                    class="u-ml-8"
+                    :style="{ width: '80px' }"
+                    :default-active-first-option="false"
                   >
-                    {{ currency.code }}
-                  </a-select-option>
-                </a-select>
+                    <a-select-option
+                      v-for="currency in currencyList"
+                      :key="currency.id"
+                      :value="currency.id"
+                      :label="currency.code"
+                    >
+                      {{ currency.code }}
+                    </a-select-option>
+                  </a-select>
 
-                <!-- button delete -->
-                <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
-              </div>
-
+                  <!-- button delete -->
+                  <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
+                </div>
+              </template>
+              <div v-else class="u-text-center">No data</div>
               <a-button size="small" class="cost-tabs__tab--add-item" @click="handleAddCostItem">
                 <template #icon>
                   <span class="btn-icon"><line-add-icon /></span>
@@ -86,16 +84,25 @@
 
       <div class="cost-submit">
         <a-button :disabled="isSubmitLoading" @click="handleCancel">キャンセル</a-button>
-        <a-button :loading="isSubmitLoading" type="primary" class="u-ml-12" @click="handleSubmit">登録</a-button>
+        <a-button
+          :disabled="isDisabledSubmitButton"
+          :loading="isSubmitLoading"
+          type="primary"
+          class="u-ml-12"
+          @click="handleSubmit"
+          >登録</a-button
+        >
       </div>
     </template>
+    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
 
 <script>
-import { defineComponent, ref, computed, reactive, onBeforeMount } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
-import { find, uniqueId, sumBy } from 'lodash-es'
+import { find, uniqueId, sumBy, cloneDeep, isEqual } from 'lodash-es'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getCurrencyList } from '../../composables/useCurrency'
@@ -113,13 +120,17 @@ import {
 
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
+import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
+import ConfirmCloneModal from './ConfirmCloneModal.vue'
 
 export default defineComponent({
   name: 'CostsModal',
 
   components: {
     LineAddIcon,
-    CopyIcon
+    CopyIcon,
+    ConfirmSubmitModal,
+    ConfirmCloneModal
   },
 
   props: {
@@ -138,25 +149,23 @@ export default defineComponent({
       projectId: projectId,
       projectCostsType: null,
       name: '',
-      money: null,
+      money: 0,
       currencyId: null
     }
     const UNIQUE_ID_PREFIX = '__cost__'
 
     const activeKey = ref('1')
     const currencyList = ref([])
-    const costState = reactive({
-      predict: [],
-      actual: []
-    })
+    const costState = ref([])
     const costDeleteList = ref([])
+    const isVisibleModalConfirmClone = ref()
 
     const isDataLoading = ref(false)
     const isSubmitLoading = ref(false)
     const isOrderCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[0].id)
     const isMaterialCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[1].id)
     const isDirectCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[2].id)
-    const isDisableCloneCost = computed(() => costState.predict.filter((item) => !!item.name).length === 0)
+    const isDisableCloneCost = computed(() => costStateToClone.value.length < 1)
 
     const currencyIdDefault = computed(() => {
       const JPYFound = find(currencyList.value, { code: 'JPY' })
@@ -169,18 +178,11 @@ export default defineComponent({
         .map((currency) => {
           let total = null
 
-          const predictFiltered = costState.predict.filter(
+          const costStateFiltered = costState.value.filter(
             (cost) => cost.currencyId === currency.id && cost.money !== null
           )
-          if (predictFiltered.length > 0) {
-            total = total ? total + sumBy(predictFiltered, 'money') : sumBy(predictFiltered, 'money')
-          }
-
-          const actualFiltered = costState.actual.filter(
-            (cost) => cost.currencyId === currency.id && cost.money !== null
-          )
-          if (actualFiltered.length > 0) {
-            total = total ? total + sumBy(actualFiltered, 'money') : sumBy(actualFiltered, 'money')
+          if (costStateFiltered.length > 0) {
+            total = total ? total + sumBy(costStateFiltered, 'money') : sumBy(costStateFiltered, 'money')
           }
 
           return { total, code: currency.code }
@@ -188,64 +190,70 @@ export default defineComponent({
         .filter((item) => item.total !== null)
     })
 
-    const createCostItem = (costTypeIndex) => ({
+    const createCostItem = () => ({
       ...defaultCostItem,
       id: uniqueId(UNIQUE_ID_PREFIX),
-      projectCostsType: PROJECT_COST_TYPES[costTypeIndex].value,
+      projectCostsType: Number(activeKey.value),
       currencyId: currencyIdDefault.value
     })
 
     const handleAddCostItem = () => {
-      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
-        costState.predict = [...costState.predict, createCostItem(0)]
-      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
-        costState.actual = [...costState.actual, createCostItem(1)]
-      }
+      costState.value = [...costState.value, createCostItem()]
     }
 
     const handleDeleteCostItem = (itemId) => {
-      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
-        costState.predict = costState.predict.filter((item) => item.id !== itemId)
-      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
-        costState.actual = costState.actual.filter((item) => item.id !== itemId)
-      }
+      costState.value = costState.value.filter((item) => item.id !== itemId)
 
       if (itemId.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
         costDeleteList.value = [...costDeleteList.value, itemId]
       }
     }
 
-    const handleCloneCost = () => {
-      costState.actual.forEach((cost) => {
+    const cloneCostState = () => {
+      costState.value.forEach((cost) => {
         if (cost.id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
           costDeleteList.value = [...costDeleteList.value, cost.id]
         }
       })
 
-      costState.actual = costState.predict.map((cost) => ({
+      costState.value = costStateToClone.value.map((cost) => ({
         ...cost,
         id: uniqueId(UNIQUE_ID_PREFIX),
-        projectCostsType: PROJECT_COST_TYPES[1].value
+        projectCostsType: 2
       }))
-      activeKey.value = PROJECT_COST_TYPES[1].key
+
+      isVisibleModalConfirmClone.value = false
+    }
+
+    const handleCloneCostState = () => {
+      if (costState.value.length > 0) {
+        isVisibleModalConfirmClone.value = true
+      } else {
+        cloneCostState()
+      }
+    }
+
+    const handleConfirmCloneModal = () => {
+      cloneCostState()
     }
 
     const handleCancel = () => {
-      emit('update:visible', false)
+      if (isEqual(costStateToCompare.value, costState.value)) {
+        emit('update:visible', false)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        purposeConfirm.value = 'close-modal'
+      }
     }
 
     const convertDataToSubmit = () => {
-      let data = []
-      data.push(...costState.predict)
-      data.push(...costState.actual)
+      let data = cloneDeep(costState.value)
+
+      data.forEach((item) => {
+        if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
+      })
 
       return data
-        .filter((item) => !!item.name)
-        .map((item) => {
-          if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
-          if (item.money === null) item.money = 0
-          return item
-        })
     }
 
     const handleSubmit = async () => {
@@ -274,24 +282,56 @@ export default defineComponent({
         }
 
         costDeleteList.value = []
-        emit('update:visible', false)
+        costStateToCompare.value = cloneDeep(costState.value)
+        costStateToClone.value = cloneDeep(costState.value)
       } finally {
         isSubmitLoading.value = false
       }
     }
 
-    onBeforeMount(async () => {
-      isDataLoading.value = true
+    const costStateToCompare = ref([])
 
-      // get currency list
-      const currencyReponse = await getCurrencyList()
-      currencyList.value = currencyReponse?.result?.data || []
+    const isDisabledSubmitButton = computed(() => isEqual(costStateToCompare.value, costState.value))
+
+    const isVisibleModalConfirmSubmit = ref()
+    const nextTab = ref()
+    const purposeConfirm = ref()
+
+    const tabClick = (val) => {
+      if (val === activeKey.value) return
+
+      if (isEqual(costStateToCompare.value, costState.value)) {
+        activeKey.value = val
+        fetchDataDirectList(val)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        nextTab.value = val
+        purposeConfirm.value = 'change-tab'
+      }
+    }
+
+    const handleConfirmSubmitModal = () => {
+      isVisibleModalConfirmSubmit.value = false
+
+      if (purposeConfirm.value === 'change-tab') {
+        activeKey.value = nextTab.value
+        fetchDataDirectList(nextTab.value)
+      } else if (purposeConfirm.value === 'close-modal') {
+        emit('update:visible', false)
+      }
+    }
+
+    const costStateToClone = ref()
+
+    const fetchDataDirectList = async (projectCostsType = activeKey.value, month = null) => {
+      isDataLoading.value = true
 
       // get direct list
       try {
         const paramsRequest = {
           projectId,
-          projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`
+          projectCostsType,
+          month
         }
         let responseRequest = null
 
@@ -303,19 +343,30 @@ export default defineComponent({
           responseRequest = await getDirectCostList(paramsRequest)
         }
 
-        const reponseData = responseRequest?.result?.data || []
-        costState.predict = reponseData.filter((item) => item.projectCostsType === PROJECT_COST_TYPES[0].value)
-        costState.actual = reponseData.filter((item) => item.projectCostsType === PROJECT_COST_TYPES[1].value)
-        // eslint-disable-next-line no-empty
-      } catch {}
+        costState.value = responseRequest?.result?.data || []
 
-      // create default items
-      if (costState.predict.length === 0 && costState.actual.length === 0) {
-        costState.predict = new Array(3).fill(undefined).map(() => createCostItem(0))
-        costState.actual = new Array(3).fill(undefined).map(() => createCostItem(1))
+        // create default items
+        // if (costState.value.length === 0) {
+        //   costState.value = new Array(3).fill(undefined).map(() => createCostItem())
+        // }
+
+        costState
+
+        costStateToCompare.value = cloneDeep(costState.value)
+        if (projectCostsType === '1') costStateToClone.value = cloneDeep(costState.value)
+      } finally {
+        isDataLoading.value = false
       }
+    }
 
-      isDataLoading.value = false
+    onBeforeMount(async () => {
+      isDataLoading.value = true
+
+      // get currency list
+      const currencyReponse = await getCurrencyList()
+      currencyList.value = currencyReponse?.result?.data || []
+
+      await fetchDataDirectList()
     })
 
     return {
@@ -324,6 +375,11 @@ export default defineComponent({
       costState,
       currencyList,
       totalCosts,
+      costStateToCompare,
+      isDisabledSubmitButton,
+      isVisibleModalConfirmSubmit,
+      isVisibleModalConfirmClone,
+      costStateToClone,
 
       isDisableCloneCost,
       isSubmitLoading,
@@ -334,9 +390,13 @@ export default defineComponent({
 
       handleAddCostItem,
       handleDeleteCostItem,
-      handleCloneCost,
+      handleCloneCostState,
       handleCancel,
-      handleSubmit
+      handleSubmit,
+      isEqual,
+      tabClick,
+      handleConfirmSubmitModal,
+      handleConfirmCloneModal
     }
   }
 })

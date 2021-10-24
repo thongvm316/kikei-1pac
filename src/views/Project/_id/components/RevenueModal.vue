@@ -3,6 +3,7 @@
     v-model:visible="visible"
     class="revenue-modal"
     width="85%"
+    centered
     title="受注金額（見積・請求）"
     @cancel="handleCancel"
   >
@@ -46,7 +47,12 @@
                   </div>
 
                   <a-space :size="32">
-                    <a-button v-if="activeKey === PROJECT_REVENUE_TYPES[1].key" class="cost-tabs-clone">
+                    <a-button
+                      v-if="activeKey === PROJECT_REVENUE_TYPES[1].key"
+                      :disabled="costStateToClone.length < 1"
+                      class="cost-tabs-clone"
+                      @click="handleCloneCostState"
+                    >
                       <template #icon>
                         <span class="btn-icon"><copy-icon /></span>
                       </template>
@@ -217,8 +223,12 @@
             </div>
 
             <div class="revenue-modal__count">
-              <p>合計: {{ totalCostItems }} (VND)</p>
-              <p>合計（税込): {{ totalCostItems + totalCostItems * 0.1 }} (VND)</p>
+              <p>合計: {{ $filters.number_with_commas(totalCostItems) }} ({{ selectCurrencyCode.toUpperCase() }})</p>
+              <p>
+                合計（税込):
+                {{ $filters.number_with_commas(totalCostItems + totalCostItems * 0.1) }}
+                ({{ selectCurrencyCode.toUpperCase() }})
+              </p>
             </div>
 
             <div class="revenue-modal__extra-info">
@@ -377,7 +387,8 @@
         </a-spin>
       </div>
     </template>
-    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="hanleConfirmSubmitModal" />
+    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
 
@@ -398,6 +409,7 @@ import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
+import ConfirmCloneModal from './ConfirmCloneModal.vue'
 
 export default defineComponent({
   name: 'RevenueModal',
@@ -408,14 +420,15 @@ export default defineComponent({
     CalendarOutlined,
     EditLargeIcon,
     LineAddIcon,
-    ConfirmSubmitModal
+    ConfirmSubmitModal,
+    ConfirmCloneModal
   },
 
   props: {
     project: Object
   },
 
-  emits: ['update:visible'],
+  emits: ['update:visible', 'on-submit-revenue-modal'],
 
   setup(_, { emit }) {
     const visible = ref()
@@ -452,11 +465,13 @@ export default defineComponent({
     const costStateToCompare = ref({})
     const isSubmitLoading = ref()
     const isVisibleModalConfirmSubmit = ref()
+    const isVisibleModalConfirmClone = ref()
 
     const totalCostItems = computed(() => {
       let count = 0
       costState.value.adProjectRevenueItems.forEach((item) => {
-        count += item.unitPrice * item.quantity
+        count +=
+          item.unitPrice * item.quantity * currencyExchange.value[initialCurrencyCode.value][selectCurrencyCode.value]
       })
 
       return count
@@ -465,7 +480,7 @@ export default defineComponent({
     const lowerCaseFirstLetter = (str) => {
       let newStr = ''
 
-      for (let i = 0; i < str.length; i++) {
+      for (let i = 0; i < str?.length; i++) {
         if (i === 0) {
           newStr += str[i].toLowerCase()
         } else {
@@ -478,13 +493,13 @@ export default defineComponent({
 
     const initialCurrencyCode = computed(() => {
       const o = find(currencyList.value, { id: costState.value.currencyId })
-      const newStr = lowerCaseFirstLetter(o.code)
+      const newStr = lowerCaseFirstLetter(o?.code)
       return newStr
     })
 
     const selectCurrencyCode = computed(() => {
       const o = find(currencyList.value, { id: currencyExchangeSelected.value })
-      const newStr = lowerCaseFirstLetter(o.code)
+      const newStr = lowerCaseFirstLetter(o?.code)
       return newStr
     })
 
@@ -541,7 +556,7 @@ export default defineComponent({
           id: uniqueId(UNIQUE_ID_PREFIX),
           itemId: null,
           overview: null,
-          projectCostsType: activeKey.value,
+          projectCostsType: Number(activeKey.value),
           projectId: null,
           quantity: 0,
           quantityUnitId: null,
@@ -560,8 +575,36 @@ export default defineComponent({
 
         costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.filter((item) => item.id !== id)
       })
+    }
 
-      console.log(costDeleteList.value)
+    const costStateToClone = ref([])
+
+    const cloneCostState = () => {
+      costState.value.adProjectRevenueItems.forEach((cost) => {
+        if (cost.id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
+          costDeleteList.value = [...costDeleteList.value, cost.id]
+        }
+      })
+
+      costState.value.adProjectRevenueItems = costStateToClone.value.map((cost) => ({
+        ...cost,
+        id: uniqueId(UNIQUE_ID_PREFIX),
+        projectCostsType: 2
+      }))
+
+      isVisibleModalConfirmClone.value = false
+    }
+
+    const handleCloneCostState = () => {
+      if (costState.value.adProjectRevenueItems.length > 0) {
+        isVisibleModalConfirmClone.value = true
+      } else {
+        cloneCostState()
+      }
+    }
+
+    const handleConfirmCloneModal = () => {
+      cloneCostState()
     }
 
     const fetchRevenueProject = async (type = '1', month = new Date()) => {
@@ -574,7 +617,7 @@ export default defineComponent({
         })
 
         if (result.data.length > 0) {
-          costState.value = result.data[0]
+          costState.value = cloneDeep(result.data[0])
         } else {
           costState.value = { ...cloneDeep(initialCostState), projectCostsType: activeKey.value }
         }
@@ -592,6 +635,7 @@ export default defineComponent({
         }))
 
         costStateToCompare.value = cloneDeep(costState.value)
+        if (type === '1') costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
 
         currencyExchangeSelected.value = costState.value.currencyId
       } finally {
@@ -613,7 +657,7 @@ export default defineComponent({
       }
     }
 
-    const hanleConfirmSubmitModal = () => {
+    const handleConfirmSubmitModal = () => {
       isVisibleModalConfirmSubmit.value = false
 
       if (purposeConfirm.value === 'change-tab') {
@@ -654,9 +698,15 @@ export default defineComponent({
       })
 
       try {
-        if (costDeleteList.value.length > 0) await deleteRevenueItem({ id: costDeleteList.value })
+        if (costDeleteList.value.length > 0) {
+          await deleteRevenueItem({ id: costDeleteList.value })
+          costDeleteList.value = []
+        }
         if (dataRequest.id) await upsertRevenueProject(dataRequest)
         costStateToCompare.value = cloneDeep(costState.value)
+        costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
+
+        emit('on-submit-revenue-modal')
       } finally {
         isSubmitLoading.value = false
       }
@@ -724,6 +774,8 @@ export default defineComponent({
       revenueItemList,
       revenueExpenseItemList,
       revenueQuantityUnit,
+      isVisibleModalConfirmClone,
+      costStateToClone,
 
       handleCancel,
       handleClickEditUnitPrice,
@@ -736,7 +788,9 @@ export default defineComponent({
       filterMonth,
       isEqual,
       handleBlurEditUnitPrice,
-      hanleConfirmSubmitModal
+      handleConfirmSubmitModal,
+      handleCloneCostState,
+      handleConfirmCloneModal
     }
   }
 })

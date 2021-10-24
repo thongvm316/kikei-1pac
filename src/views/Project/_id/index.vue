@@ -1,6 +1,6 @@
 <template>
   <section class="project-detail">
-    <total-revenue-table />
+    <total-revenue-table :finance="finance" />
 
     <div class="project-detail__wrapper">
       <div class="project-detail__forms">
@@ -45,6 +45,7 @@ export default defineComponent({
     const router = useRouter()
     const project = {}
     const isLoadedOverviewTable = ref()
+    const finance = ref()
 
     const fetchProject = async () => {
       isLoadedOverviewTable.value = true
@@ -56,7 +57,9 @@ export default defineComponent({
       if (!projectId) return
 
       try {
-        project.value = await getProject(projectId, paramRequest)
+        const projectRes = await getProject(projectId, paramRequest)
+        project.value = projectRes
+        finance.value = projectRes?.finance
       } catch (error) {
         if (error.response.status === 403) router.push({ name: 'error-403', query: { private: 'project' } })
       }
@@ -73,6 +76,7 @@ export default defineComponent({
 
     return {
       project,
+      finance,
       isLoadedOverviewTable,
       onSubmitEditProjectForm
     }

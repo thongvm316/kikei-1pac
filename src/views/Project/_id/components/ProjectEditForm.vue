@@ -413,6 +413,7 @@
                                   <template v-for="(order, index) in localProjectOrders" :key="order.key">
                                     <tr class="outsource__item">
                                       <td
+                                        style="white-space: pre-wrap"
                                         :class="[
                                           {
                                             'has-error': order.errors && order.errors['companyId'],
@@ -856,6 +857,7 @@ export default defineComponent({
 
       // init dummy project orders
       if (projectParams.value.adProjectOrders) {
+        localProjectOrders.value = []
         initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
       }
 

@@ -14,26 +14,33 @@
     <template #customRenderTotalProfit="{ text }">
       {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
-    <template #customRenderProfitRate="{ text }">
+    <template #customRenderProfitMargin="{ text }">
       {{ text !== null ? $filters.number_with_commas(text, 2) + '%' : '-' }}
     </template>
     <template #customRenderCost="{ text }">
       {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
-    <template #customRenderCostRate="{ text }">
+    <template #customRenderExpenseRatio="{ text }">
       {{ text !== null ? $filters.number_with_commas(text, 2) + '%' : '-' }}
     </template>
   </a-table>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { uniqueId } from 'lodash-es'
 
 export default defineComponent({
   name: 'TotalRevenueTable',
 
-  setup() {
+  props: {
+    finance: {
+      type: Object,
+      default: undefined
+    }
+  },
+
+  setup(props) {
     const isLoadingTable = ref(false)
 
     const localeTable = {
@@ -66,9 +73,9 @@ export default defineComponent({
       },
       {
         title: '利益率',
-        dataIndex: 'profitRate',
-        key: 'profitRate',
-        slots: { customRender: 'customRenderProfitRate' },
+        dataIndex: 'profitMargin',
+        key: 'profitMargin',
+        slots: { customRender: 'customRenderProfitMargin' },
         align: 'right'
       },
       {
@@ -80,33 +87,35 @@ export default defineComponent({
       },
       {
         title: '原価率',
-        dataIndex: 'costRate',
-        key: 'costRate',
-        slots: { customRender: 'customRenderCostRate' },
+        dataIndex: 'expenseRatio',
+        key: 'expenseRatio',
+        slots: { customRender: 'customRenderExpenseRatio' },
         align: 'right'
       }
     ]
 
-    const dataSource = [
+    const financeData = computed(() => props.finance)
+
+    const dataSource = computed(() => [
       {
         key: uniqueId('__row__'),
         type: '予測',
-        revenue: 1111111323343343,
-        totalProfit: 1111111323343343,
-        profitRate: 0,
-        cost: 1111111323343343,
-        costRate: 30.5678
+        revenue: financeData.value?.revenue?.estimate,
+        totalProfit: financeData.value?.totalProfit?.estimate,
+        profitMargin: financeData.value?.profitMargin?.estimate,
+        cost: financeData.value?.cost?.estimate,
+        expenseRatio: financeData.value?.expenseRatio?.estimate
       },
       {
         key: uniqueId('__row__'),
         type: '実績',
-        revenue: 1111111323343343,
-        totalProfit: null,
-        profitRate: null,
-        cost: 1111111323343343,
-        costRate: 0
+        revenue: financeData.value?.revenue?.invoice,
+        totalProfit: financeData.value?.totalProfit?.invoice,
+        profitMargin: financeData.value?.profitMargin?.invoice,
+        cost: financeData.value?.cost?.invoice,
+        expenseRatio: financeData.value?.expenseRatio?.invoice
       }
-    ]
+    ])
 
     return {
       isLoadingTable,

@@ -1,5 +1,12 @@
 <template>
-  <a-modal v-model:visible="visible" class="directly-person-cost" width="85%" title="直接労務費" @cancel="handleCancel">
+  <a-modal
+    v-model:visible="visible"
+    centered
+    class="directly-person-cost"
+    width="85%"
+    title="直接労務費"
+    @cancel="handleCancel"
+  >
     <template #footer>
       <div class="directly-person-cost__wrapper">
         <div class="u-relative">
@@ -19,10 +26,11 @@
         </div>
 
         <div class="u-mt-16">
-          <a-tabs v-model:activeKey="activeKey" :animated="false" @change="handleChangeTab">
+          <a-tabs :active-key="activeKey" :animated="false" @tabClick="tabClick">
             <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text">
               <div class="directly-person-cost__filter">
                 <div>
+                  <!-- filter month -->
                   <a-month-picker
                     v-if="project.value.type === PROJECT_TYPES[1].value"
                     :style="{ width: '122px' }"
@@ -36,12 +44,13 @@
                   </a-month-picker>
                 </div>
 
+                <!-- filter curency -->
                 <a-space :size="32">
                   <a-button
                     v-if="activeKey === PROJECT_COST_TYPES[1].key"
-                    :disabled="costState.predict.length < 1"
+                    :disabled="costStateToClone.length < 1"
                     class="cost-tabs-clone"
-                    @click="clonePredictToActual"
+                    @click="handleCloneCostState"
                   >
                     <template #icon>
                       <span class="btn-icon"><copy-icon /></span>
@@ -51,7 +60,7 @@
                   <a-space>
                     <span>通貨</span>
                     <a-select
-                      :value="1"
+                      v-model:value="selectedCurrency"
                       show-arrow
                       option-label-prop="label"
                       class="u-ml-8"
@@ -70,8 +79,11 @@
                   </a-space>
                 </a-space>
               </div>
+
+              <!-- table -->
               <a-spin :spinning="isLoadingDataTable">
                 <table class="directly-person-cost__table">
+                  <!-- head -->
                   <thead>
                     <tr>
                       <th style="min-width: 200px">役職</th>
@@ -85,15 +97,15 @@
                     </tr>
                   </thead>
 
-                  <tbody v-if="costList.length > 0">
-                    <tr v-for="item in costList" :key="item.id">
+                  <tbody>
+                    <tr v-for="cost in costState" :key="cost.id">
                       <!-- position -->
                       <td>
                         <a-space>
-                          <a-checkbox v-model:checked="item.checked" />
+                          <a-checkbox v-model:checked="cost.checked" />
 
                           <a-select
-                            v-model:value="item.positionId"
+                            v-model:value="cost.positionId"
                             style="width: 150px"
                             :default-active-first-option="false"
                           >
@@ -105,13 +117,13 @@
                       </td>
 
                       <!-- name -->
-                      <td><a-input v-model:value="item.name" placeholder="氏名 氏名" /></td>
+                      <td><a-input v-model:value="cost.name" placeholder="氏名 氏名" /></td>
 
                       <!-- month -->
                       <td>
                         <a-space>
                           <a-input-number
-                            v-model:value="item.monthlySalary"
+                            v-model:value="cost.monthlySalary"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -120,7 +132,7 @@
                             :max="999999999999"
                           />
                           <a-select
-                            v-model:value="item.salaryCurrencyId"
+                            v-model:value="cost.salaryCurrencyId"
                             show-arrow
                             option-label-prop="label"
                             :style="{ width: '80px' }"
@@ -143,7 +155,7 @@
                         <a-space>
                           <!-- day -->
                           <a-input-number
-                            v-model:value="item.workingDays"
+                            v-model:value="cost.workingDays"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -154,7 +166,7 @@
                           <span>日</span>
                           <!-- hour -->
                           <a-input-number
-                            v-model:value="item.workingHours"
+                            v-model:value="cost.workingHours"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -170,7 +182,7 @@
                       <td>
                         <a-space>
                           <a-input-number
-                            v-model:value="item.overtimeDaysFirst"
+                            v-model:value="cost.overtimeDaysFirst"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -180,7 +192,7 @@
                           />
                           <span>日</span>
                           <a-input-number
-                            v-model:value="item.overtimeHoursFirst"
+                            v-model:value="cost.overtimeHoursFirst"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -196,7 +208,7 @@
                       <td>
                         <a-space>
                           <a-input-number
-                            v-model:value="item.overtimeDaysSecond"
+                            v-model:value="cost.overtimeDaysSecond"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -206,7 +218,7 @@
                           />
                           <span>日</span>
                           <a-input-number
-                            v-model:value="item.overtimeHoursSecond"
+                            v-model:value="cost.overtimeHoursSecond"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -222,7 +234,7 @@
                       <td>
                         <a-space>
                           <a-input-number
-                            v-model:value="item.allowance"
+                            v-model:value="cost.allowance"
                             placeholder="0"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -231,7 +243,7 @@
                             :max="999999999999"
                           />
                           <a-select
-                            v-model:value="item.allowanceCurrencyId"
+                            v-model:value="cost.allowanceCurrencyId"
                             show-arrow
                             option-label-prop="label"
                             :style="{ width: '80px' }"
@@ -251,13 +263,14 @@
 
                       <!-- count -->
                       <td>
-                        {{ $filters.number_with_commas(countSubTotal(item)) }}
+                        {{ $filters.number_with_commas(countSubTotal(cost)) }}
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </a-spin>
 
+              <!-- Button add more row -->
               <a-button size="small" class="u-mt-24" @click="handleAddCostItem">
                 <template #icon>
                   <span class="btn-icon"><line-add-icon /></span>
@@ -265,13 +278,20 @@
                 見積項目を追加
               </a-button>
 
+              <!-- total money -->
               <div class="directly-person-cost__count">
-                <span>合計: {{ $filters.number_with_commas(salaryTotal) }} (VND)</span>
+                <span>合計: {{ $filters.number_with_commas(salaryTotal) }} ({{ selectedCurrencyCode }})</span>
               </div>
 
+              <!-- modal action buttons -->
               <div class="directly-person-cost__submit-buttons">
                 <a-button @click="handleCancel">キャンセル</a-button>
-                <a-button :loading="isLoaddingSubmitButton" type="primary" class="u-ml-8" @click="submit"
+                <a-button
+                  :disabled="isEqual(costState, costStateToCompare)"
+                  :loading="isLoaddingSubmitButton"
+                  type="primary"
+                  class="u-ml-8"
+                  @click="submit"
                   >登録</a-button
                 >
               </div>
@@ -280,11 +300,13 @@
         </div>
       </div>
     </template>
+    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
 
 <script>
-import { watch, defineComponent, onBeforeMount, onUnmounted, reactive, ref, toRefs, computed } from 'vue'
+import { watch, defineComponent, onBeforeMount, reactive, ref, toRefs, computed } from 'vue'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import {
@@ -293,13 +315,15 @@ import {
   upsertLaborDirectCostList,
   deleteLaborDirectCostList
 } from '../../composables/useProject'
-import { getCurrencyList } from '../../composables/useCurrency'
+import { getCurrencyList, getCurrencyExchange } from '../../composables/useCurrency'
 import { useRoute } from 'vue-router'
 import { PROJECT_COST_TYPES } from '@/enums/project.enum'
-import { uniqueId } from 'lodash-es'
+import { cloneDeep, find, uniqueId, isEqual } from 'lodash-es'
 import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import { PROJECT_TYPES } from '@/enums/project.enum'
+import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
+import ConfirmCloneModal from './ConfirmCloneModal.vue'
 
 export default defineComponent({
   name: 'DirectlyPersionCost',
@@ -308,11 +332,16 @@ export default defineComponent({
     CalendarOutlined,
     LineAddIcon,
     DeleteWhiteIcon,
-    CopyIcon
+    CopyIcon,
+    ConfirmSubmitModal,
+    ConfirmCloneModal
   },
 
   props: {
-    project: Object
+    project: {
+      type: Object,
+      required: true
+    }
   },
 
   emits: ['update:visible', 'on-submit', 'on-submit-direct-person-cost-modal'],
@@ -320,20 +349,13 @@ export default defineComponent({
   setup(_, { emit }) {
     const visible = ref()
     const activeKey = ref('1')
-    const height = ref(0)
     const currencyList = ref([])
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const positionList = ref([])
-    const costState = reactive({
-      predict: [],
-      actual: []
-    })
 
-    const selectedRowKeys = reactive({
-      predict: [],
-      actual: []
-    })
+    const currencyExchange = ref()
+    const costState = ref([])
 
     const isLoadingDataTable = ref()
 
@@ -348,129 +370,48 @@ export default defineComponent({
 
     const costDeleteList = ref([])
 
-    const costList = computed(() =>
-      activeKey.value === PROJECT_COST_TYPES[0].key ? costState.predict : costState.actual
-    )
-
-    const checkedList = computed(() => costList.value.filter((item) => item.checked).map((item) => item.id))
+    const checkedList = computed(() => costState.value.filter((item) => item.checked).map((item) => item.id))
 
     const salaryTotal = computed(() => {
       let total = 0
-      costList.value.forEach((item) => {
+      costState.value.forEach((item) => {
         total += countSubTotal(item)
       })
 
       return total
     })
 
-    const onCheckAllChange = (e) => {
-      Object.assign(state, {
-        indeterminate: false
-      })
+    const selectedCurrency = ref(1)
 
-      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
-        if (e.target.checked) {
-          costState.predict.map((item) => {
-            item.checked = true
-            return item
-          })
-        } else {
-          costState.predict.map((item) => {
-            item.checked = false
-            return item
-          })
+    const lowerCaseFirstLetter = (str) => {
+      if (str) {
+        let newStr = ''
+
+        for (let i = 0; i < str.length; i++) {
+          if (i === 0) {
+            newStr += str[i].toLowerCase()
+          } else {
+            newStr += str[i]
+          }
         }
-      } else {
-        if (e.target.checked) {
-          costState.actual.map((item) => {
-            item.checked = true
-            return item
-          })
-        } else {
-          costState.actual.map((item) => {
-            item.checked = false
-            return item
-          })
-        }
+
+        return newStr
       }
     }
 
-    watch(
-      () => checkedList.value,
-      (val) => {
-        state.indeterminate = !!val.length && val.length > 0 && val.length < costList.value.length
-        state.checkAll = !!val.length && val.length === costList.value.length
-      }
-    )
-
-    const handleCancel = () => emit('update:visible', false)
-
-    const getInnerHeight = () => {
-      height.value = window.innerHeight
-    }
-
-    const submit = async () => {
-      const dataRequest = convertDataToSubmit()
-      isLoaddingSubmitButton.value = true
-
-      try {
-        await upsertLaborDirectCostList({ projectLaborDirectCost: dataRequest })
-        if (costDeleteList.value.length > 0) {
-          await deleteLaborDirectCostList({ id: costDeleteList.value })
-        }
-        emit('update:visible', false)
-        emit('on-submit-direct-person-cost-modal')
-      } finally {
-        isLoaddingSubmitButton.value = false
+    const converExchangeIdToCode = (id) => {
+      if (id) {
+        const o = find(currencyList.value, { id })
+        const newStr = lowerCaseFirstLetter(o?.code)
+        return newStr
       }
     }
 
-    const handleChangeTab = async (val) => {
-      console.log(val)
-    }
+    const selectedCurrencyCode = computed(() => {
+      const currency = find(currencyList.value, { id: selectedCurrency.value })
 
-    const convertDataToSubmit = () => {
-      let data = []
-      data.push(...costState.predict)
-      data.push(...costState.actual)
-
-      return (
-        data
-          // .filter((item) => !!item.name)
-          .map((item) => {
-            delete item.checked
-            delete item.subtotal
-            if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
-            return item
-          })
-      )
-    }
-
-    const createCostItem = (costTypeIndex) => ({
-      id: uniqueId(UNIQUE_ID_PREFIX),
-      projectCostsType: PROJECT_COST_TYPES[costTypeIndex].value,
-      allowance: null,
-      allowanceCurrencyId: 1,
-      monthlySalary: null,
-      name: '',
-      overtimeDaysFirst: null,
-      overtimeDaysSecond: null,
-      overtimeHoursFirst: null,
-      overtimeHoursSecond: null,
-      positionId: null,
-      projectId,
-      salaryCurrencyId: 1,
-      workingDays: null,
-      workingHours: null
+      return currency?.code
     })
-
-    const handleAddCostItem = () => {
-      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
-        costState.predict = [...costState.predict, createCostItem(0)]
-      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
-        costState.actual = [...costState.actual, createCostItem(1)]
-      }
-    }
 
     const countSubTotal = (item) => {
       const {
@@ -481,7 +422,9 @@ export default defineComponent({
         overtimeHoursFirst,
         overtimeDaysSecond,
         overtimeHoursSecond,
-        monthlySalary
+        monthlySalary,
+        salaryCurrencyId,
+        allowanceCurrencyId
       } = item
 
       const salaryPerHour = monthlySalary / (20 * 8)
@@ -489,66 +432,194 @@ export default defineComponent({
       const overTimeFirstHours = (overtimeDaysFirst * 8 + overtimeHoursFirst) * (125 / 100)
       const overTimeSecondHours = (overtimeDaysSecond * 8 + overtimeHoursSecond) * 1.5
 
-      const subtotal = (normalWorkingHours + overTimeFirstHours + overTimeSecondHours) * salaryPerHour
+      const salary = (normalWorkingHours + overTimeFirstHours + overTimeSecondHours) * salaryPerHour
 
-      return allowance + subtotal
+      const salaryExchange = converExchangeIdToCode(salaryCurrencyId)
+      const selectedExchange = converExchangeIdToCode(selectedCurrency.value)
+      const allowanceExchange = converExchangeIdToCode(allowanceCurrencyId)
+
+      return (
+        salary * currencyExchange.value[salaryExchange][selectedExchange] +
+        allowance * currencyExchange.value[allowanceExchange][selectedExchange]
+      )
     }
 
-    const fetDataTable = async () => {
+    const onCheckAllChange = (e) => {
+      Object.assign(state, {
+        indeterminate: false
+      })
+
+      if (e.target.checked) {
+        costState.value.forEach((item) => (item.checked = true))
+      } else {
+        costState.value.forEach((item) => (item.checked = false))
+      }
+    }
+
+    watch(
+      () => checkedList.value,
+      (val) => {
+        state.indeterminate = !!val.length && val.length > 0 && val.length < costState.value.length
+        state.checkAll = !!val.length && val.length === costState.value.length
+      }
+    )
+
+    const handleCancel = () => {
+      if (isEqual(costState.value, costStateToCompare.value)) {
+        emit('update:visible', false)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        purposeConfirm.value = 'close-modal'
+      }
+    }
+
+    const submit = async () => {
+      isLoaddingSubmitButton.value = true
+
+      const dataRequest = cloneDeep(costState.value)
+
+      dataRequest.forEach((item) => {
+        delete item.checked
+        delete item.subtotal
+        if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
+      })
+      try {
+        await upsertLaborDirectCostList({ projectLaborDirectCost: dataRequest })
+        if (costDeleteList.value.length > 0) {
+          await deleteLaborDirectCostList({ id: costDeleteList.value })
+          costDeleteList.value = []
+        }
+        costStateToCompare.value = cloneDeep(costState.value)
+        costStateToClone.value = cloneDeep(costState.value)
+        emit('on-submit-direct-person-cost-modal')
+      } finally {
+        isLoaddingSubmitButton.value = false
+      }
+    }
+
+    const handleAddCostItem = () => {
+      costState.value = [
+        ...costState.value,
+        {
+          id: uniqueId(UNIQUE_ID_PREFIX),
+          projectCostsType: Number(activeKey.value),
+          allowance: 0,
+          allowanceCurrencyId: selectedCurrency.value,
+          monthlySalary: 0,
+          name: null,
+          overtimeDaysFirst: 0,
+          overtimeDaysSecond: 0,
+          overtimeHoursFirst: 0,
+          overtimeHoursSecond: 0,
+          positionId: null,
+          projectId,
+          salaryCurrencyId: selectedCurrency.value,
+          workingDays: 0,
+          workingHours: 0
+        }
+      ]
+    }
+
+    const costStateToClone = ref([])
+    const costStateToCompare = ref()
+
+    const fetDataTable = async (type = activeKey.value, month = null) => {
       isLoadingDataTable.value = true
 
       try {
         const { data } = await getLaborDirectCostList({
-          projectId: projectId,
-          projectCostsType: '1,2'
+          projectId,
+          projectCostsType: type,
+          month
         })
 
-        costState.predict = data
-          .filter((item) => item.projectCostsType === 1)
-          .map((item) => ({ ...item, checked: false, subtotal: countSubTotal(item) }))
-        costState.actual = data
-          .filter((item) => item.projectCostsType === 2)
-          .map((item) => ({ ...item, checked: false, subtotal: countSubTotal(item) }))
+        costState.value = cloneDeep(data)
+        costState.value = costState.value.map((cost) => ({
+          ...cost,
+          checked: false
+        }))
+        costStateToCompare.value = cloneDeep(costState.value)
+        if (type === '1') costStateToClone.value = cloneDeep(costState.value)
       } finally {
         isLoadingDataTable.value = false
       }
     }
 
-    const handleDeleteCostItem = () => {
-      checkedList.value.forEach((item) => {
-        if (item.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
-          costDeleteList.value = [...costDeleteList.value, item]
-        }
-      })
+    const nextTab = ref()
+    const purposeConfirm = ref()
+    const isVisibleModalConfirmSubmit = ref()
 
-      if (activeKey.value === PROJECT_COST_TYPES[0].key) {
-        costState.predict = costState.predict.filter((item) => !checkedList.value.includes(item.id))
-      } else if (activeKey.value === PROJECT_COST_TYPES[1].key) {
-        costState.actual = costState.actual.filter((item) => !checkedList.value.includes(item.id))
+    const tabClick = (val) => {
+      if (val === activeKey.value) return
+      if (isEqual(costState.value, costStateToCompare.value)) {
+        activeKey.value = val
+        fetDataTable(val)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        nextTab.value = val
+        purposeConfirm.value = 'change-tab'
       }
     }
 
-    const clonePredictToActual = () => {
-      costState.actual.forEach((cost) => {
+    const handleConfirmSubmitModal = () => {
+      isVisibleModalConfirmSubmit.value = false
+
+      if (purposeConfirm.value === 'change-tab') {
+        fetDataTable(nextTab.value)
+        activeKey.value = nextTab.value
+      } else if (purposeConfirm.value === 'close-modal') {
+        emit('update:visible', false)
+      }
+    }
+
+    const handleDeleteCostItem = () => {
+      checkedList.value.forEach((id) => {
+        if (id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
+          costDeleteList.value = [...costDeleteList.value, id]
+        }
+
+        costState.value = costState.value.filter((item) => item.id !== id)
+      })
+    }
+
+    const isVisibleModalConfirmClone = ref()
+
+    const cloneCostState = () => {
+      costState.value.forEach((cost) => {
         if (cost.id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
           costDeleteList.value = [...costDeleteList.value, cost.id]
         }
       })
-      costState.actual = costState.predict.map((cost) => ({
+
+      costState.value = costStateToClone.value.map((cost) => ({
         ...cost,
         id: uniqueId(UNIQUE_ID_PREFIX),
         projectCostsType: PROJECT_COST_TYPES[1].value
       }))
+
+      isVisibleModalConfirmClone.value = false
+    }
+
+    const handleCloneCostState = () => {
+      if (costState.value.length > 0) {
+        isVisibleModalConfirmClone.value = true
+      } else {
+        cloneCostState()
+      }
+    }
+
+    const handleConfirmCloneModal = () => {
+      cloneCostState()
     }
 
     onBeforeMount(async () => {
-      // get inner height
-      getInnerHeight()
-      window.addEventListener('resize', getInnerHeight)
-
       // get currency list
       const currencyReponse = await getCurrencyList()
       currencyList.value = currencyReponse?.result?.data || []
+
+      // get currency exchange
+      const { result: currencyExchangeRes } = await getCurrencyExchange()
+      currencyExchange.value = currencyExchangeRes.data
 
       const { result } = await getPositionList()
       positionList.value = result?.data || []
@@ -556,37 +627,40 @@ export default defineComponent({
       await fetDataTable(activeKey.value)
     })
 
-    onUnmounted(() => {
-      window.removeEventListener('resize', getInnerHeight)
-    })
-
     return {
       visible,
       activeKey,
-      height,
       currencyList,
       positionList,
       PROJECT_COST_TYPES,
       costState,
-      ...toRefs(selectedRowKeys),
+      costStateToCompare,
       ...toRefs(state),
       checkedList,
       isLoaddingSubmitButton,
-      costList,
       costDeleteList,
       isLoadingDataTable,
       PROJECT_TYPES,
       salaryTotal,
+      selectedCurrency,
+      currencyExchange,
+      selectedCurrencyCode,
+      isVisibleModalConfirmSubmit,
+      costStateToClone,
 
       // func
       handleCancel,
       submit,
-      handleChangeTab,
       handleAddCostItem,
       onCheckAllChange,
       handleDeleteCostItem,
-      clonePredictToActual,
-      countSubTotal
+      handleCloneCostState,
+      countSubTotal,
+      tabClick,
+      handleConfirmSubmitModal,
+      isEqual,
+      isVisibleModalConfirmClone,
+      handleConfirmCloneModal
     }
   }
 })
