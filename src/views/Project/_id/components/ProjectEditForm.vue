@@ -98,14 +98,9 @@
 
                         <td>
                           <a-form-item name="code">
-                            <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.code }}</span>
-                            <a-input
-                              v-if="isEditing"
-                              v-model:value="projectParams.code"
-                              :disabled="true"
-                              :style="{ width: '300px' }"
-                              placeholder="GXX-YYYY-ZZZ"
-                            />
+                            <span :class="['u-text-12', isEditing ? 'u-text-grey-55' : 'u-text-grey-15']">{{
+                              projectParams.code
+                            }}</span>
 
                             <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
                               {{ $t(`common.local_error.${localErrors['code']}`) }}

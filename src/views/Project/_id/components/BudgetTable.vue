@@ -489,14 +489,16 @@ export default defineComponent({
         month: null
       })
 
+      const currency = find(currencyList.value, { id: result?.data[0].currencyId })
+
       result.data.forEach((item) => {
-        const currency = find(currencyList.value, { id: item.currencyId })
+        revenueCost.predict.code = currency.code
+        revenueCost.actual.code = currency.code
+
         if (item.projectCostsType === 1) {
           revenueCost.predict.total = item.total
-          revenueCost.predict.code = currency.code
         } else {
           revenueCost.actual.total = item.total
-          revenueCost.actual.code = currency.code
         }
       })
     }

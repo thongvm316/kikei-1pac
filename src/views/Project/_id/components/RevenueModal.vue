@@ -94,7 +94,11 @@
 
                   <tbody>
                     <template v-if="costState?.adProjectRevenueItems.length > 0">
-                      <tr v-for="cost in costState?.adProjectRevenueItems" :key="cost.id">
+                      <tr
+                        v-for="cost in costState?.adProjectRevenueItems"
+                        :key="cost.id"
+                        :class="cost.checked && 'isCheckedRow'"
+                      >
                         <!-- item -->
                         <td>
                           <a-space>
@@ -871,6 +875,10 @@ export default defineComponent({
 
     tbody {
       background-color: $color-grey-100;
+
+      tr.isCheckedRow {
+        background-color: $color-primary-1;
+      }
 
       td {
         border-bottom: 1px solid $color-grey-75;

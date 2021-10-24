@@ -88,17 +88,17 @@
                     <tr>
                       <th style="min-width: 200px">役職</th>
                       <th style="min-width: 160px">氏名</th>
-                      <th style="min-width: 232px">月給</th>
+                      <th v-if="authProfile.isAdmin" style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
                       <th style="min-width: 234px">時間外労働時間（*1.25）</th>
                       <th style="min-width: 234px">時間外労働時間（*1.5）</th>
                       <th style="min-width: 232px">手当等</th>
-                      <th style="min-width: 130px">小計</th>
+                      <th v-if="authProfile.isAdmin" style="min-width: 130px">小計</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    <tr v-for="cost in costState" :key="cost.id">
+                    <tr v-for="cost in costState" :key="cost.id" :class="[cost.checked && 'isCheckedRow']">
                       <!-- position -->
                       <td>
                         <a-space>
@@ -119,8 +119,8 @@
                       <!-- name -->
                       <td><a-input v-model:value="cost.name" placeholder="氏名 氏名" /></td>
 
-                      <!-- month -->
-                      <td>
+                      <!-- month salary -->
+                      <td v-if="authProfile.isAdmin">
                         <a-space>
                           <a-input-number
                             v-model:value="cost.monthlySalary"
@@ -262,7 +262,7 @@
                       </td>
 
                       <!-- count -->
-                      <td>
+                      <td v-if="authProfile.isAdmin">
                         {{ $filters.number_with_commas(countSubTotal(cost)) }}
                       </td>
                     </tr>
@@ -324,6 +324,7 @@ import CopyIcon from '@/assets/icons/ico_copy.svg'
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'DirectlyPersionCost',
@@ -353,6 +354,9 @@ export default defineComponent({
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const positionList = ref([])
+
+    const store = useStore()
+    const authProfile = computed(() => store.state?.auth.authProfile)
 
     const currencyExchange = ref()
     const costState = ref([])
@@ -647,6 +651,7 @@ export default defineComponent({
       selectedCurrencyCode,
       isVisibleModalConfirmSubmit,
       costStateToClone,
+      authProfile,
 
       // func
       handleCancel,
@@ -733,6 +738,10 @@ export default defineComponent({
 
     tbody {
       background-color: $color-grey-100;
+
+      tr.isCheckedRow {
+        background-color: $color-primary-1;
+      }
 
       td {
         border-bottom: 1px solid $color-grey-75;
