@@ -63,7 +63,7 @@ export default defineComponent({
     const currentSelectedRowKeys = ref([])
     const totalPages = ref(0)
     const isLoadedOkButton = ref()
-    const currentSortStr = ref()
+    const currentSortStr = ref('ad_deposit.deleted_at desc')
 
     const handleCancel = () => {
       emit('update:visible', false)

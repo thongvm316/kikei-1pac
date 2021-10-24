@@ -52,8 +52,10 @@
     }
   }
 
-  .ant-tabs-nav .ant-tabs-tab {
-    padding: 12px 20px 12px 0;
+  .ant-tabs-nav {
+    .ant-tabs-tab {
+      padding: 12px 20px 12px 0;
+    }
   }
 
   .form-create {
@@ -161,7 +163,7 @@
     }
   }
 
-  .form-label-line9 {
+  .form-label-line10 {
     span {
       color: #cd201f;
       margin-left: 6px;
@@ -207,8 +209,6 @@
       margin-top: 0 !important;
 
       input {
-        width: 100%;
-        margin-right: 12px;
         text-align: end;
       }
     }
@@ -220,6 +220,7 @@
 
   .container {
     padding: 0;
+    margin: 0;
 
     .form-label-line8 {
       span {

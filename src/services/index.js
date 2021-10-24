@@ -25,6 +25,7 @@ import MaterialCostsService from './material-costs'
 import OrderCostsService from './order-costs'
 import PositionService from './position'
 import RevenueService from './revenue'
+import BalanceRegistrationService from './balance-registration'
 
 const repositories = {
   StorageService,
@@ -53,7 +54,8 @@ const repositories = {
   MaterialCostsService,
   OrderCostsService,
   PositionService,
-  RevenueService
+  RevenueService,
+  BalanceRegistrationService
 }
 
 export default {

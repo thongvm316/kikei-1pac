@@ -3,12 +3,25 @@
     <div class="financing__header">
       <div class="financing__header--top u-mx-32">
         <div class="financing__header--wrap">
+          <template v-if="isTabAllGroup">
+            <div class="form-group">
+              <label class="form-label">{{ $t('financing.financing_list.company') }}</label>
+
+              <div class="form-select">
+                <a-select v-model:value="groupCompany.group_id" class="dropdown-company" @change="onChangeCompany">
+                  <a-select-option v-for="item in groupListTabAll" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
+          </template>
           <!--Stages-->
           <div class="form-group">
             <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
 
             <div class="form-select">
-              <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
+              <a-select v-model:value="filter.period_id" @change="onChangePeriod">
                 <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
                   {{ item.name }}
                 </a-select-option>
@@ -16,43 +29,45 @@
             </div>
           </div>
           <!--./Stages -->
-          <!--Date From-->
-          <div class="form-group">
-            <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
+          <template v-if="!isTabAllGroup">
+            <!--Date From-->
+            <div class="form-group">
+              <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
 
-            <div class="form-select">
-              <a-range-picker
-                v-model:value="filter.date_from_to"
-                :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
-                :style="{ width: '260px' }"
-                :placeholder="filter.show_by ? ['YYYY/MM/DD', 'YYYY/MM/DD'] : ['YYYY/MM', 'YYYY/MM']"
-                @change="onChangeDate"
-              >
-                <template #suffixIcon>
-                  <CalendarOutlined />
-                </template>
-              </a-range-picker>
-            </div>
-          </div>
-          <!--./Date From -->
-          <!-- Display -->
-          <div class="form-group">
-            <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
-
-            <div class="form-checkbox">
-              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy(filter.show_by)">
-                <a-radio
-                  v-for="item in SHOW_BY"
-                  :key="item.id"
-                  :value="item.id"
-                  :disabled="item.id === 1 ? isDisabledDisplay : false"
+              <div class="form-select">
+                <a-range-picker
+                  v-model:value="filter.date_from_to"
+                  :format="filter.show_by ? 'YYYY-MM-DD' : 'YYYY-MM'"
+                  :style="{ width: '260px' }"
+                  :placeholder="filter.show_by ? ['YYYY/MM/DD', 'YYYY/MM/DD'] : ['YYYY/MM', 'YYYY/MM']"
+                  @change="onChangeDate"
                 >
-                  {{ $t(`financing.financing_list.${item.value}`) }}
-                </a-radio>
-              </a-radio-group>
+                  <template #suffixIcon>
+                    <CalendarOutlined />
+                  </template>
+                </a-range-picker>
+              </div>
             </div>
-          </div>
-          <!-- ./Display -->
+            <!--./Date From -->
+            <!-- Display -->
+            <div class="form-group">
+              <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
+
+              <div class="form-checkbox">
+                <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy(filter.show_by)">
+                  <a-radio
+                    v-for="item in SHOW_BY"
+                    :key="item.id"
+                    :value="item.id"
+                    :disabled="item.id === 1 ? isDisabledDisplay : false"
+                  >
+                    {{ $t(`financing.financing_list.${item.value}`) }}
+                  </a-radio>
+                </a-radio-group>
+              </div>
+            </div>
+            <!-- ./Display -->
+          </template>
         </div>
       </div>
       <div class="financing__header--middle">
@@ -116,7 +131,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { isEmpty, remove } from 'lodash-es'
+import { dropRight, forEach, isEmpty, remove } from 'lodash-es'
 
 import useGetGroupListService from '@/views/FinancingChart/composables/useGetGroupListService'
 import useGetPeriodListService from '@/views/FinancingChart/composables/useGetPeriodListService'
@@ -124,7 +139,7 @@ import useGetBankAccountsService from '@/views/FinancingChart/composables/useGet
 import useGetCurrencyService from '@/views/FinancingChart/composables/useGetCurrencyService'
 import useGetDataChartService from '@/views/FinancingChart/composables/useGetDataChartService'
 
-import { findCurrentPeriod, currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
+import { currentDate, addDaysInCurrentDate, getDiffDays } from '@/helpers/extend-financing'
 
 import FinancingChart from '@/views/FinancingChart/-components/FinancingChart'
 
@@ -143,6 +158,7 @@ export default defineComponent({
     const router = useRouter()
 
     const groupList = ref([])
+    const groupListTabAll = ref([])
     const periodList = ref([])
     const bankAccountList = ref([])
     const currencyList = ref([])
@@ -158,6 +174,7 @@ export default defineComponent({
     const isDisabledDisplay = ref(false)
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
+    const isTabAllGroup = ref(false)
 
     // data for request financing
     const initialDataRequest = {
@@ -170,13 +187,18 @@ export default defineComponent({
       currency_code: null
     }
 
+    const groupCompany = ref({
+      group_id: 1
+    })
+
     const requestParamsData = ref({
       data: { ...initialDataRequest }
     })
 
     const updateParamRequestFinancing = ({ data = {} }) => {
       requestParamsData.value = {
-        data: { ...requestParamsData.value.data, ...data }
+        data: { ...requestParamsData.value.data, ...data },
+        group_id: groupCompany.value.group_id
       }
       store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
@@ -205,6 +227,16 @@ export default defineComponent({
     const filter = reactive({ ...initialStateFilter })
 
     // Handle filter
+    const onChangeCompany = async (event) => {
+      await fetchPeriodList(event)
+      forEach(periodList.value, (value) => {
+        value.currentPeriod ? (filter.period_id = value.id) : null
+      })
+      updateParamRequestFinancing({
+        data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
+      })
+    }
+
     const onChangePeriod = async (event) => {
       isDisabledDate.value = !(event === undefined || event === null)
       if (filter.period_id === undefined) filter.period_id = null
@@ -222,12 +254,14 @@ export default defineComponent({
     }
 
     const onChangeDate = async (value, dateString) => {
-      let periodCurrentFound = findCurrentPeriod(periodList.value)
+      forEach(periodList.value, (value) => {
+        value.currentPeriod ? (filter.period_id = value.id) : null
+      })
       if (dateString.length > 1) {
         if (!filter.show_by) {
           let checkDateUndefined = filter.date_from_to[0] === null && filter.date_from_to[1] === null
 
-          filter.period_id = checkDateUndefined ? periodCurrentFound?.id : null
+          filter.period_id = checkDateUndefined ? filter.period_id : null
           filter.date_from_to[0] = checkDateUndefined ? null : currentDate(value[0])
           filter.date_from_to[1] = checkDateUndefined ? null : currentDate(value[1])
         } else {
@@ -238,7 +272,7 @@ export default defineComponent({
             })
           }
 
-          filter.period_id = !dateString[0] && !dateString[1] ? periodCurrentFound?.id : null
+          filter.period_id = !dateString[0] && !dateString[1] ? filter.period_id : null
           filter.date_from_to[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
           filter.date_from_to[1] =
             getDiffDays(dateString[0], dateString[1]) > 59
@@ -286,10 +320,32 @@ export default defineComponent({
     }
 
     const onChangeTabGroup = async (value) => {
+      value !== 0 ? (isTabAllGroup.value = false) : (isTabAllGroup.value = true)
       let currencyCode = requestParamsData.value.data.currency_code
       let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
+      filter.period_id = null
 
-      if (value !== 0) await fetchBankAccounts({ group_id: value })
+      if (value !== 0) {
+        await fetchBankAccounts({ group_id: value })
+        await fetchPeriodList(value)
+        if (requestParamsData.value.data.period_id) {
+          filter.date_from_to[0] = filter.date_from_to[1] = null
+          forEach(periodList.value, (value) => {
+            value.currentPeriod ? (filter.period_id = value.id) : null
+          })
+          updateParamRequestFinancing({
+            data: { period_id: filter.period_id }
+          })
+        }
+      } else {
+        await fetchPeriodList(groupCompany.value.group_id)
+        forEach(periodList.value, (value) => {
+          value.currentPeriod ? (filter.period_id = value.id) : null
+        })
+        updateParamRequestFinancing({
+          data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
+        })
+      }
 
       filter.currency_code = currencyCode === null ? currencyDefault?.code : currencyCode
       filter.show_by = value !== 0 ? requestParamsData.value.data.show_by : 0
@@ -353,6 +409,7 @@ export default defineComponent({
       const { getGroupsFinancing } = useGetGroupListService()
       const { result } = await getGroupsFinancing()
 
+      groupListTabAll.value = dropRight(result?.data, 0)
       groupList.value = result?.data
       groupList.value.push(initialGroup)
     }
@@ -442,7 +499,11 @@ export default defineComponent({
           filter.group_id = groupList?.value[groupList.value.length - 1].id
           isDisabledDisplay.value = true
           isDisabledBank.value = true
+          isTabAllGroup.value = true
         }
+        groupCompany.value.group_id = store.getters['financing/filters'].group_id || {}
+        await fetchPeriodList(groupCompany.value.group_id)
+
         filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date
         filter.date_from_to[1] = requestParamsData.value.data.to_date
@@ -483,8 +544,8 @@ export default defineComponent({
       filter.currency_code = currencyDefault?.code || null
       filter.bank_account_ids = bankAccountList?.value[0]?.id
       filter.period_id = null
-      filter.date_from_to[0] = currentDate()
-      filter.date_from_to[1] = addDaysInCurrentDate(null, 59)
+      filter.date_from_to[0] = currentDate() || null
+      filter.date_from_to[1] = addDaysInCurrentDate(null, 59) || null
       requestParamsData.value.data = {
         ...requestParamsData.value.data,
         group_id: groupList.value[0].id,
@@ -540,6 +601,9 @@ export default defineComponent({
       dataChartFinancing,
       idVisible,
       tabGroup,
+      isTabAllGroup,
+      groupCompany,
+      groupListTabAll,
       handleTab,
       onChangePeriod,
       onChangeDate,
@@ -548,6 +612,7 @@ export default defineComponent({
       onChangeBankAccount,
       onChangeViewMode,
       onChangeCurrency,
+      onChangeCompany,
       SHOW_BY,
       VIEW_MODE
     }

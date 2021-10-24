@@ -14,6 +14,7 @@ export default {
   deposit_root_0002: '元の入出金が無効です',
   deposit_root_0003: '元の入出金が存在しました',
   deposit_root_0004: '入力が無効です',
+  deposit_9999: 'Unhandler exception',
   // project errors
   project_0001: '該当プロジェクトが見つかりません',
   project_0002: 'プロジェクトが無効です',

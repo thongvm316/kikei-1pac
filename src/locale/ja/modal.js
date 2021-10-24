@@ -2,6 +2,7 @@ export default {
   title: '削除',
   cancel: 'キャンセル',
   delete: '削除',
+  revert: 'キャンセル',
   reset: 'リセット',
   message_ja: ' を削除してもよろしいですか？',
   message_reset_password: 'をリセットしてもよろしいですか？',
@@ -53,6 +54,10 @@ export default {
   back: '戻る',
   text_line1: '招待メールが送信されました。',
   text_line2: 'アカウントのアクティベートには、ユーザーにお知らせください。',
+  group_setting_line1: '企業作成を保存しません。',
+  group_setting_line2: 'このページを離れると失われます。',
+  leave: '離れる',
+  leave_group: 'ページを離れる',
 
   errorMessage: {
     img: 'プロフィール写真は、1 MB 以下の PNGまたはJPG である必要があります',
@@ -78,5 +83,8 @@ export default {
   error_password: '現在パスワード',
   error_name_profile: '「氏名」',
   check_password: '登録されたパスワードと異なります',
-  check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。'
+  check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。',
+  title_balance: '確定',
+  desc_balance_input: '入力中ですが入力をキャンセルしてもよろしいですか？',
+  handle_balance: '確定'
 }

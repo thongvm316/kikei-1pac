@@ -14,5 +14,6 @@ export default {
   account: 'アカウント一覧',
   personal_setting: '個人設定',
   subcategory: '中分類一覧',
-  company_information: '会社情報・売上目標設定'
+  company_information: '会社情報・売上目標設定',
+  balance_registration: '銀行残高登録'
 }

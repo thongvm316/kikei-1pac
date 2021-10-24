@@ -369,16 +369,28 @@ const routes = [
             ]
           },
           {
-            path: 'logs',
-            name: 'logs',
-            component: lazyLoadRoute('ActivityLog'),
-            meta: { title: `Activity Log | ${APP_NAME}` }
+            path: 'balance-registration',
+            component: lazyLoadRoute('Base'),
+            meta: { title: `Balance Registration | ${APP_NAME}` },
+            children: [
+              {
+                path: '',
+                name: 'balance-registration',
+                component: lazyLoadRoute('BalanceRegistration')
+              }
+            ]
           },
           {
             path: 'company-information',
             name: 'company-information',
             component: lazyLoadRoute('CompanyInformation'),
             meta: { title: `Company Information | ${APP_NAME}` }
+          },
+          {
+            path: 'logs',
+            name: 'logs',
+            component: lazyLoadRoute('ActivityLog'),
+            meta: { title: `Activity Log | ${APP_NAME}` }
           }
         ]
       },

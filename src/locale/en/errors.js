@@ -14,6 +14,7 @@ export default {
   deposit_root_0002: 'Root deposit is valid',
   deposit_root_0003: 'Root deposit existed',
   deposit_root_0004: 'Input is not valid',
+  deposit_9999: 'Unhandler exception',
   // project errors
   project_0001: 'Project not found',
   project_0002: 'Project is valid',

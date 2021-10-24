@@ -45,9 +45,14 @@ export default {
   error_representative_name: '氏名',
   error_in_roman_letters: '氏名（ローマ字）',
   error_target_money: '目標',
+  error_empty_number: '数字を入力してください',
+  error_period: '期間',
 
   empty_image: '印鑑をアプロードして下さい',
   empty_date: '事業年度を選択して下さい',
+  empty_date_past_future: '事業年度は、現在の期から1年を超えてはなりません',
+  empty_period: '「期間」が存在しました',
+  empty_period_field: '期間が1年を超えています',
 
   conflict_name: '会社名（表示名）が存在しました',
   conflict_phone_number: '「電話番号」が存在しました',
