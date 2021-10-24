@@ -1220,7 +1220,7 @@ export default defineComponent({
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-right: 24px;
+      padding-right: 20px;
     }
 
     &__arrow-icon {

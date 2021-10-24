@@ -111,8 +111,6 @@ export default defineComponent({
   &__body {
     background-color: $color-grey-94;
     padding: 0 64px 0 32px;
-    height: 710px;
-    overflow-y: auto;
 
     p {
       margin-bottom: 4px;

@@ -99,7 +99,6 @@ export default defineComponent({
 
   &__history {
     flex-basis: 40%;
-    height: 500px;
     min-width: 335px;
   }
 }
