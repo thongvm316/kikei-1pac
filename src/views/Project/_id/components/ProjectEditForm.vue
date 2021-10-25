@@ -574,6 +574,7 @@
   </a-form>
 
   <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
+  <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
 </template>
 
 <script>
@@ -601,6 +602,8 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 // import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 
 export default defineComponent({
   name: 'ProjectEditForm',
@@ -610,7 +613,8 @@ export default defineComponent({
     ModalSelectCompany,
     LineAddIcon,
     EditIcon,
-    DownOutlined
+    DownOutlined,
+    ConfirmSubmitModal
   },
 
   props: {
@@ -638,10 +642,32 @@ export default defineComponent({
     const projectProp = props.project
     const projectFormRef = ref()
     const store = useStore()
+    const router = useRouter()
     const { t } = useI18n()
 
     const isEditing = ref()
     const isCollapse = ref()
+
+    const routerNameToGo = ref()
+    const answer = ref()
+
+    onBeforeRouteLeave((to) => {
+      // cancel the navigation and stay on the same page
+      if (!isHaveChangeForm.value && !answer.value) {
+        routerNameToGo.value = to.name
+        isVisibleModalConfirmSubmit.value = true
+        return false
+      }
+    })
+
+    const isVisibleModalConfirmSubmit = ref()
+
+    const handleConfirmSubmitModal = () => {
+      isVisibleModalConfirmSubmit.value = false
+      answer.value = true
+
+      router.push({ name: routerNameToGo.value })
+    }
 
     watch(
       () => props.revenueEstimateMoneyRequest,
@@ -1057,6 +1083,8 @@ export default defineComponent({
       groupName,
       accountName,
       isCollapse,
+      isVisibleModalConfirmSubmit,
+
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,
@@ -1067,7 +1095,8 @@ export default defineComponent({
       handleChangeStatisticsDateValue,
       onSelectGroup,
       cancelEditOverViewForm,
-      Filter
+      Filter,
+      handleConfirmSubmitModal
     }
   }
 })
