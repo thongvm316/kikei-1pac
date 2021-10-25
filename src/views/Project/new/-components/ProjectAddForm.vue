@@ -11,7 +11,7 @@
     <a-form-item name="companyId" label="クライアント名" :class="{ 'has-error': localErrors['companyId'] }">
       <div>
         <span v-if="!!companyOwnerData" class="text-grey-55 mr-8">{{ companyOwnerData.name }}</span>
-        <p v-if="!edit" class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
+        <p class="modal-link" @click="openCompanySearchForm('owner')">選択</p>
       </div>
 
       <p v-if="localErrors['companyId']" class="ant-form-explain">
@@ -22,13 +22,8 @@
 
     <!-- code -->
     <a-form-item name="code" label="プロジェクトコード">
-      <a-input
-        v-model:value="projectParams.code"
-        :disabled="edit"
-        :style="{ width: '300px' }"
-        placeholder="GXX-YYYY-ZZZ"
-      />
-      <p v-if="!edit" class="form-caption">※入力しないとき、自動採番です。</p>
+      <a-input v-model:value="projectParams.code" :style="{ width: '300px' }" placeholder="GXX-YYYY-ZZZ" />
+      <p class="form-caption">※入力しないとき、自動採番です。</p>
 
       <p v-if="localErrors['code']" class="ant-form-explain u-text-additional-red-6">
         {{ $t(`common.local_error.${localErrors['code']}`) }}
@@ -55,10 +50,7 @@
     <!-- clientInCharge -->
 
     <!-- type -->
-    <a-form-item v-if="edit" name="type" label="区分">
-      <p class="mb-0">{{ $t(`project.type_${projectParams.type}`) }}</p>
-    </a-form-item>
-    <a-form-item v-else name="type" label="区分">
+    <a-form-item name="type" label="区分">
       <a-radio-group v-model:value="projectParams.type" name="projectType" :options="dataTypes" />
     </a-form-item>
     <!-- type -->
@@ -192,19 +184,9 @@
           :style="{ width: '300px' }"
         />
         <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
-        <a-tooltip v-if="edit" color="#fff" title="変更詳細を見る">
-          <a-button type="link" @click="isHistoryMoneyModalOpen = true">
-            <template #icon>
-              <span :style="{ height: '16px' }" class="btn-icon"><history-icon /></span>
-            </template>
-          </a-button>
-        </a-tooltip>
         <p v-if="localErrors['money']" class="ant-form-explain">
           {{ $t(`common.local_error.${localErrors['money']}`) }}
         </p>
-
-        <!-- history money edit -->
-        <money-history-modal v-model:visible="isHistoryMoneyModalOpen" :project="project" />
       </a-form-item>
       <!-- money -->
 
@@ -343,45 +325,40 @@ import { useI18n } from 'vue-i18n'
 import { find } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
-import { useAccountList } from '../composables/useAccountList'
-import { useGroupList } from '../composables/useGroupList'
-import { getProjectAccuracies, getProjectStatuses, addProject, editProject } from '../composables/useProject'
+import { useAccountList } from '../../composables/useAccountList'
+import { useGroupList } from '../../composables/useGroupList'
+import { getProjectAccuracies, getProjectStatuses, addProject } from '../../composables/useProject'
 import {
   initProjectOutsouringOrders,
   toProjectOutsouringOrdersRequestData,
   addProjectOrder
-} from '../composables/useProjectOrders'
+} from '../../composables/useProjectOrders'
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
-import MoneyHistoryModal from './MoneyHistoryModal.vue'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import HistoryIcon from '@/assets/icons/ico_history.svg'
 
 export default defineComponent({
-  name: 'ProjectForm',
+  name: 'ProjectAddForm',
 
   components: {
     CalendarOutlined,
     ModalSelectCompany,
-    LineAddIcon,
-    HistoryIcon,
-    MoneyHistoryModal
+    LineAddIcon
   },
 
   props: {
     project: {
       type: Object,
       required: true
-    },
-    edit: Boolean
+    }
   },
 
   setup(props) {
+    // eslint-disable-next-line vue/no-setup-props-destructure
     const projectProp = props.project
-    const edit = props.edit
     const projectFormRef = ref()
     const store = useStore()
     const router = useRouter()
@@ -423,11 +400,7 @@ export default defineComponent({
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
 
-    const isHistoryMoneyModalOpen = ref()
-
-    const handleChangeStatisticsDateValue = (val) => {
-      projectParams.value.statisticsMonths = val
-    }
+    const handleChangeStatisticsDateValue = (val) => (projectParams.value.statisticsMonths = val)
 
     // input validator rules
     const projectFormRules = ref({
@@ -638,7 +611,7 @@ export default defineComponent({
       try {
         const validateRes = await projectFormRef.value.validate()
         if (validateRes) {
-          edit ? callEditProject() : callAddProject()
+          callAddProject()
         }
       } catch (e) {
         console.log(e)
@@ -665,27 +638,6 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
-        if (localErrors.value.adProjectOrders) {
-          addProjectOrdersErrors()
-        }
-      }
-    }
-
-    const callEditProject = async () => {
-      const response = await editProject(projectProp.value.id, projectDataRequest.value)
-      if (response.status === 200) {
-        const name = projectDataRequest.value.name
-
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: t('project.flash_message.update_success', { name })
-        })
-        router.push({ name: 'project' })
-        return
-      }
-      if (response.data?.errors) {
-        localErrors.value = response.data.errors
-
         if (localErrors.value.adProjectOrders) {
           addProjectOrdersErrors()
         }
@@ -748,13 +700,11 @@ export default defineComponent({
       dataAccuracies,
       loading,
       valueTag,
-      edit,
       isCompanySearchFormOpen,
       companyOwnerData,
       localProjectOrders,
       totalMoneyOutsourcing,
       depositCurrencyCode,
-      isHistoryMoneyModalOpen,
       openCompanySearchForm,
       addDummyProjectOrder,
       removeProjectOrder,

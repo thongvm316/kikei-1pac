@@ -1082,7 +1082,7 @@ export default defineComponent({
 
   .line-8 {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
 
     &__left {
       margin-right: 24px;
@@ -1152,7 +1152,7 @@ export default defineComponent({
 
   .show-table {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     border: 1px solid #d9d9d9;
     max-width: 750px;
     align-items: center;
