@@ -294,7 +294,7 @@
               <div class="directly-person-cost__submit-buttons">
                 <a-button @click="handleCancel">キャンセル</a-button>
                 <a-button
-                  :disabled="isEqual(costState, costStateToCompare)"
+                  :disabled="isHaveChangeCostState"
                   :loading="isLoaddingSubmitButton"
                   type="primary"
                   class="u-ml-8"
@@ -479,7 +479,7 @@ export default defineComponent({
     )
 
     const handleCancel = () => {
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -540,6 +540,7 @@ export default defineComponent({
 
     const costStateToClone = ref([])
     const costStateToCompare = ref()
+    const isHaveChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
 
     const fetDataTable = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
@@ -576,7 +577,7 @@ export default defineComponent({
 
     const tabClick = (val) => {
       if (val === activeKey.value) return
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         activeKey.value = val
         fetDataTable(val, filterMonth.value)
       } else {
@@ -653,7 +654,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isEqual(costState.value, costStateToCompare.value)) return
+      if (isHaveChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -689,6 +690,7 @@ export default defineComponent({
       costStateToClone,
       authProfile,
       filterMonth,
+      isHaveChangeCostState,
 
       // func
       handleCancel,
@@ -700,7 +702,6 @@ export default defineComponent({
       countSubTotal,
       tabClick,
       handleConfirmSubmitModal,
-      isEqual,
       isVisibleModalConfirmClone,
       handleConfirmCloneModal
     }

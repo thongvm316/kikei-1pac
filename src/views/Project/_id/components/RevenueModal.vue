@@ -379,7 +379,7 @@
             <div class="revenue-modal__submit-buttons">
               <a-button @click="handleCancel">キャンセル</a-button>
               <a-button
-                :disabled="!costState.id || isEqual(costState, costStateToCompare)"
+                :disabled="isHaveChangeCostState"
                 :loading="isSubmitLoading"
                 type="primary"
                 class="u-ml-8"
@@ -541,8 +541,10 @@ export default defineComponent({
       }
     )
 
+    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+
     const handleCancel = () => {
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -659,7 +661,7 @@ export default defineComponent({
     const purposeConfirm = ref()
 
     const tabClick = (val) => {
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         fetchRevenueProject(val, filterMonth.value)
         activeKey.value = val
       } else {
@@ -769,7 +771,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isEqual(costState.value, costStateToCompare.value)) return
+      if (isHaveChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -807,6 +809,7 @@ export default defineComponent({
       revenueQuantityUnit,
       isVisibleModalConfirmClone,
       costStateToClone,
+      isHaveChangeCostState,
 
       handleCancel,
       handleClickEditUnitPrice,
@@ -817,7 +820,6 @@ export default defineComponent({
       tabClick,
       handleSubmit,
       filterMonth,
-      isEqual,
       handleBlurEditUnitPrice,
       handleConfirmSubmitModal,
       handleCloneCostState,

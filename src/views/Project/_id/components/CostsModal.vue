@@ -99,7 +99,7 @@
       <div class="cost-submit">
         <a-button :disabled="isSubmitLoading" @click="handleCancel">キャンセル</a-button>
         <a-button
-          :disabled="isDisabledSubmitButton"
+          :disabled="isHaveChangeCostState"
           :loading="isSubmitLoading"
           type="primary"
           class="u-ml-12"
@@ -260,7 +260,7 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      if (isEqual(costStateToCompare.value, costState.value)) {
+      if (isHaveChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -316,8 +316,7 @@ export default defineComponent({
     }
 
     const costStateToCompare = ref([])
-
-    const isDisabledSubmitButton = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const isVisibleModalConfirmSubmit = ref()
     const nextTab = ref()
@@ -326,7 +325,7 @@ export default defineComponent({
     const tabClick = (val) => {
       if (val === activeKey.value) return
 
-      if (isEqual(costStateToCompare.value, costState.value)) {
+      if (isHaveChangeCostState.value) {
         activeKey.value = val
         fetchDataDirectList(val, filterMonth.value)
       } else {
@@ -405,7 +404,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isEqual(costState.value, costStateToCompare.value)) return
+      if (isHaveChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -426,7 +425,7 @@ export default defineComponent({
       currencyList,
       totalCosts,
       costStateToCompare,
-      isDisabledSubmitButton,
+      isHaveChangeCostState,
       isVisibleModalConfirmSubmit,
       isVisibleModalConfirmClone,
       costStateToClone,
@@ -445,7 +444,6 @@ export default defineComponent({
       handleCloneCostState,
       handleCancel,
       handleSubmit,
-      isEqual,
       tabClick,
       handleConfirmSubmitModal,
       handleConfirmCloneModal
