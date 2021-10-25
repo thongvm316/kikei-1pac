@@ -2,21 +2,35 @@
   <a-modal :visible="visible" centered width="656px" class="modal-project-costs" :title="title" @cancel="handleCancel">
     <template #footer>
       <div class="cost-tabs-wrapper">
-        <a-button
-          v-if="activeKey === PROJECT_COST_TYPES[1].key"
-          :disabled="isDisableCloneCost"
-          class="cost-tabs-clone"
-          @click="handleCloneCostState"
-        >
-          <template #icon>
-            <span class="btn-icon"><copy-icon /></span>
-          </template>
-          予測の内容をコピーする
-        </a-button>
-
         <a-tabs :active-key="activeKey" :animated="false" class="cost-tabs" @tabClick="tabClick">
           <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text" class="cost-tabs__tab">
             <a-spin :spinning="isDataLoading">
+              <div class="modal-project-costs__filter">
+                <div>
+                  <a-month-picker
+                    v-if="project.value.type === PROJECT_TYPES[1].value"
+                    v-model:value="filterMonth"
+                    :style="{ width: '122px' }"
+                    format="YYYY/MM"
+                    placeholder="YYYY/MM"
+                  >
+                    <template #suffixIcon>
+                      <calendar-outlined />
+                    </template>
+                  </a-month-picker>
+                </div>
+                <a-button
+                  v-if="activeKey === PROJECT_COST_TYPES[1].key"
+                  :disabled="isDisableCloneCost"
+                  class="cost-tabs-clone"
+                  @click="handleCloneCostState"
+                >
+                  <template #icon>
+                    <span class="btn-icon"><copy-icon /></span>
+                  </template>
+                  予測の内容をコピーする
+                </a-button>
+              </div>
               <template v-if="costState.length > 0">
                 <div v-for="costItem in costState" :key="costItem.id" class="cost-tabs__tab--item">
                   <!-- name -->
@@ -60,7 +74,7 @@
                   <a-button class="btn-danger u-ml-24" @click="handleDeleteCostItem(costItem.id)">削除</a-button>
                 </div>
               </template>
-              <div v-else class="u-text-center">No data</div>
+              <div v-else class="u-text-center">該当データなし</div>
               <a-button size="small" class="cost-tabs__tab--add-item" @click="handleAddCostItem">
                 <template #icon>
                   <span class="btn-icon"><line-add-icon /></span>
@@ -100,9 +114,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount, onMounted, onUnmounted, watch } from 'vue'
+import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useRoute } from 'vue-router'
 import { find, uniqueId, sumBy, cloneDeep, isEqual } from 'lodash-es'
+import { CalendarOutlined } from '@ant-design/icons-vue'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getCurrencyList } from '../../composables/useCurrency'
@@ -123,6 +139,8 @@ import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
 import { useStore } from 'vuex'
+import moment from 'moment'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
 export default defineComponent({
   name: 'CostsModal',
@@ -131,13 +149,15 @@ export default defineComponent({
     LineAddIcon,
     CopyIcon,
     ConfirmSubmitModal,
-    ConfirmCloneModal
+    ConfirmCloneModal,
+    CalendarOutlined
   },
 
   props: {
     visible: Boolean,
     title: String,
-    costModalType: Number
+    costModalType: Number,
+    project: Object
   },
 
   emits: ['fetchOrderCostList', 'fetchMaterialCostList', 'fetchDirectCostList', 'update:visible'],
@@ -308,7 +328,7 @@ export default defineComponent({
 
       if (isEqual(costStateToCompare.value, costState.value)) {
         activeKey.value = val
-        fetchDataDirectList(val)
+        fetchDataDirectList(val, filterMonth.value)
       } else {
         isVisibleModalConfirmSubmit.value = true
         nextTab.value = val
@@ -321,7 +341,7 @@ export default defineComponent({
 
       if (purposeConfirm.value === 'change-tab') {
         activeKey.value = nextTab.value
-        fetchDataDirectList(nextTab.value)
+        fetchDataDirectList(nextTab.value, filterMonth.value)
       } else if (purposeConfirm.value === 'close-modal') {
         emit('update:visible', false)
       }
@@ -329,7 +349,16 @@ export default defineComponent({
 
     const costStateToClone = ref()
 
-    const fetchDataDirectList = async (projectCostsType = activeKey.value, month = null) => {
+    const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
+
+    watch(
+      () => filterMonth.value,
+      (val) => {
+        fetchDataDirectList(activeKey.value, val)
+      }
+    )
+
+    const fetchDataDirectList = async (projectCostsType = activeKey.value, month = new Date()) => {
       isDataLoading.value = true
 
       // get direct list
@@ -337,7 +366,7 @@ export default defineComponent({
         const paramsRequest = {
           projectId,
           projectCostsType,
-          month
+          month: month ? moment(month).format('YYYY-MM') : null
         }
         let responseRequest = null
 
@@ -401,6 +430,8 @@ export default defineComponent({
       isVisibleModalConfirmSubmit,
       isVisibleModalConfirmClone,
       costStateToClone,
+      filterMonth,
+      PROJECT_TYPES,
 
       isDisableCloneCost,
       isSubmitLoading,
@@ -429,10 +460,24 @@ export default defineComponent({
 
 .modal-project-costs {
   .ant-modal-footer {
-    padding: 16px 24px;
+    background-color: $color-grey-96;
+    padding: 16px 0;
     text-align: left;
     max-height: 80vh;
     overflow-y: scroll;
+
+    .ant-tabs-bar:first-child {
+      padding: 0 24px;
+    }
+  }
+
+  &__filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $color-grey-85;
+    margin-bottom: 16px;
   }
 
   .ant-tabs-nav {
@@ -444,13 +489,8 @@ export default defineComponent({
   }
 
   .cost-tabs-clone {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1;
-    margin-top: 6px;
     border: 0;
-    color: $color-primary-6;
+    background-color: $color-grey-96;
 
     &:hover:not(.ant-btn[disabled]) {
       span {
@@ -461,12 +501,12 @@ export default defineComponent({
 
   .cost-tabs-clone.ant-btn[disabled] {
     color: $color-grey-55;
-    background-color: $color-grey-100;
+    background-color: $color-grey-96;
   }
 
   .cost-tabs {
     &__tab {
-      padding: 16px 0;
+      padding: 16px 24px;
 
       &--item {
         @include flexbox(center, center);

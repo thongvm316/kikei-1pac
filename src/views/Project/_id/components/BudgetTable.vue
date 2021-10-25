@@ -238,6 +238,7 @@
     v-model:visible="isCostsModalOpen"
     :title="titleCostModal"
     :cost-modal-type="costModalType"
+    :project="project"
     @fetchOrderCostList="fetchOrderCostList"
     @fetchMaterialCostList="fetchMaterialCostList"
     @fetchDirectCostList="fetchDirectCostList"
@@ -275,6 +276,7 @@ import EditIcon from '@/assets/icons/ico_edit.svg'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { getLaborDirectCostList, getRevenueList } from '../../composables/useProject'
+import moment from 'moment'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -498,7 +500,7 @@ export default defineComponent({
       const { result } = await getRevenueList({
         projectId,
         projectCostsType: '1,2',
-        month: null
+        month: moment(new Date()).format('YYYY-MM')
       })
 
       estimateCurrencyId.value = result?.data[0]?.currencyId
