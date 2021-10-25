@@ -531,6 +531,7 @@ export default defineComponent({
     @include flexbox(flex-end, null);
     padding-top: 16px;
     border-top: 1px dashed $color-grey-85;
+    padding-right: 24px;
 
     &__left {
       margin-right: 12px;
