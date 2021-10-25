@@ -148,27 +148,21 @@ export default defineComponent({
         const periodResponse = await getPeriods(groupId)
         periodList.value = periodResponse.result?.data || []
 
-        // set financing period
-        const filtersAccountingStore = store.state?.accounting?.filters || {}
-        if (filtersAccountingStore?.periodId) {
-          financingPeriod.value = filtersAccountingStore?.periodId
+        console.log('falase')
+        // set period current
+        const periodCurrentFound = find(periodList.value, (periodItem) => {
+          const currentTime = moment()
+          const startedDate = periodItem?.startedDate
+          const finishedDate = periodItem?.finishedDate
+
+          if (!startedDate || !finishedDate) return false
+
+          return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+        })
+
+        if (periodCurrentFound) {
+          financingPeriod.value = periodCurrentFound.id
           fetchDataTables()
-        } else {
-          // set period current
-          const periodCurrentFound = find(periodList.value, (periodItem) => {
-            const currentTime = moment()
-            const startedDate = periodItem?.startedDate
-            const finishedDate = periodItem?.finishedDate
-
-            if (!startedDate || !finishedDate) return false
-
-            return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
-          })
-
-          if (periodCurrentFound) {
-            financingPeriod.value = periodCurrentFound.id
-            fetchDataTables()
-          }
         }
       } finally {
         isLoadingPeriod.value = false
@@ -190,9 +184,6 @@ export default defineComponent({
         depositList.value = depositReponse?.result?.data || []
         withdrawalList.value = withdrawalReponse?.result?.data || []
         financingTotalList.value = financingTotalReponse?.result?.data || []
-
-        // save filters accounting to store
-        store.commit('accounting/STORE_ACCOUNTING_FILTER', dataRequest)
       } catch (err) {
         depositList.value = []
         withdrawalList.value = []
