@@ -146,7 +146,7 @@
                         <td>
                           <a-space v-if="!cost.isEditUnitPrice">
                             <EditLargeIcon style="cursor: pointer" @click="handleClickEditUnitPrice(cost.id)" />
-                            <span>{{ cost.unitPrice }}</span>
+                            <span>{{ $filters.number_with_commas(cost.unitPrice) }}</span>
                           </a-space>
 
                           <a-input-number
