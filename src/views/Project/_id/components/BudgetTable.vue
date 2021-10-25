@@ -468,11 +468,11 @@ export default defineComponent({
           }
         })
 
-        const currency = find(currencyList.value, { id: data[0].salaryCurrencyId })
+        const currency = find(currencyList.value, { id: data[0]?.salaryCurrencyId })
 
         directlyPersonCost.predict = predictCount
         directlyPersonCost.actual = actualCount
-        directlyPersonCost.code = currency.code
+        directlyPersonCost.code = currency?.code
       } finally {
         isLoadingBudgetTable.value = false
       }
@@ -501,13 +501,13 @@ export default defineComponent({
         month: null
       })
 
-      estimateCurrencyId.value = result?.data[0].currencyId
+      estimateCurrencyId.value = result?.data[0]?.currencyId
 
-      const currency = find(currencyList.value, { id: result?.data[0].currencyId })
+      const currency = find(currencyList.value, { id: result?.data[0]?.currencyId })
 
       result.data.forEach((item) => {
-        revenueCost.predict.code = currency.code
-        revenueCost.actual.code = currency.code
+        revenueCost.predict.code = currency?.code
+        revenueCost.actual.code = currency?.code
 
         if (item.projectCostsType === 1) {
           revenueCost.predict.total = item.total
