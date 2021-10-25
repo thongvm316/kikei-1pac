@@ -33,6 +33,7 @@
                   <!-- filter month -->
                   <a-month-picker
                     v-if="project.value.type === PROJECT_TYPES[1].value"
+                    v-model:value="filterMonth"
                     :style="{ width: '122px' }"
                     class="u-my-12"
                     format="YYYY/MM"
@@ -98,173 +99,179 @@
                   </thead>
 
                   <tbody>
-                    <tr v-for="cost in costState" :key="cost.id" :class="[cost.checked && 'isCheckedRow']">
-                      <!-- position -->
-                      <td>
-                        <a-space>
-                          <a-checkbox v-model:checked="cost.checked" />
+                    <template v-if="costState.length > 0">
+                      <tr v-for="cost in costState" :key="cost.id" :class="[cost.checked && 'isCheckedRow']">
+                        <!-- position -->
+                        <td>
+                          <a-space>
+                            <a-checkbox v-model:checked="cost.checked" />
 
-                          <a-select
-                            v-model:value="cost.positionId"
-                            style="width: 150px"
-                            :default-active-first-option="false"
-                          >
-                            <a-select-option v-for="position in positionList" :key="position.id">{{
-                              position?.name
-                            }}</a-select-option>
-                          </a-select>
-                        </a-space>
-                      </td>
-
-                      <!-- name -->
-                      <td><a-input v-model:value="cost.name" placeholder="氏名 氏名" /></td>
-
-                      <!-- month salary -->
-                      <td v-if="authProfile.isAdmin">
-                        <a-space>
-                          <a-input-number
-                            v-model:value="cost.monthlySalary"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <a-select
-                            v-model:value="cost.salaryCurrencyId"
-                            show-arrow
-                            option-label-prop="label"
-                            :style="{ width: '80px' }"
-                            :default-active-first-option="false"
-                          >
-                            <a-select-option
-                              v-for="currency in currencyList"
-                              :key="currency.id"
-                              :value="currency.id"
-                              :label="currency.code"
+                            <a-select
+                              v-model:value="cost.positionId"
+                              style="width: 150px"
+                              :default-active-first-option="false"
                             >
-                              {{ currency.code }}
-                            </a-select-option>
-                          </a-select>
-                        </a-space>
-                      </td>
+                              <a-select-option v-for="position in positionList" :key="position.id">{{
+                                position?.name
+                              }}</a-select-option>
+                            </a-select>
+                          </a-space>
+                        </td>
 
-                      <!-- working hour -->
-                      <td>
-                        <a-space>
-                          <!-- day -->
-                          <a-input-number
-                            v-model:value="cost.workingDays"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>日</span>
-                          <!-- hour -->
-                          <a-input-number
-                            v-model:value="cost.workingHours"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>時間</span>
-                        </a-space>
-                      </td>
+                        <!-- name -->
+                        <td><a-input v-model:value="cost.name" placeholder="氏名 氏名" /></td>
 
-                      <!-- over time 1.25 -->
-                      <td>
-                        <a-space>
-                          <a-input-number
-                            v-model:value="cost.overtimeDaysFirst"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>日</span>
-                          <a-input-number
-                            v-model:value="cost.overtimeHoursFirst"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>時間</span>
-                        </a-space>
-                      </td>
-
-                      <!-- over time 1.5 -->
-                      <td>
-                        <a-space>
-                          <a-input-number
-                            v-model:value="cost.overtimeDaysSecond"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>日</span>
-                          <a-input-number
-                            v-model:value="cost.overtimeHoursSecond"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <span>時間</span>
-                        </a-space>
-                      </td>
-
-                      <!-- allowance -->
-                      <td>
-                        <a-space>
-                          <a-input-number
-                            v-model:value="cost.allowance"
-                            placeholder="0"
-                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                            :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
-                            :precision="0"
-                            :min="0"
-                            :max="999999999999"
-                          />
-                          <a-select
-                            v-model:value="cost.allowanceCurrencyId"
-                            show-arrow
-                            option-label-prop="label"
-                            :style="{ width: '80px' }"
-                            :default-active-first-option="false"
-                          >
-                            <a-select-option
-                              v-for="currency in currencyList"
-                              :key="currency.id"
-                              :value="currency.id"
-                              :label="currency.code"
+                        <!-- month salary -->
+                        <td v-if="authProfile.isAdmin">
+                          <a-space>
+                            <a-input-number
+                              v-model:value="cost.monthlySalary"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <a-select
+                              v-model:value="cost.salaryCurrencyId"
+                              show-arrow
+                              option-label-prop="label"
+                              :style="{ width: '80px' }"
+                              :default-active-first-option="false"
                             >
-                              {{ currency.code }}
-                            </a-select-option>
-                          </a-select>
-                        </a-space>
-                      </td>
+                              <a-select-option
+                                v-for="currency in currencyList"
+                                :key="currency.id"
+                                :value="currency.id"
+                                :label="currency.code"
+                              >
+                                {{ currency.code }}
+                              </a-select-option>
+                            </a-select>
+                          </a-space>
+                        </td>
 
-                      <!-- count -->
-                      <td v-if="authProfile.isAdmin">
-                        {{ $filters.number_with_commas(countSubTotal(cost)) }}
-                      </td>
+                        <!-- working hour -->
+                        <td>
+                          <a-space>
+                            <!-- day -->
+                            <a-input-number
+                              v-model:value="cost.workingDays"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>日</span>
+                            <!-- hour -->
+                            <a-input-number
+                              v-model:value="cost.workingHours"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>時間</span>
+                          </a-space>
+                        </td>
+
+                        <!-- over time 1.25 -->
+                        <td>
+                          <a-space>
+                            <a-input-number
+                              v-model:value="cost.overtimeDaysFirst"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>日</span>
+                            <a-input-number
+                              v-model:value="cost.overtimeHoursFirst"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>時間</span>
+                          </a-space>
+                        </td>
+
+                        <!-- over time 1.5 -->
+                        <td>
+                          <a-space>
+                            <a-input-number
+                              v-model:value="cost.overtimeDaysSecond"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>日</span>
+                            <a-input-number
+                              v-model:value="cost.overtimeHoursSecond"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <span>時間</span>
+                          </a-space>
+                        </td>
+
+                        <!-- allowance -->
+                        <td>
+                          <a-space>
+                            <a-input-number
+                              v-model:value="cost.allowance"
+                              placeholder="0"
+                              :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                              :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                              :precision="0"
+                              :min="0"
+                              :max="999999999999"
+                            />
+                            <a-select
+                              v-model:value="cost.allowanceCurrencyId"
+                              show-arrow
+                              option-label-prop="label"
+                              :style="{ width: '80px' }"
+                              :default-active-first-option="false"
+                            >
+                              <a-select-option
+                                v-for="currency in currencyList"
+                                :key="currency.id"
+                                :value="currency.id"
+                                :label="currency.code"
+                              >
+                                {{ currency.code }}
+                              </a-select-option>
+                            </a-select>
+                          </a-space>
+                        </td>
+
+                        <!-- count -->
+                        <td v-if="authProfile.isAdmin">
+                          {{ $filters.number_with_commas(countSubTotal(cost)) }}
+                        </td>
+                      </tr>
+                    </template>
+
+                    <tr v-else>
+                      <td colspan="8">該当データなし</td>
                     </tr>
                   </tbody>
                 </table>
@@ -307,6 +314,7 @@
 
 <script>
 import { watch, defineComponent, onBeforeMount, reactive, ref, toRefs, computed, onMounted, onUnmounted } from 'vue'
+import moment from 'moment'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import {
@@ -325,6 +333,7 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
 import { useStore } from 'vuex'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
 export default defineComponent({
   name: 'DirectlyPersionCost',
@@ -354,6 +363,7 @@ export default defineComponent({
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const positionList = ref([])
+    const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
 
     const store = useStore()
     const authProfile = computed(() => store.state?.auth.authProfile)
@@ -531,14 +541,14 @@ export default defineComponent({
     const costStateToClone = ref([])
     const costStateToCompare = ref()
 
-    const fetDataTable = async (type = activeKey.value, month = null) => {
+    const fetDataTable = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
 
       try {
         const { data } = await getLaborDirectCostList({
           projectId,
           projectCostsType: type,
-          month
+          month: month ? moment(month).format('YYYY-MM') : null
         })
 
         costState.value = cloneDeep(data)
@@ -553,6 +563,13 @@ export default defineComponent({
       }
     }
 
+    watch(
+      () => filterMonth.value,
+      (val) => {
+        fetDataTable(activeKey.value, val)
+      }
+    )
+
     const nextTab = ref()
     const purposeConfirm = ref()
     const isVisibleModalConfirmSubmit = ref()
@@ -561,7 +578,7 @@ export default defineComponent({
       if (val === activeKey.value) return
       if (isEqual(costState.value, costStateToCompare.value)) {
         activeKey.value = val
-        fetDataTable(val)
+        fetDataTable(val, filterMonth.value)
       } else {
         isVisibleModalConfirmSubmit.value = true
         nextTab.value = val
@@ -573,7 +590,7 @@ export default defineComponent({
       isVisibleModalConfirmSubmit.value = false
 
       if (purposeConfirm.value === 'change-tab') {
-        fetDataTable(nextTab.value)
+        fetDataTable(nextTab.value, filterMonth.value)
         activeKey.value = nextTab.value
       } else if (purposeConfirm.value === 'close-modal') {
         emit('update:visible', false)
@@ -632,7 +649,7 @@ export default defineComponent({
       const { result } = await getPositionList()
       positionList.value = result?.data || []
 
-      await fetDataTable(activeKey.value)
+      await fetDataTable()
     })
 
     function handleBeforeReload(event) {
@@ -671,6 +688,7 @@ export default defineComponent({
       isVisibleModalConfirmSubmit,
       costStateToClone,
       authProfile,
+      filterMonth,
 
       // func
       handleCancel,
@@ -728,6 +746,7 @@ export default defineComponent({
     overflow: auto;
     display: block;
     max-height: 505px;
+    border-bottom: none;
 
     thead {
       background-color: $color-grey-92;

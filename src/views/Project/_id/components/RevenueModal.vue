@@ -204,7 +204,7 @@
                       </tr>
                     </template>
                     <tr v-else>
-                      <td colspan="8">No data</td>
+                      <td colspan="8">該当データなし</td>
                     </tr>
                   </tbody>
                 </table>
@@ -358,7 +358,7 @@
                   <p class="history-download__head">出力済み見積書</p>
 
                   <div class="history-download__body">
-                    <p class="u-py-16">No history</p>
+                    <p class="u-py-16">該当データなし</p>
                     <!-- <div class="history-download__item">
                     <strong>2021/10/01 - 07:45</strong>
                     <p>YYYYMMDD_GXX-YYYY-ZZZ.pdf</p>
@@ -466,7 +466,7 @@ export default defineComponent({
     const isLoadingDataTable = ref()
     const UNIQUE_ID_PREFIX = '__cost__'
     const currencyExchange = ref()
-    const currencyExchangeSelected = ref(1)
+    const currencyExchangeSelected = ref()
     const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
     const costStateToCompare = ref({})
     const isSubmitLoading = ref()
@@ -475,9 +475,11 @@ export default defineComponent({
 
     const totalCostItems = computed(() => {
       let count = 0
-      costState.value.adProjectRevenueItems.forEach((item) => {
-        count +=
-          item.unitPrice * item.quantity * currencyExchange.value[initialCurrencyCode.value][selectCurrencyCode.value]
+      costState.value?.adProjectRevenueItems.forEach((item) => {
+        const rate = selectCurrencyCode.value
+          ? currencyExchange.value[initialCurrencyCode.value][selectCurrencyCode.value]
+          : 0
+        count += item?.unitPrice * item?.quantity * rate
       })
 
       return count
@@ -506,6 +508,7 @@ export default defineComponent({
     const selectCurrencyCode = computed(() => {
       const o = find(currencyList.value, { id: currencyExchangeSelected.value })
       const newStr = lowerCaseFirstLetter(o?.code)
+
       return newStr
     })
 
@@ -558,15 +561,16 @@ export default defineComponent({
       costState.value.adProjectRevenueItems = [
         ...costState.value.adProjectRevenueItems,
         {
-          expenseItemId: null,
-          id: uniqueId(UNIQUE_ID_PREFIX),
+          projectId,
+          positionId: null,
           itemId: null,
+          id: uniqueId(UNIQUE_ID_PREFIX),
+          expenseItemId: null,
           overview: null,
-          projectCostsType: Number(activeKey.value),
-          projectId: null,
-          quantity: 0,
+          unitPrice: 0,
+          quantity: null,
           quantityUnitId: null,
-          unitPrice: 0
+          projectCostsType: Number(activeKey.value)
         }
       ]
     }
@@ -613,12 +617,12 @@ export default defineComponent({
       cloneCostState()
     }
 
-    const fetchRevenueProject = async (type = '1', month = new Date()) => {
+    const fetchRevenueProject = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
       try {
         const { result } = await getRevenueProject({
           projectId,
-          month: moment(month).format('YYYY-MM'),
+          month: month ? moment(month).format('YYYY-MM') : null,
           projectCostsType: type
         })
 
@@ -631,7 +635,9 @@ export default defineComponent({
         costState.value = {
           ...costState.value,
           dateCreateEstimate: fromStringToDateTimeFormatPicker(costState.value.dateCreateEstimate),
-          deliveryDate: fromStringToDateTimeFormatPicker(costState.value.deliveryDate)
+          deliveryDate: fromStringToDateTimeFormatPicker(costState.value.deliveryDate),
+          // TODO: fix initial currency id of quantity
+          currencyId: costState.value.currencyId ? costState.value.currencyId : 2
         }
 
         costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.map((item) => ({
@@ -643,7 +649,7 @@ export default defineComponent({
         costStateToCompare.value = cloneDeep(costState.value)
         if (type === '1') costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
 
-        currencyExchangeSelected.value = costState.value.currencyId
+        currencyExchangeSelected.value = costState.value?.currencyId
       } finally {
         isLoadingDataTable.value = false
       }
@@ -867,6 +873,7 @@ export default defineComponent({
     overflow: auto;
     display: block;
     max-height: 505px;
+    border-bottom: none;
 
     thead {
       background-color: $color-grey-92;

@@ -33,7 +33,7 @@
             </div>
           </template>
 
-          <div v-else class="project-history__empty-state">No history</div>
+          <div v-else class="project-history__empty-state">該当データなし</div>
         </div>
       </a-collapse-panel>
     </a-collapse>
