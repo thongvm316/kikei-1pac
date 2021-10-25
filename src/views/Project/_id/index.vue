@@ -7,6 +7,7 @@
         <project-edit-form
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
+          :project-ref="projectRef"
           :revenue-estimate-money-request="revenueEstimateMoneyRequest"
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
@@ -47,6 +48,7 @@ export default defineComponent({
     const project = {}
     const isLoadedOverviewTable = ref()
     const finance = ref()
+    const projectRef = ref()
 
     const fetchProject = async () => {
       isLoadedOverviewTable.value = true
@@ -61,6 +63,7 @@ export default defineComponent({
         const projectRes = await getProject(projectId, paramRequest)
         project.value = projectRes
         finance.value = projectRes
+        projectRef.value = projectRes
       } catch (error) {
         if (error.response.status === 403) router.push({ name: 'error-403', query: { private: 'project' } })
       }
@@ -86,6 +89,7 @@ export default defineComponent({
       finance,
       isLoadedOverviewTable,
       revenueEstimateMoneyRequest,
+      projectRef,
       onSubmitEditProjectForm,
       onSubmitPredictBudget
     }

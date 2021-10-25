@@ -26,6 +26,7 @@
                   <a-button v-if="isEditing" type="default" @click="cancelEditOverViewForm">キャンセル</a-button>
                   <a-button
                     v-if="isEditing"
+                    :disabled="isHaveChangeForm"
                     type="primary"
                     :loading="loading"
                     :style="{ marginLeft: '8px' }"
@@ -576,10 +577,10 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
+import { defineComponent, ref, onBeforeMount, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { cloneDeep, find } from 'lodash-es'
+import { cloneDeep, find, isEqual } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
@@ -625,7 +626,9 @@ export default defineComponent({
     revenueEstimateMoneyRequest: {
       type: Object,
       default: undefined
-    }
+    },
+
+    projectRef: Object
   },
 
   emits: ['on-submit-edit-project-form', 'update:is-loaded-overview-table'],
@@ -653,6 +656,13 @@ export default defineComponent({
           variant: 'successfully',
           message: 'Submit success'
         })
+      }
+    )
+
+    watch(
+      () => props.projectRef,
+      () => {
+        initProjectPropData()
       }
     )
 
@@ -700,6 +710,8 @@ export default defineComponent({
     const handleChangeStatisticsDateValue = (val) => {
       projectParams.value.statisticsMonths = val
     }
+
+    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
 
     // input validator rules
     const projectFormRules = ref({
@@ -842,6 +854,7 @@ export default defineComponent({
     /* --------------------- ./handle check require statistic month --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
+    const projectParamsToCompare = ref()
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
@@ -876,6 +889,8 @@ export default defineComponent({
         localProjectOrders.value = []
         initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
       }
+
+      projectParamsToCompare.value = cloneDeep(projectParams.value)
 
       emit('update:is-loaded-overview-table', false)
     }
@@ -913,6 +928,7 @@ export default defineComponent({
       try {
         const validateRes = await projectFormRef.value.validate()
         if (validateRes) {
+          if (isHaveChangeForm.value) return
           callEditProject()
         }
       } catch (e) {
@@ -1002,11 +1018,27 @@ export default defineComponent({
       initProjectPropData()
     }
 
+    function handleBeforeReload(event) {
+      if (isHaveChangeForm.value) return
+
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    onMounted(() => {
+      window.addEventListener('beforeunload', handleBeforeReload)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('beforeunload', handleBeforeReload)
+    })
+
     return {
       projectFormRef,
       projectParams,
       localErrors,
       projectFormRules,
+      isHaveChangeForm,
       dataGroups,
       dataTypes,
       dataStatuses,
