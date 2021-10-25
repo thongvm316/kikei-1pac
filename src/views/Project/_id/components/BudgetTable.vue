@@ -44,11 +44,7 @@
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
-                              <td class="table-cost__content--money">
-                                {{ $filters.number_with_commas(revenueCost?.predict?.total) }} ({{
-                                  revenueCost?.predict?.code
-                                }})
-                              </td>
+                              <td class="table-cost__content--money">111111111</td>
                             </tr>
                           </td>
                           <td class="table-cost__edit"></td>
@@ -60,8 +56,8 @@
                             <tr>
                               <td class="table-cost__content--name"></td>
                               <td class="table-cost__content--money">
-                                {{ $filters.number_with_commas(revenueCost?.actual?.total) }} ({{
-                                  revenueCost?.actual?.code
+                                {{ $filters.number_with_commas(revenueCost?.predict?.total) }} ({{
+                                  revenueCost?.predict?.code
                                 }})
                               </td>
                             </tr>
@@ -81,10 +77,9 @@
                             <tr>
                               <td class="table-cost__content--name"></td>
                               <td class="table-cost__content--money">
-                                {{
-                                  $filters.number_with_commas(revenueCost?.actual?.total - revenueCost?.predict?.total)
-                                }}
-                                ({{ revenueCost?.actual?.code }})
+                                {{ $filters.number_with_commas(revenueCost?.actual?.total) }} ({{
+                                  revenueCost?.actual?.code
+                                }})
                               </td>
                             </tr>
                           </td>
