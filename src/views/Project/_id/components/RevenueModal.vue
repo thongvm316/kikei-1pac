@@ -475,11 +475,10 @@ export default defineComponent({
 
     const totalCostItems = computed(() => {
       let count = 0
+
       costState.value?.adProjectRevenueItems.forEach((item) => {
-        const rate = selectCurrencyCode.value
-          ? currencyExchange.value[initialCurrencyCode.value][selectCurrencyCode.value]
-          : 0
-        count += item?.unitPrice * item?.quantity * rate
+        count +=
+          item?.unitPrice * item?.quantity * currencyExchange.value[initialCurrencyCode.value][selectCurrencyCode.value]
       })
 
       return count
@@ -637,7 +636,7 @@ export default defineComponent({
           dateCreateEstimate: fromStringToDateTimeFormatPicker(costState.value.dateCreateEstimate),
           deliveryDate: fromStringToDateTimeFormatPicker(costState.value.deliveryDate),
           // TODO: fix initial currency id of quantity
-          currencyId: costState.value.currencyId ? costState.value.currencyId : 2
+          currencyId: costState.value?.currencyId ? costState.value.currencyId : 2
         }
 
         costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.map((item) => ({
@@ -649,6 +648,7 @@ export default defineComponent({
         costStateToCompare.value = cloneDeep(costState.value)
         if (type === '1') costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
 
+        // initial currency of filter select currency
         currencyExchangeSelected.value = costState.value?.currencyId
       } finally {
         isLoadingDataTable.value = false
