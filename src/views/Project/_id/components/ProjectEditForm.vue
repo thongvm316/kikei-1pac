@@ -648,6 +648,11 @@ export default defineComponent({
         paramRequest.estimateCurrencyId = val.estimateCurrencyId
 
         await editProject(projectProp.value.id, paramRequest)
+
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          message: 'Submit success'
+        })
       }
     )
 

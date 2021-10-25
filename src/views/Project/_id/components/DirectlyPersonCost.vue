@@ -306,7 +306,7 @@
 </template>
 
 <script>
-import { watch, defineComponent, onBeforeMount, reactive, ref, toRefs, computed } from 'vue'
+import { watch, defineComponent, onBeforeMount, reactive, ref, toRefs, computed, onMounted, onUnmounted } from 'vue'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import {
@@ -496,6 +496,10 @@ export default defineComponent({
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)
         emit('on-submit-direct-person-cost-modal')
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          message: 'Submit success'
+        })
       } finally {
         isLoaddingSubmitButton.value = false
       }
@@ -629,6 +633,21 @@ export default defineComponent({
       positionList.value = result?.data || []
 
       await fetDataTable(activeKey.value)
+    })
+
+    function handleBeforeReload(event) {
+      if (isEqual(costState.value, costStateToCompare.value)) return
+
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    onMounted(() => {
+      window.addEventListener('beforeunload', handleBeforeReload)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('beforeunload', handleBeforeReload)
     })
 
     return {

@@ -414,6 +414,7 @@ import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'RevenueModal',
@@ -437,6 +438,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const visible = ref()
     const activeKey = ref('1')
+    const store = useStore()
     const currencyList = ref([])
     const route = useRoute()
     const projectId = Number(route.params?.id)
@@ -711,6 +713,10 @@ export default defineComponent({
         costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
 
         emit('on-submit-revenue-modal')
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          message: 'Submit success'
+        })
       } finally {
         isSubmitLoading.value = false
       }
@@ -756,19 +762,20 @@ export default defineComponent({
       await fetchRevenueProject()
     })
 
-    // function handleBeforeReload(event) {
-    //   isVisibleModalConfirmSubmit.value = true
-    //   event.preventDefault()
-    //   event.returnValue = ''
-    // }
+    function handleBeforeReload(event) {
+      if (isEqual(costState.value, costStateToCompare.value)) return
 
-    // onMounted(() => {
-    //   window.addEventListener('beforeunload', handleBeforeReload)
-    // })
+      event.preventDefault()
+      event.returnValue = ''
+    }
 
-    // onUnmounted(() => {
-    //   window.removeEventListener('beforeunload', handleBeforeReload)
-    // })
+    onMounted(() => {
+      window.addEventListener('beforeunload', handleBeforeReload)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('beforeunload', handleBeforeReload)
+    })
 
     return {
       visible,

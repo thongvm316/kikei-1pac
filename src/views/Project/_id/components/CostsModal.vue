@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { find, uniqueId, sumBy, cloneDeep, isEqual } from 'lodash-es'
 
@@ -122,6 +122,7 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CostsModal',
@@ -143,6 +144,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const route = useRoute()
+    const store = useStore()
 
     const projectId = Number(route.params?.id)
     const defaultCostItem = {
@@ -284,6 +286,10 @@ export default defineComponent({
         costDeleteList.value = []
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          message: 'Submit success'
+        })
       } finally {
         isSubmitLoading.value = false
       }
@@ -367,6 +373,21 @@ export default defineComponent({
       currencyList.value = currencyReponse?.result?.data || []
 
       await fetchDataDirectList()
+    })
+
+    function handleBeforeReload(event) {
+      if (isEqual(costState.value, costStateToCompare.value)) return
+
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    onMounted(() => {
+      window.addEventListener('beforeunload', handleBeforeReload)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('beforeunload', handleBeforeReload)
     })
 
     return {
