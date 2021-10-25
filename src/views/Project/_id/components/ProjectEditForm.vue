@@ -579,7 +579,7 @@
 import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { find } from 'lodash-es'
+import { cloneDeep, find } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
@@ -620,6 +620,11 @@ export default defineComponent({
     isLoadedOverviewTable: {
       type: Boolean,
       default: false
+    },
+
+    revenueEstimateMoneyRequest: {
+      type: Object,
+      default: undefined
     }
   },
 
@@ -634,6 +639,17 @@ export default defineComponent({
 
     const isEditing = ref()
     const isCollapse = ref()
+
+    watch(
+      () => props.revenueEstimateMoneyRequest,
+      async (val) => {
+        const paramRequest = cloneDeep(projectDataRequest.value)
+        paramRequest.estimate = val.revenueEstimateMoney
+        paramRequest.estimateCurrencyId = val.estimateCurrencyId
+
+        await editProject(projectProp.value.id, paramRequest)
+      }
+    )
 
     const projectParams = ref({
       companyId: null,

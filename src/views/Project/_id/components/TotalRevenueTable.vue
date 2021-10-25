@@ -73,9 +73,9 @@ export default defineComponent({
       },
       {
         title: '利益率',
-        dataIndex: 'profitMargin',
-        key: 'profitMargin',
-        slots: { customRender: 'customRenderProfitMargin' },
+        dataIndex: 'profitRate',
+        key: 'profitRate',
+        slots: { customRender: 'customRenderProfitRate' },
         align: 'right'
       },
       {
@@ -87,14 +87,14 @@ export default defineComponent({
       },
       {
         title: '原価率',
-        dataIndex: 'expenseRatio',
-        key: 'expenseRatio',
-        slots: { customRender: 'customRenderExpenseRatio' },
+        dataIndex: 'costRate',
+        key: 'costRate',
+        slots: { customRender: 'customRenderCostRate' },
         align: 'right'
       }
     ]
 
-    const financeData = computed(() => props.finance)
+    const financeData = computed(() => props?.finance?.finance)
 
     const dataSource = computed(() => [
       {
@@ -102,18 +102,18 @@ export default defineComponent({
         type: '予測',
         revenue: financeData.value?.revenue?.estimate,
         totalProfit: financeData.value?.totalProfit?.estimate,
-        profitMargin: financeData.value?.profitMargin?.estimate,
+        profitRate: financeData.value?.profitRate?.estimate,
         cost: financeData.value?.cost?.estimate,
-        expenseRatio: financeData.value?.expenseRatio?.estimate
+        costRate: financeData.value?.costRate?.estimate
       },
       {
         key: uniqueId('__row__'),
         type: '実績',
         revenue: financeData.value?.revenue?.invoice,
         totalProfit: financeData.value?.totalProfit?.invoice,
-        profitMargin: financeData.value?.profitMargin?.invoice,
+        profitRate: financeData.value?.profitRate?.invoice,
         cost: financeData.value?.cost?.invoice,
-        expenseRatio: financeData.value?.expenseRatio?.invoice
+        costRate: financeData.value?.costRate?.invoice
       }
     ])
 

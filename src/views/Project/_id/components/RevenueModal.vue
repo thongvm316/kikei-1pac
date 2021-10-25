@@ -397,7 +397,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeMount, reactive, ref, toRefs, watch } from 'vue'
+import { computed, defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, toRefs, watch } from 'vue'
 import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
 import { PROJECT_REVENUE_TYPES, PROJECT_TYPES } from '@/enums/project.enum'
 import { getCurrencyList, getCurrencyExchange } from '../../composables/useCurrency'
@@ -755,6 +755,20 @@ export default defineComponent({
 
       await fetchRevenueProject()
     })
+
+    // function handleBeforeReload(event) {
+    //   isVisibleModalConfirmSubmit.value = true
+    //   event.preventDefault()
+    //   event.returnValue = ''
+    // }
+
+    // onMounted(() => {
+    //   window.addEventListener('beforeunload', handleBeforeReload)
+    // })
+
+    // onUnmounted(() => {
+    //   window.removeEventListener('beforeunload', handleBeforeReload)
+    // })
 
     return {
       visible,

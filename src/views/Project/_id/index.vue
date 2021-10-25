@@ -7,10 +7,11 @@
         <project-edit-form
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
+          :revenue-estimate-money-request="revenueEstimateMoneyRequest"
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
 
-        <budget-table :project="project" />
+        <budget-table :project="project" @on-submit-predict-budget="onSubmitPredictBudget" />
       </div>
 
       <div class="project-detail__history">
@@ -59,7 +60,7 @@ export default defineComponent({
       try {
         const projectRes = await getProject(projectId, paramRequest)
         project.value = projectRes
-        finance.value = projectRes?.finance
+        finance.value = projectRes
       } catch (error) {
         if (error.response.status === 403) router.push({ name: 'error-403', query: { private: 'project' } })
       }
@@ -70,6 +71,12 @@ export default defineComponent({
       isLoadedOverviewTable.value = false
     }
 
+    const revenueEstimateMoneyRequest = ref()
+
+    const onSubmitPredictBudget = (dataEmit) => {
+      revenueEstimateMoneyRequest.value = dataEmit
+    }
+
     onBeforeMount(() => {
       fetchProject()
     })
@@ -78,7 +85,9 @@ export default defineComponent({
       project,
       finance,
       isLoadedOverviewTable,
-      onSubmitEditProjectForm
+      revenueEstimateMoneyRequest,
+      onSubmitEditProjectForm,
+      onSubmitPredictBudget
     }
   }
 })

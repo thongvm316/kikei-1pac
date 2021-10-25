@@ -15,7 +15,7 @@
             編集
           </a-button>
           <a-button v-if="isEditing" type="default" @click="handleCancelEditForm">キャンセル</a-button>
-          <a-button v-if="isEditing" type="primary" :loading="loading" :style="{ marginLeft: '8px' }" @click="onSubmit">
+          <a-button v-if="isEditing" type="primary" :style="{ marginLeft: '8px' }" @click="submitButton">
             登録
           </a-button>
         </div>
@@ -44,7 +44,20 @@
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
-                              <td class="table-cost__content--money">111111111</td>
+                              <td class="table-cost__content--money">
+                                <a-input-number
+                                  v-if="isEditing"
+                                  v-model:value="revenueEstimateMoney"
+                                  :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                                  :precision="0"
+                                  :min="0"
+                                  :max="999999999999"
+                                  style="width: 154px"
+                                />
+                                <span v-if="!isEditing">{{ revenueEstimateMoney }}</span>
+                                ({{ revenueCost?.predict?.code }})
+                              </td>
                             </tr>
                           </td>
                           <td class="table-cost__edit"></td>
@@ -279,7 +292,9 @@ export default defineComponent({
     project: Object
   },
 
-  setup() {
+  emits: ['on-submit-predict-budget'],
+
+  setup(props, { emit }) {
     const route = useRoute()
     const projectId = Number(route.params?.id)
 
@@ -318,11 +333,12 @@ export default defineComponent({
 
     const handleCancelEditForm = () => {
       isEditing.value = false
-      // fetch data...
+      revenueEstimateMoney.value = props?.project?.value?.estimate
     }
 
     // revenue modal
     const isOpenRevenueModal = ref()
+    const revenueEstimateMoney = ref()
 
     const handleOpenCostModal = (typeId) => {
       const costFound = find(COST_MODAL_TYPES, { id: typeId })
@@ -477,12 +493,15 @@ export default defineComponent({
       }
     })
 
+    const estimateCurrencyId = ref()
     const fetchRevenueList = async () => {
       const { result } = await getRevenueList({
         projectId,
         projectCostsType: '1,2',
         month: null
       })
+
+      estimateCurrencyId.value = result?.data[0].currencyId
 
       const currency = find(currencyList.value, { id: result?.data[0].currencyId })
 
@@ -500,10 +519,20 @@ export default defineComponent({
 
     const onSubmitRevenueModal = () => fetchRevenueList()
 
+    const submitButton = () => {
+      const emitData = {
+        revenueEstimateMoney: revenueEstimateMoney.value,
+        estimateCurrencyId: estimateCurrencyId.value
+      }
+      isEditing.value = false
+      emit('on-submit-predict-budget', emitData)
+    }
+
     onBeforeMount(async () => {
       // get currency list
       const currencyReponse = await getCurrencyList()
       currencyList.value = currencyReponse?.result?.data || []
+      revenueEstimateMoney.value = props?.project?.value?.estimate
 
       fetchOrderCostList()
       fetchMaterialCostList()
@@ -517,6 +546,7 @@ export default defineComponent({
       isCollapse,
       isCostsModalOpen,
       isLoadingBudgetTable,
+      revenueEstimateMoney,
 
       COST_MODAL_TYPES,
       titleCostModal,
@@ -529,6 +559,7 @@ export default defineComponent({
       isOpenRevenueModal,
       revenueCost,
 
+      submitButton,
       handleCancelEditForm,
       handleOpenCostModal,
       fetchOrderCostList,
