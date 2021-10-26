@@ -99,7 +99,7 @@
       <div class="cost-submit">
         <a-button :disabled="isSubmitLoading" @click="handleCancel">キャンセル</a-button>
         <a-button
-          :disabled="isDisabledSubmitButton"
+          :disabled="isHaveChangeCostState"
           :loading="isSubmitLoading"
           type="primary"
           class="u-ml-12"
@@ -260,7 +260,7 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      if (isEqual(costStateToCompare.value, costState.value)) {
+      if (isHaveChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -272,6 +272,7 @@ export default defineComponent({
       let data = cloneDeep(costState.value)
 
       data.forEach((item) => {
+        item.month = moment(filterMonth.value).format('YYYY-MM-DD')
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
       })
 
@@ -316,8 +317,7 @@ export default defineComponent({
     }
 
     const costStateToCompare = ref([])
-
-    const isDisabledSubmitButton = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const isVisibleModalConfirmSubmit = ref()
     const nextTab = ref()
@@ -326,7 +326,7 @@ export default defineComponent({
     const tabClick = (val) => {
       if (val === activeKey.value) return
 
-      if (isEqual(costStateToCompare.value, costState.value)) {
+      if (isHaveChangeCostState.value) {
         activeKey.value = val
         fetchDataDirectList(val, filterMonth.value)
       } else {
@@ -405,7 +405,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isEqual(costState.value, costStateToCompare.value)) return
+      if (isHaveChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -426,7 +426,7 @@ export default defineComponent({
       currencyList,
       totalCosts,
       costStateToCompare,
-      isDisabledSubmitButton,
+      isHaveChangeCostState,
       isVisibleModalConfirmSubmit,
       isVisibleModalConfirmClone,
       costStateToClone,
@@ -445,7 +445,6 @@ export default defineComponent({
       handleCloneCostState,
       handleCancel,
       handleSubmit,
-      isEqual,
       tabClick,
       handleConfirmSubmitModal,
       handleConfirmCloneModal
@@ -531,6 +530,7 @@ export default defineComponent({
     @include flexbox(flex-end, null);
     padding-top: 16px;
     border-top: 1px dashed $color-grey-85;
+    padding-right: 24px;
 
     &__left {
       margin-right: 12px;

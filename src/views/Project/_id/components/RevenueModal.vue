@@ -146,7 +146,7 @@
                         <td>
                           <a-space v-if="!cost.isEditUnitPrice">
                             <EditLargeIcon style="cursor: pointer" @click="handleClickEditUnitPrice(cost.id)" />
-                            <span>{{ cost.unitPrice }}</span>
+                            <span>{{ $filters.number_with_commas(cost.unitPrice) }}</span>
                           </a-space>
 
                           <a-input-number
@@ -212,7 +212,7 @@
             </a-tabs>
 
             <!-- button add row -->
-            <a-button size="small" class="u-mt-24" @click="handleAddCost">
+            <a-button :disabled="!costState?.id" size="small" class="u-mt-24" @click="handleAddCost">
               <template #icon>
                 <span class="btn-icon"><line-add-icon /></span>
               </template>
@@ -379,7 +379,7 @@
             <div class="revenue-modal__submit-buttons">
               <a-button @click="handleCancel">キャンセル</a-button>
               <a-button
-                :disabled="!costState.id || isEqual(costState, costStateToCompare)"
+                :disabled="!costState?.id || isHaveChangeCostState"
                 :loading="isSubmitLoading"
                 type="primary"
                 class="u-ml-8"
@@ -541,8 +541,10 @@ export default defineComponent({
       }
     )
 
+    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+
     const handleCancel = () => {
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -659,7 +661,7 @@ export default defineComponent({
     const purposeConfirm = ref()
 
     const tabClick = (val) => {
-      if (isEqual(costState.value, costStateToCompare.value)) {
+      if (isHaveChangeCostState.value) {
         fetchRevenueProject(val, filterMonth.value)
         activeKey.value = val
       } else {
@@ -688,6 +690,7 @@ export default defineComponent({
     )
 
     const handleSubmit = async () => {
+      if (!costState.value.id || isHaveChangeCostState.value) return
       isSubmitLoading.value = true
 
       const dataRequest = cloneDeep(costState.value)
@@ -769,7 +772,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isEqual(costState.value, costStateToCompare.value)) return
+      if (isHaveChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -807,6 +810,7 @@ export default defineComponent({
       revenueQuantityUnit,
       isVisibleModalConfirmClone,
       costStateToClone,
+      isHaveChangeCostState,
 
       handleCancel,
       handleClickEditUnitPrice,
@@ -817,7 +821,6 @@ export default defineComponent({
       tabClick,
       handleSubmit,
       filterMonth,
-      isEqual,
       handleBlurEditUnitPrice,
       handleConfirmSubmitModal,
       handleCloneCostState,

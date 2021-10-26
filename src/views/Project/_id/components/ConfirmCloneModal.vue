@@ -3,7 +3,7 @@
     <template #footer>
       <p>予測の内容をコピーすると入力されていた内容が上書きされます コピーしてもよろしいですか？</p>
       <a-button type="default" @click="handleCancel">いいえ</a-button>
-      <a-button type="primary" @click="$emit('on-confirm')">いいえ</a-button>
+      <a-button type="primary" @click="$emit('on-confirm')">はい</a-button>
     </template>
   </a-modal>
 </template>
