@@ -494,6 +494,7 @@ export default defineComponent({
       const dataRequest = cloneDeep(costState.value)
 
       dataRequest.forEach((item) => {
+        item.month = moment(filterMonth.value).format('YYYY-MM-DD')
         delete item.checked
         delete item.subtotal
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
