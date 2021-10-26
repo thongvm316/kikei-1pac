@@ -212,7 +212,7 @@
             </a-tabs>
 
             <!-- button add row -->
-            <a-button size="small" class="u-mt-24" @click="handleAddCost">
+            <a-button :disabled="!costState?.id" size="small" class="u-mt-24" @click="handleAddCost">
               <template #icon>
                 <span class="btn-icon"><line-add-icon /></span>
               </template>
@@ -379,7 +379,7 @@
             <div class="revenue-modal__submit-buttons">
               <a-button @click="handleCancel">キャンセル</a-button>
               <a-button
-                :disabled="isHaveChangeCostState"
+                :disabled="!costState?.id || isHaveChangeCostState"
                 :loading="isSubmitLoading"
                 type="primary"
                 class="u-ml-8"
@@ -690,6 +690,7 @@ export default defineComponent({
     )
 
     const handleSubmit = async () => {
+      if (!costState.value.id || isHaveChangeCostState.value) return
       isSubmitLoading.value = true
 
       const dataRequest = cloneDeep(costState.value)

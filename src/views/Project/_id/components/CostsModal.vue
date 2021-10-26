@@ -272,6 +272,7 @@ export default defineComponent({
       let data = cloneDeep(costState.value)
 
       data.forEach((item) => {
+        item.month = moment(filterMonth.value).format('YYYY-MM-DD')
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
       })
 

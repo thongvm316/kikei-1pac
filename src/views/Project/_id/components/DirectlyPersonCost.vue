@@ -488,6 +488,7 @@ export default defineComponent({
     }
 
     const submit = async () => {
+      if (isHaveChangeCostState.value) return
       isLoaddingSubmitButton.value = true
 
       const dataRequest = cloneDeep(costState.value)
