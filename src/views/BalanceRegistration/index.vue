@@ -310,7 +310,7 @@ export default defineComponent({
         store.commit('flash/STORE_FLASH_MESSAGE', {
           variant: 'successfully',
           duration: 5,
-          message: moment(data.month).format('YYYY-MM') + t('balance_registration.edit_success')
+          message: moment(data.month).format('YYYY/MM') + t('balance_registration.edit_success')
         })
       } catch (err) {
         checkErrorsApi(err)
@@ -556,6 +556,10 @@ export default defineComponent({
   .balance-future {
     @include flexbox(flex-end, center);
     height: 32px;
+  }
+
+  .btn-confirm-edit {
+    width: 80px;
   }
 }
 
