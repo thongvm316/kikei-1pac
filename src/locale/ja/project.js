@@ -75,6 +75,14 @@ export default {
     status_id: 'ステータス',
     memo: 'メモ',
     tag: 'タグ',
-    tax: '税金'
+    tax: '税金',
+    accuracy_id: '受注確度',
+    release_date: 'リリース日（予定）',
+    statistics_to_month: '計上予定月',
+    statistics_from_month: '計上予定月',
+    group_id: '請求グループ',
+    director: 'ディレクタ（予定）',
+    account_id: '営業担当',
+    money: '金額'
   }
 }

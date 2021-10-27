@@ -35,9 +35,12 @@
                     v-if="project.value.type === PROJECT_TYPES[1].value"
                     v-model:value="filterMonth"
                     :style="{ width: '122px' }"
+                    :disabled-date="disabledDate"
                     class="u-my-12"
                     format="YYYY/MM"
                     placeholder="YYYY/MM"
+                    :allow-clear="false"
+                    @change="handleFilterMonth"
                   >
                     <template #suffixIcon>
                       <calendar-outlined />
@@ -294,7 +297,7 @@
               <div class="directly-person-cost__submit-buttons">
                 <a-button @click="handleCancel">キャンセル</a-button>
                 <a-button
-                  :disabled="isHaveChangeCostState"
+                  :disabled="isHaveNoChangeCostState"
                   :loading="isLoaddingSubmitButton"
                   type="primary"
                   class="u-ml-8"
@@ -307,7 +310,11 @@
         </div>
       </div>
     </template>
-    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmSubmitModal
+      v-model:visible="isVisibleModalConfirmSubmit"
+      @on-cancel="hanleCancelConfirmSubmitModal"
+      @on-confirm="handleConfirmSubmitModal"
+    />
     <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
@@ -356,7 +363,13 @@ export default defineComponent({
 
   emits: ['update:visible', 'on-submit', 'on-submit-direct-person-cost-modal'],
 
-  setup(_, { emit }) {
+  setup(props, { emit }) {
+    const disabledDate = (current) => {
+      return (
+        (current && current < moment(props.project.value.statisticsFromMonth).startOf('month')) ||
+        (current && current > moment(props.project.value.statisticsToMonth).endOf('month'))
+      )
+    }
     const visible = ref()
     const activeKey = ref('1')
     const currencyList = ref([])
@@ -479,7 +492,7 @@ export default defineComponent({
     )
 
     const handleCancel = () => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -488,7 +501,7 @@ export default defineComponent({
     }
 
     const submit = async () => {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
       isLoaddingSubmitButton.value = true
 
       const dataRequest = cloneDeep(costState.value)
@@ -508,10 +521,6 @@ export default defineComponent({
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)
         emit('on-submit-direct-person-cost-modal')
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: 'Submit success'
-        })
       } finally {
         isLoaddingSubmitButton.value = false
       }
@@ -542,7 +551,7 @@ export default defineComponent({
 
     const costStateToClone = ref([])
     const costStateToCompare = ref()
-    const isHaveChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
 
     const fetDataTable = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
@@ -559,6 +568,28 @@ export default defineComponent({
           ...cost,
           checked: false
         }))
+
+        // create default items
+        if (costState.value.length === 0) {
+          costState.value = new Array(10).fill(undefined).map(() => ({
+            id: uniqueId(UNIQUE_ID_PREFIX),
+            projectCostsType: Number(activeKey.value),
+            allowance: 0,
+            allowanceCurrencyId: selectedCurrency.value,
+            monthlySalary: 0,
+            name: null,
+            overtimeDaysFirst: 0,
+            overtimeDaysSecond: 0,
+            overtimeHoursFirst: 0,
+            overtimeHoursSecond: 0,
+            positionId: null,
+            projectId,
+            checked: false,
+            salaryCurrencyId: selectedCurrency.value,
+            workingDays: 0,
+            workingHours: 0
+          }))
+        }
         costStateToCompare.value = cloneDeep(costState.value)
         if (type === '1') costStateToClone.value = cloneDeep(costState.value)
       } finally {
@@ -566,10 +597,26 @@ export default defineComponent({
       }
     }
 
+    const prevMonthFilter = ref()
+
+    const hanleCancelConfirmSubmitModal = () => {
+      if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
+      prevMonthFilter.value = null
+    }
+
+    const handleFilterMonth = (val) => {
+      if (isHaveNoChangeCostState.value) {
+        fetDataTable(activeKey.value, val)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        purposeConfirm.value = 'change-month'
+      }
+    }
+
     watch(
       () => filterMonth.value,
-      (val) => {
-        fetDataTable(activeKey.value, val)
+      (newVal, oldVal) => {
+        prevMonthFilter.value = oldVal
       }
     )
 
@@ -579,7 +626,7 @@ export default defineComponent({
 
     const tabClick = (val) => {
       if (val === activeKey.value) return
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         activeKey.value = val
         fetDataTable(val, filterMonth.value)
       } else {
@@ -597,6 +644,8 @@ export default defineComponent({
         activeKey.value = nextTab.value
       } else if (purposeConfirm.value === 'close-modal') {
         emit('update:visible', false)
+      } else if (purposeConfirm.value === 'change-month') {
+        fetDataTable(activeKey.value, filterMonth.value)
       }
     }
 
@@ -656,7 +705,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -671,6 +720,7 @@ export default defineComponent({
     })
 
     return {
+      disabledDate,
       visible,
       activeKey,
       currencyList,
@@ -692,7 +742,7 @@ export default defineComponent({
       costStateToClone,
       authProfile,
       filterMonth,
-      isHaveChangeCostState,
+      isHaveNoChangeCostState,
 
       // func
       handleCancel,
@@ -705,7 +755,9 @@ export default defineComponent({
       tabClick,
       handleConfirmSubmitModal,
       isVisibleModalConfirmClone,
-      handleConfirmCloneModal
+      handleConfirmCloneModal,
+      hanleCancelConfirmSubmitModal,
+      handleFilterMonth
     }
   }
 })
@@ -750,6 +802,17 @@ export default defineComponent({
     display: block;
     max-height: 505px;
     border-bottom: none;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $color-grey-55;
+      opacity: 0.7;
+      background-clip: padding-box;
+    }
 
     thead {
       background-color: $color-grey-92;

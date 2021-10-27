@@ -39,6 +39,9 @@
                       :style="{ width: '122px' }"
                       format="YYYY/MM"
                       placeholder="YYYY/MM"
+                      :disabled-date="disabledDate"
+                      :allow-clear="false"
+                      @change="handleFilterMonth"
                     >
                       <template #suffixIcon>
                         <calendar-outlined />
@@ -212,7 +215,7 @@
             </a-tabs>
 
             <!-- button add row -->
-            <a-button :disabled="!costState?.id" size="small" class="u-mt-24" @click="handleAddCost">
+            <a-button size="small" class="u-mt-24" @click="handleAddCost">
               <template #icon>
                 <span class="btn-icon"><line-add-icon /></span>
               </template>
@@ -379,7 +382,7 @@
             <div class="revenue-modal__submit-buttons">
               <a-button @click="handleCancel">キャンセル</a-button>
               <a-button
-                :disabled="!costState?.id || isHaveChangeCostState"
+                :disabled="isHaveNoChangeCostState"
                 :loading="isSubmitLoading"
                 type="primary"
                 class="u-ml-8"
@@ -391,7 +394,11 @@
         </a-spin>
       </div>
     </template>
-    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmSubmitModal
+      v-model:visible="isVisibleModalConfirmSubmit"
+      @on-confirm="handleConfirmSubmitModal"
+      @on-cancel="hanleCancelConfirmSubmitModal"
+    />
     <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
@@ -405,7 +412,7 @@ import CopyIcon from '@/assets/icons/ico_copy.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
-import { getRevenueProject, upsertRevenueProject, deleteRevenueItem } from '../../composables/useProject'
+import { getRevenueProject, upsertRevenueProject, deleteRevenueItem, createRevenue } from '../../composables/useProject'
 import { getRevenueItemList, getRevenueExpenseItem, getRevenueQuantityUnit } from '../../composables/useRevenue'
 import { useRoute } from 'vue-router'
 import { useAccountList } from '../../composables/useAccountList'
@@ -414,8 +421,6 @@ import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
-import { useStore } from 'vuex'
-
 export default defineComponent({
   name: 'RevenueModal',
 
@@ -435,10 +440,15 @@ export default defineComponent({
 
   emits: ['update:visible', 'on-submit-revenue-modal'],
 
-  setup(_, { emit }) {
+  setup(props, { emit }) {
+    const disabledDate = (current) => {
+      return (
+        (current && current < moment(props.project.value.statisticsFromMonth).startOf('month')) ||
+        (current && current > moment(props.project.value.statisticsToMonth).endOf('month'))
+      )
+    }
     const visible = ref()
     const activeKey = ref('1')
-    const store = useStore()
     const currencyList = ref([])
     const route = useRoute()
     const projectId = Number(route.params?.id)
@@ -541,10 +551,10 @@ export default defineComponent({
       }
     )
 
-    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const handleCancel = () => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -647,6 +657,24 @@ export default defineComponent({
           isEditUnitPrice: false
         }))
 
+        // create default items
+        if (costState.value.adProjectRevenueItems.length === 0) {
+          costState.value.adProjectRevenueItems = new Array(10).fill(undefined).map(() => ({
+            projectId,
+            positionId: null,
+            itemId: null,
+            id: uniqueId(UNIQUE_ID_PREFIX),
+            expenseItemId: null,
+            overview: null,
+            unitPrice: 0,
+            quantity: null,
+            quantityUnitId: null,
+            checked: false,
+            isEditUnitPrice: false,
+            projectCostsType: Number(activeKey.value)
+          }))
+        }
+
         costStateToCompare.value = cloneDeep(costState.value)
         if (type === '1') costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
 
@@ -661,7 +689,7 @@ export default defineComponent({
     const purposeConfirm = ref()
 
     const tabClick = (val) => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         fetchRevenueProject(val, filterMonth.value)
         activeKey.value = val
       } else {
@@ -679,33 +707,52 @@ export default defineComponent({
         activeKey.value = nextTab.value
       } else if (purposeConfirm.value === 'close-modal') {
         emit('update:visible', false)
+      } else if (purposeConfirm.value === 'change-month') {
+        fetchRevenueProject(activeKey.value, filterMonth.value)
+      }
+    }
+
+    const prevMonthFilter = ref()
+
+    const hanleCancelConfirmSubmitModal = () => {
+      if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
+      prevMonthFilter.value = null
+    }
+
+    const handleFilterMonth = (val) => {
+      if (isHaveNoChangeCostState.value) {
+        fetchRevenueProject(activeKey.value, val)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        purposeConfirm.value = 'change-month'
       }
     }
 
     watch(
       () => filterMonth.value,
-      (val) => {
-        fetchRevenueProject(activeKey.value, val)
+      (newVal, oldVal) => {
+        prevMonthFilter.value = oldVal
       }
     )
 
     const handleSubmit = async () => {
-      if (!costState.value.id || isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
       isSubmitLoading.value = true
 
       const dataRequest = cloneDeep(costState.value)
 
       if (dataRequest.quotationValidityPeriod !== 5) dataRequest.quotationValidityPeriodOther = null
+      dataRequest.projectCostsType = Number(dataRequest.projectCostsType)
       dataRequest.deliveryDate = dataRequest.deliveryDate ? moment(dataRequest.deliveryDate).format('YYYY-MM-DD') : null
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')
         : null
-      dataRequest.month = moment(filterMonth.value).format('YYYY-MM-DD')
+      // dataRequest.month = moment(filterMonth.value).format('YYYY-MM-DD')
       delete dataRequest.total
       dataRequest.adProjectRevenueItems.forEach((item) => {
-        delete item.projectCostsType
+        // delete item.projectCostsType
         delete item.subtotal
-        delete item.projectId
+        // delete item.projectId
         delete item.isEditUnitPrice
         delete item.checked
         delete item.projectRevenueId
@@ -713,19 +760,19 @@ export default defineComponent({
       })
 
       try {
-        if (costDeleteList.value.length > 0) {
-          await deleteRevenueItem({ id: costDeleteList.value })
-          costDeleteList.value = []
+        if (!dataRequest.id) {
+          delete dataRequest.id
+          await createRevenue(dataRequest)
+        } else {
+          if (costDeleteList.value.length > 0) {
+            await deleteRevenueItem({ id: costDeleteList.value })
+            costDeleteList.value = []
+          }
+          await upsertRevenueProject(dataRequest)
         }
-        if (dataRequest.id) await upsertRevenueProject(dataRequest)
+
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
-
-        emit('on-submit-revenue-modal')
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: 'Submit success'
-        })
       } finally {
         isSubmitLoading.value = false
       }
@@ -772,7 +819,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -810,7 +857,8 @@ export default defineComponent({
       revenueQuantityUnit,
       isVisibleModalConfirmClone,
       costStateToClone,
-      isHaveChangeCostState,
+      isHaveNoChangeCostState,
+      disabledDate,
 
       handleCancel,
       handleClickEditUnitPrice,
@@ -824,7 +872,9 @@ export default defineComponent({
       handleBlurEditUnitPrice,
       handleConfirmSubmitModal,
       handleCloneCostState,
-      handleConfirmCloneModal
+      handleConfirmCloneModal,
+      handleFilterMonth,
+      hanleCancelConfirmSubmitModal
     }
   }
 })
@@ -877,6 +927,17 @@ export default defineComponent({
     display: block;
     max-height: 505px;
     border-bottom: none;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $color-grey-55;
+      opacity: 0.7;
+      background-clip: padding-box;
+    }
 
     thead {
       background-color: $color-grey-92;

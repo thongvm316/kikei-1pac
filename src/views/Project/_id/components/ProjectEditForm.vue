@@ -737,7 +737,11 @@ export default defineComponent({
       projectParams.value.statisticsMonths = val
     }
 
-    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
+    const isHaveChangeForm = computed(
+      () =>
+        isEqual(projectParams.value, projectParamsToCompare.value) &&
+        isEqual(localProjectOrdersToCompare.value, localProjectOrders.value)
+    )
 
     // input validator rules
     const projectFormRules = ref({
@@ -881,6 +885,8 @@ export default defineComponent({
 
     /* -------------------- init data when project props ------------------------- */
     const projectParamsToCompare = ref()
+    const localProjectOrdersToCompare = ref()
+
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp
@@ -917,6 +923,7 @@ export default defineComponent({
       }
 
       projectParamsToCompare.value = cloneDeep(projectParams.value)
+      localProjectOrdersToCompare.value = cloneDeep(localProjectOrders.value)
 
       emit('update:is-loaded-overview-table', false)
     }
