@@ -3,7 +3,6 @@
     <template #footer>
       <div class="box">
         <p>{{ $t('modal.group_setting_line1') }}</p>
-        <p>{{ $t('modal.group_setting_line2') }}</p>
       </div>
       <a-button key="back" @click="handleCancel">{{ $t('modal.cancel') }}</a-button>
       <a-button type="primary" @click="handleLeave">

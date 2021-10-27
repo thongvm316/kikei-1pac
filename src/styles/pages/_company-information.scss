@@ -25,11 +25,9 @@
 }
 
 .company-information__addition {
-  
   .ant-tabs-line {
     max-height: 45px;
   }
-  
   .card-common{
     height: calc(100vh - 173px) !important;
   }
@@ -75,6 +73,8 @@
     }
   
     .line-10 {
+      margin-bottom: 0;
+    
       .sales-group {
         .ant-input-number-handler-wrap {
           display: none !important;
@@ -87,178 +87,92 @@
         }
       }
     }
-  }
-}
-
-.form-create {
-  .line-4 {
-    display: flex;
-    
-    &__left {
-      margin-right: 20px;
-    }
-    
-    &__right {
-      input {
-        width: 163px;
-      }
-    }
-  }
   
-  .line-8 {
-    display: flex;
-    align-items: end;
+    .card-footer {
+      margin-top: 24px ;
     
-    &__left {
-      margin-right: 24px;
+      .btn-delete-danger {
+        color: #ff4d4f;
+        border-color: #ff4d4f;
+        text-shadow: none;
+        box-shadow: none;
       
-      .form-select {
-        margin-top: 5px;
+        &:hover {
+          background-color: #ff4d4f;
+          color: #ffffff;
+        }
       }
     }
-    
-    &__right {
+  
+    .sales-group {
       display: flex;
-      align-items: center;
-      height: 32px;
-      margin-bottom: 1px;
-      
+      background-color: #ffffff;
+      border: 1px solid #d9d9d9;
+      padding: 16px 16px 16px 32px;
+      margin-top: 5px;
+      max-width: 750px;
+    
       p {
-        margin-bottom: 0;
-        color: #8c8c8c;
-        margin-right: 12px;
-        
-        span {
-          color: #262626;
-        }
+        flex: 1;
+        margin: 7px 0;
+        font-size: 12px;
+        line-height: 18px;
       }
-      
-      .label-period {
-        margin-right: 6px;
-        color: #262626;
-      }
-      
-      .form-group {
-        margin-bottom: 0;
-      }
-      
+    
       .form-input {
-        display: flex;
-        align-items: center;
         margin-top: 0 !important;
-        
+      
         input {
-          height: 32px;
-          width: 49px;
-          padding: 3px 1px;
-          text-align: center;
-        }
-        
-        p {
-          margin-top: 0;
-          margin-bottom: 0;
-          margin-left: 2px;
-          color: #262626;
+          text-align: end;
         }
       }
-    }
-  }
-  
-  .form-label-line10 {
-    span {
-      color: #cd201f;
-      margin-left: 6px;
-    }
-  }
-  
-  .line-10 {
-    margin-bottom: 0;
-  }
-  
-  .card-footer {
-    margin-top: 24px ;
     
-    .btn-delete-danger {
-      color: #ff4d4f;
-      border-color: #ff4d4f;
-      text-shadow: none;
-      box-shadow: none;
-      
-      &:hover {
-        background-color: #ff4d4f;
-        color: #ffffff;
+      .form-select {
+        width: 85px;
       }
     }
-  }
   
-  .sales-group {
-    display: flex;
-    background-color: #ffffff;
-    border: 1px solid #d9d9d9;
-    padding: 16px 16px 16px 32px;
-    margin-top: 5px;
-    max-width: 750px;
+    .container {
+      padding: 0;
+      margin: 0;
     
-    p {
-      flex: 1;
-      margin: 7px 0;
-      font-size: 12px;
-      line-height: 18px;
-    }
-    
-    .form-input {
-      margin-top: 0 !important;
-      
-      input {
-        text-align: end;
-      }
-    }
-    
-    .form-select {
-      width: 85px;
-    }
-  }
-  
-  .container {
-    padding: 0;
-    margin: 0;
-    
-    .form-label-line8 {
-      span {
-        color: #cd201f;
-        margin-left: 6px;
-      }
-    }
-    
-    .errors {
-      color: #ff4d4f;
-    }
-  }
-  
-  .upload {
-    position: relative;
-    margin: 0;
-    
-    .overlay-loading {
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      z-index: 999;
-      background: rgba(255, 255, 255, 0.5);
-      
-      .ant-spin {
-        .ant-spin-dot {
-          font-size: 24px;
+      .form-label-line8 {
+        span {
+          color: #cd201f;
+          margin-left: 6px;
         }
       }
-      
-      .spin-loading {
-        display: flex;
+    
+      .errors {
+        color: #ff4d4f;
+      }
+    }
+  
+    .upload {
+      position: relative;
+      margin: 0;
+    
+      .overlay-loading {
+        left: 0;
+        top: 0;
+        width: 100%;
         height: 100%;
-        align-items: center;
-        justify-content: center;
+        position: absolute;
+        z-index: 999;
+        background: rgba(255, 255, 255, 0.5);
+      
+        .ant-spin {
+          .ant-spin-dot {
+            font-size: 24px;
+          }
+        }
+      
+        .spin-loading {
+          display: flex;
+          height: 100%;
+          align-items: center;
+          justify-content: center;
+        }
       }
     }
   }

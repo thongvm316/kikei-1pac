@@ -54,9 +54,8 @@ export default {
   back: '戻る',
   text_line1: '招待メールが送信されました。',
   text_line2: 'アカウントのアクティベートには、ユーザーにお知らせください。',
-  group_setting_line1: '企業作成を保存しません。',
-  group_setting_line2: 'このページを離れると失われます。',
-  leave: '離れる',
+  group_setting_line1: '入力中ですが入力をキャンセルしてもよろしいですか？',
+  leave: '確定',
   leave_group: 'ページを離れる',
 
   errorMessage: {

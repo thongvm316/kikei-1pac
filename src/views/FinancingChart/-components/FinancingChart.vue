@@ -550,7 +550,7 @@ export default defineComponent({
       let bankId = dataFilters.value?.bank_account_ids || null
       let groupId = dataFilters.value?.group_id || null
 
-      if (bankId.length > 0) {
+      if (!bankId) {
         bankAccountsId.value = bankId[0]
       } else {
         if (id) {
