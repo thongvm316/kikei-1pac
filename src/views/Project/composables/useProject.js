@@ -149,6 +149,16 @@ export const deleteLaborDirectCostList = async (data) => {
   }
 }
 
+export const createRevenue = async (dataReq) => {
+  try {
+    const { data } = await ProjectService.createRevenue(dataReq)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
 export const getRevenueList = async (params) => {
   try {
     const { data } = await ProjectService.getRevenueList(params)

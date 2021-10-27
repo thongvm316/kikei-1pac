@@ -13,6 +13,9 @@
                     :style="{ width: '122px' }"
                     format="YYYY/MM"
                     placeholder="YYYY/MM"
+                    :allow-clear="false"
+                    :disabled-date="disabledDate"
+                    @change="handleFilterMonth"
                   >
                     <template #suffixIcon>
                       <calendar-outlined />
@@ -99,7 +102,7 @@
       <div class="cost-submit">
         <a-button :disabled="isSubmitLoading" @click="handleCancel">キャンセル</a-button>
         <a-button
-          :disabled="isHaveChangeCostState"
+          :disabled="isHaveNoChangeCostState"
           :loading="isSubmitLoading"
           type="primary"
           class="u-ml-12"
@@ -108,7 +111,11 @@
         >
       </div>
     </template>
-    <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+    <ConfirmSubmitModal
+      v-model:visible="isVisibleModalConfirmSubmit"
+      @on-confirm="handleConfirmSubmitModal"
+      @on-cancel="hanleCancelConfirmSubmitModal"
+    />
     <ConfirmCloneModal v-model:visible="isVisibleModalConfirmClone" @on-confirm="handleConfirmCloneModal" />
   </a-modal>
 </template>
@@ -138,7 +145,6 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
-import { useStore } from 'vuex'
 import moment from 'moment'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
@@ -164,7 +170,13 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const route = useRoute()
-    const store = useStore()
+
+    const disabledDate = (current) => {
+      return (
+        (current && current < moment(props.project.value.statisticsFromMonth).startOf('month')) ||
+        (current && current > moment(props.project.value.statisticsToMonth).endOf('month'))
+      )
+    }
 
     const projectId = Number(route.params?.id)
     const defaultCostItem = {
@@ -260,7 +272,7 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -307,17 +319,13 @@ export default defineComponent({
         costDeleteList.value = []
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: 'Submit success'
-        })
       } finally {
         isSubmitLoading.value = false
       }
     }
 
     const costStateToCompare = ref([])
-    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const isVisibleModalConfirmSubmit = ref()
     const nextTab = ref()
@@ -326,7 +334,7 @@ export default defineComponent({
     const tabClick = (val) => {
       if (val === activeKey.value) return
 
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         activeKey.value = val
         fetchDataDirectList(val, filterMonth.value)
       } else {
@@ -338,12 +346,15 @@ export default defineComponent({
 
     const handleConfirmSubmitModal = () => {
       isVisibleModalConfirmSubmit.value = false
+      prevMonthFilter.value = null
 
       if (purposeConfirm.value === 'change-tab') {
         activeKey.value = nextTab.value
         fetchDataDirectList(nextTab.value, filterMonth.value)
       } else if (purposeConfirm.value === 'close-modal') {
         emit('update:visible', false)
+      } else if (purposeConfirm.value === 'change-month') {
+        fetchDataDirectList(activeKey.value, filterMonth.value)
       }
     }
 
@@ -351,10 +362,26 @@ export default defineComponent({
 
     const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
 
+    const prevMonthFilter = ref()
+
+    const hanleCancelConfirmSubmitModal = () => {
+      if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
+      prevMonthFilter.value = null
+    }
+
+    const handleFilterMonth = (val) => {
+      if (isHaveNoChangeCostState.value) {
+        fetchDataDirectList(activeKey.value, val)
+      } else {
+        isVisibleModalConfirmSubmit.value = true
+        purposeConfirm.value = 'change-month'
+      }
+    }
+
     watch(
       () => filterMonth.value,
-      (val) => {
-        fetchDataDirectList(activeKey.value, val)
+      (newVal, oldVal) => {
+        prevMonthFilter.value = oldVal
       }
     )
 
@@ -381,11 +408,9 @@ export default defineComponent({
         costState.value = responseRequest?.result?.data || []
 
         // create default items
-        // if (costState.value.length === 0) {
-        //   costState.value = new Array(3).fill(undefined).map(() => createCostItem())
-        // }
-
-        costState
+        if (costState.value.length === 0) {
+          costState.value = new Array(3).fill(undefined).map(() => createCostItem())
+        }
 
         costStateToCompare.value = cloneDeep(costState.value)
         if (projectCostsType === '1') costStateToClone.value = cloneDeep(costState.value)
@@ -405,7 +430,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -420,18 +445,20 @@ export default defineComponent({
     })
 
     return {
+      prevMonthFilter,
       PROJECT_COST_TYPES,
       activeKey,
       costState,
       currencyList,
       totalCosts,
       costStateToCompare,
-      isHaveChangeCostState,
+      isHaveNoChangeCostState,
       isVisibleModalConfirmSubmit,
       isVisibleModalConfirmClone,
       costStateToClone,
       filterMonth,
       PROJECT_TYPES,
+      disabledDate,
 
       isDisableCloneCost,
       isSubmitLoading,
@@ -447,7 +474,9 @@ export default defineComponent({
       handleSubmit,
       tabClick,
       handleConfirmSubmitModal,
-      handleConfirmCloneModal
+      handleConfirmCloneModal,
+      hanleCancelConfirmSubmitModal,
+      handleFilterMonth
     }
   }
 })

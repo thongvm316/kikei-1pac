@@ -58,6 +58,10 @@ export default {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.project}/labor-direct-cost/delete`, data })
   },
 
+  createRevenue(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.project}/revenue`, data })
+  },
+
   getRevenueList(params) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.project}/revenue/list`, params })
   },

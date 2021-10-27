@@ -14,13 +14,14 @@ import { defineComponent, ref } from 'vue'
 export default defineComponent({
   name: 'ConfirmSubmitModal',
 
-  emits: ['update:visible', 'on-confirm'],
+  emits: ['update:visible', 'on-confirm', 'on-cancel'],
 
   setup(_, { emit }) {
     const visible = ref()
 
     const handleCancel = () => {
       emit('update:visible', false)
+      emit('on-cancel')
     }
 
     return {

@@ -16,8 +16,8 @@
     <a-collapse :active-key="isCollapse ? [] : [1]" :bordered="false" class="project-history__collapse">
       <a-collapse-panel key="1">
         <div class="project-history__body">
-          <template v-if="projectHistory && projectHistory.length > 0">
-            <div v-for="item in projectHistory" :key="item.index" class="project-history__item">
+          <template v-if="dataHistory && dataHistory.length > 0">
+            <div v-for="item in dataHistory" :key="item.index" class="project-history__item">
               <p class="u-text-weight-700">{{ moment(item.createdAt).format('YYYY-MM-DD - HH:mm') }}</p>
               <p>{{ item.username }}</p>
               <p class="u-flex">
@@ -43,8 +43,12 @@
 <script>
 import HistoryIcon from '@/assets/icons/ico_history.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, onBeforeMount, ref } from 'vue'
 import moment from 'moment'
+import { useAccountList } from '../../composables/useAccountList'
+import { useGroupList } from '../../composables/useGroupList'
+import { getProjectAccuracies, getProjectStatuses } from '../../composables/useProject'
+import { cloneDeep, findIndex } from 'lodash-es'
 
 export default defineComponent({
   name: 'ProjectHistory',
@@ -61,12 +65,75 @@ export default defineComponent({
     }
   },
 
-  setup() {
+  setup(props) {
     const isCollapse = ref()
+    const dataAccounts = ref()
+    const dataGroups = ref()
+    const dataStatuses = ref()
+    const dataAccuracies = ref()
+
+    const dataHistory = computed(() => {
+      const dataHistoryCustom = cloneDeep(props?.projectHistory) || []
+      dataHistoryCustom.forEach((item) => {
+        if (item.fieldName === 'status_id') {
+          const oldValueStatusIndex = findIndex(dataStatuses.value, { id: item.oldValue })
+          const newValueStatusIndex = findIndex(dataStatuses.value, { id: item.newValue })
+          if (oldValueStatusIndex >= 0) item.oldValue = dataStatuses.value[oldValueStatusIndex]?.name
+          if (newValueStatusIndex >= 0) item.newValue = dataStatuses.value[newValueStatusIndex]?.name
+        }
+
+        if (item.fieldName === 'accuracy_id') {
+          const oldValueAccuraryIndex = findIndex(dataAccuracies.value, { id: item.oldValue })
+          const newValueAccuraryIndex = findIndex(dataAccuracies.value, { id: item.newValue })
+          if (oldValueAccuraryIndex >= 0)
+            item.oldValue = `${dataAccuracies.value[oldValueAccuraryIndex]?.code} (${dataAccuracies.value[oldValueAccuraryIndex]?.name})`
+          if (newValueAccuraryIndex >= 0)
+            item.newValue = `${dataAccuracies.value[newValueAccuraryIndex]?.code} (${dataAccuracies.value[newValueAccuraryIndex]?.name})`
+        }
+
+        if (item.fieldName === 'group_id') {
+          const oldValueGroupIndex = findIndex(dataGroups.value, { id: item.oldValue })
+          const newValueGroupIndex = findIndex(dataGroups.value, { id: item.newValue })
+          if (oldValueGroupIndex >= 0) item.oldValue = dataGroups.value[oldValueGroupIndex]?.name
+          if (newValueGroupIndex >= 0) item.newValue = dataGroups.value[newValueGroupIndex]?.name
+        }
+
+        if (item.fieldName === 'account_id') {
+          const oldValueAccountIndex = findIndex(dataAccounts.value, { id: item.oldValue })
+          const newValueAccountIndex = findIndex(dataAccounts.value, { id: item.newValue })
+          if (oldValueAccountIndex >= 0) item.oldValue = dataAccounts.value[oldValueAccountIndex]?.fullname
+          if (newValueAccountIndex >= 0) item.newValue = dataAccounts.value[newValueAccountIndex]?.fullname
+        }
+      })
+
+      // // status
+      // const statusIndexHistory = findIndex(dataHistoryCustom, { fieldName: 'status_id' })
+      // if (statusIndexHistory >= 0) {
+      //   const statusIndex = findIndex(dataStatuses, { id:  })
+      // }
+
+      return dataHistoryCustom
+    })
+
+    onBeforeMount(async () => {
+      /* ------------------- get all datas --------------------------- */
+      // accounts
+      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
+      // groups
+      const { data: groups } = await useGroupList({ allGroup: true })
+      dataGroups.value = groups
+      // statuses
+      const { data: statuses } = await getProjectStatuses()
+      dataStatuses.value = statuses
+      // accuracies
+      const { data: accuracies } = await getProjectAccuracies()
+      dataAccuracies.value = accuracies
+    })
 
     return {
       isCollapse,
-      moment
+      moment,
+      dataHistory
     }
   }
 })
