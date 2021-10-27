@@ -297,7 +297,7 @@
               <div class="directly-person-cost__submit-buttons">
                 <a-button @click="handleCancel">キャンセル</a-button>
                 <a-button
-                  :disabled="isHaveChangeCostState"
+                  :disabled="isHaveNoChangeCostState"
                   :loading="isLoaddingSubmitButton"
                   type="primary"
                   class="u-ml-8"
@@ -492,7 +492,7 @@ export default defineComponent({
     )
 
     const handleCancel = () => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -501,7 +501,7 @@ export default defineComponent({
     }
 
     const submit = async () => {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
       isLoaddingSubmitButton.value = true
 
       const dataRequest = cloneDeep(costState.value)
@@ -551,7 +551,7 @@ export default defineComponent({
 
     const costStateToClone = ref([])
     const costStateToCompare = ref()
-    const isHaveChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
 
     const fetDataTable = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
@@ -605,7 +605,7 @@ export default defineComponent({
     }
 
     const handleFilterMonth = (val) => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         fetDataTable(activeKey.value, val)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -626,7 +626,7 @@ export default defineComponent({
 
     const tabClick = (val) => {
       if (val === activeKey.value) return
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         activeKey.value = val
         fetDataTable(val, filterMonth.value)
       } else {
@@ -705,7 +705,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -742,7 +742,7 @@ export default defineComponent({
       costStateToClone,
       authProfile,
       filterMonth,
-      isHaveChangeCostState,
+      isHaveNoChangeCostState,
 
       // func
       handleCancel,

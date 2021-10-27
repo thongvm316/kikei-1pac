@@ -382,7 +382,7 @@
             <div class="revenue-modal__submit-buttons">
               <a-button @click="handleCancel">キャンセル</a-button>
               <a-button
-                :disabled="isHaveChangeCostState"
+                :disabled="isHaveNoChangeCostState"
                 :loading="isSubmitLoading"
                 type="primary"
                 class="u-ml-8"
@@ -551,10 +551,10 @@ export default defineComponent({
       }
     )
 
-    const isHaveChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const handleCancel = () => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         emit('update:visible', false)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -689,7 +689,7 @@ export default defineComponent({
     const purposeConfirm = ref()
 
     const tabClick = (val) => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         fetchRevenueProject(val, filterMonth.value)
         activeKey.value = val
       } else {
@@ -720,7 +720,7 @@ export default defineComponent({
     }
 
     const handleFilterMonth = (val) => {
-      if (isHaveChangeCostState.value) {
+      if (isHaveNoChangeCostState.value) {
         fetchRevenueProject(activeKey.value, val)
       } else {
         isVisibleModalConfirmSubmit.value = true
@@ -736,7 +736,7 @@ export default defineComponent({
     )
 
     const handleSubmit = async () => {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
       isSubmitLoading.value = true
 
       const dataRequest = cloneDeep(costState.value)
@@ -819,7 +819,7 @@ export default defineComponent({
     })
 
     function handleBeforeReload(event) {
-      if (isHaveChangeCostState.value) return
+      if (isHaveNoChangeCostState.value) return
 
       event.preventDefault()
       event.returnValue = ''
@@ -857,7 +857,7 @@ export default defineComponent({
       revenueQuantityUnit,
       isVisibleModalConfirmClone,
       costStateToClone,
-      isHaveChangeCostState,
+      isHaveNoChangeCostState,
       disabledDate,
 
       handleCancel,
