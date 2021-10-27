@@ -1,6 +1,6 @@
 <template>
   <section class="project-new">
-    <project-form :project="project" />
+    <project-add-form :project="project" />
   </section>
 </template>
 
@@ -8,13 +8,13 @@
 import { defineComponent, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProject } from '../composables/useProject'
-import ProjectForm from '../-components/ProjectForm'
+import ProjectAddForm from './-components/ProjectAddForm.vue'
 
 export default defineComponent({
   name: 'ProjectNewPage',
 
   components: {
-    ProjectForm
+    ProjectAddForm
   },
 
   setup() {

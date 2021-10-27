@@ -25,11 +25,13 @@ import {
   Tooltip,
   Spin,
   Dropdown,
-  Upload
+  Upload,
+  Space
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
-  app.use(Typography)
+  app
+    .use(Typography)
     .use(Button)
     .use(DatePicker)
     .use(Checkbox)
@@ -54,6 +56,7 @@ const globalComponents = (app) => {
     .use(Spin)
     .use(Dropdown)
     .use(Upload)
+    .use(Space)
 
   // Config global notification
   app.config.globalProperties.$notification = notification

@@ -20,6 +20,11 @@ import PermissionService from './permission'
 import ProfileService from './profile'
 import CompanyInfomationGroupService from './company-infomation'
 import CountryService from './country'
+import DirectCostsService from './direct-costs'
+import MaterialCostsService from './material-costs'
+import OrderCostsService from './order-costs'
+import PositionService from './position'
+import RevenueService from './revenue'
 import BalanceRegistrationService from './balance-registration'
 
 const repositories = {
@@ -45,6 +50,11 @@ const repositories = {
   ProfileService,
   CompanyInfomationGroupService,
   CountryService,
+  DirectCostsService,
+  MaterialCostsService,
+  OrderCostsService,
+  PositionService,
+  RevenueService,
   BalanceRegistrationService
 }
 

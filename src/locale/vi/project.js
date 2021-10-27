@@ -63,5 +63,21 @@ export default {
     money: 'Vui lòng nhập đúng định dạng số tiền',
     tags: 'Vui lòng nhập Tag và nhấn Enter',
     memo: 'Vui lòng nhập ghi chú'
+  },
+  project_history: {
+    name: 'プロジェクト名',
+    client_in_charge: '顧客担当',
+    status_id: 'ステータス',
+    memo: 'メモ',
+    tag: 'タグ',
+    tax: '税金',
+    accuracy_id: '受注確度',
+    release_date: 'リリース日（予定）',
+    statistics_to_month: '計上予定月',
+    statistics_from_month: '計上予定月',
+    group_id: '請求グループ',
+    director: 'ディレクタ（予定）',
+    account_id: '営業担当',
+    money: '金額'
   }
 }

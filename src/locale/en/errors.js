@@ -81,5 +81,7 @@ export default {
   chart_date_2m: 'For graph display, select a date within 2 months',
   data_chart_null: 'no data',
 
-  check_activate_token_0004: 'Email has verified'
+  check_activate_token_0004: 'Email has verified',
+
+  project_labor_direct_cost_0004: 'Input is not valid'
 }
