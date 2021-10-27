@@ -49,6 +49,7 @@ import { useAccountList } from '../../composables/useAccountList'
 import { useGroupList } from '../../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses } from '../../composables/useProject'
 import { cloneDeep, findIndex } from 'lodash-es'
+import { PROJECT_TYPES } from '@/enums/project.enum'
 
 export default defineComponent({
   name: 'ProjectHistory',
@@ -62,6 +63,11 @@ export default defineComponent({
     projectHistory: {
       type: Array,
       default: undefined
+    },
+
+    projectType: {
+      type: Number,
+      default: undefined
     }
   },
 
@@ -73,7 +79,7 @@ export default defineComponent({
     const dataAccuracies = ref()
 
     const dataHistory = computed(() => {
-      const dataHistoryCustom = cloneDeep(props?.projectHistory) || []
+      let dataHistoryCustom = cloneDeep(props?.projectHistory) || []
       dataHistoryCustom.forEach((item) => {
         if (item.fieldName === 'status_id') {
           const oldValueStatusIndex = findIndex(dataStatuses.value, { id: item.oldValue })
@@ -106,11 +112,9 @@ export default defineComponent({
         }
       })
 
-      // // status
-      // const statusIndexHistory = findIndex(dataHistoryCustom, { fieldName: 'status_id' })
-      // if (statusIndexHistory >= 0) {
-      //   const statusIndex = findIndex(dataStatuses, { id:  })
-      // }
+      if (props.projectType === PROJECT_TYPES[0].value) {
+        dataHistoryCustom = dataHistoryCustom.filter((item) => item.fieldName !== 'statistics_to_month')
+      }
 
       return dataHistoryCustom
     })

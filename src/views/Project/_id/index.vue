@@ -16,7 +16,7 @@
       </div>
 
       <div class="project-detail__history">
-        <ProjectHistory :project-history="project?.value?.adProjectHistories" />
+        <ProjectHistory :project-history="project?.value?.adProjectHistories" :project-type="project?.value?.type" />
       </div>
     </div>
   </section>

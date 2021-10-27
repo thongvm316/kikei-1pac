@@ -40,7 +40,7 @@
                     <table class="table-cost">
                       <tbody>
                         <tr class="solid-bottom">
-                          <td class="table-cost__type">予測</td>
+                          <td class="table-cost__type">予測 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -64,7 +64,7 @@
                         </tr>
 
                         <tr class="dashed-bottom">
-                          <td class="table-cost__type">見積</td>
+                          <td class="table-cost__type">見積 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -85,7 +85,7 @@
                         </tr>
 
                         <tr>
-                          <td class="table-cost__type">請求</td>
+                          <td class="table-cost__type">請求 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -177,7 +177,7 @@
                           :key="contentList.type"
                         >
                           <tr>
-                            <td class="table-cost__type">{{ contentList.type === 1 ? '外注費' : '実績' }}</td>
+                            <td class="table-cost__type">{{ contentList.type === 1 ? '予測' : '実績' }}</td>
                             <td class="table-cost__content">
                               <tr v-for="costItem in contentList.data" :key="costItem.id">
                                 <td class="table-cost__content--name">{{ costItem.name }}</td>
@@ -388,7 +388,8 @@ export default defineComponent({
     const fetchOrderCostList = async () => {
       const params = {
         projectId,
-        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`
+        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
+        month: moment(new Date()).format('YYYY-MM')
       }
 
       try {
@@ -408,7 +409,8 @@ export default defineComponent({
     const fetchMaterialCostList = async () => {
       const params = {
         projectId,
-        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`
+        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
+        month: moment(new Date()).format('YYYY-MM')
       }
 
       try {
@@ -428,7 +430,8 @@ export default defineComponent({
     const fetchDirectCostList = async () => {
       const params = {
         projectId,
-        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`
+        projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
+        month: moment(new Date()).format('YYYY-MM')
       }
 
       try {
@@ -456,7 +459,8 @@ export default defineComponent({
         isLoadingBudgetTable.value = true
         const { data } = await getLaborDirectCostList({
           projectId,
-          projectCostsType: '1,2'
+          projectCostsType: '1,2',
+          month: moment(new Date()).format('YYYY-MM')
         })
 
         let predictCount = 0

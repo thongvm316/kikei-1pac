@@ -10,7 +10,7 @@
     <template #footer>
       <div class="directly-person-cost__wrapper">
         <div class="u-relative">
-          <a-tooltip color="fff" title="Check all">
+          <a-tooltip color="fff" :title="checkAll ? '全て解除' : '全てを選択'">
             <a-checkbox v-model:checked="checkAll" :indeterminate="indeterminate" @change="onCheckAllChange" />
           </a-tooltip>
 
@@ -28,7 +28,9 @@
         <div class="u-mt-16">
           <a-tabs :active-key="activeKey" :animated="false" @tabClick="tabClick">
             <a-tab-pane v-for="tab in PROJECT_COST_TYPES" :key="tab.key" :tab="tab.text">
-              <div class="directly-person-cost__filter">
+              <div
+                :class="['directly-person-cost__filter', { 'u-py-16': project.value.type === PROJECT_TYPES[0].value }]"
+              >
                 <div>
                   <!-- filter month -->
                   <a-month-picker
@@ -405,7 +407,7 @@ export default defineComponent({
         total += countSubTotal(item)
       })
 
-      return total
+      return authProfile.value.isAdmin ? total : 999999999
     })
 
     const selectedCurrency = ref(1)
@@ -465,10 +467,10 @@ export default defineComponent({
       const selectedExchange = converExchangeIdToCode(selectedCurrency.value)
       const allowanceExchange = converExchangeIdToCode(allowanceCurrencyId)
 
-      return (
-        salary * currencyExchange.value[salaryExchange][selectedExchange] +
-        allowance * currencyExchange.value[allowanceExchange][selectedExchange]
-      )
+      return authProfile.value.isAdmin
+        ? salary * currencyExchange.value[salaryExchange][selectedExchange] +
+            allowance * currencyExchange.value[allowanceExchange][selectedExchange]
+        : 0
     }
 
     const onCheckAllChange = (e) => {
