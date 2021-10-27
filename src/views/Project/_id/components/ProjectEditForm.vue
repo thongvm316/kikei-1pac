@@ -437,11 +437,7 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
 import { useGroupList } from '../../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses, editProject } from '../../composables/useProject'
-import {
-  initProjectOutsouringOrders,
-  toProjectOutsouringOrdersRequestData,
-  addProjectOrder
-} from '../../composables/useProjectOrders'
+
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
@@ -551,7 +547,6 @@ export default defineComponent({
       money: null,
       tags: [],
       memo: '',
-      adProjectOrders: [],
       tax: null
     })
     const localErrors = ref({})
@@ -561,7 +556,6 @@ export default defineComponent({
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    const localProjectOrders = ref([])
     const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
@@ -579,11 +573,7 @@ export default defineComponent({
       projectParams.value.statisticsMonths = val
     }
 
-    const isHaveChangeForm = computed(
-      () =>
-        isEqual(projectParams.value, projectParamsToCompare.value) &&
-        isEqual(localProjectOrdersToCompare.value, localProjectOrders.value)
-    )
+    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
 
     // input validator rules
     const projectFormRules = ref({
@@ -605,13 +595,6 @@ export default defineComponent({
     }
 
     /* --------------------- handle search company ------------------- */
-    const removeProjectOrder = (order) => {
-      const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
-      if (index < 0) return
-
-      localProjectOrders.value.splice(index, 1)
-    }
-
     const openCompanySearchForm = (target, key = null) => {
       companyTargetSearch.value = target
       isCompanySearchFormOpen.value = true
@@ -625,27 +608,12 @@ export default defineComponent({
       if (companyTargetSearch.value === 'owner') {
         projectParams.value.companyId = parseInt(payload.id)
         companyOwnerData.value = payload
-      } else {
-        const order = localProjectOrders.value[outsouringCompanyTarget.value]
-        if (!order) return
-
-        order.companyId = payload.id
-        order.companyName = payload.name
       }
     }
 
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const addDummyProjectOrder = () => {
-      addProjectOrder(localProjectOrders)
-    }
-
-    const totalMoneyOutsourcing = computed(() => {
-      if (localProjectOrders.value.length <= 0) return 0
-      return localProjectOrders.value.reduce((acc, curr) => acc + curr.money, 0)
-    })
-
     const highestAccuracyRequired = computed(() => {
       if (!projectParams.value.accuracyId || dataAccuracies.value.length <= 0) return false
       const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.value.accuracyId)[0]
@@ -727,7 +695,6 @@ export default defineComponent({
 
     /* -------------------- init data when project props ------------------------- */
     const projectParamsToCompare = ref()
-    const localProjectOrdersToCompare = ref()
 
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
@@ -758,14 +725,7 @@ export default defineComponent({
       // Force tags ['']
       if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
 
-      // init dummy project orders
-      if (projectParams.value.adProjectOrders) {
-        localProjectOrders.value = []
-        initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
-      }
-
       projectParamsToCompare.value = cloneDeep(projectParams.value)
-      localProjectOrdersToCompare.value = cloneDeep(localProjectOrders.value)
 
       emit('update:is-loaded-overview-table', false)
     }
@@ -786,8 +746,7 @@ export default defineComponent({
         statisticsToMonth:
           projectParamsValue.type === 0
             ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
-            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
-        adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1])
       }
 
       dataRequest.statisticsFromMonth = dataRequest.statisticsFromMonth ? dataRequest.statisticsFromMonth : null
@@ -811,12 +770,6 @@ export default defineComponent({
       }
     }
 
-    const addProjectOrdersErrors = () => {
-      localProjectOrders.value.forEach((item, index) => {
-        item.errors = localErrors.value.adProjectOrders[index] || {}
-      })
-    }
-
     const callEditProject = async () => {
       loading.value = true
       const response = await editProject(projectProp.value.id, projectDataRequest.value)
@@ -836,11 +789,7 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
-
-        if (localErrors.value.adProjectOrders) {
-          addProjectOrdersErrors()
-          loading.value = false
-        }
+        loading.value = false
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -923,8 +872,6 @@ export default defineComponent({
       valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
-      localProjectOrders,
-      totalMoneyOutsourcing,
       depositCurrencyCode,
       isEditing,
       statusName,
@@ -935,8 +882,6 @@ export default defineComponent({
       isVisibleModalConfirmSubmit,
 
       openCompanySearchForm,
-      addDummyProjectOrder,
-      removeProjectOrder,
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,
