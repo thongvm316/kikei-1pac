@@ -93,12 +93,12 @@
                   <thead>
                     <tr>
                       <th style="min-width: 200px">役職</th>
-                      <th style="min-width: 200px">氏名</th>
+                      <th style="min-width: 200px; width: 100%">氏名</th>
                       <th v-if="authProfile?.isAdmin" style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
                       <th style="min-width: 234px">時間外労働時間（*1.25）</th>
                       <th style="min-width: 234px">時間外労働時間（*1.5）</th>
-                      <th style="min-width: 150px">手当等</th>
+                      <th style="min-width: 250px">手当等</th>
                       <th v-if="authProfile?.isAdmin" style="min-width: 130px">小計</th>
                     </tr>
                   </thead>
@@ -332,7 +332,6 @@ import {
   upsertLaborDirectCostList,
   deleteLaborDirectCostList
 } from '../../composables/useProject'
-import { getCurrencyList, getCurrencyExchange } from '../../composables/useCurrency'
 import { useRoute } from 'vue-router'
 import { PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { cloneDeep, find, uniqueId, isEqual } from 'lodash-es'
@@ -360,7 +359,9 @@ export default defineComponent({
     project: {
       type: Object,
       required: true
-    }
+    },
+    currencyList: Array,
+    currencyExchange: Object
   },
 
   emits: ['update:visible', 'on-submit', 'on-submit-direct-person-cost-modal'],
@@ -374,7 +375,7 @@ export default defineComponent({
     }
     const visible = ref()
     const activeKey = ref('1')
-    const currencyList = ref([])
+    const currencyList = computed(() => props.currencyList)
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const positionList = ref([])
@@ -383,7 +384,7 @@ export default defineComponent({
     const store = useStore()
     const authProfile = computed(() => store.state?.auth.authProfile)
 
-    const currencyExchange = ref()
+    const currencyExchange = computed(() => props.currencyExchange)
     const costState = ref([])
 
     const isLoadingDataTable = ref()
@@ -404,13 +405,13 @@ export default defineComponent({
     const salaryTotal = computed(() => {
       let total = 0
       costState.value.forEach((item) => {
-        total += authProfile.value?.isAdmin ? countSubTotal(item) : item.subtotal
+        total += countSubTotal(item)
       })
 
-      return total
+      return authProfile.value?.isAdmin ? total : totalSalaryCountForUser.value
     })
 
-    const selectedCurrency = ref(1)
+    const selectedCurrency = ref()
 
     const lowerCaseFirstLetter = (str) => {
       if (str) {
@@ -558,6 +559,7 @@ export default defineComponent({
     const costStateToClone = ref([])
     const costStateToCompare = ref()
     const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const totalSalaryCountForUser = ref()
 
     const fetDataTable = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
@@ -569,7 +571,10 @@ export default defineComponent({
           month: month ? moment(month).format('YYYY-MM') : null
         })
 
-        costState.value = cloneDeep(data)
+        totalSalaryCountForUser.value = data?.total
+        selectedCurrency.value = data?.currencyId
+
+        costState.value = cloneDeep(data?.adProjectLaborDirectCosts)
         costState.value = costState.value.map((cost) => ({
           ...cost,
           checked: false
@@ -696,14 +701,6 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      // get currency list
-      const currencyReponse = await getCurrencyList()
-      currencyList.value = currencyReponse?.result?.data || []
-
-      // get currency exchange
-      const { result: currencyExchangeRes } = await getCurrencyExchange()
-      currencyExchange.value = currencyExchangeRes.data
-
       const { result } = await getPositionList()
       positionList.value = result?.data || []
 
@@ -729,7 +726,6 @@ export default defineComponent({
       disabledDate,
       visible,
       activeKey,
-      currencyList,
       positionList,
       PROJECT_COST_TYPES,
       costState,
@@ -742,13 +738,13 @@ export default defineComponent({
       PROJECT_TYPES,
       salaryTotal,
       selectedCurrency,
-      currencyExchange,
       selectedCurrencyCode,
       isVisibleModalConfirmSubmit,
       costStateToClone,
       authProfile,
       filterMonth,
       isHaveNoChangeCostState,
+      totalSalaryCountForUser,
 
       // func
       handleCancel,

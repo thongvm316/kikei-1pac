@@ -11,7 +11,7 @@
       <div class="revenue-modal__wrapper">
         <div class="u-flex u-justify-between u-items-center">
           <div class="u-relative">
-            <a-tooltip color="fff" title="Check all">
+            <a-tooltip color="fff" :title="checkAll ? '全て解除' : '全てを選択'">
               <a-checkbox v-model:checked="checkAll" :indeterminate="indeterminate" @change="onCheckAllChange" />
             </a-tooltip>
 
@@ -88,10 +88,10 @@
                     <tr>
                       <th style="min-width: 203px">科目</th>
                       <th style="min-width: 186px">費目</th>
-                      <th style="width: 100%">概要・備考</th>
-                      <th style="min-width: 200px">単価</th>
-                      <th style="min-width: 300px">数量</th>
-                      <th style="min-width: 150px">小計</th>
+                      <th style="min-width: 232px; width: 100%">概要・備考</th>
+                      <th style="min-width: 170px">単価</th>
+                      <th style="min-width: 205px">数量</th>
+                      <th style="min-width: 131px">小計</th>
                     </tr>
                   </thead>
 
@@ -407,7 +407,6 @@
 import { computed, defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, toRefs, watch } from 'vue'
 import DeleteWhiteIcon from '@/assets/icons/ico_delete_white.svg'
 import { PROJECT_REVENUE_TYPES, PROJECT_TYPES } from '@/enums/project.enum'
-import { getCurrencyList, getCurrencyExchange } from '../../composables/useCurrency'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
@@ -415,7 +414,6 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import { getRevenueProject, upsertRevenueProject, deleteRevenueItem, createRevenue } from '../../composables/useProject'
 import { getRevenueItemList, getRevenueExpenseItem, getRevenueQuantityUnit } from '../../composables/useRevenue'
 import { useRoute } from 'vue-router'
-import { useAccountList } from '../../composables/useAccountList'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
@@ -435,7 +433,10 @@ export default defineComponent({
   },
 
   props: {
-    project: Object
+    project: Object,
+    currencyList: Array,
+    currencyExchange: Object,
+    dataAccounts: Array
   },
 
   emits: ['update:visible', 'on-submit-revenue-modal'],
@@ -449,7 +450,7 @@ export default defineComponent({
     }
     const visible = ref()
     const activeKey = ref('1')
-    const currencyList = ref([])
+    const currencyList = computed(() => props.currencyList)
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const initialCostState = {
@@ -472,10 +473,9 @@ export default defineComponent({
       total: null
     }
     const costState = ref({ ...cloneDeep(initialCostState), projectCostsType: activeKey.value })
-    const dataAccounts = ref([])
     const isLoadingDataTable = ref()
     const UNIQUE_ID_PREFIX = '__cost__'
-    const currencyExchange = ref()
+    const currencyExchange = computed(() => props.currencyExchange)
     const currencyExchangeSelected = ref()
     const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
     const costStateToCompare = ref({})
@@ -790,16 +790,6 @@ export default defineComponent({
     const revenueQuantityUnit = ref([])
 
     onBeforeMount(async () => {
-      // get currency list
-      const currencyReponse = await getCurrencyList()
-      currencyList.value = currencyReponse?.result?.data || []
-      // account list
-      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
-
-      // get currency exchange
-      const { result } = await getCurrencyExchange()
-      currencyExchange.value = result.data
-
       // get revenue item
       const { result: revenueItemRes } = await getRevenueItemList()
       revenueItemList.value = revenueItemRes.data
@@ -839,13 +829,10 @@ export default defineComponent({
       activeKey,
       PROJECT_REVENUE_TYPES,
       PROJECT_TYPES,
-      currencyList,
       costState,
-      dataAccounts,
       isLoadingDataTable,
       ...toRefs(state),
       checkedList,
-      currencyExchange,
       selectCurrencyCode,
       initialCurrencyCode,
       currencyExchangeSelected,
