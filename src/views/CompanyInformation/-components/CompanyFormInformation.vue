@@ -32,6 +32,7 @@
                 :placeholder="$t('company_infomation.please_enter')"
                 class="w-300"
                 :class="errors.length ? 'input_border' : ''"
+                @input="changeInput"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -54,6 +55,7 @@
                 :placeholder="$t('company_infomation.please_enter')"
                 class="w-300"
                 :class="errors.length ? 'input_border' : ''"
+                @input="changeInput"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -71,7 +73,7 @@
           <div class="form-content">
             <label class="form-label required">{{ $t('company_infomation.country') }}</label>
             <div class="form-input">
-              <a-select v-model:value="field.value" style="width: 300px" @change="handleChange">
+              <a-select v-model:value="field.value" style="width: 300px" @change="handleChange" @select="changeSelect">
                 <a-select-option v-for="country in countryList" :key="country.id" :value="country.id">
                   {{ $t(`company_infomation.${country.code}`) }}
                 </a-select-option>
@@ -99,6 +101,7 @@
                     :placeholder="$t('company_infomation.please_enter')"
                     class="w-300"
                     :class="errors.length ? 'input_border' : ''"
+                    @input="changeInput"
                     @change="handleChange"
                   />
                   <!-- Error message -->
@@ -128,6 +131,7 @@
                     :placeholder="$t('company_infomation.please_enter')"
                     class="w-300"
                     :class="errors.length ? 'input_border' : ''"
+                    @input="changeInput"
                     @change="handleChange"
                   />
                   <!-- Error message -->
@@ -157,6 +161,7 @@
                 :placeholder="$t('company_infomation.please_enter')"
                 class="w-300"
                 :class="errors.length ? 'input_border' : ''"
+                @input="changeInput"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -189,6 +194,7 @@
                 :placeholder="$t('company_infomation.please_enter')"
                 class="w-300"
                 :class="errors.length ? 'input_border' : ''"
+                @input="changeInput"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -216,6 +222,7 @@
                 :placeholder="$t('company_infomation.please_enter')"
                 class="w-300"
                 :class="errors.length ? 'input_border' : ''"
+                @input="changeInput"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -274,6 +281,7 @@
                     :placeholder="$t('company_infomation.please_enter_period')"
                     class="w-300"
                     :class="checkPeriodConflictColor ? 'input_border' : ''"
+                    @input="changeInput"
                     @change="handleChange"
                   />
 
@@ -384,13 +392,14 @@
           >
             <div class="form-content">
               <div class="form-input">
-                <a-input-number
+                <a-input
                   :value="field.value"
                   :placeholder="$t('company_infomation.please_enter_sales')"
                   class="w-300"
                   :class="errors.length ? 'input_border' : ''"
                   :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  @input="changeInput"
                   @change="handleChange"
                 />
                 <!-- Error message -->
@@ -409,7 +418,7 @@
           <Field v-slot="{ field, handleChange }" v-model="form.currency_id" name="currency">
             <div class="form-content">
               <div class="form-input">
-                <a-select v-model:value="field.value" class="form-select" @change="handleChange">
+                <a-select v-model:value="field.value" class="form-select" @change="handleChange" @select="changeSelect">
                   <a-select-option v-for="currency in currencyList" :key="currency.id" :value="currency.id">
                     {{ $t(`company_infomation.${currency.code}`) }}
                   </a-select-option>
@@ -432,16 +441,25 @@
           <a-button class="btn-delete-danger" style="margin-right: 16px" @click="handleDeleteRecord">
             {{ $t('modal.delete') }}
           </a-button>
+        </template>
+        <template v-if="showBtnCancle">
           <a-button class="btn-close" style="margin-right: 16px" @click="handleRevertRecord">
             {{ $t('modal.revert') }}
           </a-button>
         </template>
-        <template v-else>
+        <template v-if="isCreate">
           <a-button key="back" class="btn-close" style="width: 105px; margin-right: 16px" @click="handleCancel"
             >{{ $t('common.cancel') }}
           </a-button>
         </template>
-        <a-button key="submit" type="primary" html-type="submit" style="width: 105px" @click="handleClickSubmit">
+        <a-button
+          key="submit"
+          :disabled="isCreate ? !isCreate : !showBtnCancle"
+          type="primary"
+          html-type="submit"
+          style="width: 105px"
+          @click="handleClickSubmit"
+        >
           {{ $route.name === 'company-edit' ? $t('common.edit') : $t('common.new') }}
         </a-button>
       </div>
@@ -517,7 +535,7 @@ export default defineComponent({
     const { tabId } = toRefs(props)
     const { checkCreate } = toRefs(props)
 
-    const form = ref({
+    let form = ref({
       registered_name: '',
       name: '',
       country_id: 1,
@@ -564,6 +582,8 @@ export default defineComponent({
     const openDelete = ref(false)
     const showTable = ref(false)
     const modalLeave = ref(false)
+    const showBtnCancle = ref(false)
+    const isCreate = ref(false)
 
     const tmpErrors = ref()
     const image = ref()
@@ -638,6 +658,7 @@ export default defineComponent({
 
     // Fetch list table
     watch(targetTab, (value) => {
+      showBtnCancle.value = false
       getTargetTab.value = value
       getDataTable.value = value
     })
@@ -664,6 +685,7 @@ export default defineComponent({
 
     // Change date rang picker
     const onChangeDate = async (value, dateString) => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
       form.value.fiscal_year[0] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[0])
       form.value.fiscal_year[1] = !dateString[0] && !dateString[1] ? null : currentDate(dateString[1])
 
@@ -685,6 +707,7 @@ export default defineComponent({
     }
 
     const onFileChange = async (e) => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
       const files = e.target.files || e.dataTransfer.files
       const fileUploads = []
 
@@ -728,6 +751,8 @@ export default defineComponent({
       checkDate.value = false
       checkDateEmpty.value = false
       isClickSubmit.value = false
+      showBtnCancle.value = false
+      isCreate.value = false
       emit('handleCancle', true)
       store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
@@ -972,9 +997,18 @@ export default defineComponent({
       return text.replace(field, t(`company_infomation.error_${field}`))
     }
 
+    const changeInput = () => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+    }
+
+    const changeSelect = () => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+    }
+
     onMounted(() => {
       fetchCountryList()
       fetchCurrencyList()
+      showBtnCancle.value = false
     })
 
     watch(
@@ -994,6 +1028,8 @@ export default defineComponent({
           checkPeriodConflictColor.value = false
           showTable.value = false
           isClickSubmit.value = false
+          showBtnCancle.value = false
+          isCreate.value = true
           dateStart.value = []
           dateFinish.value = []
           store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', false)
@@ -1048,6 +1084,10 @@ export default defineComponent({
       propsDataDelete,
       showTable,
       modalLeave,
+      showBtnCancle,
+      isCreate,
+      changeInput,
+      changeSelect,
       handleCollapse,
       replaceField,
       handleCancel,

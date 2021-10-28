@@ -395,6 +395,7 @@ export default defineComponent({
     }
 
     const onChangeViewMode = async (mode) => {
+      filter.period_id = null
       if (!mode) {
         await router.push({ name: 'financing' })
       }
@@ -481,16 +482,17 @@ export default defineComponent({
       if (localStorage.getItem('flag_chart') === null || !flagChart) {
         filter.currency_code = currencyDefault?.code
         filter.period_id = null
-        filter.date_from_to = [currentDate(), addDaysInCurrentDate(null, 59)]
+        filter.date_from_to[0] = currentDate() || null
+        filter.date_from_to[1] = addDaysInCurrentDate(null, 59) || null
         filter.group_id = groupList.value[0].id
         filter.bank_account_ids = bankAccountList?.value[0]?.id
         filter.show_by = 1
 
         initialDataRequest = {
           ...initialDataRequest,
-          group_id: groupList.value[0].id,
-          from_date: currentDate(),
-          to_date: addDaysInCurrentDate(null, 59)
+          group_id: filter.group_id,
+          from_date: filter.date_from_to[0],
+          to_date: filter.date_from_to[1]
         }
 
         requestParamsData.value.data = { ...initialDataRequest }
@@ -504,9 +506,9 @@ export default defineComponent({
         groupCompany.value.group_id = store.getters['financing/filters'].group_id || {}
         await fetchPeriodList(groupCompany.value.group_id)
 
-        filter.period_id = requestParamsData.value.data.period_id
-        filter.date_from_to[0] = requestParamsData.value.data.from_date
-        filter.date_from_to[1] = requestParamsData.value.data.to_date
+        filter.period_id = null
+        filter.date_from_to[0] = requestParamsData.value.data.from_date || null
+        filter.date_from_to[1] = requestParamsData.value.data.to_date || null
         filter.bank_account_ids =
           requestParamsData.value.data.bank_account_ids.length === 0 ? 0 : requestParamsData.value.data.bank_account_ids
         filter.currency_code =

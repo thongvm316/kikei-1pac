@@ -41,7 +41,7 @@
           <div class="balance__header-filter-bank-account">
             <a-select
               v-model:value="filter.bankAccountId"
-              :notFoundContent="$t('balance_registration.empty_bank_account')"
+              :not-found-content="$t('balance_registration.empty_bank_account')"
               :disabled="isDisabledBank"
               @change="onChangeBankAccount"
             >
