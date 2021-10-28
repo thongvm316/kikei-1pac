@@ -810,7 +810,7 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    max-height: 505px;
+    max-height: 528px;
 
     &::-webkit-scrollbar {
       width: 4px;

@@ -762,8 +762,7 @@ export default defineComponent({
       try {
         if (!dataRequest.id) {
           delete dataRequest.id
-          const { result } = await createRevenue(dataRequest)
-          if (result.data) dataRequest.id = result.data
+          await createRevenue(dataRequest)
           await fetchRevenueProject(activeKey.value, filterMonth.value)
         } else {
           if (costDeleteList.value.length > 0) {
@@ -927,7 +926,7 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    max-height: 505px;
+    max-height: 528px;
 
     &::-webkit-scrollbar {
       width: 4px;
