@@ -353,156 +353,6 @@
                       </tr>
                       <!-- accountID -->
 
-                      <!-- money -->
-                      <tr>
-                        <td>金額</td>
-
-                        <td>
-                          <div class="moneyWrapper u-whitespace-nowrap">
-                            <!-- money -->
-                            <a-form-item name="money" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
-                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.money }}</span>
-                              <a-input-number
-                                v-if="isEditing"
-                                v-model:value="projectParams.money"
-                                placeholder="入力してください"
-                                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                :precision="0"
-                                :style="{ width: '300px' }"
-                              />
-                              <span v-if="depositCurrencyCode" class="u-ml-8">{{ `(${depositCurrencyCode})` }}</span>
-                              <p v-if="localErrors['money']" class="ant-form-explain">
-                                {{ $t(`common.local_error.${localErrors['money']}`) }}
-                              </p>
-                            </a-form-item>
-
-                            <!-- tax -->
-                            <div class="u-flex u-items-center">
-                              <span class="u-mr-8">税金:</span>
-                              <a-form-item name="tax">
-                                <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.tax }}</span>
-                                <a-input-number
-                                  v-if="isEditing"
-                                  v-model:value="projectParams.tax"
-                                  :precision="0"
-                                  :style="{ width: '68px' }"
-                                  :min="0"
-                                  :max="100"
-                                />
-
-                                <span class="u-ml-8">%</span>
-                              </a-form-item>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                      <!-- money -->
-
-                      <!-- projectOrders -->
-                      <tr>
-                        <td>外注</td>
-                        <td>
-                          <a-form-item name="adProjectOrders">
-                            <div class="outsource">
-                              <table class="project-oder">
-                                <tbody>
-                                  <template v-for="(order, index) in localProjectOrders" :key="order.key">
-                                    <tr class="outsource__item">
-                                      <td
-                                        style="white-space: pre-wrap"
-                                        :class="[
-                                          {
-                                            'has-error': order.errors && order.errors['companyId'],
-                                            'u-flex u-flex-col': isEditing
-                                          }
-                                        ]"
-                                      >
-                                        <p>会社名</p>
-                                        <div class="outsource__company-info">
-                                          <p v-if="order.companyId" class="text-grey-500">{{ order.companyName }}</p>
-                                          <p
-                                            v-if="isEditing"
-                                            class="modal-link"
-                                            @click="openCompanySearchForm('outsource', index)"
-                                          >
-                                            選択
-                                          </p>
-                                        </div>
-                                      </td>
-
-                                      <td :class="['u-pl-40', { 'has-error': order.errors && order.errors['money'] }]">
-                                        <p>金額</p>
-                                        <p v-if="!isEditing">{{ order.money }}</p>
-                                        <a-input-number
-                                          v-else
-                                          v-model:value="order.money"
-                                          placeholder="入力してください"
-                                          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                          :precision="0"
-                                          :style="{ width: '164px' }"
-                                        />
-                                      </td>
-
-                                      <td class="u-pl-8">
-                                        <p class="u-mt-24 u-text-grey-75">(JPY)</p>
-                                      </td>
-
-                                      <td v-if="!order.id" class="u-pl-8">
-                                        <a-button
-                                          size="small"
-                                          class="u-mt-24"
-                                          type="danger"
-                                          ghost
-                                          @click="removeProjectOrder(order)"
-                                          >削除</a-button
-                                        >
-                                      </td>
-                                    </tr>
-
-                                    <tr
-                                      v-if="
-                                        isEditing &&
-                                        ((order.errors && order.errors['companyId']) ||
-                                          (order.errors && order.errors['money']))
-                                      "
-                                    >
-                                      <td class="u-pb-12">
-                                        <p class="u-text-additional-red-6">
-                                          {{ order.errors && $t(`common.local_error.${order.errors['companyId']}`) }}
-                                        </p>
-                                      </td>
-                                      <td class="u-pl-40 u-pb-12">
-                                        <p class="u-text-additional-red-6">
-                                          {{ order.errors && $t(`common.local_error.${order.errors['money']}`) }}
-                                        </p>
-                                      </td>
-                                      <td></td>
-                                    </tr>
-                                  </template>
-                                </tbody>
-                              </table>
-
-                              <a-button
-                                v-if="isEditing"
-                                type="default"
-                                class="outsource__btn"
-                                @click="addDummyProjectOrder"
-                              >
-                                <template #icon>
-                                  <span class="btn-icon"><line-add-icon /></span>
-                                </template>
-                                外注を追加
-                              </a-button>
-
-                              <p class="outsource__total">
-                                外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)
-                              </p>
-                            </div>
-                          </a-form-item>
-                        </td>
-                      </tr>
-                      <!-- projectOrders -->
-
                       <!-- tag  -->
                       <tr>
                         <td>タグ</td>
@@ -587,20 +437,14 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
 import { useGroupList } from '../../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses, editProject } from '../../composables/useProject'
-import {
-  initProjectOutsouringOrders,
-  toProjectOutsouringOrdersRequestData,
-  addProjectOrder
-} from '../../composables/useProjectOrders'
+
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
 import Filter from '@/filters'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import EditIcon from '@/assets/icons/ico_edit.svg'
-// import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
@@ -611,7 +455,6 @@ export default defineComponent({
   components: {
     CalendarOutlined,
     ModalSelectCompany,
-    LineAddIcon,
     EditIcon,
     DownOutlined,
     ConfirmSubmitModal
@@ -677,11 +520,6 @@ export default defineComponent({
         paramRequest.estimateCurrencyId = val.estimateCurrencyId
 
         await editProject(projectProp.value.id, paramRequest)
-
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          message: 'Submit success'
-        })
       }
     )
 
@@ -709,7 +547,6 @@ export default defineComponent({
       money: null,
       tags: [],
       memo: '',
-      adProjectOrders: [],
       tax: null
     })
     const localErrors = ref({})
@@ -719,7 +556,6 @@ export default defineComponent({
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    const localProjectOrders = ref([])
     const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
@@ -737,11 +573,7 @@ export default defineComponent({
       projectParams.value.statisticsMonths = val
     }
 
-    const isHaveChangeForm = computed(
-      () =>
-        isEqual(projectParams.value, projectParamsToCompare.value) &&
-        isEqual(localProjectOrdersToCompare.value, localProjectOrders.value)
-    )
+    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
 
     // input validator rules
     const projectFormRules = ref({
@@ -763,13 +595,6 @@ export default defineComponent({
     }
 
     /* --------------------- handle search company ------------------- */
-    const removeProjectOrder = (order) => {
-      const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
-      if (index < 0) return
-
-      localProjectOrders.value.splice(index, 1)
-    }
-
     const openCompanySearchForm = (target, key = null) => {
       companyTargetSearch.value = target
       isCompanySearchFormOpen.value = true
@@ -783,27 +608,12 @@ export default defineComponent({
       if (companyTargetSearch.value === 'owner') {
         projectParams.value.companyId = parseInt(payload.id)
         companyOwnerData.value = payload
-      } else {
-        const order = localProjectOrders.value[outsouringCompanyTarget.value]
-        if (!order) return
-
-        order.companyId = payload.id
-        order.companyName = payload.name
       }
     }
 
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const addDummyProjectOrder = () => {
-      addProjectOrder(localProjectOrders)
-    }
-
-    const totalMoneyOutsourcing = computed(() => {
-      if (localProjectOrders.value.length <= 0) return 0
-      return localProjectOrders.value.reduce((acc, curr) => acc + curr.money, 0)
-    })
-
     const highestAccuracyRequired = computed(() => {
       if (!projectParams.value.accuracyId || dataAccuracies.value.length <= 0) return false
       const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.value.accuracyId)[0]
@@ -885,7 +695,6 @@ export default defineComponent({
 
     /* -------------------- init data when project props ------------------------- */
     const projectParamsToCompare = ref()
-    const localProjectOrdersToCompare = ref()
 
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
@@ -916,14 +725,7 @@ export default defineComponent({
       // Force tags ['']
       if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
 
-      // init dummy project orders
-      if (projectParams.value.adProjectOrders) {
-        localProjectOrders.value = []
-        initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
-      }
-
       projectParamsToCompare.value = cloneDeep(projectParams.value)
-      localProjectOrdersToCompare.value = cloneDeep(localProjectOrders.value)
 
       emit('update:is-loaded-overview-table', false)
     }
@@ -944,8 +746,7 @@ export default defineComponent({
         statisticsToMonth:
           projectParamsValue.type === 0
             ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
-            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
-        adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1])
       }
 
       dataRequest.statisticsFromMonth = dataRequest.statisticsFromMonth ? dataRequest.statisticsFromMonth : null
@@ -969,12 +770,6 @@ export default defineComponent({
       }
     }
 
-    const addProjectOrdersErrors = () => {
-      localProjectOrders.value.forEach((item, index) => {
-        item.errors = localErrors.value.adProjectOrders[index] || {}
-      })
-    }
-
     const callEditProject = async () => {
       loading.value = true
       const response = await editProject(projectProp.value.id, projectDataRequest.value)
@@ -994,11 +789,7 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
-
-        if (localErrors.value.adProjectOrders) {
-          addProjectOrdersErrors()
-          loading.value = false
-        }
+        loading.value = false
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -1081,8 +872,6 @@ export default defineComponent({
       valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
-      localProjectOrders,
-      totalMoneyOutsourcing,
       depositCurrencyCode,
       isEditing,
       statusName,
@@ -1093,8 +882,6 @@ export default defineComponent({
       isVisibleModalConfirmSubmit,
 
       openCompanySearchForm,
-      addDummyProjectOrder,
-      removeProjectOrder,
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,

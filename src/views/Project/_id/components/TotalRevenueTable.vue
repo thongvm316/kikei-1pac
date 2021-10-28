@@ -8,6 +8,9 @@
     :locale="localeTable"
     :scroll="{ x: 1400 }"
   >
+    <template #customRenderType="{ text }"
+      >{{ text }} <template v-if="finance?.type === PROJECT_TYPES[1].value">({{ totalRangeMonth }})</template></template
+    >
     <template #customRenderRevenue="{ text }">
       {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
     </template>
@@ -29,6 +32,8 @@
 <script>
 import { computed, defineComponent, ref } from 'vue'
 import { uniqueId } from 'lodash-es'
+import moment from 'moment'
+import { PROJECT_TYPES } from '@/enums/project.enum'
 
 export default defineComponent({
   name: 'TotalRevenueTable',
@@ -46,6 +51,10 @@ export default defineComponent({
     const localeTable = {
       emptyText: 'Empty data'
     }
+
+    const totalRangeMonth = computed(() =>
+      moment(props.finance?.statisticsToMonth).diff(moment(props.finance?.statisticsFromMonth), 'months', true)
+    )
 
     const columns = [
       {
@@ -119,6 +128,8 @@ export default defineComponent({
 
     return {
       isLoadingTable,
+      totalRangeMonth,
+      PROJECT_TYPES,
 
       columns,
       dataSource,
