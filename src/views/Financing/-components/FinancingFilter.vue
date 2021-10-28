@@ -422,7 +422,7 @@ export default {
       currencyList.value = result?.data || []
     }
 
-    const handleGroupDefault = async (groupID) => {
+    const handleGroupDefault = async (groupID, periodID) => {
       if (!groupID) {
         groupCompany.value.group_id = store.getters['financing/filters'].group_id || {}
         await fetchPeriodList(groupCompany.value.group_id)
@@ -439,10 +439,7 @@ export default {
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
       }
-      updateDataFilterRequest({ data: { group_id: groupID } })
-    }
 
-    const handlePeriodDefault = (periodID) => {
       if (periodID) {
         filter.period_id = periodID
       } else {
@@ -455,7 +452,7 @@ export default {
           filter.period_id = null
         }
       }
-      updateDataFilterRequest({ data: { period_id: filter.period_id } })
+      updateDataFilterRequest({ data: { group_id: groupID, period_id: filter.period_id } })
     }
 
     const handleBankAccountDefault = (bankAccountIds) => {
@@ -500,11 +497,8 @@ export default {
       // Load data by filter store
       if (isEmpty(filtersFinancingStore)) {
         localStorage.removeItem('flag_chart')
-        // Load  group default
-        await handleGroupDefault(groupID)
-
-        // Load period default
-        handlePeriodDefault(periodID)
+        // Load  group default, period default
+        await handleGroupDefault(groupID, periodID)
 
         // Load bank account default
         handleBankAccountDefault(bankAccountIds)
@@ -516,14 +510,11 @@ export default {
         Object.assign(filter, dataFilter)
         Object.assign(dataFilterRequest.value.data, filtersFinancingStore)
 
-        // Set group ID id by store
+        // Set group ID id by store, period ID id by store
         groupID = filtersFinancingStore.group_id
-        await handleGroupDefault(groupID)
-        if (!groupID) isTabAllGroup.value = true
-
-        // Set period ID id by store
         periodID = filtersFinancingStore.period_id
-        handlePeriodDefault(periodID)
+        await handleGroupDefault(groupID, periodID)
+        if (!groupID) isTabAllGroup.value = true
 
         // Check dateFromTo
         let dateFromTo = filter.date_from_to
