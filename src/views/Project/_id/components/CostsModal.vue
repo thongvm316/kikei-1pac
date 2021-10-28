@@ -296,7 +296,6 @@ export default defineComponent({
     const handleSubmit = async () => {
       // remove id auto generate
       const dataRequest = convertDataToSubmit()
-      console.log(dataRequest)
 
       try {
         isSubmitLoading.value = true

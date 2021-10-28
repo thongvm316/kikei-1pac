@@ -513,6 +513,10 @@ export default defineComponent({
         delete item.checked
         delete item.subtotal
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
+        if (!authProfile.value?.isAdmin) {
+          delete item.monthlySalary
+          delete item.salaryCurrencyId
+        }
       })
       try {
         await upsertLaborDirectCostList({ projectLaborDirectCost: dataRequest })
@@ -544,19 +548,11 @@ export default defineComponent({
           positionId: null,
           projectId,
           workingDays: 0,
-          workingHours: 0
+          workingHours: 0,
+          monthlySalary: 0,
+          salaryCurrencyId: selectedCurrency.value
         }
       ]
-
-      if (authProfile.value?.isAdmin) {
-        costState.value = [
-          ...costState.value,
-          {
-            monthlySalary: 0,
-            salaryCurrencyId: selectedCurrency.value
-          }
-        ]
-      }
     }
 
     const costStateToClone = ref([])
