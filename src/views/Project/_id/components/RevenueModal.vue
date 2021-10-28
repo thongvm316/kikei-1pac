@@ -978,14 +978,12 @@ export default defineComponent({
     &::-webkit-scrollbar {
       width: 4px;
       height: 4px;
-      transition: all 3s;
     }
 
     &::-webkit-scrollbar-thumb {
       background: $color-grey-55;
       opacity: 0.7;
       background-clip: padding-box;
-      transition: all 3s;
     }
 
     &--left {
