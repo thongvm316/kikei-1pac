@@ -395,6 +395,7 @@ export default defineComponent({
     }
 
     const onChangeViewMode = async (mode) => {
+      filter.period_id = null
       if (!mode) {
         await router.push({ name: 'financing' })
       }

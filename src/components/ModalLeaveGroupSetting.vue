@@ -68,7 +68,8 @@ export default defineComponent({
 <style scoped lang="scss">
 .modal-group-setting {
   .box {
-    margin-bottom: 21px;
+    margin-bottom: 16px;
+    margin-top: 6px;
 
     p {
       margin-bottom: 0;

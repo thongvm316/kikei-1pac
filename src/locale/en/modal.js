@@ -54,7 +54,7 @@ export default {
   text_line2: 'Please let the user know to activate your account.',
   group_setting_line1: 'I\'m typing, can I cancel it?',
   leave: 'Confirm',
-  leave_group: 'Leave the page',
+  leave_group: 'Confirm',
 
   errorMessage: {
     img: 'Profile image must be JPG or PNG.',

@@ -438,18 +438,24 @@ export default {
 
         await fetchPeriodList(groupID)
         await fetchBankAccounts({ group_id: groupID })
-        forEach(periodList.value, (value) => {
-          value.currentPeriod ? (filter.period_id = value.id) : null
-        })
       }
-      updateDataFilterRequest({ data: { group_id: groupID, period_id: filter.period_id } })
+      updateDataFilterRequest({ data: { group_id: groupID } })
     }
 
     const handlePeriodDefault = (periodID) => {
       if (periodID) {
         filter.period_id = periodID
-        updateDataFilterRequest({ data: { period_id: filter.period_id } })
+      } else {
+        let flagChart = JSON.parse(localStorage.getItem('flag_chart'))
+        if (localStorage.getItem('flag_chart') === null || !flagChart) {
+          forEach(periodList.value, (value) => {
+            value.currentPeriod ? (filter.period_id = value.id) : null
+          })
+        } else {
+          filter.period_id = null
+        }
       }
+      updateDataFilterRequest({ data: { period_id: filter.period_id } })
     }
 
     const handleBankAccountDefault = (bankAccountIds) => {

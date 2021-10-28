@@ -56,7 +56,7 @@ export default {
   text_line2: 'アカウントのアクティベートには、ユーザーにお知らせください。',
   group_setting_line1: '入力中ですが入力をキャンセルしてもよろしいですか？',
   leave: '確定',
-  leave_group: 'ページを離れる',
+  leave_group: '確定',
 
   errorMessage: {
     img: 'プロフィール写真は、1 MB 以下の PNGまたはJPG である必要があります',

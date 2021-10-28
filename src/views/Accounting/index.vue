@@ -148,7 +148,6 @@ export default defineComponent({
         const periodResponse = await getPeriods(groupId)
         periodList.value = periodResponse.result?.data || []
 
-        console.log('falase')
         // set period current
         const periodCurrentFound = find(periodList.value, (periodItem) => {
           const currentTime = moment()
