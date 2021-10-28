@@ -506,7 +506,7 @@ export default defineComponent({
         groupCompany.value.group_id = store.getters['financing/filters'].group_id || {}
         await fetchPeriodList(groupCompany.value.group_id)
 
-        filter.period_id = null
+        filter.period_id = requestParamsData.value.data.period_id
         filter.date_from_to[0] = requestParamsData.value.data.from_date || null
         filter.date_from_to[1] = requestParamsData.value.data.to_date || null
         filter.bank_account_ids =
