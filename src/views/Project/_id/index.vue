@@ -16,7 +16,11 @@
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
 
-        <budget-table :project="project" @on-submit-predict-budget="onSubmitPredictBudget" />
+        <budget-table
+          :data-accounts="dataAccounts"
+          :project="project"
+          @on-submit-predict-budget="onSubmitPredictBudget"
+        />
       </div>
 
       <div class="project-detail__history">

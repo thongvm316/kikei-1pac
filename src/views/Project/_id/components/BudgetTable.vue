@@ -260,6 +260,7 @@
     :currency-list="currencyList"
     :project="project"
     :currency-exchange="currencyExchange"
+    :data-accounts="dataAccounts"
     @on-submit-revenue-modal="onSubmitRevenueModal"
   />
 </template>
@@ -296,7 +297,8 @@ export default defineComponent({
   },
 
   props: {
-    project: Object
+    project: Object,
+    dataAccounts: Array
   },
 
   emits: ['on-submit-predict-budget'],

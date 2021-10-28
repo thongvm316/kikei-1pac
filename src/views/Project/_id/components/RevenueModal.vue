@@ -414,7 +414,6 @@ import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import { getRevenueProject, upsertRevenueProject, deleteRevenueItem, createRevenue } from '../../composables/useProject'
 import { getRevenueItemList, getRevenueExpenseItem, getRevenueQuantityUnit } from '../../composables/useRevenue'
 import { useRoute } from 'vue-router'
-import { useAccountList } from '../../composables/useAccountList'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
@@ -436,7 +435,8 @@ export default defineComponent({
   props: {
     project: Object,
     currencyList: Array,
-    currencyExchange: Object
+    currencyExchange: Object,
+    dataAccounts: Array
   },
 
   emits: ['update:visible', 'on-submit-revenue-modal'],
@@ -473,7 +473,6 @@ export default defineComponent({
       total: null
     }
     const costState = ref({ ...cloneDeep(initialCostState), projectCostsType: activeKey.value })
-    const dataAccounts = ref([])
     const isLoadingDataTable = ref()
     const UNIQUE_ID_PREFIX = '__cost__'
     const currencyExchange = computed(() => props.currencyExchange)
@@ -791,9 +790,6 @@ export default defineComponent({
     const revenueQuantityUnit = ref([])
 
     onBeforeMount(async () => {
-      // account list
-      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
-
       // get revenue item
       const { result: revenueItemRes } = await getRevenueItemList()
       revenueItemList.value = revenueItemRes.data
@@ -834,7 +830,6 @@ export default defineComponent({
       PROJECT_REVENUE_TYPES,
       PROJECT_TYPES,
       costState,
-      dataAccounts,
       isLoadingDataTable,
       ...toRefs(state),
       checkedList,
