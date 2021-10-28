@@ -93,7 +93,7 @@
                   <thead>
                     <tr>
                       <th style="min-width: 200px">役職</th>
-                      <th style="width: 100%">氏名</th>
+                      <th style="min-width: 200px">氏名</th>
                       <th v-if="authProfile?.isAdmin" style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
                       <th style="min-width: 234px">時間外労働時間（*1.25）</th>
