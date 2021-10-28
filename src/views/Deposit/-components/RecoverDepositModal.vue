@@ -7,7 +7,7 @@
     @cancel="handleCancel"
   >
     <template #footer>
-      <p class="recover-deposit-count">入出金が "{{ currentSelectedRowKeys.length }}" 削除しました</p>
+      <p class="recover-deposit-count">入出金が "{{ totalPages }}" 削除しました</p>
 
       <deposit-table
         v-model:data-deposit="dataTableDeposit"
@@ -134,6 +134,7 @@ export default defineComponent({
       dataTableDeposit,
       currentSelectedRowKeys,
       isLoadedOkButton,
+      totalPages,
       handleCancel,
       handleOk,
       onSortTable

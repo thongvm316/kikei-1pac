@@ -134,7 +134,7 @@
                         </tr>
 
                         <tr>
-                          <td class="table-cost__type">見積</td>
+                          <td class="table-cost__type">実績</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
