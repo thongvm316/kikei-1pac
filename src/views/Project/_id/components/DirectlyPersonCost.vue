@@ -93,7 +93,7 @@
                   <thead>
                     <tr>
                       <th style="min-width: 200px">役職</th>
-                      <th style="width: 100%">氏名</th>
+                      <th style="min-width: 200px">氏名</th>
                       <th v-if="authProfile?.isAdmin" style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
                       <th style="min-width: 234px">時間外労働時間（*1.25）</th>
@@ -513,6 +513,10 @@ export default defineComponent({
         delete item.checked
         delete item.subtotal
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
+        if (!authProfile.value?.isAdmin) {
+          delete item.monthlySalary
+          delete item.salaryCurrencyId
+        }
       })
       try {
         await upsertLaborDirectCostList({ projectLaborDirectCost: dataRequest })
@@ -544,19 +548,11 @@ export default defineComponent({
           positionId: null,
           projectId,
           workingDays: 0,
-          workingHours: 0
+          workingHours: 0,
+          monthlySalary: 0,
+          salaryCurrencyId: selectedCurrency.value
         }
       ]
-
-      if (authProfile.value?.isAdmin) {
-        costState.value = [
-          ...costState.value,
-          {
-            monthlySalary: 0,
-            salaryCurrencyId: selectedCurrency.value
-          }
-        ]
-      }
     }
 
     const costStateToClone = ref([])
