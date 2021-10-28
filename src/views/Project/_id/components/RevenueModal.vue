@@ -88,10 +88,10 @@
                     <tr>
                       <th style="min-width: 203px">科目</th>
                       <th style="min-width: 186px">費目</th>
-                      <th style="min-width: 350px">概要・備考</th>
+                      <th style="width: 100%">概要・備考</th>
                       <th style="min-width: 200px">単価</th>
                       <th style="min-width: 300px">数量</th>
-                      <th style="width: 100%">小計</th>
+                      <th style="min-width: 150px">小計</th>
                     </tr>
                   </thead>
 
@@ -747,12 +747,12 @@ export default defineComponent({
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')
         : null
-      // dataRequest.month = moment(filterMonth.value).format('YYYY-MM-DD')
+      dataRequest.month = moment(filterMonth.value).format('YYYY-MM-DD')
       delete dataRequest.total
       dataRequest.adProjectRevenueItems.forEach((item) => {
-        // delete item.projectCostsType
+        delete item.projectCostsType
         delete item.subtotal
-        // delete item.projectId
+        delete item.projectId
         delete item.isEditUnitPrice
         delete item.checked
         delete item.projectRevenueId
@@ -763,6 +763,7 @@ export default defineComponent({
         if (!dataRequest.id) {
           delete dataRequest.id
           await createRevenue(dataRequest)
+          await fetchRevenueProject(activeKey.value, filterMonth.value)
         } else {
           if (costDeleteList.value.length > 0) {
             await deleteRevenueItem({ id: costDeleteList.value })
@@ -925,8 +926,7 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    max-height: 505px;
-    border-bottom: none;
+    max-height: 528px;
 
     &::-webkit-scrollbar {
       width: 4px;
@@ -982,6 +982,17 @@ export default defineComponent({
     display: flex;
     gap: 52px;
     overflow-x: auto;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $color-grey-55;
+      opacity: 0.7;
+      background-clip: padding-box;
+    }
 
     &--left {
       flex-basis: 60%;

@@ -93,13 +93,13 @@
                   <thead>
                     <tr>
                       <th style="min-width: 200px">役職</th>
-                      <th style="min-width: 160px">氏名</th>
-                      <th v-if="authProfile.isAdmin" style="min-width: 232px">月給</th>
+                      <th style="width: 100%">氏名</th>
+                      <th v-if="authProfile?.isAdmin" style="min-width: 232px">月給</th>
                       <th style="min-width: 234px">所定労働時間</th>
                       <th style="min-width: 234px">時間外労働時間（*1.25）</th>
                       <th style="min-width: 234px">時間外労働時間（*1.5）</th>
-                      <th style="min-width: 232px">手当等</th>
-                      <th v-if="authProfile.isAdmin" style="min-width: 130px">小計</th>
+                      <th style="min-width: 150px">手当等</th>
+                      <th v-if="authProfile?.isAdmin" style="min-width: 130px">小計</th>
                     </tr>
                   </thead>
 
@@ -127,7 +127,7 @@
                         <td><a-input v-model:value="cost.name" placeholder="氏名 氏名" /></td>
 
                         <!-- month salary -->
-                        <td v-if="authProfile.isAdmin">
+                        <td v-if="authProfile?.isAdmin">
                           <a-space>
                             <a-input-number
                               v-model:value="cost.monthlySalary"
@@ -269,7 +269,7 @@
                         </td>
 
                         <!-- count -->
-                        <td v-if="authProfile.isAdmin">
+                        <td v-if="authProfile?.isAdmin">
                           {{ $filters.number_with_commas(countSubTotal(cost)) }}
                         </td>
                       </tr>
@@ -404,10 +404,10 @@ export default defineComponent({
     const salaryTotal = computed(() => {
       let total = 0
       costState.value.forEach((item) => {
-        total += countSubTotal(item)
+        total += authProfile.value?.isAdmin ? countSubTotal(item) : item.subtotal
       })
 
-      return authProfile.value.isAdmin ? total : 999999999
+      return total
     })
 
     const selectedCurrency = ref(1)
@@ -467,7 +467,7 @@ export default defineComponent({
       const selectedExchange = converExchangeIdToCode(selectedCurrency.value)
       const allowanceExchange = converExchangeIdToCode(allowanceCurrencyId)
 
-      return authProfile.value.isAdmin
+      return authProfile.value?.isAdmin
         ? salary * currencyExchange.value[salaryExchange][selectedExchange] +
             allowance * currencyExchange.value[allowanceExchange][selectedExchange]
         : 0
@@ -536,7 +536,6 @@ export default defineComponent({
           projectCostsType: Number(activeKey.value),
           allowance: 0,
           allowanceCurrencyId: selectedCurrency.value,
-          monthlySalary: 0,
           name: null,
           overtimeDaysFirst: 0,
           overtimeDaysSecond: 0,
@@ -544,11 +543,20 @@ export default defineComponent({
           overtimeHoursSecond: 0,
           positionId: null,
           projectId,
-          salaryCurrencyId: selectedCurrency.value,
           workingDays: 0,
           workingHours: 0
         }
       ]
+
+      if (authProfile.value?.isAdmin) {
+        costState.value = [
+          ...costState.value,
+          {
+            monthlySalary: 0,
+            salaryCurrencyId: selectedCurrency.value
+          }
+        ]
+      }
     }
 
     const costStateToClone = ref([])
@@ -802,8 +810,7 @@ export default defineComponent({
     border: 1px solid $color-grey-75;
     overflow: auto;
     display: block;
-    max-height: 505px;
-    border-bottom: none;
+    max-height: 528px;
 
     &::-webkit-scrollbar {
       width: 4px;

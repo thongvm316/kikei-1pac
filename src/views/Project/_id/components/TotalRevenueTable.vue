@@ -9,7 +9,8 @@
     :scroll="{ x: 1400 }"
   >
     <template #customRenderType="{ text }"
-      >{{ text }} <template v-if="finance?.type === PROJECT_TYPES[1].value">({{ totalRangeMonth }})</template></template
+      >{{ text }}
+      <template v-if="finance?.type === PROJECT_TYPES[1].value">({{ totalRangeMonth }}ヶ月)</template></template
     >
     <template #customRenderRevenue="{ text }">
       {{ text !== null ? $filters.number_with_commas(text) + ' (JPY)' : '-' }}
