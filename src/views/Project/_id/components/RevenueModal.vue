@@ -984,6 +984,17 @@ export default defineComponent({
     gap: 52px;
     overflow-x: auto;
 
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $color-grey-55;
+      opacity: 0.7;
+      background-clip: padding-box;
+    }
+
     &--left {
       flex-basis: 60%;
 
