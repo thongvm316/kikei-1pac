@@ -294,12 +294,7 @@
                               placeholder="選択してください"
                               :style="{ width: '300px' }"
                             >
-                              <a-select-option
-                                v-for="group in dataGroups"
-                                :key="group.id"
-                                :value="group.id"
-                                @click="onSelectGroup(group.depositCurrencyCode)"
-                              >
+                              <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
                                 {{ group.name }}
                               </a-select-option>
                             </a-select>
@@ -434,9 +429,7 @@ import { useI18n } from 'vue-i18n'
 import { cloneDeep, find, isEqual } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
-import { useAccountList } from '../../composables/useAccountList'
-import { useGroupList } from '../../composables/useGroupList'
-import { getProjectAccuracies, getProjectStatuses, editProject } from '../../composables/useProject'
+import { editProject } from '../../composables/useProject'
 
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
@@ -474,8 +467,11 @@ export default defineComponent({
       type: Object,
       default: undefined
     },
-
-    projectRef: Object
+    projectRef: Object,
+    dataAccounts: Array,
+    dataStatuses: Array,
+    dataAccuracies: Array,
+    dataGroups: Array
   },
 
   emits: ['on-submit-edit-project-form', 'update:is-loaded-overview-table'],
@@ -556,13 +552,12 @@ export default defineComponent({
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
-    const dataAccounts = ref([])
-    const dataGroups = ref([])
-    const dataStatuses = ref([])
-    const dataAccuracies = ref([])
+    const dataAccounts = computed(() => props.dataAccounts)
+    const dataGroups = computed(() => props.dataGroups)
+    const dataStatuses = computed(() => props.dataStatuses)
+    const dataAccuracies = computed(() => props.dataAccuracies)
 
     const statusName = computed(() => find(dataStatuses.value, { id: projectParams.value.statusId }))
     const accuracyName = computed(() => find(dataAccuracies.value, { id: projectParams.value.accuracyId }))
@@ -793,11 +788,6 @@ export default defineComponent({
       }
     }
     /* ------------------- api intergration --------------------------- */
-
-    const onSelectGroup = (currency) => {
-      depositCurrencyCode.value = currency
-    }
-
     watch(highestAccuracyRequired, dynamicBaseOnAccuracy)
 
     // check require statistic month
@@ -810,22 +800,7 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       /* ------------------- get all datas --------------------------- */
-      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
-      // groups
-      const paramsGroup = { allGroup: true }
-      const { data: groups } = await useGroupList(paramsGroup)
-      dataGroups.value = groups
 
-      dataGroups.value.forEach((group) => {
-        if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
-      })
-
-      // statuses
-      const { data: statuses } = await getProjectStatuses()
-      dataStatuses.value = statuses
-      // accuracies
-      const { data: accuracies } = await getProjectAccuracies()
-      dataAccuracies.value = accuracies
       // types
       dataTypes.value = PROJECT_TYPES.map((type) => ({
         ...type,
@@ -863,16 +838,11 @@ export default defineComponent({
       localErrors,
       projectFormRules,
       isHaveChangeForm,
-      dataGroups,
       dataTypes,
-      dataStatuses,
-      dataAccounts,
-      dataAccuracies,
       loading,
       valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
-      depositCurrencyCode,
       isEditing,
       statusName,
       accuracyName,
@@ -887,7 +857,6 @@ export default defineComponent({
       createTag,
       removeTag,
       handleChangeStatisticsDateValue,
-      onSelectGroup,
       cancelEditOverViewForm,
       Filter,
       handleConfirmSubmitModal

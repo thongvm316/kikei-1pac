@@ -43,11 +43,8 @@
 <script>
 import HistoryIcon from '@/assets/icons/ico_history.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
-import { computed, defineComponent, onBeforeMount, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import moment from 'moment'
-import { useAccountList } from '../../composables/useAccountList'
-import { useGroupList } from '../../composables/useGroupList'
-import { getProjectAccuracies, getProjectStatuses } from '../../composables/useProject'
 import { cloneDeep, findIndex } from 'lodash-es'
 import { PROJECT_TYPES } from '@/enums/project.enum'
 
@@ -68,15 +65,20 @@ export default defineComponent({
     projectType: {
       type: Number,
       default: undefined
-    }
+    },
+
+    dataGroups: Array,
+    dataAccounts: Array,
+    dataStatuses: Array,
+    dataAccuracies: Array
   },
 
   setup(props) {
     const isCollapse = ref()
-    const dataAccounts = ref()
-    const dataGroups = ref()
-    const dataStatuses = ref()
-    const dataAccuracies = ref()
+    const dataAccounts = computed(() => props.dataAccounts)
+    const dataGroups = computed(() => props.dataGroups)
+    const dataStatuses = computed(() => props.dataStatuses)
+    const dataAccuracies = computed(() => props.dataAccuracies)
 
     const dataHistory = computed(() => {
       let dataHistoryCustom = cloneDeep(props?.projectHistory) || []
@@ -117,21 +119,6 @@ export default defineComponent({
       }
 
       return dataHistoryCustom
-    })
-
-    onBeforeMount(async () => {
-      /* ------------------- get all datas --------------------------- */
-      // accounts
-      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
-      // groups
-      const { data: groups } = await useGroupList({ allGroup: true })
-      dataGroups.value = groups
-      // statuses
-      const { data: statuses } = await getProjectStatuses()
-      dataStatuses.value = statuses
-      // accuracies
-      const { data: accuracies } = await getProjectAccuracies()
-      dataAccuracies.value = accuracies
     })
 
     return {

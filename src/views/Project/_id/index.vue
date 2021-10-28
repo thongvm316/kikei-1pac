@@ -9,6 +9,10 @@
           :project="project"
           :project-ref="projectRef"
           :revenue-estimate-money-request="revenueEstimateMoneyRequest"
+          :data-groups="dataGroups"
+          :data-accounts="dataAccounts"
+          :data-statuses="dataStatuses"
+          :data-accuracies="dataAccuracies"
           @on-submit-edit-project-form="onSubmitEditProjectForm"
         />
 
@@ -16,7 +20,14 @@
       </div>
 
       <div class="project-detail__history">
-        <ProjectHistory :project-history="project?.value?.adProjectHistories" :project-type="project?.value?.type" />
+        <ProjectHistory
+          :data-groups="dataGroups"
+          :data-accounts="dataAccounts"
+          :data-statuses="dataStatuses"
+          :data-accuracies="dataAccuracies"
+          :project-history="project?.value?.adProjectHistories"
+          :project-type="project?.value?.type"
+        />
       </div>
     </div>
   </section>
@@ -26,11 +37,13 @@
 import { defineComponent, onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { getProject } from '../composables/useProject'
+import { getProject, getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 import ProjectEditForm from './components/ProjectEditForm'
 import TotalRevenueTable from './components/TotalRevenueTable'
 import BudgetTable from './components/BudgetTable'
 import ProjectHistory from './components/ProjectHistory.vue'
+import { useAccountList } from '../composables/useAccountList'
+import { useGroupList } from '../composables/useGroupList'
 
 export default defineComponent({
   name: 'ProjectEditPage',
@@ -80,7 +93,26 @@ export default defineComponent({
       revenueEstimateMoneyRequest.value = dataEmit
     }
 
-    onBeforeMount(() => {
+    const dataAccounts = ref()
+    const dataGroups = ref()
+    const dataStatuses = ref()
+    const dataAccuracies = ref()
+
+    onBeforeMount(async () => {
+      // accounts
+      dataAccounts.value = await useAccountList({ types: '0,2', active: true })
+      // groups
+      const paramsGroup = { allGroup: true }
+      const { data: groups } = await useGroupList(paramsGroup)
+      dataGroups.value = groups
+
+      // statuses
+      const { data: statuses } = await getProjectStatuses()
+      dataStatuses.value = statuses
+      // accuracies
+      const { data: accuracies } = await getProjectAccuracies()
+      dataAccuracies.value = accuracies
+
       fetchProject()
     })
 
@@ -90,6 +122,10 @@ export default defineComponent({
       isLoadedOverviewTable,
       revenueEstimateMoneyRequest,
       projectRef,
+      dataAccounts,
+      dataStatuses,
+      dataAccuracies,
+      dataGroups,
       onSubmitEditProjectForm,
       onSubmitPredictBudget
     }
