@@ -183,7 +183,7 @@ export default defineComponent({
       projectId: projectId,
       projectCostsType: null,
       name: '',
-      money: 0,
+      money: null,
       currencyId: null
     }
     const UNIQUE_ID_PREFIX = '__cost__'
@@ -288,12 +288,15 @@ export default defineComponent({
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
       })
 
+      data = data.filter((item) => item.money || item.name)
+
       return data
     }
 
     const handleSubmit = async () => {
       // remove id auto generate
       const dataRequest = convertDataToSubmit()
+      console.log(dataRequest)
 
       try {
         isSubmitLoading.value = true

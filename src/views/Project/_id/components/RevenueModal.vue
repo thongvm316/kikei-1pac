@@ -467,7 +467,7 @@ export default defineComponent({
       projectCostsType: null,
       projectId,
       projectName: null,
-      quotationValidityPeriod: null,
+      quotationValidityPeriod: 1,
       quotationValidityPeriodOther: null,
       total: null
     }
