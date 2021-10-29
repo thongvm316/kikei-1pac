@@ -571,10 +571,10 @@ export default defineComponent({
           month: month ? moment(month).format('YYYY-MM') : null
         })
 
-        totalSalaryCountForUser.value = data?.total
-        selectedCurrency.value = data?.currencyId
+        totalSalaryCountForUser.value = data?.total || 0
+        selectedCurrency.value = data?.currencyId || 2 // default JPY
 
-        costState.value = cloneDeep(data?.adProjectLaborDirectCosts)
+        costState.value = cloneDeep(data?.adProjectLaborDirectCosts) || []
         costState.value = costState.value.map((cost) => ({
           ...cost,
           checked: false
