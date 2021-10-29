@@ -128,7 +128,6 @@ import { find, uniqueId, sumBy, cloneDeep, isEqual } from 'lodash-es'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
-import { getCurrencyList } from '../../composables/useCurrency'
 import {
   getOrderCostList,
   upsertOrderCost,
@@ -163,7 +162,8 @@ export default defineComponent({
     visible: Boolean,
     title: String,
     costModalType: Number,
-    project: Object
+    project: Object,
+    currencyList: Array
   },
 
   emits: ['fetchOrderCostList', 'fetchMaterialCostList', 'fetchDirectCostList', 'update:visible'],
@@ -189,7 +189,7 @@ export default defineComponent({
     const UNIQUE_ID_PREFIX = '__cost__'
 
     const activeKey = ref('1')
-    const currencyList = ref([])
+    const currencyList = computed(() => props.currencyList)
     const costState = ref([])
     const costDeleteList = ref([])
     const isVisibleModalConfirmClone = ref()
@@ -422,12 +422,6 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      isDataLoading.value = true
-
-      // get currency list
-      const currencyReponse = await getCurrencyList()
-      currencyList.value = currencyReponse?.result?.data || []
-
       await fetchDataDirectList()
     })
 
@@ -451,7 +445,6 @@ export default defineComponent({
       PROJECT_COST_TYPES,
       activeKey,
       costState,
-      currencyList,
       totalCosts,
       costStateToCompare,
       isHaveNoChangeCostState,

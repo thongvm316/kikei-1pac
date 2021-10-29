@@ -239,6 +239,7 @@
     :title="titleCostModal"
     :cost-modal-type="costModalType"
     :project="project"
+    :currency-list="currencyList"
     @fetchOrderCostList="fetchOrderCostList"
     @fetchMaterialCostList="fetchMaterialCostList"
     @fetchDirectCostList="fetchDirectCostList"
@@ -248,13 +249,18 @@
     v-if="isOpenDirectlyCostModal"
     v-model:visible="isOpenDirectlyCostModal"
     :project="project"
+    :currency-list="currencyList"
+    :currency-exchange="currencyExchange"
     @on-submit-direct-person-cost-modal="onSubmitDirectPersonCostModal"
   />
 
   <RevenueModal
     v-if="isOpenRevenueModal"
     v-model:visible="isOpenRevenueModal"
+    :currency-list="currencyList"
     :project="project"
+    :currency-exchange="currencyExchange"
+    :data-accounts="dataAccounts"
     @on-submit-revenue-modal="onSubmitRevenueModal"
   />
 </template>
@@ -270,7 +276,7 @@ import RevenueModal from './RevenueModal.vue'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getOrderCostList, getDirectCostList, getMaterialCostList } from '../../composables/useCosts'
-import { getCurrencyList } from '../../composables/useCurrency'
+import { getCurrencyExchange, getCurrencyList } from '../../composables/useCurrency'
 
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
@@ -291,7 +297,8 @@ export default defineComponent({
   },
 
   props: {
-    project: Object
+    project: Object,
+    dataAccounts: Array
   },
 
   emits: ['on-submit-predict-budget'],
@@ -332,6 +339,7 @@ export default defineComponent({
       totalActual: []
     })
     const currencyList = ref([])
+    const currencyExchange = ref()
 
     const handleCancelEditForm = () => {
       isEditing.value = false
@@ -466,7 +474,7 @@ export default defineComponent({
         let predictCount = 0
         let actualCount = 0
 
-        data.forEach((item) => {
+        data?.adProjectLaborDirectCosts.forEach((item) => {
           if (item.projectCostsType === 1) {
             predictCount += item.subtotal
           } else {
@@ -474,7 +482,7 @@ export default defineComponent({
           }
         })
 
-        const currency = find(currencyList.value, { id: data[0]?.salaryCurrencyId })
+        const currency = find(currencyList.value, { id: data?.currencyId })
 
         directlyPersonCost.predict = predictCount
         directlyPersonCost.actual = actualCount
@@ -538,6 +546,11 @@ export default defineComponent({
       // get currency list
       const currencyReponse = await getCurrencyList()
       currencyList.value = currencyReponse?.result?.data || []
+
+      // get currency exchange
+      const { result } = await getCurrencyExchange()
+      currencyExchange.value = result.data
+
       revenueEstimateMoney.value = props?.project?.value?.estimate
 
       fetchOrderCostList()
@@ -553,6 +566,8 @@ export default defineComponent({
       isCostsModalOpen,
       isLoadingBudgetTable,
       revenueEstimateMoney,
+      currencyList,
+      currencyExchange,
 
       COST_MODAL_TYPES,
       titleCostModal,
