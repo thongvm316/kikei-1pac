@@ -131,6 +131,7 @@
                           <a-space>
                             <a-input-number
                               v-model:value="cost.monthlySalary"
+                              style="width: 130px"
                               placeholder="0"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -164,6 +165,7 @@
                             <a-input-number
                               v-model:value="cost.workingDays"
                               placeholder="0"
+                              style="width: 80px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -175,6 +177,7 @@
                             <a-input-number
                               v-model:value="cost.workingHours"
                               placeholder="0"
+                              style="width: 80px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -191,6 +194,7 @@
                             <a-input-number
                               v-model:value="cost.overtimeDaysFirst"
                               placeholder="0"
+                              style="width: 80px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -201,6 +205,7 @@
                             <a-input-number
                               v-model:value="cost.overtimeHoursFirst"
                               placeholder="0"
+                              style="width: 80px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -217,6 +222,7 @@
                             <a-input-number
                               v-model:value="cost.overtimeDaysSecond"
                               placeholder="0"
+                              style="width: 80px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -243,6 +249,7 @@
                             <a-input-number
                               v-model:value="cost.allowance"
                               placeholder="0"
+                              style="width: 130px"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                               :precision="0"
@@ -507,10 +514,11 @@ export default defineComponent({
       if (isHaveNoChangeCostState.value) return
       isLoaddingSubmitButton.value = true
 
-      const dataRequest = cloneDeep(costState.value)
+      let dataRequest = cloneDeep(costState.value)
 
       dataRequest.forEach((item) => {
-        item.month = moment(filterMonth.value).format('YYYY-MM-DD')
+        item.month =
+          props.project.value?.type === PROJECT_TYPES[1].value ? moment(filterMonth.value).format('YYYY-MM-DD') : null
         delete item.checked
         delete item.subtotal
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
@@ -519,6 +527,21 @@ export default defineComponent({
           delete item.salaryCurrencyId
         }
       })
+
+      dataRequest = dataRequest.filter(
+        (item) =>
+          item.allowance ||
+          item.monthlySalary ||
+          item.name ||
+          item.overtimeDaysFirst ||
+          item.overtimeDaysSecond ||
+          item.overtimeHoursFirst ||
+          item.overtimeHoursSecond ||
+          item.positionId ||
+          item.workingDays ||
+          item.workingHours
+      )
+
       try {
         await upsertLaborDirectCostList({ projectLaborDirectCost: dataRequest })
         if (costDeleteList.value.length > 0) {
@@ -539,18 +562,18 @@ export default defineComponent({
         {
           id: uniqueId(UNIQUE_ID_PREFIX),
           projectCostsType: Number(activeKey.value),
-          allowance: 0,
+          allowance: null,
           allowanceCurrencyId: selectedCurrency.value,
           name: null,
-          overtimeDaysFirst: 0,
-          overtimeDaysSecond: 0,
-          overtimeHoursFirst: 0,
-          overtimeHoursSecond: 0,
+          overtimeDaysFirst: null,
+          overtimeDaysSecond: null,
+          overtimeHoursFirst: null,
+          overtimeHoursSecond: null,
           positionId: null,
           projectId,
-          workingDays: 0,
-          workingHours: 0,
-          monthlySalary: 0,
+          workingDays: null,
+          workingHours: null,
+          monthlySalary: null,
           salaryCurrencyId: selectedCurrency.value
         }
       ]
@@ -568,7 +591,7 @@ export default defineComponent({
         const { data } = await getLaborDirectCostList({
           projectId,
           projectCostsType: type,
-          month: month ? moment(month).format('YYYY-MM') : null
+          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month).format('YYYY-MM') : null
         })
 
         totalSalaryCountForUser.value = data?.total || 0
@@ -581,25 +604,27 @@ export default defineComponent({
         }))
 
         // create default items
-        if (costState.value.length === 0) {
-          costState.value = new Array(10).fill(undefined).map(() => ({
-            id: uniqueId(UNIQUE_ID_PREFIX),
-            projectCostsType: Number(activeKey.value),
-            allowance: 0,
-            allowanceCurrencyId: selectedCurrency.value,
-            monthlySalary: 0,
-            name: null,
-            overtimeDaysFirst: 0,
-            overtimeDaysSecond: 0,
-            overtimeHoursFirst: 0,
-            overtimeHoursSecond: 0,
-            positionId: null,
-            projectId,
-            checked: false,
-            salaryCurrencyId: selectedCurrency.value,
-            workingDays: 0,
-            workingHours: 0
-          }))
+        if (costState.value.length < 10) {
+          costState.value = costState.value.concat(
+            new Array(10 - costState.value.length).fill(undefined).map(() => ({
+              id: uniqueId(UNIQUE_ID_PREFIX),
+              projectCostsType: Number(activeKey.value),
+              allowance: null,
+              allowanceCurrencyId: selectedCurrency.value,
+              monthlySalary: null,
+              name: null,
+              overtimeDaysFirst: null,
+              overtimeDaysSecond: null,
+              overtimeHoursFirst: null,
+              overtimeHoursSecond: null,
+              positionId: null,
+              projectId,
+              checked: false,
+              salaryCurrencyId: selectedCurrency.value,
+              workingDays: null,
+              workingHours: null
+            }))
+          )
         }
         costStateToCompare.value = cloneDeep(costState.value)
         if (type === '1') costStateToClone.value = cloneDeep(costState.value)
@@ -689,7 +714,7 @@ export default defineComponent({
     }
 
     const handleCloneCostState = () => {
-      if (costState.value.length > 0) {
+      if (!isHaveNoChangeCostState.value) {
         isVisibleModalConfirmClone.value = true
       } else {
         cloneCostState()

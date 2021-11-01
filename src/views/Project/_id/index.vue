@@ -3,7 +3,7 @@
     <total-revenue-table :finance="finance" />
 
     <div class="project-detail__wrapper">
-      <div class="project-detail__forms">
+      <div :class="['project-detail__forms', isMinimiseProjectHistory && 'active']">
         <project-edit-form
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
@@ -18,12 +18,14 @@
 
         <budget-table
           :data-accounts="dataAccounts"
+          :data-groups="dataGroups"
           :project="project"
           @on-submit-predict-budget="onSubmitPredictBudget"
+          @on-update-total-revenue="onUpdateTotalRevenue"
         />
       </div>
 
-      <div class="project-detail__history">
+      <div :class="['project-detail__history', isMinimiseProjectHistory && 'active']">
         <ProjectHistory
           :data-groups="dataGroups"
           :data-accounts="dataAccounts"
@@ -31,6 +33,7 @@
           :data-accuracies="dataAccuracies"
           :project-history="project?.value?.adProjectHistories"
           :project-type="project?.value?.type"
+          @on-collapse-project-history="onCollapseProjectHistory"
         />
       </div>
     </div>
@@ -66,6 +69,11 @@ export default defineComponent({
     const isLoadedOverviewTable = ref()
     const finance = ref()
     const projectRef = ref()
+    const isMinimiseProjectHistory = ref()
+
+    const onCollapseProjectHistory = (val) => {
+      isMinimiseProjectHistory.value = val
+    }
 
     const fetchProject = async () => {
       isLoadedOverviewTable.value = true
@@ -95,6 +103,10 @@ export default defineComponent({
 
     const onSubmitPredictBudget = (dataEmit) => {
       revenueEstimateMoneyRequest.value = dataEmit
+    }
+
+    const onUpdateTotalRevenue = async () => {
+      await fetchProject()
     }
 
     const dataAccounts = ref()
@@ -130,8 +142,12 @@ export default defineComponent({
       dataStatuses,
       dataAccuracies,
       dataGroups,
+      isMinimiseProjectHistory,
+
       onSubmitEditProjectForm,
-      onSubmitPredictBudget
+      onSubmitPredictBudget,
+      onCollapseProjectHistory,
+      onUpdateTotalRevenue
     }
   }
 })
@@ -148,11 +164,19 @@ export default defineComponent({
 
   &__forms {
     flex-basis: 60%;
+
+    &.active {
+      flex-basis: 80%;
+    }
   }
 
   &__history {
     flex-basis: 40%;
     min-width: 335px;
+
+    &.active {
+      flex-basis: 20%;
+    }
   }
 }
 </style>

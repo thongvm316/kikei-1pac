@@ -205,72 +205,6 @@
       <!-- tax -->
     </div>
 
-    <!-- projectOrders -->
-    <a-form-item name="adProjectOrders" label="外注">
-      <div class="outsource u-pl-20">
-        <table>
-          <tbody>
-            <template v-for="(order, index) in localProjectOrders" :key="order.key">
-              <tr class="outsource__item">
-                <td :class="['u-flex u-flex-col', { 'has-error': order.errors && order.errors['companyId'] }]">
-                  <p>会社名</p>
-                  <div class="outsource__company-info">
-                    <p v-if="order.companyId" class="text-grey-500">{{ order.companyName }}</p>
-                    <p class="modal-link" @click="openCompanySearchForm('outsource', index)">選択</p>
-                  </div>
-                </td>
-
-                <td :class="['u-pl-40', { 'has-error': order.errors && order.errors['money'] }]">
-                  <p>金額</p>
-                  <a-input-number
-                    v-model:value="order.money"
-                    placeholder="入力してください"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :precision="0"
-                    :style="{ width: '164px' }"
-                  />
-                </td>
-
-                <td class="u-pl-8">
-                  <p class="u-mt-24 u-text-grey-75">(JPY)</p>
-                </td>
-
-                <td v-if="!order.id" class="u-pl-8">
-                  <a-button size="small" class="u-mt-24" type="danger" ghost @click="removeProjectOrder(order)"
-                    >削除</a-button
-                  >
-                </td>
-              </tr>
-
-              <tr>
-                <td class="u-pb-12">
-                  <p v-if="order.errors && order.errors['companyId']" class="u-text-additional-red-6">
-                    {{ order.errors && $t(`common.local_error.${order.errors['companyId']}`) }}
-                  </p>
-                </td>
-                <td class="u-pl-40 u-pb-12">
-                  <p v-if="order.errors && order.errors['money']" class="u-text-additional-red-6">
-                    {{ order.errors && $t(`common.local_error.${order.errors['money']}`) }}
-                  </p>
-                </td>
-                <td></td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-
-        <a-button type="default" class="outsource__btn" @click="addDummyProjectOrder">
-          <template #icon>
-            <span class="btn-icon"><line-add-icon /></span>
-          </template>
-          外注を追加
-        </a-button>
-
-        <p class="outsource__total">外注費合計: {{ $filters.number_with_commas(totalMoneyOutsourcing) }} (JPY)</p>
-      </div>
-    </a-form-item>
-    <!-- projectOrders -->
-
     <!-- tag  -->
     <a-form-item name="tags" label="タグ">
       <a-input
@@ -328,25 +262,18 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
 import { useGroupList } from '../../composables/useGroupList'
 import { getProjectAccuracies, getProjectStatuses, addProject } from '../../composables/useProject'
-import {
-  initProjectOutsouringOrders,
-  toProjectOutsouringOrdersRequestData,
-  addProjectOrder
-} from '../../composables/useProjectOrders'
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
-import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 
 export default defineComponent({
   name: 'ProjectAddForm',
 
   components: {
     CalendarOutlined,
-    ModalSelectCompany,
-    LineAddIcon
+    ModalSelectCompany
   },
 
   props: {
@@ -381,7 +308,6 @@ export default defineComponent({
       money: null,
       tags: [],
       memo: '',
-      adProjectOrders: [],
       tax: null
     })
     const localErrors = ref({})
@@ -391,7 +317,6 @@ export default defineComponent({
     const companyTargetSearch = ref('owner') // owner || outsource
     const outsouringCompanyTarget = ref()
     const companyOwnerData = ref({})
-    const localProjectOrders = ref([])
     const depositCurrencyCode = ref()
 
     const dataTypes = ref([])
@@ -422,13 +347,6 @@ export default defineComponent({
     }
 
     /* --------------------- handle search company ------------------- */
-    const removeProjectOrder = (order) => {
-      const index = localProjectOrders.value.findIndex((data) => data.key === order.key)
-      if (index < 0) return
-
-      localProjectOrders.value.splice(index, 1)
-    }
-
     const openCompanySearchForm = (target, key = null) => {
       companyTargetSearch.value = target
       isCompanySearchFormOpen.value = true
@@ -442,27 +360,12 @@ export default defineComponent({
       if (companyTargetSearch.value === 'owner') {
         projectParams.value.companyId = parseInt(payload.id)
         companyOwnerData.value = payload
-      } else {
-        const order = localProjectOrders.value[outsouringCompanyTarget.value]
-        if (!order) return
-
-        order.companyId = payload.id
-        order.companyName = payload.name
       }
     }
 
     /* --------------------- ./handle search company ------------------- */
 
     /* --------------------- handle project orders --------------------- */
-    const addDummyProjectOrder = () => {
-      addProjectOrder(localProjectOrders)
-    }
-
-    const totalMoneyOutsourcing = computed(() => {
-      if (localProjectOrders.value.length <= 0) return 0
-      return localProjectOrders.value.reduce((acc, curr) => acc + curr.money, 0)
-    })
-
     const highestAccuracyRequired = computed(() => {
       if (!projectParams.value.accuracyId || dataAccuracies.value.length <= 0) return false
       const accuracy = dataAccuracies.value.filter((da) => da.id === projectParams.value.accuracyId)[0]
@@ -571,11 +474,6 @@ export default defineComponent({
 
       // Force tags ['']
       if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
-
-      // init dummy project orders
-      if (projectParams.value.adProjectOrders) {
-        initProjectOutsouringOrders(projectParams.value.adProjectOrders, localProjectOrders)
-      }
     }
     /* -------------------- ./init data when project props ------------------------- */
 
@@ -594,8 +492,7 @@ export default defineComponent({
         statisticsToMonth:
           projectParamsValue.type === 0
             ? fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonth)
-            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1]),
-        adProjectOrders: toProjectOutsouringOrdersRequestData(localProjectOrders)
+            : fromDateObjectToDateTimeFormat(projectParamsValue.statisticsMonths[1])
       }
 
       dataRequest.statisticsFromMonth = dataRequest.statisticsFromMonth ? dataRequest.statisticsFromMonth : null
@@ -618,12 +515,6 @@ export default defineComponent({
       }
     }
 
-    const addProjectOrdersErrors = () => {
-      localProjectOrders.value.forEach((item, index) => {
-        item.errors = localErrors.value.adProjectOrders[index] || {}
-      })
-    }
-
     const callAddProject = async () => {
       const response = await addProject(projectDataRequest.value)
       if (response.status === 200) {
@@ -638,9 +529,6 @@ export default defineComponent({
       }
       if (response.data?.errors) {
         localErrors.value = response.data.errors
-        if (localErrors.value.adProjectOrders) {
-          addProjectOrdersErrors()
-        }
       }
     }
     /* ------------------- api intergration --------------------------- */
@@ -702,12 +590,8 @@ export default defineComponent({
       valueTag,
       isCompanySearchFormOpen,
       companyOwnerData,
-      localProjectOrders,
-      totalMoneyOutsourcing,
       depositCurrencyCode,
       openCompanySearchForm,
-      addDummyProjectOrder,
-      removeProjectOrder,
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,

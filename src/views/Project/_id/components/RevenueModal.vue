@@ -157,7 +157,7 @@
                             v-model:value="cost.unitPrice"
                             :auto-focus="true"
                             placeholder="0"
-                            style="width: 140px"
+                            style="width: 130px"
                             :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                             :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                             :precision="0"
@@ -172,6 +172,7 @@
                           <a-space>
                             <a-input-number
                               v-model:value="cost.quantity"
+                              style="width: 130px"
                               placeholder="0"
                               :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                               :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
@@ -254,8 +255,26 @@
                         />
                       </td>
                     </tr>
+
                     <tr>
                       <td>請求元</td>
+
+                      <td>
+                        <a-select
+                          v-model:value="costState.groupId"
+                          style="width: 356px"
+                          show-arrow
+                          :default-active-first-option="false"
+                        >
+                          <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
+                            {{ group.name }}
+                          </a-select-option>
+                        </a-select>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>請求先</td>
                       <td>
                         <a-input
                           v-model:value="costState.billingAddress"
@@ -436,7 +455,8 @@ export default defineComponent({
     project: Object,
     currencyList: Array,
     currencyExchange: Object,
-    dataAccounts: Array
+    dataAccounts: Array,
+    dataGroups: Array
   },
 
   emits: ['update:visible', 'on-submit-revenue-modal'],
@@ -578,7 +598,7 @@ export default defineComponent({
           id: uniqueId(UNIQUE_ID_PREFIX),
           expenseItemId: null,
           overview: null,
-          unitPrice: 0,
+          unitPrice: null,
           quantity: null,
           quantityUnitId: null,
           projectCostsType: Number(activeKey.value)
@@ -617,7 +637,7 @@ export default defineComponent({
     }
 
     const handleCloneCostState = () => {
-      if (costState.value.adProjectRevenueItems.length > 0) {
+      if (!isHaveNoChangeCostState.value) {
         isVisibleModalConfirmClone.value = true
       } else {
         cloneCostState()
@@ -630,10 +650,11 @@ export default defineComponent({
 
     const fetchRevenueProject = async (type = activeKey.value, month = new Date()) => {
       isLoadingDataTable.value = true
+
       try {
         const { result } = await getRevenueProject({
           projectId,
-          month: month ? moment(month).format('YYYY-MM') : null,
+          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month).format('YYYY-MM') : null,
           projectCostsType: type
         })
 
@@ -658,21 +679,23 @@ export default defineComponent({
         }))
 
         // create default items
-        if (costState.value.adProjectRevenueItems.length === 0) {
-          costState.value.adProjectRevenueItems = new Array(10).fill(undefined).map(() => ({
-            projectId,
-            positionId: null,
-            itemId: null,
-            id: uniqueId(UNIQUE_ID_PREFIX),
-            expenseItemId: null,
-            overview: null,
-            unitPrice: 0,
-            quantity: null,
-            quantityUnitId: null,
-            checked: false,
-            isEditUnitPrice: false,
-            projectCostsType: Number(activeKey.value)
-          }))
+        if (costState.value.adProjectRevenueItems.length < 10) {
+          costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.concat(
+            new Array(10 - costState.value.adProjectRevenueItems.length).fill(undefined).map(() => ({
+              projectId,
+              positionId: null,
+              itemId: null,
+              id: uniqueId(UNIQUE_ID_PREFIX),
+              expenseItemId: null,
+              overview: null,
+              unitPrice: null,
+              quantity: null,
+              quantityUnitId: null,
+              checked: false,
+              isEditUnitPrice: false,
+              projectCostsType: Number(activeKey.value)
+            }))
+          )
         }
 
         costStateToCompare.value = cloneDeep(costState.value)
@@ -747,7 +770,8 @@ export default defineComponent({
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')
         : null
-      dataRequest.month = moment(filterMonth.value).format('YYYY-MM-DD')
+      dataRequest.month =
+        props.project.value?.type === PROJECT_TYPES[1].value ? moment(filterMonth.value).format('YYYY-MM-DD') : null
       delete dataRequest.total
       dataRequest.adProjectRevenueItems.forEach((item) => {
         delete item.projectCostsType
@@ -758,6 +782,17 @@ export default defineComponent({
         delete item.projectRevenueId
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
       })
+
+      dataRequest.adProjectRevenueItems = dataRequest.adProjectRevenueItems.filter(
+        (item) =>
+          item.expenseItemId ||
+          item.itemId ||
+          item.overview ||
+          item.positionId ||
+          item.quantity ||
+          item.quantityUnitId ||
+          item.unitPrice
+      )
 
       try {
         if (!dataRequest.id) {
@@ -774,6 +809,8 @@ export default defineComponent({
 
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
+
+        emit('on-submit-revenue-modal')
       } finally {
         isSubmitLoading.value = false
       }

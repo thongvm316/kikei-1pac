@@ -85,7 +85,7 @@ export default defineComponent({
         title: '利益率',
         dataIndex: 'profitRate',
         key: 'profitRate',
-        slots: { customRender: 'customRenderProfitRate' },
+        slots: { customRender: 'customRenderProfitMargin' },
         align: 'right'
       },
       {
@@ -99,7 +99,7 @@ export default defineComponent({
         title: '原価率',
         dataIndex: 'costRate',
         key: 'costRate',
-        slots: { customRender: 'customRenderCostRate' },
+        slots: { customRender: 'customRenderExpenseRatio' },
         align: 'right'
       }
     ]

@@ -260,7 +260,7 @@ export default defineComponent({
     }
 
     const handleCloneCostState = () => {
-      if (costState.value.length > 0) {
+      if (!isHaveNoChangeCostState.value) {
         isVisibleModalConfirmClone.value = true
       } else {
         cloneCostState()
@@ -284,7 +284,8 @@ export default defineComponent({
       let data = cloneDeep(costState.value)
 
       data.forEach((item) => {
-        item.month = moment(filterMonth.value).format('YYYY-MM-DD')
+        item.month =
+          props.project.value?.type === PROJECT_TYPES[1].value ? moment(filterMonth.value).format('YYYY-MM-DD') : null
         if (item.id && item.id.toString().indexOf(UNIQUE_ID_PREFIX) === 0) delete item.id
       })
 
@@ -395,7 +396,7 @@ export default defineComponent({
         const paramsRequest = {
           projectId,
           projectCostsType,
-          month: month ? moment(month).format('YYYY-MM') : null
+          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month).format('YYYY-MM') : null
         }
         let responseRequest = null
 
@@ -410,8 +411,10 @@ export default defineComponent({
         costState.value = responseRequest?.result?.data || []
 
         // create default items
-        if (costState.value.length === 0) {
-          costState.value = new Array(3).fill(undefined).map(() => createCostItem())
+        if (costState.value.length < 3) {
+          costState.value = costState.value.concat(
+            new Array(3 - costState.value.length).fill(undefined).map(() => createCostItem())
+          )
         }
 
         costStateToCompare.value = cloneDeep(costState.value)
