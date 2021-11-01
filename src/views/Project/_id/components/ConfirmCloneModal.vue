@@ -1,7 +1,7 @@
 <template>
-  <a-modal v-model:visible="visible" centered title="確定" width="436px" @cancel="handleCancel">
+  <a-modal v-model:visible="visible" centered title="確定" width="518px" @cancel="handleCancel">
     <template #footer>
-      <p>予測の内容をコピーすると入力されていた内容が上書きされます コピーしてもよろしいですか？</p>
+      <p>予測の内容をコピーすると入力されていた内容が上書きされます <br />コピーしてもよろしいですか？</p>
       <a-button type="default" @click="handleCancel">いいえ</a-button>
       <a-button type="primary" @click="$emit('on-confirm')">はい</a-button>
     </template>

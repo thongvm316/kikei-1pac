@@ -8,7 +8,7 @@
       <div>
         <DownOutlined
           :class="['project-history__arrow-icon', isCollapse && 'isCollapse']"
-          @click="isCollapse = !isCollapse"
+          @click="clickCollapseButton"
         />
       </div>
     </div>
@@ -73,7 +73,9 @@ export default defineComponent({
     dataAccuracies: Array
   },
 
-  setup(props) {
+  emits: ['on-collapse-project-history'],
+
+  setup(props, { emit }) {
     const isCollapse = ref()
     const dataAccounts = computed(() => props.dataAccounts)
     const dataGroups = computed(() => props.dataGroups)
@@ -121,10 +123,17 @@ export default defineComponent({
       return dataHistoryCustom
     })
 
+    const clickCollapseButton = () => {
+      isCollapse.value = !isCollapse.value
+      emit('on-collapse-project-history', isCollapse.value)
+    }
+
     return {
       isCollapse,
       moment,
-      dataHistory
+      dataHistory,
+
+      clickCollapseButton
     }
   }
 })

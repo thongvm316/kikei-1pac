@@ -76,7 +76,7 @@
                             </tr>
                           </td>
                           <td class="table-cost__edit">
-                            <a-button type="link" @click="isOpenRevenueModal = true">
+                            <a-button type="link" @click="openModalRevenue">
                               <template #icon>
                                 <edit-large-icon />
                               </template>
@@ -125,7 +125,7 @@
                             </tr>
                           </td>
                           <td class="table-cost__edit">
-                            <a-button type="link" @click="isOpenDirectlyCostModal = true">
+                            <a-button type="link" @click="openModalDirectCost">
                               <template #icon>
                                 <edit-large-icon />
                               </template>
@@ -240,9 +240,9 @@
     :cost-modal-type="costModalType"
     :project="project"
     :currency-list="currencyList"
-    @fetchOrderCostList="fetchOrderCostList"
-    @fetchMaterialCostList="fetchMaterialCostList"
-    @fetchDirectCostList="fetchDirectCostList"
+    @fetchOrderCostList="onFetchOrderCostList"
+    @fetchMaterialCostList="onFetchMaterialCostList"
+    @fetchDirectCostList="onFetchDirectCostList"
   />
 
   <DirectlyPersonCost
@@ -259,16 +259,21 @@
     v-model:visible="isOpenRevenueModal"
     :currency-list="currencyList"
     :project="project"
+    :data-groups="dataGroups"
     :currency-exchange="currencyExchange"
     :data-accounts="dataAccounts"
     @on-submit-revenue-modal="onSubmitRevenueModal"
   />
+
+  <RemindInputStatisticMonthModal v-model:visible="remindInputStatisticMonthModal" />
 </template>
 
 <script>
 import { defineComponent, ref, onBeforeMount, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { find, sumBy } from 'lodash-es'
+
+import { PROJECT_TYPES } from '@/enums/project.enum'
 
 import CostsModal from './CostsModal'
 import DirectlyPersonCost from './DirectlyPersonCost'
@@ -283,6 +288,7 @@ import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { getLaborDirectCostList, getRevenueList } from '../../composables/useProject'
 import moment from 'moment'
+import RemindInputStatisticMonthModal from './RemindInputStatisticMonthModal.vue'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -293,15 +299,17 @@ export default defineComponent({
     EditLargeIcon,
     DownOutlined,
     DirectlyPersonCost,
-    RevenueModal
+    RevenueModal,
+    RemindInputStatisticMonthModal
   },
 
   props: {
     project: Object,
-    dataAccounts: Array
+    dataAccounts: Array,
+    dataGroups: Array
   },
 
-  emits: ['on-submit-predict-budget'],
+  emits: ['on-submit-predict-budget', 'on-update-total-revenue'],
 
   setup(props, { emit }) {
     const route = useRoute()
@@ -351,12 +359,35 @@ export default defineComponent({
     const revenueEstimateMoney = ref()
 
     const handleOpenCostModal = (typeId) => {
+      if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
+        remindInputStatisticMonthModal.value = true
+
+        return
+      }
       const costFound = find(COST_MODAL_TYPES, { id: typeId })
       if (!costFound) return
 
       isCostsModalOpen.value = true
       titleCostModal.value = costFound.title
       costModalType.value = typeId
+    }
+
+    const remindInputStatisticMonthModal = ref()
+
+    const openModalRevenue = () => {
+      if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
+        remindInputStatisticMonthModal.value = true
+      } else {
+        isOpenRevenueModal.value = true
+      }
+    }
+
+    const openModalDirectCost = () => {
+      if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
+        remindInputStatisticMonthModal.value = true
+      } else {
+        isOpenDirectlyCostModal.value = true
+      }
     }
 
     const getCostListFiltered = (dataList, costType) => {
@@ -393,11 +424,26 @@ export default defineComponent({
       return { predict, actual, totalPredict, totalActual }
     }
 
+    const onFetchOrderCostList = () => {
+      emit('on-update-total-revenue')
+      fetchOrderCostList()
+    }
+
+    const onFetchMaterialCostList = () => {
+      emit('on-update-total-revenue')
+      fetchMaterialCostList()
+    }
+
+    const onFetchDirectCostList = () => {
+      emit('on-update-total-revenue')
+      fetchDirectCostList()
+    }
+
     const fetchOrderCostList = async () => {
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: moment(new Date()).format('YYYY-MM')
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
       }
 
       try {
@@ -418,7 +464,7 @@ export default defineComponent({
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: moment(new Date()).format('YYYY-MM')
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
       }
 
       try {
@@ -439,7 +485,7 @@ export default defineComponent({
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: moment(new Date()).format('YYYY-MM')
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
       }
 
       try {
@@ -468,7 +514,7 @@ export default defineComponent({
         const { data } = await getLaborDirectCostList({
           projectId,
           projectCostsType: '1,2',
-          month: moment(new Date()).format('YYYY-MM')
+          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
         })
 
         let predictCount = 0
@@ -493,6 +539,7 @@ export default defineComponent({
     }
 
     const onSubmitDirectPersonCostModal = async () => {
+      emit('on-update-total-revenue')
       fetchLaborDirectCostList()
     }
 
@@ -512,7 +559,7 @@ export default defineComponent({
       const { result } = await getRevenueList({
         projectId,
         projectCostsType: '1,2',
-        month: moment(new Date()).format('YYYY-MM')
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
       })
 
       estimateCurrencyId.value = result?.data[0]?.currencyId
@@ -531,7 +578,10 @@ export default defineComponent({
       })
     }
 
-    const onSubmitRevenueModal = () => fetchRevenueList()
+    const onSubmitRevenueModal = () => {
+      emit('on-update-total-revenue')
+      fetchRevenueList()
+    }
 
     const submitButton = () => {
       const emitData = {
@@ -568,6 +618,7 @@ export default defineComponent({
       revenueEstimateMoney,
       currencyList,
       currencyExchange,
+      remindInputStatisticMonthModal,
 
       COST_MODAL_TYPES,
       titleCostModal,
@@ -587,7 +638,12 @@ export default defineComponent({
       fetchMaterialCostList,
       fetchDirectCostList,
       onSubmitDirectPersonCostModal,
-      onSubmitRevenueModal
+      onSubmitRevenueModal,
+      onFetchOrderCostList,
+      onFetchMaterialCostList,
+      onFetchDirectCostList,
+      openModalRevenue,
+      openModalDirectCost
     }
   }
 })
