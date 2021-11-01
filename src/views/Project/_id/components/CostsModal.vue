@@ -319,6 +319,8 @@ export default defineComponent({
           emit('fetchDirectCostList')
         }
 
+        await fetchDataDirectList(activeKey.value, filterMonth.value)
+
         costDeleteList.value = []
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)

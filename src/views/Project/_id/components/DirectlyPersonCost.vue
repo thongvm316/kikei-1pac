@@ -548,6 +548,9 @@ export default defineComponent({
           await deleteLaborDirectCostList({ id: costDeleteList.value })
           costDeleteList.value = []
         }
+
+        await fetDataTable(activeKey.value, filterMonth.value)
+
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value)
         emit('on-submit-direct-person-cost-modal')

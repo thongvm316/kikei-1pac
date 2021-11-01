@@ -798,7 +798,6 @@ export default defineComponent({
         if (!dataRequest.id) {
           delete dataRequest.id
           await createRevenue(dataRequest)
-          await fetchRevenueProject(activeKey.value, filterMonth.value)
         } else {
           if (costDeleteList.value.length > 0) {
             await deleteRevenueItem({ id: costDeleteList.value })
@@ -806,6 +805,8 @@ export default defineComponent({
           }
           await upsertRevenueProject(dataRequest)
         }
+
+        await fetchRevenueProject(activeKey.value, filterMonth.value)
 
         costStateToCompare.value = cloneDeep(costState.value)
         costStateToClone.value = cloneDeep(costState.value.adProjectRevenueItems)
