@@ -365,7 +365,12 @@ export default defineComponent({
 
     const costStateToClone = ref()
 
-    const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
+    const filterMonth = ref(
+      moment(new Date()).format('YYYY-MM') > moment(props.project.value.statisticsToMonth).endOf('month') &&
+        moment(new Date()).format('YYYY-MM') < moment(props.project.value.statisticsToMonth).endOf('month')
+        ? fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
+        : moment(props.project.value.statisticsFromMonth)
+    )
 
     const prevMonthFilter = ref()
 
@@ -390,7 +395,7 @@ export default defineComponent({
       }
     )
 
-    const fetchDataDirectList = async (projectCostsType = activeKey.value, month = new Date()) => {
+    const fetchDataDirectList = async (projectCostsType = activeKey.value, month = filterMonth.value) => {
       isDataLoading.value = true
 
       // get direct list

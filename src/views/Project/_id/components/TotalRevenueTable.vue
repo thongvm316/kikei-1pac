@@ -53,9 +53,15 @@ export default defineComponent({
       emptyText: 'Empty data'
     }
 
-    const totalRangeMonth = computed(() =>
-      moment(props.finance?.statisticsToMonth).diff(moment(props.finance?.statisticsFromMonth), 'months', true)
-    )
+    const getAbsoluteMonths = (momentDate) => {
+      const months = Number(moment(momentDate).format('MM'))
+      const years = Number(moment(momentDate).format('YYYY'))
+      return months + years * 12
+    }
+    const startMonths = computed(() => getAbsoluteMonths(props.finance?.statisticsFromMonth))
+    const endMonths = computed(() => getAbsoluteMonths(props.finance?.statisticsToMonth))
+
+    const totalRangeMonth = computed(() => endMonths.value - startMonths.value + 1)
 
     const columns = [
       {

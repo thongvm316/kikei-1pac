@@ -386,7 +386,12 @@ export default defineComponent({
     const route = useRoute()
     const projectId = Number(route.params?.id)
     const positionList = ref([])
-    const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
+    const filterMonth = ref(
+      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
+        moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
+        ? fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
+        : moment(props.project?.value?.statisticsFromMonth)
+    )
 
     const store = useStore()
     const authProfile = computed(() => store.state?.auth.authProfile)
@@ -587,7 +592,7 @@ export default defineComponent({
     const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
     const totalSalaryCountForUser = ref()
 
-    const fetDataTable = async (type = activeKey.value, month = new Date()) => {
+    const fetDataTable = async (type = activeKey.value, month = filterMonth.value) => {
       isLoadingDataTable.value = true
 
       try {
@@ -598,7 +603,7 @@ export default defineComponent({
         })
 
         totalSalaryCountForUser.value = data?.total || 0
-        selectedCurrency.value = data?.currencyId || 2 // default JPY
+        selectedCurrency.value = data?.adProjectLaborDirectCosts[0]?.defaultCurrencyId || 2 // default JPY
 
         costState.value = cloneDeep(data?.adProjectLaborDirectCosts) || []
         costState.value = costState.value.map((cost) => ({

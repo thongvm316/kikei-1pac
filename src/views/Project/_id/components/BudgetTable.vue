@@ -55,7 +55,7 @@
                                   :max="999999999999"
                                   style="width: 154px"
                                 />
-                                <span v-if="!isEditing">{{ revenueEstimateMoney }}</span>
+                                <span v-if="!isEditing">{{ $filters.number_with_commas(revenueEstimateMoney) }}</span>
                                 ({{ revenueCost?.predict?.code }})
                               </td>
                             </tr>
@@ -269,7 +269,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, reactive } from 'vue'
+import { defineComponent, ref, onBeforeMount, reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { find, sumBy } from 'lodash-es'
 
@@ -443,7 +443,7 @@ export default defineComponent({
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month.value).format('YYYY-MM') : null
       }
 
       try {
@@ -464,7 +464,7 @@ export default defineComponent({
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month.value).format('YYYY-MM') : null
       }
 
       try {
@@ -485,7 +485,7 @@ export default defineComponent({
       const params = {
         projectId,
         projectCostsType: `${PROJECT_COST_TYPES[0].value},${PROJECT_COST_TYPES[1].value}`,
-        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month.value).format('YYYY-MM') : null
       }
 
       try {
@@ -514,7 +514,7 @@ export default defineComponent({
         const { data } = await getLaborDirectCostList({
           projectId,
           projectCostsType: '1,2',
-          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
+          month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month.value).format('YYYY-MM') : null
         })
 
         let predictCount = 0
@@ -554,22 +554,33 @@ export default defineComponent({
       }
     })
 
+    const month = computed(() =>
+      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
+      moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
+        ? moment(new Date()).format('YYYY-MM')
+        : moment(props.project?.value?.statisticsFromMonth)
+    )
+
     const estimateCurrencyId = ref()
     const fetchRevenueList = async () => {
       const { result } = await getRevenueList({
         projectId,
         projectCostsType: '1,2',
-        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(new Date()).format('YYYY-MM') : null
+        month: props.project.value?.type === PROJECT_TYPES[1].value ? moment(month.value).format('YYYY-MM') : null
       })
+
+      const currentGroup = find(props?.dataGroups, { id: props?.project?.value?.groupId })
 
       estimateCurrencyId.value = result?.data[0]?.currencyId
 
-      const currency = find(currencyList.value, { id: result?.data[0]?.currencyId })
+      const currency = find(currencyList.value, {
+        id: result?.data[0]?.currencyId
+      })
+
+      revenueCost.predict.code = currency?.code || currentGroup?.depositCurrencyCode
+      revenueCost.actual.code = currency?.code || currentGroup?.depositCurrencyCode
 
       result.data.forEach((item) => {
-        revenueCost.predict.code = currency?.code
-        revenueCost.actual.code = currency?.code
-
         if (item.projectCostsType === 1) {
           revenueCost.predict.total = item.total
         } else {

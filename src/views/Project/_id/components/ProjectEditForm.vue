@@ -516,6 +516,7 @@ export default defineComponent({
         paramRequest.estimateCurrencyId = val.estimateCurrencyId
 
         await editProject(projectProp.value.id, paramRequest)
+        emit('on-submit-edit-project-form')
       }
     )
 
