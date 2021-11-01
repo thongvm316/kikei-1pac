@@ -17,6 +17,7 @@
         />
 
         <budget-table
+          v-if="!!projectRef"
           :data-accounts="dataAccounts"
           :data-groups="dataGroups"
           :project="project"
@@ -129,7 +130,7 @@ export default defineComponent({
       const { data: accuracies } = await getProjectAccuracies()
       dataAccuracies.value = accuracies
 
-      fetchProject()
+      await fetchProject()
     })
 
     return {
