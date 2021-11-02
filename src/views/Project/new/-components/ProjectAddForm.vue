@@ -335,7 +335,8 @@ export default defineComponent({
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
-      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }]
+      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
+      money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
     })
 
     const dynamicBaseOnAccuracy = () => {
