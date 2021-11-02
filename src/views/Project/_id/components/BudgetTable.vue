@@ -510,6 +510,20 @@ export default defineComponent({
       code: null
     })
 
+    const lowerCaseFirstLetter = (str) => {
+      let newStr = ''
+
+      for (let i = 0; i < str?.length; i++) {
+        if (i === 0) {
+          newStr += str[i].toLowerCase()
+        } else {
+          newStr += str[i]
+        }
+      }
+
+      return newStr
+    }
+
     const fetchLaborDirectCostList = async () => {
       try {
         isLoadingBudgetTable.value = true
@@ -532,9 +546,15 @@ export default defineComponent({
 
         const currency = find(currencyList.value, { id: data?.adProjectLaborDirectCosts[0].defaultCurrencyId })
 
-        directlyPersonCost.predict = predictCount
-        directlyPersonCost.actual = actualCount
+        const currencySalary = find(currencyList.value, { id: data?.adProjectLaborDirectCosts[0].salaryCurrencyId })
+
         directlyPersonCost.code = currency?.code || 'JPY' // default JPY
+        directlyPersonCost.predict =
+          predictCount *
+          currencyExchange.value[lowerCaseFirstLetter(currencySalary.code)][lowerCaseFirstLetter(currency.code)]
+        directlyPersonCost.actual =
+          actualCount *
+          currencyExchange.value[lowerCaseFirstLetter(currencySalary.code)][lowerCaseFirstLetter(currency.code)]
       } finally {
         isLoadingBudgetTable.value = false
       }
