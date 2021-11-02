@@ -531,6 +531,7 @@ export default defineComponent({
           delete item.monthlySalary
           delete item.salaryCurrencyId
         }
+        item.defaultCurrencyId = selectedCurrency.value
       })
 
       dataRequest = dataRequest.filter(
