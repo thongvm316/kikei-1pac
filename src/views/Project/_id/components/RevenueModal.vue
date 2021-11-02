@@ -497,7 +497,12 @@ export default defineComponent({
     const UNIQUE_ID_PREFIX = '__cost__'
     const currencyExchange = computed(() => props.currencyExchange)
     const currencyExchangeSelected = ref()
-    const filterMonth = ref(fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM')))
+    const filterMonth = ref(
+      moment(new Date()).endOf('month') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
+        moment(new Date()).endOf('month') < moment(props.project?.value?.statisticsToMonth).endOf('month')
+        ? fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
+        : moment(props.project?.value?.statisticsFromMonth)
+    )
     const costStateToCompare = ref({})
     const isSubmitLoading = ref()
     const isVisibleModalConfirmSubmit = ref()
@@ -648,7 +653,7 @@ export default defineComponent({
       cloneCostState()
     }
 
-    const fetchRevenueProject = async (type = activeKey.value, month = new Date()) => {
+    const fetchRevenueProject = async (type = activeKey.value, month = filterMonth.value) => {
       isLoadingDataTable.value = true
 
       try {
@@ -766,6 +771,7 @@ export default defineComponent({
 
       if (dataRequest.quotationValidityPeriod !== 5) dataRequest.quotationValidityPeriodOther = null
       dataRequest.projectCostsType = Number(dataRequest.projectCostsType)
+      dataRequest.currencyId = currencyExchangeSelected.value
       dataRequest.deliveryDate = dataRequest.deliveryDate ? moment(dataRequest.deliveryDate).format('YYYY-MM-DD') : null
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')

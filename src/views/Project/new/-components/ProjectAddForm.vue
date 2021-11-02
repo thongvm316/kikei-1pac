@@ -173,37 +173,6 @@
       </p>
     </a-form-item>
     <!-- accountID -->
-    <div class="moneyWrapper">
-      <!-- money -->
-      <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
-        <a-input-number
-          v-model:value="projectParams.money"
-          placeholder="入力してください"
-          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-          :precision="0"
-          :style="{ width: '300px' }"
-        />
-        <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
-        <p v-if="localErrors['money']" class="ant-form-explain">
-          {{ $t(`common.local_error.${localErrors['money']}`) }}
-        </p>
-      </a-form-item>
-      <!-- money -->
-
-      <!-- tax -->
-      <a-form-item name="tax" label="税金">
-        <a-input-number
-          v-model:value="projectParams.tax"
-          :precision="0"
-          :style="{ width: '68px' }"
-          :min="0"
-          :max="100"
-        />
-
-        <span class="u-ml-8 u-text-grey-75">%</span>
-      </a-form-item>
-      <!-- tax -->
-    </div>
 
     <!-- tag  -->
     <a-form-item name="tags" label="タグ">
@@ -305,7 +274,6 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: null,
       tags: [],
       memo: '',
       tax: null
@@ -334,8 +302,7 @@ export default defineComponent({
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
-      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
-      money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
+      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }]
     })
 
     const dynamicBaseOnAccuracy = () => {
@@ -720,10 +687,5 @@ export default defineComponent({
     color: $color-grey-100;
     background-color: $color-grey-35;
   }
-}
-
-.moneyWrapper {
-  display: flex;
-  gap: 32px;
 }
 </style>
