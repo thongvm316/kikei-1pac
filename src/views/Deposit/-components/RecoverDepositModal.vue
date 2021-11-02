@@ -96,7 +96,7 @@ export default defineComponent({
         dataTableDeposit.value = [...dataTableDeposit.value, ...newDataDeposit]
 
         // update paginations
-        totalPages.value = data?.result?.meta?.totalPages || 0
+        totalPages.value = data?.result?.meta?.totalRecords || 0
       } catch (err) {
         dataTableDeposit.value = []
       } finally {

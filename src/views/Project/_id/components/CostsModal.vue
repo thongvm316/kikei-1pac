@@ -366,10 +366,10 @@ export default defineComponent({
     const costStateToClone = ref()
 
     const filterMonth = ref(
-      moment(new Date()).format('YYYY-MM') > moment(props.project.value.statisticsToMonth).endOf('month') &&
-        moment(new Date()).format('YYYY-MM') < moment(props.project.value.statisticsToMonth).endOf('month')
-        ? fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
-        : moment(props.project.value.statisticsFromMonth)
+      moment(new Date()).endOf('month') > moment(props.project?.value?.statisticsToMonth).endOf('month') ||
+        moment(new Date()).endOf('month') < moment(props.project?.value?.statisticsFromMonth).endOf('month')
+        ? moment(props.project?.value?.statisticsFromMonth)
+        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
     )
 
     const prevMonthFilter = ref()
