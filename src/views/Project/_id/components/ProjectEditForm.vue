@@ -361,11 +361,13 @@
                             <!-- money -->
                             <a-form-item
                               name="money"
-                              label="金額"
+                              label=""
                               class="u-relative"
                               :class="{ 'has-error': localErrors['money'] }"
                             >
-                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.money }}</span>
+                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{
+                                $filters.number_with_commas(projectParams.money)
+                              }}</span>
                               <a-input-number
                                 v-else
                                 v-model:value="projectParams.money"
@@ -384,7 +386,8 @@
                             <!-- money -->
 
                             <!-- tax -->
-                            <a-form-item name="tax" label="税金">
+                            <a-form-item name="tax" label="">
+                              <span class="u-ml-8">税金: </span>
                               <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.tax }}</span>
                               <a-input-number
                                 v-else
