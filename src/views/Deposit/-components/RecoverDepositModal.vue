@@ -19,7 +19,7 @@
       />
 
       <div class="u-mt-24 u-mb-16">
-        <a-button type="default" @click="handleCancel">キャンセル}</a-button>
+        <a-button type="default" @click="handleCancel">キャンセル</a-button>
         <a-button
           :loading="isLoadedOkButton"
           :disabled="currentSelectedRowKeys.length < 1"
