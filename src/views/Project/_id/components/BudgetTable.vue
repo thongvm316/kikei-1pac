@@ -40,7 +40,7 @@
                     <table class="table-cost">
                       <tbody>
                         <tr class="solid-bottom">
-                          <td class="table-cost__type">予測 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
+                          <td class="table-cost__type">予測 {{ $filters.moment_yyyy_mm(monthEstimate) }}</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -64,7 +64,7 @@
                         </tr>
 
                         <tr class="dashed-bottom">
-                          <td class="table-cost__type">見積 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
+                          <td class="table-cost__type">見積 ({{ $filters.moment_yyyy_mm(month) }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -85,7 +85,7 @@
                         </tr>
 
                         <tr>
-                          <td class="table-cost__type">請求 ({{ $filters.moment_yyyy_mm(new Date()) }})</td>
+                          <td class="table-cost__type">請求 ({{ $filters.moment_yyyy_mm(month) }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -561,6 +561,13 @@ export default defineComponent({
         : moment(props.project?.value?.statisticsFromMonth)
     )
 
+    const monthEstimate = computed(() =>
+      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
+      moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
+        ? moment(new Date()).format('YYYY-MM')
+        : ''
+    )
+
     const estimateCurrencyId = ref()
     const fetchRevenueList = async () => {
       const { result } = await getRevenueList({
@@ -641,6 +648,8 @@ export default defineComponent({
       directlyPersonCost,
       isOpenRevenueModal,
       revenueCost,
+      month,
+      monthEstimate,
 
       submitButton,
       handleCancelEditForm,

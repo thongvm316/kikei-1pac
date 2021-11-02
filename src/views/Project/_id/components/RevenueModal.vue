@@ -498,8 +498,8 @@ export default defineComponent({
     const currencyExchange = computed(() => props.currencyExchange)
     const currencyExchangeSelected = ref()
     const filterMonth = ref(
-      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
-        moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
+      moment(new Date()).endOf('month') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
+        moment(new Date()).endOf('month') < moment(props.project?.value?.statisticsToMonth).endOf('month')
         ? fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
         : moment(props.project?.value?.statisticsFromMonth)
     )
