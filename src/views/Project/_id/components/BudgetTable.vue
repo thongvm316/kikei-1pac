@@ -40,7 +40,7 @@
                     <table class="table-cost">
                       <tbody>
                         <tr class="solid-bottom">
-                          <td class="table-cost__type">予測 {{ $filters.moment_yyyy_mm(monthEstimate) }}</td>
+                          <td class="table-cost__type">予測 ({{ month.format('MMMM') }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -64,7 +64,7 @@
                         </tr>
 
                         <tr class="dashed-bottom">
-                          <td class="table-cost__type">見積 ({{ $filters.moment_yyyy_mm(month) }})</td>
+                          <td class="table-cost__type">見積 ({{ month.format('MMMM') }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -85,7 +85,7 @@
                         </tr>
 
                         <tr>
-                          <td class="table-cost__type">請求 ({{ $filters.moment_yyyy_mm(month) }})</td>
+                          <td class="table-cost__type">請求 ({{ month.format('MMMM') }})</td>
                           <td class="table-cost__content">
                             <tr>
                               <td class="table-cost__content--name"></td>
@@ -269,7 +269,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onBeforeMount, reactive, computed } from 'vue'
+import { defineComponent, ref, onBeforeMount, reactive, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { find, sumBy } from 'lodash-es'
 
@@ -289,6 +289,7 @@ import { DownOutlined } from '@ant-design/icons-vue'
 import { getLaborDirectCostList, getRevenueList } from '../../composables/useProject'
 import moment from 'moment'
 import RemindInputStatisticMonthModal from './RemindInputStatisticMonthModal.vue'
+import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -306,7 +307,8 @@ export default defineComponent({
   props: {
     project: Object,
     dataAccounts: Array,
-    dataGroups: Array
+    dataGroups: Array,
+    projectRef: Object
   },
 
   emits: ['on-submit-predict-budget', 'on-update-total-revenue'],
@@ -555,17 +557,10 @@ export default defineComponent({
     })
 
     const month = computed(() =>
-      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
-      moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
-        ? moment(new Date()).format('YYYY-MM')
-        : moment(props.project?.value?.statisticsFromMonth)
-    )
-
-    const monthEstimate = computed(() =>
-      moment(new Date()).format('YYYY-MM') > moment(props.project?.value?.statisticsToMonth).endOf('month') &&
-      moment(new Date()).format('YYYY-MM') < moment(props.project?.value?.statisticsToMonth).endOf('month')
-        ? moment(new Date()).format('YYYY-MM')
-        : ''
+      moment(new Date()).endOf('month') > moment(props.projectRef?.statisticsToMonth).endOf('month') ||
+      moment(new Date()).endOf('month') < moment(props.projectRef?.statisticsFromMonth).endOf('month')
+        ? moment(props.projectRef?.statisticsFromMonth)
+        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
     )
 
     const estimateCurrencyId = ref()
@@ -610,6 +605,28 @@ export default defineComponent({
       emit('on-submit-predict-budget', emitData)
     }
 
+    watch(
+      () => props.projectRef.statisticsFromMonth,
+      () => {
+        fetchOrderCostList()
+        fetchMaterialCostList()
+        fetchDirectCostList()
+        fetchLaborDirectCostList()
+        fetchRevenueList()
+      }
+    )
+
+    watch(
+      () => props.projectRef.statisticsToMonth,
+      () => {
+        fetchOrderCostList()
+        fetchMaterialCostList()
+        fetchDirectCostList()
+        fetchLaborDirectCostList()
+        fetchRevenueList()
+      }
+    )
+
     onBeforeMount(async () => {
       // get currency list
       const currencyReponse = await getCurrencyList()
@@ -649,7 +666,6 @@ export default defineComponent({
       isOpenRevenueModal,
       revenueCost,
       month,
-      monthEstimate,
 
       submitButton,
       handleCancelEditForm,
