@@ -530,11 +530,11 @@ export default defineComponent({
           }
         })
 
-        const currency = find(currencyList.value, { id: data?.currencyId })
+        const currency = find(currencyList.value, { id: data?.adProjectLaborDirectCosts[0].defaultCurrencyId })
 
         directlyPersonCost.predict = predictCount
         directlyPersonCost.actual = actualCount
-        directlyPersonCost.code = currency?.code
+        directlyPersonCost.code = currency?.code || 'JPY' // default JPY
       } finally {
         isLoadingBudgetTable.value = false
       }
