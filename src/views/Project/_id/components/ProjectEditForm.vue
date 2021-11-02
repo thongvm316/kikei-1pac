@@ -1,7 +1,7 @@
 <template>
   <a-form
     ref="projectFormRef"
-    class="project-add-form"
+    class="project-edit-form"
     :rules="projectFormRules"
     :model="projectParams"
     layout="vertical"
@@ -294,7 +294,12 @@
                               placeholder="選択してください"
                               :style="{ width: '300px' }"
                             >
-                              <a-select-option v-for="group in dataGroups" :key="group.id" :value="group.id">
+                              <a-select-option
+                                v-for="group in dataGroups"
+                                :key="group.id"
+                                :value="group.id"
+                                @click="onSelectGroup(group.depositCurrencyCode)"
+                              >
                                 {{ group.name }}
                               </a-select-option>
                             </a-select>
@@ -347,6 +352,55 @@
                         </td>
                       </tr>
                       <!-- accountID -->
+
+                      <tr>
+                        <td>金額</td>
+
+                        <td>
+                          <div class="moneyWrapper">
+                            <!-- money -->
+                            <a-form-item
+                              name="money"
+                              label="金額"
+                              class="u-relative"
+                              :class="{ 'has-error': localErrors['money'] }"
+                            >
+                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.money }}</span>
+                              <a-input-number
+                                v-else
+                                v-model:value="projectParams.money"
+                                placeholder="入力してください"
+                                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                :precision="0"
+                                :style="{ width: '150px' }"
+                              />
+                              <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{
+                                `(${depositCurrencyCode})`
+                              }}</span>
+                              <p v-if="localErrors['money']" class="ant-form-explain">
+                                {{ $t(`common.local_error.${localErrors['money']}`) }}
+                              </p>
+                            </a-form-item>
+                            <!-- money -->
+
+                            <!-- tax -->
+                            <a-form-item name="tax" label="税金">
+                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.tax }}</span>
+                              <a-input-number
+                                v-else
+                                v-model:value="projectParams.tax"
+                                :precision="0"
+                                :style="{ width: '68px' }"
+                                :min="0"
+                                :max="100"
+                              />
+
+                              <span class="u-ml-8 u-text-grey-75">%</span>
+                            </a-form-item>
+                            <!-- tax -->
+                          </div>
+                        </td>
+                      </tr>
 
                       <!-- tag  -->
                       <tr>
@@ -489,6 +543,12 @@ export default defineComponent({
 
     const routerNameToGo = ref()
     const answer = ref()
+
+    const depositCurrencyCode = ref()
+
+    const onSelectGroup = (currency) => {
+      depositCurrencyCode.value = currency
+    }
 
     onBeforeRouteLeave((to) => {
       // cancel the navigation and stay on the same page
@@ -807,6 +867,10 @@ export default defineComponent({
         ...type,
         label: t(`project.${type.label}`)
       }))
+
+      dataGroups.value?.forEach((group) => {
+        if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
+      })
       /* ------------------- ./get all datas --------------------------- */
 
       // init project params
@@ -851,9 +915,11 @@ export default defineComponent({
       accountName,
       isCollapse,
       isVisibleModalConfirmSubmit,
+      depositCurrencyCode,
 
       openCompanySearchForm,
       selectCompanyOnSearchForm,
+      onSelectGroup,
       onSubmit,
       createTag,
       removeTag,
@@ -870,7 +936,7 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
-.project-add-form {
+.project-edit-form {
   .modal-link {
     color: $color-additional-blue-6;
     margin-bottom: 0;
@@ -1078,18 +1144,18 @@ export default defineComponent({
       color: red;
     }
   }
-}
 
-.project-form-tags__tooltip {
-  .ant-tooltip-inner {
-    color: $color-grey-100;
-    background-color: $color-grey-35;
+  .moneyWrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
   }
-}
 
-.moneyWrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 32px;
+  .project-form-tags__tooltip {
+    .ant-tooltip-inner {
+      color: $color-grey-100;
+      background-color: $color-grey-35;
+    }
+  }
 }
 </style>

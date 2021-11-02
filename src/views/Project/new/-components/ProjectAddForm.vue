@@ -174,6 +174,38 @@
     </a-form-item>
     <!-- accountID -->
 
+    <div class="moneyWrapper">
+      <!-- money -->
+      <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
+        <a-input-number
+          v-model:value="projectParams.money"
+          placeholder="入力してください"
+          :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+          :precision="0"
+          :style="{ width: '300px' }"
+        />
+        <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
+        <p v-if="localErrors['money']" class="ant-form-explain">
+          {{ $t(`common.local_error.${localErrors['money']}`) }}
+        </p>
+      </a-form-item>
+      <!-- money -->
+
+      <!-- tax -->
+      <a-form-item name="tax" label="税金">
+        <a-input-number
+          v-model:value="projectParams.tax"
+          :precision="0"
+          :style="{ width: '68px' }"
+          :min="0"
+          :max="100"
+        />
+
+        <span class="u-ml-8 u-text-grey-75">%</span>
+      </a-form-item>
+      <!-- tax -->
+    </div>
+
     <!-- tag  -->
     <a-form-item name="tags" label="タグ">
       <a-input
@@ -276,6 +308,7 @@ export default defineComponent({
       director: '',
       tags: [],
       memo: '',
+      money: null,
       tax: null
     })
     const localErrors = ref({})
@@ -680,12 +713,18 @@ export default defineComponent({
   .ant-form-item-label {
     padding: 0 0 4px;
   }
-}
 
-.project-form-tags__tooltip {
-  .ant-tooltip-inner {
-    color: $color-grey-100;
-    background-color: $color-grey-35;
+  .project-form-tags__tooltip {
+    .ant-tooltip-inner {
+      color: $color-grey-100;
+      background-color: $color-grey-35;
+    }
+  }
+
+  .moneyWrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
   }
 }
 </style>

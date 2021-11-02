@@ -5,6 +5,7 @@
     <div class="project-detail__wrapper">
       <div :class="['project-detail__forms', isMinimiseProjectHistory && 'active']">
         <project-edit-form
+          v-if="!!projectRef"
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
           :project-ref="projectRef"
