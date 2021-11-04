@@ -392,28 +392,19 @@ export default defineComponent({
         ? moment(props.project?.value?.statisticsFromMonth)
         : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
     )
-
     const store = useStore()
     const authProfile = computed(() => store.state?.auth.authProfile)
-
     const currencyExchange = computed(() => props.currencyExchange)
     const costState = ref([])
-
     const isLoadingDataTable = ref()
-
     const isLoaddingSubmitButton = ref()
-
     const UNIQUE_ID_PREFIX = '__cost__'
-
     const state = reactive({
       indeterminate: false,
       checkAll: false
     })
-
     const costDeleteList = ref([])
-
     const checkedList = computed(() => costState.value.filter((item) => item.checked).map((item) => item.id))
-
     const salaryTotal = computed(() => {
       let total = 0
       costState.value.forEach((item) => {
@@ -422,8 +413,21 @@ export default defineComponent({
 
       return authProfile.value?.isAdmin ? total : totalSalaryCountForUser.value
     })
-
     const selectedCurrency = ref()
+    const selectedCurrencyCode = computed(() => {
+      const currency = find(currencyList.value, { id: selectedCurrency.value })
+
+      return currency?.code
+    })
+    const costStateToClone = ref([])
+    const costStateToCompare = ref()
+    const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
+    const totalSalaryCountForUser = ref()
+    const prevMonthFilter = ref()
+    const nextTab = ref()
+    const purposeConfirm = ref()
+    const isVisibleModalConfirmSubmit = ref()
+    const isVisibleModalConfirmClone = ref()
 
     const lowerCaseFirstLetter = (str) => {
       if (str) {
@@ -448,12 +452,6 @@ export default defineComponent({
         return newStr
       }
     }
-
-    const selectedCurrencyCode = computed(() => {
-      const currency = find(currencyList.value, { id: selectedCurrency.value })
-
-      return currency?.code
-    })
 
     const countSubTotal = (item) => {
       const {
@@ -588,11 +586,6 @@ export default defineComponent({
       ]
     }
 
-    const costStateToClone = ref([])
-    const costStateToCompare = ref()
-    const isHaveNoChangeCostState = computed(() => isEqual(costStateToCompare.value, costState.value))
-    const totalSalaryCountForUser = ref()
-
     const fetDataTable = async (type = activeKey.value, month = filterMonth.value) => {
       isLoadingDataTable.value = true
 
@@ -642,8 +635,6 @@ export default defineComponent({
       }
     }
 
-    const prevMonthFilter = ref()
-
     const hanleCancelConfirmSubmitModal = () => {
       if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
       prevMonthFilter.value = null
@@ -664,10 +655,6 @@ export default defineComponent({
         prevMonthFilter.value = oldVal
       }
     )
-
-    const nextTab = ref()
-    const purposeConfirm = ref()
-    const isVisibleModalConfirmSubmit = ref()
 
     const tabClick = (val) => {
       if (val === activeKey.value) return
@@ -704,8 +691,6 @@ export default defineComponent({
       })
     }
 
-    const isVisibleModalConfirmClone = ref()
-
     const cloneCostState = () => {
       costState.value.forEach((cost) => {
         if (cost.id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
@@ -730,9 +715,7 @@ export default defineComponent({
       }
     }
 
-    const handleConfirmCloneModal = () => {
-      cloneCostState()
-    }
+    const handleConfirmCloneModal = () => cloneCostState()
 
     onBeforeMount(async () => {
       const { result } = await getPositionList()

@@ -469,14 +469,10 @@
         </tbody>
       </table>
     </a-spin>
-
-    <!-- projectOrders -->
-
-    <!-- projectOrders -->
   </a-form>
 
   <modal-select-company v-model:visible="isCompanySearchFormOpen" @select-company="selectCompanyOnSearchForm" />
-  <ConfirmSubmitModal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
+  <confirm-submit-modal v-model:visible="isVisibleModalConfirmSubmit" @on-confirm="handleConfirmSubmitModal" />
 </template>
 
 <script>
@@ -484,15 +480,12 @@ import { defineComponent, ref, onBeforeMount, computed, watch, onMounted, onUnmo
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep, find, isEqual } from 'lodash-es'
-
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { editProject } from '../../composables/useProject'
-
 import { deepCopy } from '@/helpers/json-parser'
 import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
 import Filter from '@/filters'
-
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
@@ -540,14 +533,49 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
     const { t } = useI18n()
-
     const isEditing = ref()
     const isCollapse = ref()
-
     const routerNameToGo = ref()
     const answer = ref()
-
     const depositCurrencyCode = ref()
+    const isVisibleModalConfirmSubmit = ref()
+    const projectParams = ref({
+      companyId: null,
+      name: '',
+      code: '',
+      clientInCharge: '',
+      type: PROJECT_TYPES[0].value,
+      statusId: null,
+      accuracyId: null,
+      releaseDate: null,
+      statisticsMonth: null,
+      statisticsMonths: [null, null],
+      groupId: null,
+      accountId: null,
+      director: '',
+      money: null,
+      tags: [],
+      memo: '',
+      tax: null
+    })
+    const localErrors = ref({})
+    const loading = ref(false)
+    const valueTag = ref()
+    const isCompanySearchFormOpen = ref(false)
+    const companyTargetSearch = ref('owner') // owner || outsource
+    const outsouringCompanyTarget = ref()
+    const companyOwnerData = ref({})
+    const dataTypes = ref([])
+    const dataAccounts = computed(() => props.dataAccounts)
+    const dataGroups = computed(() => props.dataGroups)
+    const dataStatuses = computed(() => props.dataStatuses)
+    const dataAccuracies = computed(() => props.dataAccuracies)
+    const statusName = computed(() => find(dataStatuses.value, { id: projectParams.value.statusId }))
+    const accuracyName = computed(() => find(dataAccuracies.value, { id: projectParams.value.accuracyId }))
+    const groupName = computed(() => find(dataGroups.value, { id: projectParams.value.groupId }))
+    const accountName = computed(() => find(dataAccounts.value, { id: projectParams.value.accountId }))
+    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
+    const projectParamsToCompare = ref()
 
     const onSelectGroup = (currency) => {
       depositCurrencyCode.value = currency
@@ -561,8 +589,6 @@ export default defineComponent({
         return false
       }
     })
-
-    const isVisibleModalConfirmSubmit = ref()
 
     const handleConfirmSubmitModal = () => {
       isVisibleModalConfirmSubmit.value = false
@@ -590,49 +616,9 @@ export default defineComponent({
       }
     )
 
-    const projectParams = ref({
-      companyId: null,
-      name: '',
-      code: '',
-      clientInCharge: '',
-      type: PROJECT_TYPES[0].value,
-      statusId: null,
-      accuracyId: null,
-      releaseDate: null,
-      statisticsMonth: null,
-      statisticsMonths: [null, null],
-      groupId: null,
-      accountId: null,
-      director: '',
-      money: null,
-      tags: [],
-      memo: '',
-      tax: null
-    })
-    const localErrors = ref({})
-    const loading = ref(false)
-    const valueTag = ref()
-    const isCompanySearchFormOpen = ref(false)
-    const companyTargetSearch = ref('owner') // owner || outsource
-    const outsouringCompanyTarget = ref()
-    const companyOwnerData = ref({})
-
-    const dataTypes = ref([])
-    const dataAccounts = computed(() => props.dataAccounts)
-    const dataGroups = computed(() => props.dataGroups)
-    const dataStatuses = computed(() => props.dataStatuses)
-    const dataAccuracies = computed(() => props.dataAccuracies)
-
-    const statusName = computed(() => find(dataStatuses.value, { id: projectParams.value.statusId }))
-    const accuracyName = computed(() => find(dataAccuracies.value, { id: projectParams.value.accuracyId }))
-    const groupName = computed(() => find(dataGroups.value, { id: projectParams.value.groupId }))
-    const accountName = computed(() => find(dataAccounts.value, { id: projectParams.value.accountId }))
-
     const handleChangeStatisticsDateValue = (val) => {
       projectParams.value.statisticsMonths = val
     }
-
-    const isHaveChangeForm = computed(() => isEqual(projectParams.value, projectParamsToCompare.value))
 
     // input validator rules
     const projectFormRules = ref({
@@ -753,8 +739,6 @@ export default defineComponent({
     /* --------------------- ./handle check require statistic month --------------------- */
 
     /* -------------------- init data when project props ------------------------- */
-    const projectParamsToCompare = ref()
-
     const initProjectPropData = () => {
       if (!projectProp || (projectProp && !projectProp.value)) return
       const { value: projectPropValue } = projectProp

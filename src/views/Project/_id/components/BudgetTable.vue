@@ -350,15 +350,36 @@ export default defineComponent({
     })
     const currencyList = ref([])
     const currencyExchange = ref()
+    const isOpenRevenueModal = ref()
+    const revenueEstimateMoney = ref()
+    const remindInputStatisticMonthModal = ref()
+    const directlyPersonCost = reactive({
+      predict: 0,
+      actual: 0,
+      code: null
+    })
+    const revenueCost = reactive({
+      predict: {
+        total: 0,
+        code: null
+      },
+      actual: {
+        total: 0,
+        code: null
+      }
+    })
+    const month = computed(() =>
+      moment(new Date()).endOf('month') > moment(props.projectRef?.statisticsToMonth).endOf('month') ||
+      moment(new Date()).endOf('month') < moment(props.projectRef?.statisticsFromMonth).endOf('month')
+        ? moment(props.projectRef?.statisticsFromMonth)
+        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
+    )
+    const estimateCurrencyId = ref()
 
     const handleCancelEditForm = () => {
       isEditing.value = false
       revenueEstimateMoney.value = props?.project?.value?.estimate
     }
-
-    // revenue modal
-    const isOpenRevenueModal = ref()
-    const revenueEstimateMoney = ref()
 
     const handleOpenCostModal = (typeId) => {
       if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
@@ -373,8 +394,6 @@ export default defineComponent({
       titleCostModal.value = costFound.title
       costModalType.value = typeId
     }
-
-    const remindInputStatisticMonthModal = ref()
 
     const openModalRevenue = () => {
       if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
@@ -504,12 +523,6 @@ export default defineComponent({
       }
     }
 
-    const directlyPersonCost = reactive({
-      predict: 0,
-      actual: 0,
-      code: null
-    })
-
     const lowerCaseFirstLetter = (str) => {
       let newStr = ''
 
@@ -565,25 +578,6 @@ export default defineComponent({
       fetchLaborDirectCostList()
     }
 
-    const revenueCost = reactive({
-      predict: {
-        total: 0,
-        code: null
-      },
-      actual: {
-        total: 0,
-        code: null
-      }
-    })
-
-    const month = computed(() =>
-      moment(new Date()).endOf('month') > moment(props.projectRef?.statisticsToMonth).endOf('month') ||
-      moment(new Date()).endOf('month') < moment(props.projectRef?.statisticsFromMonth).endOf('month')
-        ? moment(props.projectRef?.statisticsFromMonth)
-        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
-    )
-
-    const estimateCurrencyId = ref()
     const fetchRevenueList = async () => {
       const { result } = await getRevenueList({
         projectId,
@@ -592,15 +586,11 @@ export default defineComponent({
       })
 
       const currentGroup = find(props?.dataGroups, { id: props?.project?.value?.groupId })
-
       const currentGroupCurrencyId = find(currencyList.value, { code: currentGroup.depositCurrencyCode })
-
       estimateCurrencyId.value = result?.data[0]?.currencyId || currentGroupCurrencyId?.id
-
       const currency = find(currencyList.value, {
         id: result?.data[0]?.currencyId
       })
-
       revenueCost.predict.code = currency?.code || currentGroup?.depositCurrencyCode
       revenueCost.actual.code = currency?.code || currentGroup?.depositCurrencyCode
 

@@ -507,7 +507,9 @@ export default defineComponent({
     const isSubmitLoading = ref()
     const isVisibleModalConfirmSubmit = ref()
     const isVisibleModalConfirmClone = ref()
-
+    const revenueItemList = ref([])
+    const revenueExpenseItemList = ref([])
+    const revenueQuantityUnit = ref([])
     const totalCostItems = computed(() => {
       let count = 0
 
@@ -518,6 +520,30 @@ export default defineComponent({
 
       return count
     })
+    const initialCurrencyCode = computed(() => {
+      const o = find(currencyList.value, { id: costState.value.currencyId })
+      const newStr = lowerCaseFirstLetter(o?.code)
+      return newStr
+    })
+    const selectCurrencyCode = computed(() => {
+      const o = find(currencyList.value, { id: currencyExchangeSelected.value })
+      const newStr = lowerCaseFirstLetter(o?.code)
+
+      return newStr
+    })
+    const state = reactive({
+      indeterminate: false,
+      checkAll: false
+    })
+    const checkedList = computed(() =>
+      costState.value.adProjectRevenueItems.filter((item) => item.checked).map((item) => item.id)
+    )
+    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+    const costDeleteList = ref([])
+    const costStateToClone = ref([])
+    const nextTab = ref()
+    const purposeConfirm = ref()
+    const prevMonthFilter = ref()
 
     const lowerCaseFirstLetter = (str) => {
       let newStr = ''
@@ -532,28 +558,6 @@ export default defineComponent({
 
       return newStr
     }
-
-    const initialCurrencyCode = computed(() => {
-      const o = find(currencyList.value, { id: costState.value.currencyId })
-      const newStr = lowerCaseFirstLetter(o?.code)
-      return newStr
-    })
-
-    const selectCurrencyCode = computed(() => {
-      const o = find(currencyList.value, { id: currencyExchangeSelected.value })
-      const newStr = lowerCaseFirstLetter(o?.code)
-
-      return newStr
-    })
-
-    const state = reactive({
-      indeterminate: false,
-      checkAll: false
-    })
-
-    const checkedList = computed(() =>
-      costState.value.adProjectRevenueItems.filter((item) => item.checked).map((item) => item.id)
-    )
 
     const onCheckAllChange = (e) => {
       Object.assign(state, {
@@ -575,8 +579,6 @@ export default defineComponent({
         state.checkAll = !!val.length && val.length === costState.value?.adProjectRevenueItems?.length
       }
     )
-
-    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
 
     const handleCancel = () => {
       if (isHaveNoChangeCostState.value) {
@@ -611,8 +613,6 @@ export default defineComponent({
       ]
     }
 
-    const costDeleteList = ref([])
-
     const handleDeleteCostItem = () => {
       checkedList.value.forEach((id) => {
         if (id.toString().indexOf(UNIQUE_ID_PREFIX) === -1) {
@@ -622,8 +622,6 @@ export default defineComponent({
         costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.filter((item) => item.id !== id)
       })
     }
-
-    const costStateToClone = ref([])
 
     const cloneCostState = () => {
       costState.value.adProjectRevenueItems.forEach((cost) => {
@@ -713,9 +711,6 @@ export default defineComponent({
       }
     }
 
-    const nextTab = ref()
-    const purposeConfirm = ref()
-
     const tabClick = (val) => {
       if (isHaveNoChangeCostState.value) {
         fetchRevenueProject(val, filterMonth.value)
@@ -739,8 +734,6 @@ export default defineComponent({
         fetchRevenueProject(activeKey.value, filterMonth.value)
       }
     }
-
-    const prevMonthFilter = ref()
 
     const hanleCancelConfirmSubmitModal = () => {
       if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
@@ -828,10 +821,6 @@ export default defineComponent({
 
       costState.value.adProjectRevenueItems[costIndex].isEditUnitPrice = false
     }
-
-    const revenueItemList = ref([])
-    const revenueExpenseItemList = ref([])
-    const revenueQuantityUnit = ref([])
 
     onBeforeMount(async () => {
       // get revenue item

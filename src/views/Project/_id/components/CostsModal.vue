@@ -126,7 +126,6 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useRoute } from 'vue-router'
 import { find, uniqueId, sumBy, cloneDeep, isEqual } from 'lodash-es'
 import { CalendarOutlined } from '@ant-design/icons-vue'
-
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import {
   getOrderCostList,
@@ -139,7 +138,6 @@ import {
   upsertMaterialCost,
   deleteMaterialCost
 } from '../../composables/useCosts'
-
 import LineAddIcon from '@/assets/icons/ico_line-add.svg'
 import CopyIcon from '@/assets/icons/ico_copy.svg'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
@@ -170,14 +168,12 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const route = useRoute()
-
     const disabledDate = (current) => {
       return (
         (current && current < moment(props.project.value.statisticsFromMonth).startOf('month')) ||
         (current && current > moment(props.project.value.statisticsToMonth).endOf('month'))
       )
     }
-
     const projectId = Number(route.params?.id)
     const defaultCostItem = {
       projectId: projectId,
@@ -187,26 +183,22 @@ export default defineComponent({
       currencyId: null
     }
     const UNIQUE_ID_PREFIX = '__cost__'
-
     const activeKey = ref('1')
     const currencyList = computed(() => props.currencyList)
     const costState = ref([])
     const costDeleteList = ref([])
     const isVisibleModalConfirmClone = ref()
-
     const isDataLoading = ref(false)
     const isSubmitLoading = ref(false)
     const isOrderCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[0].id)
     const isMaterialCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[1].id)
     const isDirectCostModal = computed(() => props.costModalType === COST_MODAL_TYPES[2].id)
     const isDisableCloneCost = computed(() => costStateToClone.value.length < 1)
-
     const currencyIdDefault = computed(() => {
       const JPYFound = find(currencyList.value, { code: 'JPY' })
       if (!JPYFound) return null
       return JPYFound.id
     })
-
     const totalCosts = computed(() => {
       return currencyList.value
         .map((currency) => {
@@ -223,6 +215,19 @@ export default defineComponent({
         })
         .filter((item) => item.total !== null)
     })
+    const costStateToCompare = ref([])
+    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
+    const isVisibleModalConfirmSubmit = ref()
+    const nextTab = ref()
+    const purposeConfirm = ref()
+    const costStateToClone = ref()
+    const filterMonth = ref(
+      moment(new Date()).endOf('month') > moment(props.project?.value?.statisticsToMonth).endOf('month') ||
+        moment(new Date()).endOf('month') < moment(props.project?.value?.statisticsFromMonth).endOf('month')
+        ? moment(props.project?.value?.statisticsFromMonth)
+        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
+    )
+    const prevMonthFilter = ref()
 
     const createCostItem = () => ({
       ...defaultCostItem,
@@ -267,9 +272,7 @@ export default defineComponent({
       }
     }
 
-    const handleConfirmCloneModal = () => {
-      cloneCostState()
-    }
+    const handleConfirmCloneModal = () => cloneCostState()
 
     const handleCancel = () => {
       if (isHaveNoChangeCostState.value) {
@@ -329,13 +332,6 @@ export default defineComponent({
       }
     }
 
-    const costStateToCompare = ref([])
-    const isHaveNoChangeCostState = computed(() => isEqual(costState.value, costStateToCompare.value))
-
-    const isVisibleModalConfirmSubmit = ref()
-    const nextTab = ref()
-    const purposeConfirm = ref()
-
     const tabClick = (val) => {
       if (val === activeKey.value) return
 
@@ -362,17 +358,6 @@ export default defineComponent({
         fetchDataDirectList(activeKey.value, filterMonth.value)
       }
     }
-
-    const costStateToClone = ref()
-
-    const filterMonth = ref(
-      moment(new Date()).endOf('month') > moment(props.project?.value?.statisticsToMonth).endOf('month') ||
-        moment(new Date()).endOf('month') < moment(props.project?.value?.statisticsFromMonth).endOf('month')
-        ? moment(props.project?.value?.statisticsFromMonth)
-        : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
-    )
-
-    const prevMonthFilter = ref()
 
     const hanleCancelConfirmSubmitModal = () => {
       if (prevMonthFilter.value) filterMonth.value = prevMonthFilter.value
