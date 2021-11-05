@@ -733,7 +733,7 @@ export default defineComponent({
           }
         ]
 
-        projectFormRef.value.validateFields(['statisticsMonth', 'statisticsMonths'])
+        projectFormRef.value && projectFormRef.value.validateFields(['statisticsMonth', 'statisticsMonths'])
       }
     }
     /* --------------------- ./handle check require statistic month --------------------- */
