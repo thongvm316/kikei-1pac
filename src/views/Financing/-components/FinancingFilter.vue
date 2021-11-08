@@ -150,7 +150,7 @@ import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodL
 import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
 import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
 
-import { convertDataFilter, findCurrentPeriod } from '@/helpers/extend-financing'
+import { addDaysInCurrentDate, convertDataFilter, currentDate, findCurrentPeriod } from '@/helpers/extend-financing'
 import { CalendarOutlined } from '@ant-design/icons-vue'
 import IconCsv from '@/assets/icons/ico_csv.svg'
 import { SHOW_BY, VIEW_MODE } from '@/enums/financing.enum'
@@ -311,6 +311,11 @@ export default {
           ? moment(fromDateRangePicker.value).startOf('month').format('YYYY-MM-DD')
           : null
         toDateBytMonth = toDateBytMonth ? moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD') : null
+        store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+      } else {
+        fromDateBytMonth = currentDate()
+        toDateBytMonth = addDaysInCurrentDate(null, 59) || null
+        store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
       }
       updateDataFilterRequest({
         data: {
@@ -337,7 +342,8 @@ export default {
         forEach(periodList.value, (value) => {
           value.currentPeriod ? (filter.period_id = value.id) : null
         })
-        updateDataFilterRequest({ data: { group_id: value, period_id: filter.period_id } })
+        updateDataFilterRequest({ data: { group_id: value } })
+        store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
       } else {
         filter.show_by = 0
         isTabAllGroup.value = true
@@ -442,17 +448,33 @@ export default {
 
       if (periodID) {
         filter.period_id = periodID
+        updateDataFilterRequest({ data: { group_id: groupID, period_id: filter.period_id } })
       } else {
         let flagChart = JSON.parse(localStorage.getItem('flag_chart'))
         if (localStorage.getItem('flag_chart') === null || !flagChart) {
           forEach(periodList.value, (value) => {
             value.currentPeriod ? (filter.period_id = value.id) : null
           })
+          filter.date_from_to[0] = null
+          filter.date_from_to[1] = null
+          store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+          store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(null, 59) || null)
+          store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
+          updateDataFilterRequest({
+            data: {
+              group_id: groupID,
+              from_date: currentDate() || null,
+              to_date: addDaysInCurrentDate(null, 59) || null
+            }
+          })
         } else {
+          const filtersFinancingStore = store.getters['financing/filters'].data || {}
           filter.period_id = null
+          filter.from_date = filtersFinancingStore.from_date || null
+          filter.to_date = filtersFinancingStore.to_date || null
+          updateDataFilterRequest({ data: { group_id: groupID, from_date: filter.from_date, to_date: filter.to_date } })
         }
       }
-      updateDataFilterRequest({ data: { group_id: groupID, period_id: filter.period_id } })
     }
 
     const handleBankAccountDefault = (bankAccountIds) => {

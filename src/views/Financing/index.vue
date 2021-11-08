@@ -24,14 +24,20 @@ import { defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'v
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import moment from 'moment'
-import { isEmpty, remove } from 'lodash-es'
+import { forEach, isEmpty, remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
 
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
 import FinancingFilter from '@/views/Financing/-components/FinancingFilter'
 
-import { convertDataByDates, convertDataByMonth, convertDataCsv } from '@/helpers/extend-financing'
+import {
+  addDaysInCurrentDate,
+  convertDataByDates,
+  convertDataByMonth,
+  convertDataCsv,
+  currentDate
+} from '@/helpers/extend-financing'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
@@ -64,6 +70,9 @@ export default defineComponent({
     const dataFilterTable = ref({})
     const height = ref(0)
     const pagination = ref({})
+    const scrollCustom = ref({})
+    const startedDate = ref({})
+    const finishedDate = ref({})
 
     const isLoading = ref(false)
     const isLoadingDataTable = ref(true)
@@ -73,7 +82,8 @@ export default defineComponent({
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
-    const scrollCustom = ref({})
+    const checkScrollUp = ref(false)
+    const checkStartedDate = ref(false)
 
     // data for request financing
     const initialDataRequest = {
@@ -199,7 +209,7 @@ export default defineComponent({
     }
 
     const convertDataTableRows = async (data) => {
-      if (data) {
+      if (data && !checkScrollUp.value) {
         for (let i = 0; i < data.length; i++) {
           if (requestParamsData.value.data.show_by === 1) {
             dataRows.value = Object.assign(
@@ -215,6 +225,23 @@ export default defineComponent({
           dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
           dataRows.value['totalMoney'] = data[i].totalMoney
           dataRowsTableFinancing.value.push(dataRows.value)
+        }
+      } else {
+        for (let i = data.length - 1; i > 0; i--) {
+          if (requestParamsData.value.data.show_by === 1) {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByDates(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          } else {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          }
+          dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
+          dataRows.value['totalMoney'] = data[i].totalMoney
+          dataRowsTableFinancing.value.unshift(dataRows.value)
         }
       }
     }
@@ -299,19 +326,141 @@ export default defineComponent({
     watch(dataRowsTableFinancing.value, () => {
       const tableContent = document.querySelector('.ant-table-body')
 
-      if (tableContent) {
-        tableContent.addEventListener('scroll', () => {
-          // checking whether a selector is well defined
-          const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-          if (per >= 100 && !isLoadingDataTable.value) {
-            const pageCurrent = pagination.value.current + 1
+      forEach(store.state.financing.getPeriod, (value) => {
+        if (value.currentPeriod) {
+          startedDate.value = moment(value.startedDate).format('YYYY-MM-DD')
+          finishedDate.value = moment(value.finishedDate).format('YYYY-MM-DD')
+        }
+      })
 
-            if (pageCurrent <= pagination.value.totalPage) {
-              updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
+      tableContent.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+
+        if (store.state.financing.checkScrollDownFirst) {
+          if (addDaysInCurrentDate(requestParamsData.value.data.from_date, -60) > startedDate.value) {
+            checkStartedDate.value = true
+
+            if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+              checkScrollUp.value = true
+              updateParamRequestFinancing({
+                data: {
+                  from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
+                  to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+                }
+              })
+              store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 60))
             }
+          } else {
+            checkStartedDate.value = false
+            if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+              checkScrollUp.value = true
+              updateParamRequestFinancing({
+                data: {
+                  from_date: addDaysInCurrentDate(startedDate.value, -1),
+                  to_date: store.state.financing.fromDate
+                }
+              })
+            }
+            store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
           }
-        })
-      }
+        }
+
+        const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+
+        if (addDaysInCurrentDate(requestParamsData.value.data.to_date, 60) < finishedDate.value) {
+          checkStartedDate.value = true
+          if (per === 100 && !isLoadingDataTable.value) {
+            checkScrollUp.value = false
+            updateParamRequestFinancing({
+              data: {
+                from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
+                to_date: addDaysInCurrentDate(store.state.financing.toDate, 60)
+              }
+            })
+            store.commit(
+              'financing/STORE_FINANCING_FILTER_TO_DATE',
+              addDaysInCurrentDate(store.state.financing.toDate, 60)
+            )
+          }
+        } else {
+          checkStartedDate.value = false
+          if (per === 100 && !isLoadingDataTable.value) {
+            checkScrollUp.value = false
+            updateParamRequestFinancing({
+              data: {
+                from_date: addDaysInCurrentDate(requestParamsData.value.data.to_date, -1),
+                to_date: finishedDate.value
+              }
+            })
+          }
+        }
+
+        // if (tableContent) {
+        //   console.log('5')
+        //   tableContent.addEventListener('scroll', () => {
+        //     // checking whether a selector is well defined
+        //     const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+        //
+        //     if (
+        //       finishedDate.value <= requestParamsData.value.data.to_date ||
+        //       startedDate.value >= requestParamsData.value.data.from_date
+        //     ) {
+        //       return
+        //     }
+        //
+        //     if (per >= 100 && !isLoadingDataTable.value) {
+        //       console.log('6')
+        //       checkScrollUp.value = false
+        //       updateParamRequestFinancing({
+        //         data: {
+        //           from_date:
+        //             finishedDate.value >= addDaysInCurrentDate(requestParamsData.value.data.to_date, 60)
+        //               ? addDaysInCurrentDate(store.state.financing.toDate, 1)
+        //               : addDaysInCurrentDate(requestParamsData.value.data.to_date, 1),
+        //           to_date:
+        //             finishedDate.value >= addDaysInCurrentDate(requestParamsData.value.data.to_date, 60)
+        //               ? addDaysInCurrentDate(store.state.financing.toDate, 60)
+        //               : finishedDate.value
+        //         }
+        //       })
+        //       store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', requestParamsData.value.data.to_date)
+        //     }
+        //
+        //     if (startedDate.value <= addDaysInCurrentDate(requestParamsData.value.data.from_date, -60)) {
+        //       if (per === 0 && !isLoadingDataTable.value) {
+        //         console.log('7')
+        //         checkScrollUp.value = true
+        //         if (finishedDate.value <= requestParamsData.value.data.to_date) return
+        //
+        //         updateParamRequestFinancing({
+        //           data: {
+        //             from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
+        //             to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+        //           }
+        //         })
+        //         store.commit(
+        //           'financing/STORE_FINANCING_FILTER_FROM_DATE',
+        //           addDaysInCurrentDate(store.state.financing.fromDate, -60)
+        //         )
+        //       }
+        //     } else {
+        //       if (per === 0 && !isLoadingDataTable.value) {
+        //         console.log('8')
+        //         checkScrollUp.value = true
+        //         if (finishedDate.value <= requestParamsData.value.data.to_date) return
+        //
+        //         updateParamRequestFinancing({
+        //           data: {
+        //             from_date: addDaysInCurrentDate(startedDate.value, -1),
+        //             to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+        //           }
+        //         })
+        //         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', addDaysInCurrentDate(startedDate.value, -1))
+        //       }
+        //     }
+        //   })
+        // }
+      })
     })
 
     // watch to event click table financing
