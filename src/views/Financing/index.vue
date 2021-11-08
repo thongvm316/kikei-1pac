@@ -228,7 +228,7 @@ export default defineComponent({
           dataRowsTableFinancing.value.push(dataRows.value)
         }
       } else {
-        for (let i = data.length - 1; i > 0; i--) {
+        for (let i = data.length - 1; i >= 0; i--) {
           if (requestParamsData.value.data.show_by === 1) {
             dataRows.value = Object.assign(
               {},
@@ -363,7 +363,7 @@ export default defineComponent({
               })
               store.commit(
                 'financing/STORE_FINANCING_FILTER_FROM_DATE',
-                addDaysInCurrentDate(store.state.financing.fromDate, -59)
+                addDaysInCurrentDate(store.state.financing.fromDate, -60)
               )
             }
           } else {
