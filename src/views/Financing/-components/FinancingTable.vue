@@ -9,6 +9,7 @@
     :row-key="(record) => record.date"
     :pagination="false"
     :loading="isLoadingDataTable"
+    :row-class-name="(record, index) => rowClassName(record, index)"
     @change="changeFinancingTable"
   >
     <!-- custom column date -->
@@ -150,6 +151,7 @@ export default defineComponent({
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
     const dataFilterRequest = ref({})
+
     emptyTextHTML.value = {
       emptyText: (
         <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.financing_list.emptyData')}</div>
@@ -292,6 +294,11 @@ export default defineComponent({
 
       emit('on-sort', emitData)
     }
+
+    const rowClassName = (record) => {
+      return record.date === moment().format('YYYY/MM/DD') ? 'table-striped' : null
+    }
+
     onMounted(() => {
       handleDateColumn()
     })
@@ -305,10 +312,11 @@ export default defineComponent({
 
     return {
       t,
-      useRoute,
       dataByDate,
       emptyTextHTML,
       isDisabledEventClick,
+      rowClassName,
+      useRoute,
       dataToolTip,
       showToolTipData,
       handlePageRedirect,

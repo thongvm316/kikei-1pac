@@ -121,6 +121,10 @@
   td {
     white-space: nowrap;
   }
+  
+  .table-striped td {
+    background-color: #FFF9C4;
+  }
 
   .ant-table-content {
     border: none;
