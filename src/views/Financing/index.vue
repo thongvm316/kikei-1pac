@@ -35,8 +35,7 @@ import {
   addDaysInCurrentDate,
   convertDataByDates,
   convertDataByMonth,
-  convertDataCsv,
-  currentDate
+  convertDataCsv
 } from '@/helpers/extend-financing'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
@@ -84,6 +83,8 @@ export default defineComponent({
     const isLoadingExportCsv = ref(false)
     const checkScrollUp = ref(false)
     const checkStartedDate = ref(false)
+    const checkStartedPeriod = ref(false)
+    const checkFinishedPeriod = ref(false)
 
     // data for request financing
     const initialDataRequest = {
@@ -334,10 +335,22 @@ export default defineComponent({
       })
 
       tableContent.addEventListener('wheel', (e) => {
-        if (e.deltaY > 0) store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+        if (e.deltaY > 0) {
+          checkStartedPeriod.value = false
+          checkFinishedPeriod.value = false
+          store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+        } else {
+          checkStartedPeriod.value = false
+          checkFinishedPeriod.value = false
+          store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
+        }
 
-        if (store.state.financing.checkScrollDownFirst) {
-          if (addDaysInCurrentDate(requestParamsData.value.data.from_date, -60) > startedDate.value) {
+        const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+
+        if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
+
+        if (store.state.financing.checkScrollDownFirst && per === 0) {
+          if (addDaysInCurrentDate(store.state.financing.fromDate, -60) > startedDate.value) {
             checkStartedDate.value = true
 
             if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
@@ -348,26 +361,35 @@ export default defineComponent({
                   to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
                 }
               })
-              store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 60))
+              store.commit(
+                'financing/STORE_FINANCING_FILTER_FROM_DATE',
+                addDaysInCurrentDate(store.state.financing.fromDate, -59)
+              )
             }
           } else {
-            checkStartedDate.value = false
-            if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
-              checkScrollUp.value = true
-              updateParamRequestFinancing({
-                data: {
-                  from_date: addDaysInCurrentDate(startedDate.value, -1),
-                  to_date: store.state.financing.fromDate
-                }
-              })
+            if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
+
+            if (!checkStartedPeriod.value) {
+              checkStartedDate.value = false
+              if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+                checkScrollUp.value = true
+                updateParamRequestFinancing({
+                  data: {
+                    from_date: addDaysInCurrentDate(startedDate.value, -1),
+                    to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+                  }
+                })
+                store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+                store.commit(
+                  'financing/STORE_FINANCING_FILTER_FROM_DATE',
+                  addDaysInCurrentDate(store.state.financing.fromDate, -60)
+                )
+              }
             }
-            store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
           }
         }
 
-        const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-
-        if (addDaysInCurrentDate(requestParamsData.value.data.to_date, 60) < finishedDate.value) {
+        if (addDaysInCurrentDate(store.state.financing.toDate, 60) < finishedDate.value) {
           checkStartedDate.value = true
           if (per === 100 && !isLoadingDataTable.value) {
             checkScrollUp.value = false
@@ -383,83 +405,22 @@ export default defineComponent({
             )
           }
         } else {
-          checkStartedDate.value = false
-          if (per === 100 && !isLoadingDataTable.value) {
-            checkScrollUp.value = false
-            updateParamRequestFinancing({
-              data: {
-                from_date: addDaysInCurrentDate(requestParamsData.value.data.to_date, -1),
-                to_date: finishedDate.value
-              }
-            })
+          if (per === 100 && store.state.financing.toDate >= finishedDate.value) checkFinishedPeriod.value = true
+
+          if (!checkFinishedPeriod.value) {
+            checkStartedDate.value = false
+            if (per === 100 && !isLoadingDataTable.value) {
+              checkScrollUp.value = false
+              updateParamRequestFinancing({
+                data: {
+                  from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
+                  to_date: finishedDate.value
+                }
+              })
+              store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', finishedDate.value)
+            }
           }
         }
-
-        // if (tableContent) {
-        //   console.log('5')
-        //   tableContent.addEventListener('scroll', () => {
-        //     // checking whether a selector is well defined
-        //     const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-        //
-        //     if (
-        //       finishedDate.value <= requestParamsData.value.data.to_date ||
-        //       startedDate.value >= requestParamsData.value.data.from_date
-        //     ) {
-        //       return
-        //     }
-        //
-        //     if (per >= 100 && !isLoadingDataTable.value) {
-        //       console.log('6')
-        //       checkScrollUp.value = false
-        //       updateParamRequestFinancing({
-        //         data: {
-        //           from_date:
-        //             finishedDate.value >= addDaysInCurrentDate(requestParamsData.value.data.to_date, 60)
-        //               ? addDaysInCurrentDate(store.state.financing.toDate, 1)
-        //               : addDaysInCurrentDate(requestParamsData.value.data.to_date, 1),
-        //           to_date:
-        //             finishedDate.value >= addDaysInCurrentDate(requestParamsData.value.data.to_date, 60)
-        //               ? addDaysInCurrentDate(store.state.financing.toDate, 60)
-        //               : finishedDate.value
-        //         }
-        //       })
-        //       store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', requestParamsData.value.data.to_date)
-        //     }
-        //
-        //     if (startedDate.value <= addDaysInCurrentDate(requestParamsData.value.data.from_date, -60)) {
-        //       if (per === 0 && !isLoadingDataTable.value) {
-        //         console.log('7')
-        //         checkScrollUp.value = true
-        //         if (finishedDate.value <= requestParamsData.value.data.to_date) return
-        //
-        //         updateParamRequestFinancing({
-        //           data: {
-        //             from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
-        //             to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
-        //           }
-        //         })
-        //         store.commit(
-        //           'financing/STORE_FINANCING_FILTER_FROM_DATE',
-        //           addDaysInCurrentDate(store.state.financing.fromDate, -60)
-        //         )
-        //       }
-        //     } else {
-        //       if (per === 0 && !isLoadingDataTable.value) {
-        //         console.log('8')
-        //         checkScrollUp.value = true
-        //         if (finishedDate.value <= requestParamsData.value.data.to_date) return
-        //
-        //         updateParamRequestFinancing({
-        //           data: {
-        //             from_date: addDaysInCurrentDate(startedDate.value, -1),
-        //             to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
-        //           }
-        //         })
-        //         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', addDaysInCurrentDate(startedDate.value, -1))
-        //       }
-        //     }
-        //   })
-        // }
       })
     })
 

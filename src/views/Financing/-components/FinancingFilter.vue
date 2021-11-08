@@ -268,8 +268,8 @@ export default {
       updateDataFilterRequest({
         data: {
           period_id: filter.period_id,
-          from_date: null,
-          to_date: null
+          from_date: currentDate() || null,
+          to_date: addDaysInCurrentDate(currentDate(), 59) || null
         }
       })
     }
@@ -344,6 +344,9 @@ export default {
         })
         updateDataFilterRequest({ data: { group_id: value } })
         store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
+        store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
+        store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+        store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
       } else {
         filter.show_by = 0
         isTabAllGroup.value = true
@@ -458,7 +461,7 @@ export default {
           filter.date_from_to[0] = null
           filter.date_from_to[1] = null
           store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
-          store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(null, 59) || null)
+          store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
           store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
           updateDataFilterRequest({
             data: {
