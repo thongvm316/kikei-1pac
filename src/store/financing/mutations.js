@@ -4,7 +4,8 @@ import {
   STORE_FINANCING_FILTER_TO_DATE,
   STORE_FINANCING_FILTER_FROM_DATE,
   STORE_FINANCING_IS_CHECK_SCROLL,
-  STORE_FINANCING_GET_PERIOD
+  STORE_FINANCING_GET_PERIOD,
+  STORE_FINANCING_IS_SHOW_BY
 } from '../mutation-types'
 
 const mutations = {
@@ -32,6 +33,10 @@ const mutations = {
 
   [STORE_FINANCING_IS_CHECK_SCROLL](state, payload) {
     state.checkScrollDownFirst = payload
+  },
+
+  [STORE_FINANCING_IS_SHOW_BY](state, payload) {
+    state.checkShowBy = payload
   },
 
   [CLEAR_FINANCING_FILTER](state) {

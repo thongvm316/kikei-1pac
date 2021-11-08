@@ -3,7 +3,8 @@ const state = {
   getPeriod: {},
   fromDate: '',
   toDate: '',
-  checkScrollDownFirst: true
+  checkScrollDownFirst: true,
+  checkShowBy: true
 }
 
 export default state
