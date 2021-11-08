@@ -344,7 +344,14 @@ export default {
         forEach(periodList.value, (value) => {
           value.currentPeriod ? (filter.period_id = value.id) : null
         })
-        updateDataFilterRequest({ data: { group_id: value, period_id: null } })
+        updateDataFilterRequest({
+          data: {
+            group_id: value,
+            period_id: null,
+            from_date: currentDate() || null,
+            to_date: addDaysInCurrentDate(currentDate(), 59) || null
+          }
+        })
         store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
