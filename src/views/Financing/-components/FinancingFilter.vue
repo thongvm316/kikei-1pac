@@ -348,14 +348,17 @@ export default {
           data: {
             group_id: value,
             period_id: null,
-            from_date: currentDate() || null,
-            to_date: addDaysInCurrentDate(currentDate(), 59) || null
+            from_date: filter.show_by === 0 ? null : currentDate() || null,
+            to_date: filter.show_by === 0 ? null : addDaysInCurrentDate(currentDate(), 59) || null
           }
         })
         store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
         store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
+        filter.show_by === 0
+          ? store.commit('financing/STORE_FINANCING_IS_SHOW_BY', false)
+          : store.commit('financing/STORE_FINANCING_IS_SHOW_BY', true)
       } else {
         filter.show_by = 0
         isTabAllGroup.value = true
@@ -364,6 +367,7 @@ export default {
           value.currentPeriod ? (filter.period_id = value.id) : null
         })
         filter.date_from_to[0] = filter.date_from_to[1] = null
+        store.commit('financing/STORE_FINANCING_IS_SHOW_BY', false)
         updateDataFilterRequest({
           data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
         })
@@ -451,6 +455,9 @@ export default {
         isDisabledBank.value = true
       } else {
         filter.group_id = groupID
+        filter.period_id = periodID
+        filter.date_from_to[0] = null
+        filter.date_from_to[1] = null
         isDisabledDisplay.value = false
         isDisabledBank.value = false
 
@@ -475,8 +482,8 @@ export default {
           updateDataFilterRequest({
             data: {
               group_id: groupID,
-              from_date: currentDate() || null,
-              to_date: addDaysInCurrentDate(null, 59) || null
+              from_date: filter.show_by === 0 ? null : currentDate() || null,
+              to_date: filter.show_by === 0 ? null : addDaysInCurrentDate(currentDate(), 59) || null
             }
           })
         } else {
