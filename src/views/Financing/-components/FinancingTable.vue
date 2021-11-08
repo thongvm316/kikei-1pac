@@ -296,6 +296,10 @@ export default defineComponent({
     }
 
     const rowClassName = (record) => {
+      if (moment(record.date).format('MM') === '11' && !store.state.financing.checkScrollDownFirst) {
+        return 'table-striped'
+      }
+
       return record.date === moment().format('YYYY/MM/DD') ? 'table-striped' : null
     }
 

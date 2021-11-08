@@ -1,9 +1,9 @@
 const state = {
   filters: {},
+  getPeriod: {},
   fromDate: '',
   toDate: '',
-  checkScrollDownFirst: true,
-  getPeriod: {}
+  checkScrollDownFirst: true
 }
 
 export default state
