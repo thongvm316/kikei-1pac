@@ -312,10 +312,12 @@ export default {
           : null
         toDateBytMonth = toDateBytMonth ? moment(toDateRangePicker.value).endOf('month').format('YYYY-MM-DD') : null
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+        store.commit('financing/STORE_FINANCING_IS_SHOW_BY', false)
       } else {
         fromDateBytMonth = currentDate()
         toDateBytMonth = addDaysInCurrentDate(null, 59) || null
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
+        store.commit('financing/STORE_FINANCING_IS_SHOW_BY', true)
       }
       updateDataFilterRequest({
         data: {
@@ -342,7 +344,7 @@ export default {
         forEach(periodList.value, (value) => {
           value.currentPeriod ? (filter.period_id = value.id) : null
         })
-        updateDataFilterRequest({ data: { group_id: value } })
+        updateDataFilterRequest({ data: { group_id: value, period_id: null } })
         store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)

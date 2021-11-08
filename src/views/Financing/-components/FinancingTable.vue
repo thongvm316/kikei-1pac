@@ -296,11 +296,11 @@ export default defineComponent({
     }
 
     const rowClassName = (record) => {
-      if (moment(record.date).format('MM') === '11' && !store.state.financing.checkScrollDownFirst) {
+      if (moment(record.date).format('MM') === '11' && !store.state.financing.checkShowBy) {
         return 'table-striped'
+      } else {
+        return record.date === moment().format('YYYY/MM/DD') ? 'table-striped' : null
       }
-
-      return record.date === moment().format('YYYY/MM/DD') ? 'table-striped' : null
     }
 
     onMounted(() => {
