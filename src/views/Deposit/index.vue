@@ -143,7 +143,7 @@
     v-model:is-disable-delete="isDisableDelete"
     @on-go-to-edit="onEditRecordDeposit"
     @on-go-to-copy="onCopyRecordDeposit"
-    @on-go-to-delete="onOpenDeleteDepositModal"
+    @on-go-to-delete="onOpenDeleteDepositModal('once')"
     @on-close-modal="onCloseModalAction"
   />
 
@@ -524,6 +524,7 @@ export default defineComponent({
     }
 
     const onOpenDeleteDepositModal = (deleteType) => {
+      deleteType === 'multiple' && (currentSelectedRecord.value = {})
       if (
         deleteType === 'multiple' ||
         (!currentSelectedRecord.value?.confirmed && currentSelectedRecord.value?.rootDepositId === null)
