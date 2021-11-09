@@ -337,75 +337,77 @@ export default defineComponent({
 
         if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
 
-        if (store.state.financing.checkScrollDownFirst && per === 0) {
-          if (addDaysInCurrentDate(store.state.financing.fromDate, -60) > startedDate.value) {
-            checkStartedDate.value = true
+        if (requestParamsData.value.data.show_by === 1) {
+          if (store.state.financing.checkScrollDownFirst && per === 0) {
+            if (addDaysInCurrentDate(store.state.financing.fromDate, -60) > startedDate.value) {
+              checkStartedDate.value = true
 
-            if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
-              checkScrollUp.value = true
-              updateParamRequestFinancing({
-                data: {
-                  from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
-                  to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
-                }
-              })
-              store.commit(
-                'financing/STORE_FINANCING_FILTER_FROM_DATE',
-                addDaysInCurrentDate(store.state.financing.fromDate, -60)
-              )
-            }
-          } else {
-            if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
-
-            if (!checkStartedPeriod.value) {
-              checkStartedDate.value = false
               if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
                 checkScrollUp.value = true
                 updateParamRequestFinancing({
                   data: {
-                    from_date: startedDate.value,
+                    from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
                     to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
                   }
                 })
-                store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
                 store.commit(
                   'financing/STORE_FINANCING_FILTER_FROM_DATE',
                   addDaysInCurrentDate(store.state.financing.fromDate, -60)
                 )
               }
+            } else {
+              if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
+
+              if (!checkStartedPeriod.value) {
+                checkStartedDate.value = false
+                if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+                  checkScrollUp.value = true
+                  updateParamRequestFinancing({
+                    data: {
+                      from_date: startedDate.value,
+                      to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+                    }
+                  })
+                  store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+                  store.commit(
+                    'financing/STORE_FINANCING_FILTER_FROM_DATE',
+                    addDaysInCurrentDate(store.state.financing.fromDate, -60)
+                  )
+                }
+              }
             }
           }
-        }
 
-        if (addDaysInCurrentDate(store.state.financing.toDate, 60) < finishedDate.value) {
-          checkStartedDate.value = true
-          if (per === 100 && !isLoadingDataTable.value) {
-            checkScrollUp.value = false
-            updateParamRequestFinancing({
-              data: {
-                from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
-                to_date: addDaysInCurrentDate(store.state.financing.toDate, 60)
-              }
-            })
-            store.commit(
-              'financing/STORE_FINANCING_FILTER_TO_DATE',
-              addDaysInCurrentDate(store.state.financing.toDate, 60)
-            )
-          }
-        } else {
-          if (per === 100 && store.state.financing.toDate >= finishedDate.value) checkFinishedPeriod.value = true
-
-          if (!checkFinishedPeriod.value) {
-            checkStartedDate.value = false
+          if (addDaysInCurrentDate(store.state.financing.toDate, 60) < finishedDate.value) {
+            checkStartedDate.value = true
             if (per === 100 && !isLoadingDataTable.value) {
               checkScrollUp.value = false
               updateParamRequestFinancing({
                 data: {
                   from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
-                  to_date: finishedDate.value
+                  to_date: addDaysInCurrentDate(store.state.financing.toDate, 60)
                 }
               })
-              store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', finishedDate.value)
+              store.commit(
+                'financing/STORE_FINANCING_FILTER_TO_DATE',
+                addDaysInCurrentDate(store.state.financing.toDate, 60)
+              )
+            }
+          } else {
+            if (per === 100 && store.state.financing.toDate >= finishedDate.value) checkFinishedPeriod.value = true
+
+            if (!checkFinishedPeriod.value) {
+              checkStartedDate.value = false
+              if (per === 100 && !isLoadingDataTable.value) {
+                checkScrollUp.value = false
+                updateParamRequestFinancing({
+                  data: {
+                    from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
+                    to_date: finishedDate.value
+                  }
+                })
+                store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', finishedDate.value)
+              }
             }
           }
         }

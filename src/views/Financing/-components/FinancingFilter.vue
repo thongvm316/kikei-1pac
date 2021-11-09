@@ -381,10 +381,14 @@ export default {
     const onChangeBankAccount = async () => {
       if (filter.bank_account_ids !== 0) {
         isDisabledCurrency.value = true
+        store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+        store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
         updateDataFilterRequest({
           data: {
             currency_code: null,
-            bank_account_ids: [filter.bank_account_ids]
+            bank_account_ids: [filter.bank_account_ids],
+            from_date: currentDate() || null,
+            to_date: addDaysInCurrentDate(currentDate(), 59) || null
           }
         })
       } else {
