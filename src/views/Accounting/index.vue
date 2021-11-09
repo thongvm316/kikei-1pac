@@ -279,7 +279,7 @@ export default defineComponent({
 
             ;(subItem?.data || []).map((subData) => {
               const monthStr = monthStrFormat(subData.month)
-              rowSubcategory[monthStr] = Math.round(subData.money);
+              rowSubcategory[monthStr] = Math.round(subData.money)
             })
 
             items.push(rowSubcategory)
