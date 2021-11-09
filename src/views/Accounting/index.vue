@@ -260,7 +260,7 @@ export default defineComponent({
         // add month data
         ;(category?.data || []).map((categoryMonth) => {
           const monthStr = monthStrFormat(categoryMonth.month)
-          rowCategory[monthStr] = categoryMonth.money
+          rowCategory[monthStr] = Math.round(categoryMonth.money)
         })
 
         items.push(rowCategory)
@@ -279,7 +279,7 @@ export default defineComponent({
 
             ;(subItem?.data || []).map((subData) => {
               const monthStr = monthStrFormat(subData.month)
-              rowSubcategory[monthStr] = subData.money
+              rowSubcategory[monthStr] = Math.round(subData.money);
             })
 
             items.push(rowSubcategory)
