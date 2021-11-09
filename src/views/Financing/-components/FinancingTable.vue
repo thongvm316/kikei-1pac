@@ -10,7 +10,6 @@
     :pagination="false"
     :loading="isLoadingDataTable"
     :row-class-name="(record, index) => rowClassName(record, index)"
-    @change="changeFinancingTable"
   >
     <!-- custom column date -->
     <template #customDate="{ text }">
@@ -94,11 +93,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import humps from 'humps'
 import moment from 'moment'
 
 import Table from '@/mixins/table.mixin'
-import { toOrderBy } from '@/helpers/table'
 import IconWarnings from '@/assets/icons/ico_warnings.svg'
 
 export default defineComponent({
@@ -286,15 +283,6 @@ export default defineComponent({
       }
     }
 
-    const changeFinancingTable = (pagination, filters, sorter) => {
-      const emitData = {
-        orderBy: toOrderBy(sorter.order),
-        field: humps.decamelize(sorter.field)
-      }
-
-      emit('on-sort', emitData)
-    }
-
     const rowClassName = (record) => {
       if (moment(record.date).format('MM') === '11' && !store.state.financing.checkShowBy) {
         return 'table-striped'
@@ -325,7 +313,6 @@ export default defineComponent({
       showToolTipData,
       handlePageRedirect,
       handlePageRedirectTotal,
-      changeFinancingTable,
       handleDateFilterRequest,
       handleDateColumn
     }

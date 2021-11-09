@@ -14,7 +14,6 @@
       :data-financing="dataRowsTableFinancing"
       :data-request="updateDataRequest"
       :scroll-custom="scrollCustom"
-      @on-sort="onSortTable"
       @on-filter-tables="onFilterTablesRender"
     />
   </section>
@@ -116,7 +115,6 @@ export default defineComponent({
         key: 'date',
         fixed: 'left',
         width: 160,
-        sorter: true,
         slots: { customRender: 'customDate' }
       },
       {
@@ -148,16 +146,6 @@ export default defineComponent({
         data: filter.data,
         params: filter.params
       })
-    }
-
-    const onSortTable = async (data) => {
-      let currentSortStr = null
-      if (data.orderBy !== null) {
-        currentSortStr = `${data.field} ${data.orderBy}`
-      }
-      remove(dataRowsTableFinancing.value)
-
-      updateParamRequestFinancing({ params: { orderBy: currentSortStr, pageNumber: 1 } })
     }
 
     const onFilterTablesRender = (data) => {
@@ -375,7 +363,7 @@ export default defineComponent({
                 checkScrollUp.value = true
                 updateParamRequestFinancing({
                   data: {
-                    from_date: addDaysInCurrentDate(startedDate.value, -1),
+                    from_date: startedDate.value,
                     to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
                   }
                 })
@@ -472,7 +460,6 @@ export default defineComponent({
       isLoadingExportCsv,
       onDataFilterRequest,
       onFilterTablesRender,
-      onSortTable,
       fetchDataTableFinancing,
       convertDataTableHeader,
       convertDataTableRows,

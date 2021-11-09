@@ -401,7 +401,15 @@ export default {
     }
 
     const onChangeCurrency = async () => {
-      updateDataFilterRequest({ data: { currency_code: filter.currency_code } })
+      store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+      store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
+      updateDataFilterRequest({
+        data: {
+          currency_code: filter.currency_code,
+          from_date: currentDate() || null,
+          to_date: addDaysInCurrentDate(currentDate(), 59) || null
+        }
+      })
     }
 
     const onExportFinancingCsv = () => {
