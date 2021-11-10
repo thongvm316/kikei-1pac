@@ -493,7 +493,7 @@ export default defineComponent({
     }
 
     const checkRepeatedExpriedDate = () => {
-      if (params.value.repeatedExpiredDate) {
+      if (params.value.repeatedExpiredDate && params.value.repeated !== 0) {
         const _repeatedExpiredDate = new Date(params.value.repeatedExpiredDate)
         const _date = new Date(params.value.date)
 
@@ -655,7 +655,7 @@ export default defineComponent({
         categoryId,
         subcategoryId,
         statisticsMonth,
-        repeatedExpiredDate,
+        repeatedExpiredDate: data.repeated === 0 ? null : repeatedExpiredDate,
         withdrawalBankAccountId,
         withdrawalMoney,
         depositBankAccountId,
