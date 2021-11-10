@@ -265,6 +265,9 @@ export default {
       toDateRangePicker.value = null
       isDisabledDate.value = !(event === undefined || event === null)
 
+      store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+      store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
+
       updateDataFilterRequest({
         data: {
           period_id: filter.period_id,
