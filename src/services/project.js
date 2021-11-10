@@ -76,5 +76,9 @@ export default {
 
   deleteRevenueItem(data) {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.project}/revenue-item/delete`, data })
+  },
+
+  getSuggestSearch(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.project}/suggest`, params })
   }
 }

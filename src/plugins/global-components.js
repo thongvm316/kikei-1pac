@@ -26,7 +26,8 @@ import {
   Spin,
   Dropdown,
   Upload,
-  Space
+  Space,
+  AutoComplete
 } from 'ant-design-vue'
 
 const globalComponents = (app) => {
@@ -57,6 +58,7 @@ const globalComponents = (app) => {
     .use(Dropdown)
     .use(Upload)
     .use(Space)
+    .use(AutoComplete)
 
   // Config global notification
   app.config.globalProperties.$notification = notification

@@ -141,11 +141,13 @@
             <div class="form-content">
               <label class="form-label">{{ $t('project.project_name') }}</label>
               <div class="form-checkbox">
-                <a-input
+                <a-auto-complete
                   v-model:value="state.name"
+                  :options="options"
                   style="width: 340px"
                   name="projectName"
                   :placeholder="$t('project.purpose_placeholder')"
+                  @search="onSearch"
                 />
               </div>
             </div>
@@ -173,7 +175,7 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import moment from 'moment'
-import { isEqual, pick, find, cloneDeep } from 'lodash-es'
+import { isEqual, pick, cloneDeep, forEach } from 'lodash-es'
 
 import { PROJECT_TYPES, STATUS_CODE } from '@/enums/project.enum'
 
@@ -183,6 +185,7 @@ import localeEn from 'ant-design-vue/es/locale/en_US'
 import { useAccountList } from '../composables/useAccountList'
 import { getProjectAccuracies, getProjectStatuses } from '../composables/useProject'
 import { useGroupList } from '../composables/useGroupList'
+import useSuggestSearch from '@/views/Project/composables/useSuggest'
 import { deepCopy } from '@/helpers/json-parser'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
 
@@ -202,6 +205,8 @@ export default defineComponent({
     const locales = ref({ en: localeEn, ja: localeJa })
     const loading = ref(false)
 
+    const searchName = { key: '' }
+
     const initState = {
       groupId: [],
       accountId: [],
@@ -219,7 +224,10 @@ export default defineComponent({
     const dataTypes = ref([])
     const dataStatuses = ref([])
     const dataAccuracies = ref([])
+    const options = ref([])
     const isNeedSubmit = ref(false)
+
+    const changeInterval = ref(null)
 
     // group access permission
     const groupAccessDefault = ref([])
@@ -246,6 +254,7 @@ export default defineComponent({
     })
 
     const clearSearchForm = () => {
+      options.value = []
       isNeedSubmit.value = !isEqual(state.value, initState)
       state.value = deepCopy(initState)
     }
@@ -287,6 +296,30 @@ export default defineComponent({
 
     const handleModalCancel = () => {
       isNeedSubmit.value && onSubmit()
+    }
+
+    const handleSuggestSearch = async (searchText) => {
+      options.value = []
+      searchName.value = {
+        key: searchText
+      }
+
+      if (searchText) {
+        const { getSuggestSearch } = useSuggestSearch(searchName.value)
+        const { result } = await getSuggestSearch()
+        forEach(result.data, (value) => {
+          options.value.push({ value: value.name })
+        })
+      }
+    }
+
+    const onSearch = (searchText) => {
+      clearInterval(changeInterval.value)
+      changeInterval.value = setInterval(function () {
+        // Typing finished, now you can Do whatever after 2 sec
+        handleSuggestSearch(searchText)
+        clearInterval(changeInterval.value)
+      }, 500)
     }
 
     onBeforeMount(async () => {
@@ -352,6 +385,8 @@ export default defineComponent({
       dataStatuses,
       dataAccounts,
       dataAccuracies,
+      options,
+      onSearch,
       onSubmit,
       clearSearchForm,
       state,
