@@ -187,7 +187,7 @@
 </template>
 
 <script>
-import { defineComponent, onBeforeMount, reactive, ref, watch } from 'vue'
+import { defineComponent, onBeforeMount, provide, reactive, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -268,6 +268,9 @@ export default defineComponent({
 
     // table
     const dataDeposit = ref([])
+
+    provide('dataDeposit', dataDeposit)
+
     const isLoadingDataTable = ref(true)
     const currentSelectedRowKeys = ref([])
     const currentSelectedRecord = ref()
