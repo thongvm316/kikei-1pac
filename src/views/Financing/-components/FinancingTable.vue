@@ -212,6 +212,7 @@ export default defineComponent({
     }
 
     const handlePageRedirect = (record, column) => {
+      store.commit('financing/STORE_FINANCING_IS_SHOW_BY', true)
       dataFilterRequest.value = props.dataRequest.data
 
       let columnId = column.key.split('_')[1] ?? ''
@@ -259,6 +260,7 @@ export default defineComponent({
           currency_code: null
         }
         store.commit('financing/STORE_FINANCING_FILTER', { data })
+        store.commit('financing/STORE_FINANCING_CHOOSE_RECORD', true)
         emit('onFilterTables', data)
       }
     }
