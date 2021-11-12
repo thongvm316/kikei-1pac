@@ -7,6 +7,7 @@
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
+    :components="components"
     :row-selection="
       isTableModal && typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
         ? null
@@ -102,6 +103,7 @@ import { useStore } from 'vuex'
 import { toOrderBy } from '@/helpers/table'
 import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
 import useGetRecordRead from '@/views/Deposit/composables/useGetRecordRead'
+import VueDraggableNext from './VueDraggableNext.vue'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -133,6 +135,12 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+    const components = ref({
+      body: {
+        wrapper: VueDraggableNext
+      }
+    })
+
     const store = useStore()
 
     const currentRowClick = ref()
@@ -339,6 +347,7 @@ export default defineComponent({
     })
 
     return {
+      components,
       isAdmin,
       columnsDeposit,
       localeTable,

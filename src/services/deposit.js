@@ -43,5 +43,9 @@ export default {
 
   recoverDeposit(data) {
     return apiCaller({ method: 'PATCH', url: `${RESOURCES.deposit}/restore`, data })
+  },
+
+  setIndexDeposit(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/set-index`, data })
   }
 }
