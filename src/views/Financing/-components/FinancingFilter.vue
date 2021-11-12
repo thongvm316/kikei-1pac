@@ -355,6 +355,7 @@ export default {
             to_date: filter.show_by === 0 ? null : addDaysInCurrentDate(currentDate(), 59) || null
           }
         })
+        store.commit('financing/STORE_FINANCING_IS_ALL_TAB', false)
         store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
         store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
         store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
@@ -371,6 +372,7 @@ export default {
         })
         filter.date_from_to[0] = filter.date_from_to[1] = null
         store.commit('financing/STORE_FINANCING_IS_SHOW_BY', false)
+        store.commit('financing/STORE_FINANCING_IS_ALL_TAB', true)
         updateDataFilterRequest({
           data: { group_id: null, from_date: null, to_date: null, period_id: filter.period_id }
         })
@@ -491,16 +493,25 @@ export default {
           })
           filter.date_from_to[0] = null
           filter.date_from_to[1] = null
-          store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
-          store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
           store.commit('financing/STORE_FINANCING_GET_PERIOD', periodList.value)
-          updateDataFilterRequest({
-            data: {
-              group_id: groupID,
-              from_date: filter.show_by === 0 ? null : currentDate() || null,
-              to_date: filter.show_by === 0 ? null : addDaysInCurrentDate(currentDate(), 59) || null
-            }
-          })
+          if (!store.state.financing.chooseRecord) {
+            store.commit('financing/STORE_FINANCING_FILTER_FROM_DATE', currentDate() || null)
+            store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', addDaysInCurrentDate(currentDate(), 59) || null)
+            updateDataFilterRequest({
+              data: {
+                group_id: groupID,
+                from_date: filter.show_by === 0 ? null : currentDate() || null,
+                to_date: filter.show_by === 0 ? null : addDaysInCurrentDate(currentDate(), 59) || null
+              }
+            })
+          } else {
+            store.commit(
+              'financing/STORE_FINANCING_FILTER_FROM_DATE',
+              store.state.financing.filters.data.from_date || null
+            )
+            store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', store.state.financing.filters.data.to_date || null)
+          }
+          store.commit('financing/STORE_FINANCING_CHOOSE_RECORD', false)
         } else {
           const filtersFinancingStore = store.getters['financing/filters'].data || {}
           filter.period_id = null
@@ -607,6 +618,7 @@ export default {
       () => {
         if (props.dataFilterTable) {
           handleLoadingData()
+          isTabAllGroup.value = false
         }
       }
     )

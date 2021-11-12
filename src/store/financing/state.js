@@ -4,7 +4,9 @@ const state = {
   fromDate: '',
   toDate: '',
   checkScrollDownFirst: true,
-  checkShowBy: true
+  checkShowBy: true,
+  checkAllTab: false,
+  chooseRecord: false
 }
 
 export default state
