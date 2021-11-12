@@ -192,3 +192,11 @@ export const deleteDepositRoot = async (id, dataRequest) => {
     throw error
   }
 }
+
+export const setIndexDeposit = async (data) => {
+  try {
+    await DepositService.setIndexDeposit(data)
+  } catch (error) {
+    throw error
+  }
+}
