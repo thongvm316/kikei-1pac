@@ -19,7 +19,7 @@
   </section>
 </template>
 <script>
-import { defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import moment from 'moment'
@@ -236,6 +236,9 @@ export default defineComponent({
     }
 
     const fetchDataTableFinancing = async (data, params) => {
+      const tableContent = document.querySelector('.ant-table-body')
+      let currentHeight = tableContent.scrollHeight
+
       isLoadingDataTable.value = true
       // eslint-disable-next-line no-useless-catch
       try {
@@ -255,7 +258,13 @@ export default defineComponent({
         await convertDataTableRows(dataByDates.value)
 
         pagination.value = { ...convertPagination(result.meta) }
+        nextTick(() => {
+          currentHeight = tableContent.scrollHeight
+        })
       } finally {
+        if (store.state.financing.checkScrollDownFirst && !store.state.financing.chooseRecord) {
+          tableContent.scrollTop = tableContent.scrollHeight - currentHeight - 100
+        }
         isLoadingDataTable.value = false
       }
     }
