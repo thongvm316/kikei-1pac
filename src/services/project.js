@@ -1,7 +1,8 @@
 import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
-  project: '/project'
+  project: '/project',
+  tag: 'tag'
 })
 
 export default {
@@ -80,5 +81,9 @@ export default {
 
   getSuggestSearch(params) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.project}/suggest`, params })
+  },
+
+  getSuggestTag(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.tag}/search`, params })
   }
 }

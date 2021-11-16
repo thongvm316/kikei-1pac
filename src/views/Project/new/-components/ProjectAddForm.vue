@@ -208,22 +208,24 @@
 
     <!-- tag  -->
     <a-form-item name="tags" label="タグ">
-      <a-input
+      <a-auto-complete
         v-model:value="valueTag"
+        :options="options"
         placeholder="タグを入力してください"
         :style="{ width: '300px', border: 0, zIndex: 1 }"
-        @pressEnter="createTag"
+        @keyup.enter="createTag"
+        @search="onSearchTag"
       />
 
-      <div v-if="projectParams.tags.length > 0" class="tags-container">
+      <div v-if="projectParams.adTags.length > 0" class="tags-container">
         <a-tooltip
-          v-for="(tag, index) in projectParams.tags"
+          v-for="(tag, index) in projectParams.adTags"
           :key="index"
-          :title="tag"
+          :title="tag.name"
           overlay-class-name="project-form-tags__tooltip"
         >
           <a-tag closable @close="removeTag($event, index)">
-            {{ tag }}
+            {{ tag.name }}
           </a-tag>
         </a-tooltip>
       </div>
@@ -257,7 +259,7 @@ import { defineComponent, ref, onBeforeMount, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { find } from 'lodash-es'
+import { debounce, find, forEach } from 'lodash-es'
 
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { useAccountList } from '../../composables/useAccountList'
@@ -268,6 +270,7 @@ import { fromDateObjectToDateTimeFormat, fromStringToDateTimeFormatPicker } from
 import ModalSelectCompany from '@/containers/ModalSelectCompany'
 
 import { CalendarOutlined } from '@ant-design/icons-vue'
+import useSuggestSearch from '../../composables/useSuggest'
 
 export default defineComponent({
   name: 'ProjectAddForm',
@@ -287,6 +290,7 @@ export default defineComponent({
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const projectProp = props.project
+    const options = ref([])
     const projectFormRef = ref()
     const store = useStore()
     const router = useRouter()
@@ -306,7 +310,7 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      tags: [],
+      adTags: [],
       memo: '',
       money: null,
       tax: null
@@ -378,19 +382,31 @@ export default defineComponent({
 
     /* --------------------- ./handle project tags --------------------- */
     const createTag = () => {
+      console.log('object')
       if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
       const valueTagLowerCase = valueTag.value.trim().toLowerCase()
-      if (projectParams.value.tags.includes(valueTagLowerCase)) return
+      if (projectParams.value.adTags.map((item) => item.name).includes(valueTagLowerCase)) return
 
-      projectParams.value.tags.push(valueTagLowerCase)
+      projectParams.value.adTags.push({ name: valueTagLowerCase })
       valueTag.value = ''
     }
 
     const removeTag = (e, index) => {
       e.preventDefault()
-      projectParams.value.tags.splice(index, 1)
+      projectParams.value.adTags.splice(index, 1)
       return false
     }
+
+    const onSearchTag = debounce(async (searchText) => {
+      options.value = []
+      const { getSuggestTag } = useSuggestSearch({ q: searchText, limit: 10 })
+      const { result } = await getSuggestTag()
+
+      forEach(result.data, (value) => {
+        options.value.push({ value: value.name })
+      })
+      if (searchText === '') options.value = []
+    }, 500)
     /* --------------------- ./handle project tags --------------------- */
 
     /* --------------------- /handle check require statistic month --------------------- */
@@ -474,7 +490,8 @@ export default defineComponent({
       ]
 
       // Force tags ['']
-      if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
+      if (projectParams.value.adTags.length === 1 && !projectParams.value.adTags[0])
+        projectParams.value.adTags.length = 0
     }
     /* -------------------- ./init data when project props ------------------------- */
 
@@ -592,13 +609,15 @@ export default defineComponent({
       isCompanySearchFormOpen,
       companyOwnerData,
       depositCurrencyCode,
+      options,
       openCompanySearchForm,
       selectCompanyOnSearchForm,
       onSubmit,
       createTag,
       removeTag,
       handleChangeStatisticsDateValue,
-      onSelectGroup
+      onSelectGroup,
+      onSearchTag
     }
   }
 })

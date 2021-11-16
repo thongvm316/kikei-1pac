@@ -411,12 +411,14 @@
 
                         <td>
                           <a-form-item name="tags">
-                            <a-input
+                            <a-auto-complete
                               v-if="isEditing"
                               v-model:value="valueTag"
+                              :options="tagOptions"
                               placeholder="タグを入力してください"
                               :style="{ width: '300px' }"
-                              @pressEnter="createTag"
+                              @keyup.enter="createTag"
+                              @search="onSearchTag"
                             />
 
                             <p v-if="isEditing" class="text-grey-55 u-mt-2 mb-0">
@@ -424,17 +426,17 @@
                             </p>
 
                             <div
-                              v-if="projectParams.tags.length > 0"
+                              v-if="projectParams.adTags.length > 0"
                               :class="['tags-container', isEditing && 'isEditing']"
                             >
                               <a-tooltip
-                                v-for="(tag, index) in projectParams.tags"
+                                v-for="(tag, index) in projectParams.adTags"
                                 :key="index"
-                                :title="tag"
+                                :title="tag.name"
                                 overlay-class-name="project-form-tags__tooltip"
                               >
                                 <a-tag :closable="isEditing" @close="removeTag($event, index)">
-                                  {{ tag }}
+                                  {{ tag.name }}
                                 </a-tag>
                               </a-tooltip>
                             </div>
@@ -479,7 +481,7 @@
 import { defineComponent, ref, onBeforeMount, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { cloneDeep, find, isEqual } from 'lodash-es'
+import { cloneDeep, debounce, find, forEach, isEqual } from 'lodash-es'
 import { PROJECT_TYPES } from '@/enums/project.enum'
 import { editProject } from '../../composables/useProject'
 import { deepCopy } from '@/helpers/json-parser'
@@ -491,6 +493,7 @@ import EditIcon from '@/assets/icons/ico_edit.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
+import useSuggestSearch from '../../composables/useSuggest'
 
 export default defineComponent({
   name: 'ProjectEditForm',
@@ -539,6 +542,7 @@ export default defineComponent({
     const answer = ref()
     const depositCurrencyCode = ref()
     const isVisibleModalConfirmSubmit = ref()
+    const tagOptions = ref([])
     const projectParams = ref({
       companyId: null,
       name: '',
@@ -554,7 +558,7 @@ export default defineComponent({
       accountId: null,
       director: '',
       money: null,
-      tags: [],
+      adTags: [],
       memo: '',
       tax: null
     })
@@ -672,17 +676,28 @@ export default defineComponent({
     const createTag = () => {
       if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
       const valueTagLowerCase = valueTag.value.trim().toLowerCase()
-      if (projectParams.value.tags.includes(valueTagLowerCase)) return
+      if (projectParams.value.adTags.map((item) => item.name).includes(valueTagLowerCase)) return
 
-      projectParams.value.tags.push(valueTagLowerCase)
+      projectParams.value.adTags.push({ name: valueTagLowerCase })
       valueTag.value = ''
     }
 
     const removeTag = (e, index) => {
       e.preventDefault()
-      projectParams.value.tags.splice(index, 1)
+      projectParams.value.adTags.splice(index, 1)
       return false
     }
+
+    const onSearchTag = debounce(async (searchText) => {
+      tagOptions.value = []
+      const { getSuggestTag } = useSuggestSearch({ q: searchText, limit: 10 })
+      const { result } = await getSuggestTag()
+
+      forEach(result.data, (value) => {
+        tagOptions.value.push({ value: value.name })
+      })
+      if (searchText === '') tagOptions.value = []
+    }, 500)
     /* --------------------- ./handle project tags --------------------- */
 
     /* --------------------- /handle check require statistic month --------------------- */
@@ -766,7 +781,8 @@ export default defineComponent({
       ]
 
       // Force tags ['']
-      if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
+      if (projectParams.value.adTags.length === 1 && !projectParams.value.adTags[0])
+        projectParams.value.adTags.length = 0
 
       projectParamsToCompare.value = cloneDeep(projectParams.value)
 
@@ -903,6 +919,7 @@ export default defineComponent({
       isCollapse,
       isVisibleModalConfirmSubmit,
       depositCurrencyCode,
+      tagOptions,
 
       openCompanySearchForm,
       selectCompanyOnSearchForm,
@@ -913,7 +930,8 @@ export default defineComponent({
       handleChangeStatisticsDateValue,
       cancelEditOverViewForm,
       Filter,
-      handleConfirmSubmitModal
+      handleConfirmSubmitModal,
+      onSearchTag
     }
   }
 })

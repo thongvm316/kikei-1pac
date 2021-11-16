@@ -5,13 +5,24 @@ export default function useSuggestSearch(params) {
   const getSuggestSearch = async () => {
     // eslint-disable-next-line no-useless-catch
     try {
-      const response = await ProjectService.getSuggestSearch(params)
+      const { data } = await ProjectService.getSuggestSearch(params)
 
-      return response.data
+      return data
     } catch (e) {
       throw e
     }
   }
 
-  return { getSuggestSearch }
+  const getSuggestTag = async () => {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const { data } = await ProjectService.getSuggestTag(params)
+
+      return data
+    } catch (e) {
+      throw e
+    }
+  }
+
+  return { getSuggestSearch, getSuggestTag }
 }
