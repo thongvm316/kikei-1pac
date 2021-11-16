@@ -564,10 +564,14 @@ export default defineComponent({
         directlyPersonCost.code = currency?.code || 'JPY' // default JPY
         directlyPersonCost.predict =
           predictCount *
-          currencyExchange.value[lowerCaseFirstLetter(currencySalary.code)][lowerCaseFirstLetter(currency.code)]
+          currencyExchange.value[lowerCaseFirstLetter(currencySalary?.code || 'JPY')][
+            lowerCaseFirstLetter(currency?.code || 'JPY')
+          ]
         directlyPersonCost.actual =
           actualCount *
-          currencyExchange.value[lowerCaseFirstLetter(currencySalary.code)][lowerCaseFirstLetter(currency.code)]
+          currencyExchange.value[lowerCaseFirstLetter(currencySalary?.code || 'JPY')][
+            lowerCaseFirstLetter(currency?.code || 'JPY')
+          ]
       } finally {
         isLoadingBudgetTable.value = false
       }

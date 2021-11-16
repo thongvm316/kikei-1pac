@@ -784,6 +784,16 @@ export default defineComponent({
       router.replace({ query: { tab: groupId } })
     })
 
+    watch(
+      () => store.state.drag?.isDrag,
+      async (val) => {
+        if (val) {
+          await fetchDatatableDeposit(paramRequestDataDeposit.value.data, paramRequestDataDeposit.value.params)
+          store.commit('drag/STORE_DRAG', false)
+        }
+      }
+    )
+
     // watch to fetch data deposit
     watch(
       () => paramRequestDataDeposit.value,

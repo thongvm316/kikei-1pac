@@ -38,6 +38,7 @@ export default defineComponent({
       isDragging.value = true
       key.value++
       await setIndexDeposit({ ids })
+      store.commit('drag/STORE_DRAG', true)
       isDragging.value = false
     }
 
