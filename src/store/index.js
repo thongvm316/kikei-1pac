@@ -11,6 +11,7 @@ import account from './account'
 import loading from './loading'
 import token from './token'
 import company from './company-infomation'
+import drag from './drag'
 
 const state = {}
 
@@ -33,7 +34,8 @@ const store = createStore({
     account,
     loading,
     token,
-    company
+    company,
+    drag
   },
   state,
   getters,
