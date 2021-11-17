@@ -217,15 +217,15 @@
         @search="onSearchTag"
       />
 
-      <div v-if="projectParams.adTags.length > 0" class="tags-container">
+      <div v-if="projectParams.tags.length > 0" class="tags-container">
         <a-tooltip
-          v-for="(tag, index) in projectParams.adTags"
+          v-for="(tag, index) in projectParams.tags"
           :key="index"
-          :title="tag.name"
+          :title="tag"
           overlay-class-name="project-form-tags__tooltip"
         >
           <a-tag closable @close="removeTag($event, index)">
-            {{ tag.name }}
+            {{ tag }}
           </a-tag>
         </a-tooltip>
       </div>
@@ -310,7 +310,7 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      adTags: [],
+      tags: [],
       memo: '',
       money: null,
       tax: null
@@ -382,18 +382,17 @@ export default defineComponent({
 
     /* --------------------- ./handle project tags --------------------- */
     const createTag = () => {
-      console.log('object')
       if (!valueTag.value || (valueTag.value && !valueTag.value.trim())) return
       const valueTagLowerCase = valueTag.value.trim().toLowerCase()
-      if (projectParams.value.adTags.map((item) => item.name).includes(valueTagLowerCase)) return
+      if (projectParams.value.tags.includes(valueTagLowerCase)) return
 
-      projectParams.value.adTags.push({ name: valueTagLowerCase })
+      projectParams.value.tags.push(valueTagLowerCase)
       valueTag.value = ''
     }
 
     const removeTag = (e, index) => {
       e.preventDefault()
-      projectParams.value.adTags.splice(index, 1)
+      projectParams.value.tags.splice(index, 1)
       return false
     }
 
@@ -490,8 +489,7 @@ export default defineComponent({
       ]
 
       // Force tags ['']
-      if (projectParams.value.adTags.length === 1 && !projectParams.value.adTags[0])
-        projectParams.value.adTags.length = 0
+      if (projectParams.value.tags.length === 1 && !projectParams.value.tags[0]) projectParams.value.tags.length = 0
     }
     /* -------------------- ./init data when project props ------------------------- */
 
