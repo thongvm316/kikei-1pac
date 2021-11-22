@@ -799,7 +799,7 @@ export default defineComponent({
         group_revenue_target: {
           ...value.group_revenue_target,
           currency_id: value.currency_id,
-          money: value.money
+          money: Math.floor(value.money)
         },
         period: {
           ...value.period,
