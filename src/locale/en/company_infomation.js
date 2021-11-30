@@ -1,10 +1,16 @@
 export default {
   registered_name: 'Company name (registered name)',
-  display_name: 'Company name (display name)',
+  name: 'Company name (display name)',
+  display_name_bank: 'Bank name (display name)',
   address: 'Address',
   postal_code: 'Postal code',
   telephone_number: 'Telephone number',
   representative_name: 'Representative name',
+  registered_name_bank: 'Bank name (registered name)',
+  bank_branch: 'Bank branch',
+  account_holder: 'Account holder',
+  account_number: 'Account number',
+  currency_bank: 'currency',
   in_roman_letters: 'Representative name (in Roman letters)',
   fiscal_year: 'Fiscal year',
   period: 'Period',
@@ -22,6 +28,10 @@ export default {
   day: 'Day',
   no_num: 'No.',
   upload_image: 'Upload image',
+  bank_account: 'Bank accounts',
+  add_bank_account: 'Add new bank account',
+  deposit_account: 'Deposit account',
+  withdrawal_account: 'Withdrawal account',
 
   please_enter: 'Please enter',
   please_enter_period: '0',
@@ -47,6 +57,13 @@ export default {
   error_target_money: 'Target',
   error_empty_number: 'Please enter a number',
   error_period: 'Period',
+  error_bank_account: 'Please add an account',
+  error_choose_bank_account: 'Please select a deposit account',
+  error_display_name_bank: 'Bank name (display name)',
+  error_registered_name_bank: 'Bank name (registered name)',
+  error_bank_branch: 'Bank branch',
+  error_account_holder: 'Account holder',
+  error_account_number: 'Account number',
 
   empty_image: 'Please upload your seal',
   empty_date: 'Please select a business year',
@@ -61,5 +78,9 @@ export default {
 
   delete_tab: 'Deleted',
   update_tab: 'Successfully updated',
-  create_tab: 'Successfully created'
+  create_tab: 'Successfully created',
+
+  delete_bank: 'Deleted',
+  update_bank: 'Successfully updated',
+  create_bank: 'Successfully created'
 }

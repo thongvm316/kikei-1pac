@@ -13,6 +13,24 @@
       class="close-modal-delete"
     />
 
+    <modal-add-bank-account
+      v-model:visible="isClickSubmit"
+      class="close-modal-add-bank"
+      :currency-list="currencyList"
+      :data-source="dataSource"
+      :is-click-submit="isClickSubmit"
+      @formAddBank="handleFormAddBank($event)"
+    />
+
+    <modal-edit-bank-account
+      v-model:visible="isClickEditBank"
+      class="close-modal-add-bank"
+      :currency-list="currencyList"
+      :data-source="dataSource"
+      @formAddBank="handleFormEditBank($event)"
+      @deleteBank="handleDeleteBank($event)"
+    />
+
     <modal-leave-group-setting v-model:visible="modalLeave" />
 
     <form @submit.prevent="onSubmit">
@@ -234,6 +252,7 @@
         </Field>
       </div>
 
+      <!-- RankPicker -->
       <div class="form-group">
         <div class="line-8">
           <div class="line-8__left">
@@ -316,6 +335,60 @@
         <template v-else>
           <span></span>
         </template>
+      </div>
+
+      <!-- BankAccount -->
+      <div class="form-group">
+        <div class="form-content">
+          <label class="form-label required">{{ $t('company_infomation.bank_account') }}</label>
+
+          <template v-if="!checkNewCreate">
+            <div class="bank-table">
+              <a-table
+                id="bank-table"
+                :row-key="(record) => record.id"
+                :pagination="false"
+                :columns="columns"
+                :data-source="dataSource"
+                size="middle"
+                :custom-row="customRow"
+                :row-selection="rowSelection"
+                bordered
+              >
+                <template #idBank="{ index }"> {{ index + 1 }} </template>
+                <template #name="{ text, record }">
+                  <div class="record-table">
+                    <div class="info-bank">
+                      {{ text }}
+                    </div>
+                    <a-tooltip color="#fff" :title="$t('modal.tooltip_account_editing')" class="pencil-icon">
+                      <EditBank class="btn-edit-bank" @click="handleEditBank(record)" />
+                    </a-tooltip>
+                  </div>
+                </template>
+                <template #deposit="{ record }">
+                  <a-radio v-model:checked="record.is_deposit_main_bank_account" @click="handleChooseBank"></a-radio>
+                </template>
+              </a-table>
+            </div>
+            <template v-if="checkChooseBank">
+              <div class="error_choose_bank_account">
+                {{ $t('company_infomation.error_choose_bank_account') }}
+              </div>
+            </template>
+          </template>
+          <div class="bank-account">
+            <a-button class="btn-add-bank" @click="addBankAccount">
+              <add-icon class="add-icon" />
+              {{ $t('company_infomation.add_bank_account') }}
+            </a-button>
+            <template v-if="checkAddBank">
+              <div class="error_bank_account">
+                {{ $t('company_infomation.error_bank_account') }}
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- Upload -->
@@ -468,9 +541,9 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
-import { forEach, isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
+import { forEach, includes, isEmpty, keys, pick, split, uniqueId } from 'lodash-es'
 import { currentDate } from '@/helpers/extend-financing'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
@@ -490,16 +563,25 @@ import IconCherVonRight from '@/assets/icons/ico_chervon_right.svg'
 import moment from 'moment'
 import ModalLeaveGroupSetting from '@/components/ModalLeaveGroupSetting'
 
+import AddIcon from '@/assets/icons/ico_line-add.svg'
+import ModalAddBankAccount from '@/components/ModalAddBankAccount'
+import EditBank from '@/assets/icons/ico_edit_large.svg'
+import ModalEditBankAccount from '@/components/ModalEditBankAccount'
+
 export default defineComponent({
   name: 'CompanyFormInformation',
 
   components: {
+    ModalEditBankAccount,
+    ModalAddBankAccount,
     ModalLeaveGroupSetting,
     ModalDeleteCompanyInfomation,
     CompanyTableInfomation,
     ModalUploadElectronicSeal,
     CalendarOutlined,
-    IconCherVonRight
+    IconCherVonRight,
+    AddIcon,
+    EditBank
   },
 
   props: {
@@ -536,6 +618,7 @@ export default defineComponent({
     const { checkCreate } = toRefs(props)
 
     let form = ref({
+      ad_bank_accounts: [],
       registered_name: '',
       name: '',
       country_id: 1,
@@ -577,6 +660,7 @@ export default defineComponent({
     const checkPeriodConflict = ref(false)
     const checkPeriodConflictColor = ref(false)
     const isClickSubmit = ref(false)
+    const isClickEditBank = ref(false)
     const showBtnDel = ref(false)
     const showHeader = ref(false)
     const openDelete = ref(false)
@@ -584,6 +668,10 @@ export default defineComponent({
     const modalLeave = ref(false)
     const showBtnCancle = ref(false)
     const isCreate = ref(false)
+    const checkAddBank = ref(false)
+    const checkChooseBank = ref(false)
+    const checkNewCreate = ref(false)
+    const checked = ref(false)
 
     const tmpErrors = ref()
     const image = ref()
@@ -598,16 +686,54 @@ export default defineComponent({
     const currencyList = ref([])
     const getDataTable = ref([])
     const getTargetTab = ref([])
+    const dataSource = ref([])
     const saveDate = ref({})
     const propsDataDelete = ref({})
 
     const idTab = ref(1)
+    const idBank = ref(0)
+
+    const state = reactive({ selectedRowKeys: [] })
+    let tempRow = reactive([])
 
     const companyEnums = ref({
       name: t('company_infomation.conflict_name'),
       phone_number: t('company_infomation.conflict_phone_number'),
       registered_name: t('company_infomation.conflict_registered_name'),
       target_money: t('company_infomation.required_target_money')
+    })
+
+    const rowSelection = computed(() => {
+      return {
+        selectedRowKeys: state.selectedRowKeys,
+        columnWidth: 0,
+        type: 'radio'
+      }
+    })
+
+    const columns = computed(() => {
+      return [
+        {
+          slots: {
+            customRender: 'idBank'
+          }
+        },
+        {
+          title: '銀行口座名',
+          dataIndex: 'name',
+          key: 'name',
+          slots: {
+            customRender: 'name'
+          }
+        },
+        {
+          title: '入金口座',
+          width: '20%',
+          slots: {
+            customRender: 'deposit'
+          }
+        }
+      ]
     })
 
     watch(
@@ -632,6 +758,16 @@ export default defineComponent({
 
       dateStart.value = [...split(form.value.period.started_date, '-')]
       dateFinish.value = [...split(form.value.period.finished_date, '-')]
+
+      dataSource.value = [...form.value.ad_bank_accounts]
+      dataSource.value.length === 0 ? (checkNewCreate.value = true) : (checkNewCreate.value = false)
+
+      forEach(dataSource.value, (value) => {
+        if (value.is_deposit_main_bank_account) {
+          tempRow = [value.id]
+          state.selectedRowKeys = [value.id]
+        }
+      })
 
       if (form.value.company_seal) {
         checkImgEmpty.value = true
@@ -699,7 +835,6 @@ export default defineComponent({
       checkDate.value = false
       checkDateEmpty.value = false
       checkDatePastFuture.value = false
-      isClickSubmit.value = false
     }
 
     const resetUploadImage = () => {
@@ -750,9 +885,11 @@ export default defineComponent({
       checkImgInuse.value = false
       checkDate.value = false
       checkDateEmpty.value = false
-      isClickSubmit.value = false
       showBtnCancle.value = false
       isCreate.value = false
+      checkNewCreate.value = false
+      checkAddBank.value = false
+      checkChooseBank.value = false
       emit('handleCancle', true)
       store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
@@ -760,8 +897,23 @@ export default defineComponent({
     }
 
     const handleClickSubmit = () => {
-      if (image.value || form.value.fiscal_year[0] === null || form.value.fiscal_year[1] === null) {
-        isClickSubmit.value = true
+      dataSource.value.length === 0 ? (checkAddBank.value = true) : (checkAddBank.value = false)
+
+      if (!store.state.company.isCreate) {
+        image.value ? (checkImgInuse.value = false) : (checkImgInuse.value = true)
+
+        if (form.value.fiscal_year[0] === null || form.value.fiscal_year[1] === null) {
+          checkDate.value = true
+          checkDateEmpty.value = true
+          checkPeriodConflictColor.value = true
+        } else {
+          checkDate.value = false
+          checkDateEmpty.value = false
+          checkPeriodConflictColor.value = false
+        }
+      } else {
+        checkPeriodEmpty.value = true
+        checkDatePeriod.value = false
       }
     }
 
@@ -784,6 +936,12 @@ export default defineComponent({
             company_seal: base64result.value
           }
         }
+
+        forEach(data.ad_bank_accounts, (value, key) => {
+          if (includes(value.id, '__bank__')) {
+            delete data.ad_bank_accounts[key].id
+          }
+        })
 
         if (store.state.company.isCreate) {
           updateCompany(data)
@@ -835,6 +993,7 @@ export default defineComponent({
         checkImgInuse.value = false
         checkDate.value = false
         checkPeriodConflictColor.value = false
+        checkChooseBank.value = false
 
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
       } catch (err) {
@@ -883,6 +1042,7 @@ export default defineComponent({
         const { createCompanyInfomation } = useCreateCompanyInfomationService(data)
         const { result } = await createCompanyInfomation()
 
+        checkChooseBank.value = false
         store.commit('company/STORE_COMPANY_INFOMATION_ISCREATED', result.data)
 
         //show notification
@@ -939,6 +1099,8 @@ export default defineComponent({
           checkDateEmpty.value = true
         }
 
+        if (key === 'ad_bank_accounts') checkChooseBank.value = true
+
         locale.value === 'en' ? (errs[key] = `${companyEnums.value[key]}`) : (errs[key] = `${companyEnums.value[key]}`)
 
         setFieldError(key, errs[key])
@@ -980,29 +1142,110 @@ export default defineComponent({
       dateFinish.value = [...split(form.value.period.finished_date, '-')]
     }
 
+    const addBankAccount = () => {
+      isClickSubmit.value = true
+    }
+
+    const handleEditBank = (record) => {
+      isClickEditBank.value = true
+      store.commit('company/STORE_COMPANY_INFOMATION_EDIT_BANK', record)
+    }
+
+    const handleCheckBank = (record) => {
+      checked.value = true
+    }
+
+    const handleFormAddBank = (value) => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      dataSource.value.push(value)
+      checkNewCreate.value = false
+      checkAddBank.value = false
+      checkChooseBank.value = false
+      form.value = {
+        ...form.value,
+        ad_bank_accounts: [...dataSource.value]
+      }
+    }
+
+    const handleFormEditBank = (dataEdit) => {
+      forEach(dataSource.value, (value, key) => {
+        if (value.id === dataEdit.id) {
+          dataSource.value[key] = { ...dataEdit, is_withdrawal_main_bank_account: null }
+        }
+      })
+      form.value = {
+        ...form.value,
+        ad_bank_accounts: [...dataSource.value]
+      }
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+    }
+
+    const handleDeleteBank = (dataDelete) => {
+      dataSource.value = dataDelete
+      form.value = {
+        ...form.value,
+        ad_bank_accounts: [...dataSource.value]
+      }
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      if (dataSource.value.length === 0) checkNewCreate.value = true
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+    }
+
+    const handleChooseBank = () => {
+      store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+    }
+
     const replaceField = (text, field) => {
       if (text === 'undefined') return
 
       if (field === 'period') checkPeriodConflict.value = false
 
-      if (!store.state.company.isCreate) {
-        checkImgInuse.value = true
-        checkDate.value = true
-        checkDateEmpty.value = true
-        checkPeriodConflictColor.value = true
-      } else {
-        checkPeriodEmpty.value = true
-        checkDatePeriod.value = false
-      }
       return text.replace(field, t(`company_infomation.error_${field}`))
     }
 
     const changeInput = () => {
       store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
     }
 
     const changeSelect = () => {
       store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+    }
+
+    const selectRow = (record) => {
+      if (!isClickEditBank.value) {
+        forEach(dataSource.value, (value, key) => {
+          if (value.is_deposit_main_bank_account) {
+            dataSource.value[key] = {
+              ...value,
+              is_deposit_main_bank_account: false
+            }
+          }
+          if (record.id === value.id) {
+            dataSource.value[key] = {
+              ...value,
+              is_deposit_main_bank_account: true
+            }
+          }
+        })
+        form.value = {
+          ...form.value,
+          ad_bank_accounts: [...dataSource.value]
+        }
+        state.selectedRowKeys = [record.id]
+        tempRow = [record.id]
+      }
+    }
+
+    const customRow = (record) => {
+      return {
+        onClick: () => {
+          selectRow(record)
+        }
+      }
     }
 
     onMounted(() => {
@@ -1027,12 +1270,18 @@ export default defineComponent({
           checkDateEmpty.value = false
           checkPeriodConflictColor.value = false
           showTable.value = false
-          isClickSubmit.value = false
           showBtnCancle.value = false
+          checkAddBank.value = false
+          checkChooseBank.value = false
           isCreate.value = true
+          checkNewCreate.value = true
+          image.value = ''
           dateStart.value = []
           dateFinish.value = []
+          dataSource.value = []
           store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', false)
+        } else {
+          isCreate.value = false
         }
       }
     )
@@ -1051,6 +1300,7 @@ export default defineComponent({
       () => {
         if (store.state.company.isChangeTab) {
           showHeader.value = false
+          isCreate.value = false
         }
       }
     )
@@ -1086,6 +1336,25 @@ export default defineComponent({
       modalLeave,
       showBtnCancle,
       isCreate,
+      checkAddBank,
+      checkChooseBank,
+      isClickSubmit,
+      isClickEditBank,
+      columns,
+      dataSource,
+      checkNewCreate,
+      checked,
+      rowSelection,
+      state,
+      idBank,
+      handleChooseBank,
+      handleFormAddBank,
+      handleFormEditBank,
+      handleDeleteBank,
+      customRow,
+      handleCheckBank,
+      handleEditBank,
+      addBankAccount,
       changeInput,
       changeSelect,
       handleCollapse,
@@ -1220,6 +1489,7 @@ export default defineComponent({
 
   .ant-table-wrapper {
     max-width: 750px;
+    margin-bottom: 5px;
   }
 
   .card-footer {
@@ -1233,6 +1503,84 @@ export default defineComponent({
         background-color: #ff4d4f;
         color: #ffffff;
       }
+    }
+  }
+
+  .bank-account {
+    margin-bottom: 16px;
+
+    .btn-add-bank {
+      width: auto;
+      border-radius: 2px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      height: 24px;
+      margin: 8px 0 5px 0;
+      padding: 0 8px;
+
+      &:hover {
+        background: #31aaf1;
+        color: #fff;
+      }
+
+      .add-icon {
+        margin-right: 10.33px;
+      }
+    }
+
+    .error_bank_account {
+      color: #ff4d4f;
+    }
+  }
+
+  .bank-table {
+    margin-top: 8px;
+
+    .btn-add-bank {
+      margin-bottom: 16px;
+      width: auto;
+      border-radius: 2px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+
+      &:hover {
+        background: #31aaf1;
+        color: #fff;
+      }
+
+      .add-icon {
+        margin-right: 10.33px;
+      }
+    }
+
+    .record-table {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .info-bank {
+        max-width: 70%;
+      }
+
+      .btn-edit-bank {
+        cursor: pointer;
+
+        &:hover {
+          filter: invert(61%) sepia(83%) saturate(2546%) hue-rotate(174deg) brightness(100%) contrast(90%);
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+
+    .ant-table-wrapper {
+      max-width: 400px;
     }
   }
 
@@ -1330,7 +1678,6 @@ export default defineComponent({
         position: relative;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
         background-color: #bfbfbf;
-        margin-bottom: 20px;
 
         #imagePreview {
           width: 50%;
@@ -1419,7 +1766,6 @@ export default defineComponent({
         position: relative;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
         background-color: #bfbfbf;
-        margin-bottom: 20px;
 
         #imagePreview {
           width: 50%;

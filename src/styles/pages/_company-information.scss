@@ -56,6 +56,11 @@
     .ant-tabs-tab {
       padding: 12px 20px 12px 0;
     }
+    
+    .ant-tabs-tab-active {
+      color: #042E59 !important;
+      cursor: pointer;
+    }
   }
 
   .form-create {
@@ -201,6 +206,27 @@
         color: #cd201f;
         margin-left: 6px;
       }
+    }
+    
+    .bank-table {
+      .ant-table-tbody > tr {
+  
+        .ant-table-selection-column:nth-child(1) {
+          border-right: #fff;
+        }
+        
+        .ant-table-selection-column > span {
+          display: none;
+        }
+  
+        td:last-child {
+          text-align: center !important;
+        }
+      }
+    }
+    
+    .error_choose_bank_account {
+      color: #ff4d4f;
     }
   
     .line-10 {
