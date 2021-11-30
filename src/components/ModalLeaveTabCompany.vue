@@ -47,7 +47,6 @@ export default defineComponent({
     })
 
     const handleLeave = () => {
-      console.log('leave')
       open.value = false
       context.emit('update:visible', false)
       store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
