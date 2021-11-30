@@ -1,4 +1,5 @@
 <template>
+  <modal-leave-tab-company v-model:visible="modalLeave" />
   <template v-if="checkEmpty">
     <section class="company-information">
       <div class="company-information__empty-img">
@@ -54,27 +55,31 @@ import useGetAllGroupService from '@/views/CompanyInformation/compasables/useGet
 import useGetTabIDService from '@/views/CompanyInformation/compasables/useGetTabIDService'
 import useGetListSaleTargetService from '@/views/CompanyInformation/compasables/useGetListSaleTargetService'
 import { useStore } from 'vuex'
+import ModalLeaveTabCompany from '@/components/ModalLeaveTabCompany'
 
 export default defineComponent({
   name: 'Index',
 
-  components: { CompanyFormInformation, AddIcon },
+  components: { ModalLeaveTabCompany, CompanyFormInformation, AddIcon },
 
   setup() {
     const store = useStore()
     const checkEmpty = ref(false)
     const checkCreate = ref(false)
     const resetFormInfo = ref(false)
+    const modalLeave = ref(false)
 
     const lastIndex = ref(1)
     const tabId = ref(1)
-    const targetTab = ref([])
+    const targetKeyTab = ref(1)
+    const keyTabDefault = ref(1)
 
+    const targetTab = ref([])
     const panes = ref([])
     const allGroup = ref([])
-    const getDetailTab = ref()
 
-    const activeKey = ref(allGroup?.value[0]?.id)
+    const getDetailTab = ref()
+    const activeKey = ref()
 
     const add = () => {
       if (checkCreate.value) return
@@ -100,6 +105,8 @@ export default defineComponent({
       const { result } = await getAllGroup()
 
       allGroup.value = result.data
+
+      activeKey.value = allGroup.value[0].id
 
       if (isArray(allGroup.value)) {
         checkEmpty.value = false
@@ -151,8 +158,14 @@ export default defineComponent({
     }
 
     const handleChooseTab = (targetKey) => {
-      fetchListForm(targetKey)
-      store.commit('company/STORE_COMPANY_INFOMATION_CHANGE', true)
+      targetKeyTab.value = targetKey
+      if (!store.state.company.leaveGroup) {
+        activeKey.value = keyTabDefault.value
+        modalLeave.value = true
+      } else {
+        fetchListForm(targetKeyTab.value)
+        store.commit('company/STORE_COMPANY_INFOMATION_CHANGE', true)
+      }
     }
 
     const remove = () => {
@@ -179,6 +192,18 @@ export default defineComponent({
       getAllGroup()
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
     })
+
+    watch(
+      () => store.state.company.leaveGroup,
+      () => {
+        if (store.state.company.leaveGroup) {
+          activeKey.value = targetKeyTab.value
+          keyTabDefault.value = targetKeyTab.value
+          fetchListForm(targetKeyTab.value)
+          store.commit('company/STORE_COMPANY_INFOMATION_CHANGE', true)
+        }
+      }
+    )
 
     watch(
       () => store.state.company.isCreated,
@@ -226,6 +251,7 @@ export default defineComponent({
       tabId,
       resetFormInfo,
       checkCreate,
+      modalLeave,
       handleChooseTab,
       add,
       remove

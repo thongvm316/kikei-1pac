@@ -686,6 +686,7 @@ export default defineComponent({
     const currencyList = ref([])
     const getDataTable = ref([])
     const getTargetTab = ref([])
+    const revertTableBank = ref([])
     const dataSource = ref([])
     const saveDate = ref({})
     const propsDataDelete = ref({})
@@ -760,6 +761,7 @@ export default defineComponent({
       dateFinish.value = [...split(form.value.period.finished_date, '-')]
 
       dataSource.value = [...form.value.ad_bank_accounts]
+      revertTableBank.value = [...dataSource.value]
       dataSource.value.length === 0 ? (checkNewCreate.value = true) : (checkNewCreate.value = false)
 
       forEach(dataSource.value, (value) => {
@@ -1123,9 +1125,18 @@ export default defineComponent({
       checkDateEmpty.value = false
       checkPeriodConflictColor.value = false
 
+      forEach(revertTableBank.value, (value) => {
+        if (value.is_deposit_main_bank_account) {
+          state.selectedRowKeys = [value.id]
+          tempRow = [value.id]
+          selectRow(value)
+        }
+      })
+
       form.value = {
         ...form.value,
-        ...showBtnDel.value
+        ...showBtnDel.value,
+        ad_bank_accounts: [...revertTableBank.value]
       }
 
       form.value.period_name = form.value.period.name
@@ -1151,7 +1162,7 @@ export default defineComponent({
       store.commit('company/STORE_COMPANY_INFOMATION_EDIT_BANK', record)
     }
 
-    const handleCheckBank = (record) => {
+    const handleCheckBank = () => {
       checked.value = true
     }
 
@@ -1237,6 +1248,8 @@ export default defineComponent({
         }
         state.selectedRowKeys = [record.id]
         tempRow = [record.id]
+        store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
       }
     }
 
