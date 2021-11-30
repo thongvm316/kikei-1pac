@@ -997,6 +997,7 @@ export default defineComponent({
         checkPeriodConflictColor.value = false
         checkChooseBank.value = false
 
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
       } catch (err) {
         checkErrorsApi(err)
@@ -1045,6 +1046,7 @@ export default defineComponent({
         const { result } = await createCompanyInfomation()
 
         checkChooseBank.value = false
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_ISCREATED', result.data)
 
         //show notification
@@ -1115,6 +1117,7 @@ export default defineComponent({
         id: tabId.value,
         name: form.value.name
       }
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
     }
 
     const handleRevertRecord = () => {
