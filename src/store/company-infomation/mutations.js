@@ -7,7 +7,8 @@ import {
   STORE_COMPANY_INFOMATION_UPDATE,
   STORE_COMPANY_INFOMATION_CHECKSIDEBAR,
   STORE_COMPANY_INFOMATION_LEAVEGROUP,
-  STORE_COMPANY_INFOMATION_NAVNAME
+  STORE_COMPANY_INFOMATION_NAVNAME,
+  STORE_COMPANY_INFOMATION_EDIT_BANK
 } from '../mutation-types'
 
 const mutations = {
@@ -45,6 +46,13 @@ const mutations = {
 
   [STORE_COMPANY_INFOMATION_NAVNAME](state, payload) {
     state.navName = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_EDIT_BANK](state, payload) {
+    state.formBankEdit = {
+      ...state.formBankEdit,
+      ...payload
+    }
   }
 }
 

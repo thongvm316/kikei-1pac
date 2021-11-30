@@ -1,10 +1,16 @@
 export default {
   registered_name: '会社名（登記名）',
   name: '会社名（表示名）',
+  display_name_bank: '銀行名 (表示名)',
   address: '住所',
   postal_code: '郵便番号',
   phone_number: '電話番号',
   representative_name: '代表者氏名',
+  registered_name_bank: '銀行名 (登記名)',
+  bank_branch: '銀行支店',
+  account_holder: '口座名義',
+  account_number: '口座番号',
+  currency_bank: '通貨',
   in_roman_letters: '代表者氏名（ローマ字）',
   fiscal_year: '事業年度',
   period: '期',
@@ -22,6 +28,10 @@ export default {
   day: '日',
   no_num: '第',
   upload_image: '画像をアップロード',
+  bank_account: '銀行口座',
+  add_bank_account: '新規銀行口座追加',
+  deposit_account: '入金口座',
+  withdrawal_account: '出金口座',
 
   please_enter: '入力してください',
   please_enter_period: '0',
@@ -47,6 +57,13 @@ export default {
   error_target_money: '目標',
   error_empty_number: '数字を入力してください',
   error_period: '期間',
+  error_bank_account: '口座を追加してください。',
+  error_choose_bank_account: '入金口座を選択してください。',
+  error_display_name_bank: '銀行名 (表示名)',
+  error_registered_name_bank: '銀行名 (登記名)',
+  error_bank_branch: '銀行支店',
+  error_account_holder: '口座名義',
+  error_account_number: '口座番号',
 
   empty_image: '印鑑をアプロードして下さい',
   empty_date: '事業年度を選択して下さい',
@@ -61,5 +78,9 @@ export default {
 
   delete_tab: 'が削除されました',
   update_tab: 'が更新されました',
-  create_tab: 'が追加されました'
+  create_tab: 'が追加されました',
+
+  delete_bank: 'を削除しました',
+  update_bank: 'が更新されました',
+  create_bank: 'が追加されました'
 }

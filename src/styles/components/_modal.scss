@@ -1,5 +1,5 @@
 .ant-modal {
-  top: 52px;
+  top: 45%;
 }
 
 .ant-modal-content {
@@ -61,6 +61,25 @@
         border-color: $color-additional-red-4;
       }
     }
+  }
+}
+
+.modal-add-bank {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
+    }
+  }
+  
+  .ant-modal-content {
+    width: 665px;
   }
 }
 

@@ -700,7 +700,6 @@ export default defineComponent({
     /* --------------------- ./handle unconfirm deposit ------------------- */
 
     const onSortTable = (emitData) => {
-      console.log(emitData)
       let currentSortStr = emitData.orderBy ? `${emitData.field} ${emitData.orderBy}` : ''
       if (emitData.field === 'confirmed' && emitData.orderBy !== '') {
         currentSortStr = `date asc,${currentSortStr}`

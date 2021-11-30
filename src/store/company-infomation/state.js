@@ -1,13 +1,14 @@
 const state = {
-  isCreate: true,
   isCreated: {},
+  navName: {},
+  formBankEdit: {},
   isRemove: false,
   isDeleted: false,
   isChangeTab: false,
   isUpdateTab: false,
   checkSideBar: false,
-  leaveGroup: true,
-  navName: {}
+  isCreate: true,
+  leaveGroup: true
 }
 
 export default state
