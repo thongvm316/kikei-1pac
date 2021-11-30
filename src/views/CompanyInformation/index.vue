@@ -79,7 +79,7 @@ export default defineComponent({
     const allGroup = ref([])
 
     const getDetailTab = ref()
-    const activeKey = ref()
+    const activeKey = ref(allGroup?.value[0]?.id)
 
     const add = () => {
       if (checkCreate.value) return
@@ -105,8 +105,6 @@ export default defineComponent({
       const { result } = await getAllGroup()
 
       allGroup.value = result.data
-
-      activeKey.value = allGroup.value[0].id
 
       if (isArray(allGroup.value)) {
         checkEmpty.value = false
