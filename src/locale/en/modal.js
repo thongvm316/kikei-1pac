@@ -85,5 +85,9 @@ export default {
   error_password: 'Current password',
   error_name_profile: 'Name profile',
   check_password: 'The password is different from the registered password',
-  check_email: 'You used this email recently. Please set a different one.'
+  check_email: 'You used this email recently. Please set a different one.',
+  title_balance: 'Confirm',
+  desc_balance_input: 'I\'m typing, can I cancel it?',
+  handle_balance: 'Confirm',
+  bank_in_use: 'I have set up a deposit account but cannot delete it'
 }

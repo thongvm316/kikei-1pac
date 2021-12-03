@@ -17,7 +17,8 @@ const NAME_PAGE = [
   'check_activate_token.0004',
   'group.0002',
   'group.0003',
-  'group.0004'
+  'group.0004',
+  'bank_account.0004'
 ]
 
 axios.defaults.baseURL = process.env.VUE_APP_API_ENDPOINT

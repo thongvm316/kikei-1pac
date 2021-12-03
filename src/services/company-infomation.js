@@ -1,7 +1,8 @@
 import apiCaller from './api-caller'
 
 const RESOURCES = Object.freeze({
-  company_infomation: '/group'
+  company_infomation: '/group',
+  bank_account: '/bank-accounts'
 })
 
 export default {
@@ -27,5 +28,13 @@ export default {
 
   deleteCompanyInfomation(id) {
     return apiCaller({ method: 'DELETE', url: `${RESOURCES.company_infomation}/${id}` })
+  },
+
+  checkBankInUse(id) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.bank_account}/${id}/verify` })
+  },
+
+  checkBankUsed(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.bank_account}/validate`, data })
   }
 }

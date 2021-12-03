@@ -97,7 +97,6 @@ export default defineComponent({
 
       checkCreate.value = true
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', false)
-      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
     }
 
     const getAllGroup = async (value) => {
@@ -158,11 +157,13 @@ export default defineComponent({
     const handleChooseTab = (targetKey) => {
       targetKeyTab.value = targetKey
       if (!store.state.company.leaveGroup) {
-        activeKey.value = keyTabDefault.value
+        activeKey.value = store.state.company.leaveTab
         modalLeave.value = true
       } else {
+        activeKey.value = targetKeyTab.value
         fetchListForm(targetKeyTab.value)
         store.commit('company/STORE_COMPANY_INFOMATION_CHANGE', true)
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVETAB', targetKey)
       }
     }
 
