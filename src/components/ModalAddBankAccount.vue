@@ -126,7 +126,7 @@
                     :value="field.value"
                     :placeholder="$t('company_infomation.please_enter')"
                     class="w-300"
-                    :class="errors.length ? 'input_border' : ''"
+                    :class="errors.length || validateColorBankNumber ? 'input_border' : ''"
                     @change="handleChange"
                   />
                   <!-- Error message -->
@@ -138,6 +138,11 @@
                       {{ replaceField(message, 'account_number') }}
                     </template>
                   </ErrorMessage>
+                  <template v-if="validateColorBankNumber">
+                    <div class="error_bank_account">
+                      {{ $t('company_infomation.error_bank_account_number') }}
+                    </div>
+                  </template>
                 </div>
               </div>
             </Field>
@@ -178,8 +183,11 @@
 import { defineComponent, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-import { last, uniqueId } from 'lodash-es'
+import { forEach, last, uniqueId } from 'lodash-es'
 import { useStore } from 'vuex'
+
+import useCheckBankUsedService from '@/views/CompanyInformation/compasables/useCheckBankUsedSetvice'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
 export default defineComponent({
   name: 'ModalAddBankAccount',
@@ -189,7 +197,7 @@ export default defineComponent({
       type: Array,
       required: true
     },
-    dataSource: {
+    propsDataCreate: {
       type: Array,
       required: true
     },
@@ -208,9 +216,13 @@ export default defineComponent({
 
     const currencyID = ref([])
     const listBank = ref([])
+    const listALlBank = ref([])
+
+    const validateBankNumber = ref(false)
+    const validateColorBankNumber = ref(false)
 
     const { currencyList } = toRefs(props)
-    const { dataSource } = toRefs(props)
+    const { propsDataCreate } = toRefs(props)
     const { isClickSubmit } = toRefs(props)
 
     const UNIQUE_ID_PREFIX = '__bank__'
@@ -227,8 +239,9 @@ export default defineComponent({
 
     const clearForm = ref({ ...form.value })
 
-    watch(dataSource, (value) => {
+    watch(propsDataCreate, (value) => {
       listBank.value = last(value)
+      listALlBank.value = value
     })
 
     watch(currencyList, (value) => {
@@ -236,37 +249,68 @@ export default defineComponent({
     })
 
     watch(isClickSubmit, (value) => {
-      if (value) form.value = clearForm.value
+      if (value) {
+        resetForm()
+        form.value = { ...clearForm.value }
+      }
     })
 
     const handleCancel = () => {
       resetForm()
+      validateBankNumber.value = false
+      validateColorBankNumber.value = false
       context.emit('update:visible', false)
     }
 
-    const onSubmit = handleSubmit(() => {
+    const onSubmit = handleSubmit(async () => {
+      let data = {
+        id: null,
+        number: form.value.number
+      }
       form.value = {
         ...listBank.value,
         ...form.value,
         id: uniqueId(UNIQUE_ID_PREFIX),
         is_withdrawal_main_bank_account: null
       }
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'successfully',
-        duration: 5,
-        message:
-          locale.value === 'en'
-            ? t('company_infomation.create_bank') + form.value.name
-            : form.value.name + t('company_infomation.create_bank')
-      })
-      context.emit('update:visible', false)
-      context.emit('formAddBank', form.value)
-      resetForm()
+      try {
+        const { checkBankUsed } = useCheckBankUsedService(data)
+        await checkBankUsed()
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          duration: 5,
+          message:
+            locale.value === 'en'
+              ? t('company_infomation.create_bank') + form.value.name
+              : form.value.name + t('company_infomation.create_bank')
+        })
+        context.emit('update:visible', false)
+        context.emit('formAddBank', form.value)
+        validateColorBankNumber.value = false
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+      } catch (err) {
+        checkErrorsApi(err)
+      }
     })
+
+    const checkErrorsApi = (err) => {
+      forEach(camelToSnakeCase(err.response.data.errors), (value) => {
+        if (value === 'exist' || value === 'conflict') {
+          validateColorBankNumber.value = true
+        }
+      })
+    }
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`company_infomation.error_${field}`))
     }
+
+    watch(
+      () => form.value.number,
+      () => {
+        validateBankNumber.value = false
+      }
+    )
 
     return {
       locale,
@@ -274,6 +318,8 @@ export default defineComponent({
       onSubmit,
       currencyID,
       resetForm,
+      validateBankNumber,
+      validateColorBankNumber,
       replaceField,
       open,
       handleCancel
@@ -308,6 +354,10 @@ export default defineComponent({
 
           .form-input {
             margin-top: 5px;
+
+            .error_bank_account {
+              color: #ff4d4f;
+            }
           }
         }
       }

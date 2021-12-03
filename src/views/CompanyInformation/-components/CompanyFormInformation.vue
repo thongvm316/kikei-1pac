@@ -19,6 +19,7 @@
       :currency-list="currencyList"
       :data-source="dataSource"
       :is-click-submit="isClickSubmit"
+      :props-data-create="propsDataCreate"
       @formAddBank="handleFormAddBank($event)"
     />
 
@@ -27,11 +28,14 @@
       class="close-modal-add-bank"
       :currency-list="currencyList"
       :data-source="dataSource"
-      @formAddBank="handleFormEditBank($event)"
+      :props-data-edit="propsDataEdit"
+      @formEditBank="handleFormEditBank($event)"
       @deleteBank="handleDeleteBank($event)"
     />
 
     <modal-leave-group-setting v-model:visible="modalLeave" />
+
+    <modal-leave-tab-company v-model:visible="modalLeaveTab" @btnLeave="checkLeaveTab = $event" />
 
     <form @submit.prevent="onSubmit">
       <!-- Registered name -->
@@ -341,7 +345,7 @@
       <div class="form-group">
         <div class="form-content">
           <label class="form-label required">{{ $t('company_infomation.bank_account') }}</label>
-
+          <!--          color: '#F5222D', display: 'flex', alignItems: 'center'-->
           <template v-if="!checkNewCreate">
             <div class="bank-table">
               <a-table
@@ -356,10 +360,10 @@
                 bordered
               >
                 <template #idBank="{ index }"> {{ index + 1 }} </template>
-                <template #name="{ text, record }">
+                <template #name="{ record }">
                   <div class="record-table">
                     <div class="info-bank">
-                      {{ text }}
+                      {{ record.name }}
                     </div>
                     <a-tooltip color="#fff" :title="$t('modal.tooltip_account_editing')" class="pencil-icon">
                       <EditBank class="btn-edit-bank" @click="handleEditBank(record)" />
@@ -374,6 +378,11 @@
             <template v-if="checkChooseBank">
               <div class="error_choose_bank_account">
                 {{ $t('company_infomation.error_choose_bank_account') }}
+              </div>
+            </template>
+            <template v-if="checkConflictBank">
+              <div class="error_choose_bank_account">
+                {{ $t('company_infomation.error_bank_account_number') }}
               </div>
             </template>
           </template>
@@ -567,11 +576,13 @@ import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAddBankAccount from '@/components/ModalAddBankAccount'
 import EditBank from '@/assets/icons/ico_edit_large.svg'
 import ModalEditBankAccount from '@/components/ModalEditBankAccount'
+import ModalLeaveTabCompany from '@/components/ModalLeaveTabCompany'
 
 export default defineComponent({
   name: 'CompanyFormInformation',
 
   components: {
+    ModalLeaveTabCompany,
     ModalEditBankAccount,
     ModalAddBankAccount,
     ModalLeaveGroupSetting,
@@ -666,10 +677,13 @@ export default defineComponent({
     const openDelete = ref(false)
     const showTable = ref(false)
     const modalLeave = ref(false)
+    const modalLeaveTab = ref(false)
+    const checkLeaveTab = ref(false)
     const showBtnCancle = ref(false)
     const isCreate = ref(false)
     const checkAddBank = ref(false)
     const checkChooseBank = ref(false)
+    const checkConflictBank = ref(false)
     const checkNewCreate = ref(false)
     const checked = ref(false)
 
@@ -677,6 +691,7 @@ export default defineComponent({
     const image = ref()
     const imageUpload = ref()
     const base64result = ref()
+
     const fileContent = ref([])
     const periodList = ref([])
     const activeKey = ref([])
@@ -688,8 +703,11 @@ export default defineComponent({
     const getTargetTab = ref([])
     const revertTableBank = ref([])
     const dataSource = ref([])
+    const propsDataCreate = ref([])
+
     const saveDate = ref({})
     const propsDataDelete = ref({})
+    const propsDataEdit = ref({})
 
     const idTab = ref(1)
     const idBank = ref(0)
@@ -720,7 +738,7 @@ export default defineComponent({
           }
         },
         {
-          title: '銀行口座名',
+          title: t('company_infomation.bank_account_name'),
           dataIndex: 'name',
           key: 'name',
           slots: {
@@ -728,7 +746,7 @@ export default defineComponent({
           }
         },
         {
-          title: '入金口座',
+          title: t('company_infomation.deposit_account'),
           width: '20%',
           slots: {
             customRender: 'deposit'
@@ -788,6 +806,7 @@ export default defineComponent({
       checkDatePastFuture.value = false
       checkDateEmpty.value = false
       checkPeriodConflictColor.value = false
+      checkConflictBank.value = false
     })
 
     watch(checkCreate, (value) => {
@@ -884,18 +903,22 @@ export default defineComponent({
     }
 
     const handleCancel = () => {
-      checkImgInuse.value = false
-      checkDate.value = false
-      checkDateEmpty.value = false
-      showBtnCancle.value = false
-      isCreate.value = false
-      checkNewCreate.value = false
-      checkAddBank.value = false
-      checkChooseBank.value = false
-      emit('handleCancle', true)
-      store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
-      store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
-      store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
+      if (store.state.company.leaveGroup) {
+        checkImgInuse.value = false
+        checkDate.value = false
+        checkDateEmpty.value = false
+        showBtnCancle.value = false
+        isCreate.value = false
+        checkNewCreate.value = false
+        checkAddBank.value = false
+        checkChooseBank.value = false
+        checkConflictBank.value = false
+        emit('handleCancle', true)
+        store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
+        store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
+      } else {
+        modalLeaveTab.value = true
+      }
     }
 
     const handleClickSubmit = () => {
@@ -996,6 +1019,7 @@ export default defineComponent({
         checkDate.value = false
         checkPeriodConflictColor.value = false
         checkChooseBank.value = false
+        checkConflictBank.value = false
 
         store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
@@ -1046,6 +1070,7 @@ export default defineComponent({
         const { result } = await createCompanyInfomation()
 
         checkChooseBank.value = false
+        checkConflictBank.value = false
         store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_ISCREATED', result.data)
 
@@ -1103,7 +1128,7 @@ export default defineComponent({
           checkDateEmpty.value = true
         }
 
-        if (key === 'ad_bank_accounts') checkChooseBank.value = true
+        if (value.isDepositMainBankAccount === 'required') checkChooseBank.value = true
 
         locale.value === 'en' ? (errs[key] = `${companyEnums.value[key]}`) : (errs[key] = `${companyEnums.value[key]}`)
 
@@ -1157,10 +1182,12 @@ export default defineComponent({
     }
 
     const addBankAccount = () => {
+      propsDataCreate.value = dataSource.value
       isClickSubmit.value = true
     }
 
     const handleEditBank = (record) => {
+      propsDataEdit.value = record
       isClickEditBank.value = true
       store.commit('company/STORE_COMPANY_INFOMATION_EDIT_BANK', record)
     }
@@ -1175,6 +1202,7 @@ export default defineComponent({
       checkNewCreate.value = false
       checkAddBank.value = false
       checkChooseBank.value = false
+      checkConflictBank.value = false
       form.value = {
         ...form.value,
         ad_bank_accounts: [...dataSource.value]
@@ -1191,6 +1219,7 @@ export default defineComponent({
         ...form.value,
         ad_bank_accounts: [...dataSource.value]
       }
+      checkConflictBank.value = false
       store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
       store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
     }
@@ -1252,7 +1281,6 @@ export default defineComponent({
         state.selectedRowKeys = [record.id]
         tempRow = [record.id]
         store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
-        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
       }
     }
 
@@ -1289,6 +1317,7 @@ export default defineComponent({
           showBtnCancle.value = false
           checkAddBank.value = false
           checkChooseBank.value = false
+          checkConflictBank.value = false
           isCreate.value = true
           checkNewCreate.value = true
           image.value = ''
@@ -1317,6 +1346,26 @@ export default defineComponent({
         if (store.state.company.isChangeTab) {
           showHeader.value = false
           isCreate.value = false
+        }
+      }
+    )
+
+    watch(
+      () => checkLeaveTab.value,
+      () => {
+        if (checkLeaveTab.value) {
+          checkImgInuse.value = false
+          checkDate.value = false
+          checkDateEmpty.value = false
+          showBtnCancle.value = false
+          isCreate.value = false
+          checkNewCreate.value = false
+          checkAddBank.value = false
+          checkChooseBank.value = false
+          checkConflictBank.value = false
+          emit('handleCancle', true)
+          store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
+          store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
         }
       }
     )
@@ -1350,10 +1399,13 @@ export default defineComponent({
       propsDataDelete,
       showTable,
       modalLeave,
+      modalLeaveTab,
+      checkLeaveTab,
       showBtnCancle,
       isCreate,
       checkAddBank,
       checkChooseBank,
+      checkConflictBank,
       isClickSubmit,
       isClickEditBank,
       columns,
@@ -1363,6 +1415,8 @@ export default defineComponent({
       rowSelection,
       state,
       idBank,
+      propsDataEdit,
+      propsDataCreate,
       handleChooseBank,
       handleFormAddBank,
       handleFormEditBank,

@@ -90,5 +90,6 @@ export default {
   check_email: 'このメールアドレスは最近使用されています。別のメールアドレスを指定してください。',
   title_balance: '確定',
   desc_balance_input: '入力中ですが入力をキャンセルしてもよろしいですか？',
-  handle_balance: '確定'
+  handle_balance: '確定',
+  bank_in_use: '入金口座を設定したのが削除できません。'
 }

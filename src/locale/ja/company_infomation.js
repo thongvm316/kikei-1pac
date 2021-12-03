@@ -32,6 +32,7 @@ export default {
   add_bank_account: '新規銀行口座追加',
   deposit_account: '入金口座',
   withdrawal_account: '出金口座',
+  bank_account_name: '銀行口座名',
 
   please_enter: '入力してください',
   please_enter_period: '0',
@@ -64,6 +65,7 @@ export default {
   error_bank_branch: '銀行支店',
   error_account_holder: '口座名義',
   error_account_number: '口座番号',
+  error_bank_account_number: '銀行口座情報が重複しています。',
 
   empty_image: '印鑑をアプロードして下さい',
   empty_date: '事業年度を選択して下さい',

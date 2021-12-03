@@ -32,6 +32,7 @@ export default {
   add_bank_account: 'Add new bank account',
   deposit_account: 'Deposit account',
   withdrawal_account: 'Withdrawal account',
+  bank_account_name: 'Bank account name',
 
   please_enter: 'Please enter',
   please_enter_period: '0',
@@ -64,6 +65,7 @@ export default {
   error_bank_branch: 'Bank branch',
   error_account_holder: 'Account holder',
   error_account_number: 'Account number',
+  error_bank_account_number: 'Duplicate bank account information.',
 
   empty_image: 'Please upload your seal',
   empty_date: 'Please select a business year',
