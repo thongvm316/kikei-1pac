@@ -870,9 +870,7 @@ export default defineComponent({
         label: t(`project.${type.label}`)
       }))
 
-      dataGroups.value?.forEach((group) => {
-        if (group.id === props.project.value?.groupId) depositCurrencyCode.value = group.depositCurrencyCode
-      })
+      depositCurrencyCode.value = props.project.value?.currencyCode
       /* ------------------- ./get all datas --------------------------- */
 
       // init project params
