@@ -345,7 +345,6 @@
       <div class="form-group">
         <div class="form-content">
           <label class="form-label required">{{ $t('company_infomation.bank_account') }}</label>
-          <!--          color: '#F5222D', display: 'flex', alignItems: 'center'-->
           <template v-if="!checkNewCreate">
             <div class="bank-table">
               <a-table
@@ -378,11 +377,6 @@
             <template v-if="checkChooseBank">
               <div class="error_choose_bank_account">
                 {{ $t('company_infomation.error_choose_bank_account') }}
-              </div>
-            </template>
-            <template v-if="checkConflictBank">
-              <div class="error_choose_bank_account">
-                {{ $t('company_infomation.error_bank_account_number') }}
               </div>
             </template>
           </template>
@@ -683,7 +677,6 @@ export default defineComponent({
     const isCreate = ref(false)
     const checkAddBank = ref(false)
     const checkChooseBank = ref(false)
-    const checkConflictBank = ref(false)
     const checkNewCreate = ref(false)
     const checked = ref(false)
 
@@ -806,7 +799,6 @@ export default defineComponent({
       checkDatePastFuture.value = false
       checkDateEmpty.value = false
       checkPeriodConflictColor.value = false
-      checkConflictBank.value = false
     })
 
     watch(checkCreate, (value) => {
@@ -912,7 +904,6 @@ export default defineComponent({
         checkNewCreate.value = false
         checkAddBank.value = false
         checkChooseBank.value = false
-        checkConflictBank.value = false
         emit('handleCancle', true)
         store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
         store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
@@ -1019,7 +1010,6 @@ export default defineComponent({
         checkDate.value = false
         checkPeriodConflictColor.value = false
         checkChooseBank.value = false
-        checkConflictBank.value = false
 
         store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_UPDATE', true)
@@ -1070,7 +1060,6 @@ export default defineComponent({
         const { result } = await createCompanyInfomation()
 
         checkChooseBank.value = false
-        checkConflictBank.value = false
         store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', true)
         store.commit('company/STORE_COMPANY_INFOMATION_ISCREATED', result.data)
 
@@ -1188,6 +1177,7 @@ export default defineComponent({
 
     const handleEditBank = (record) => {
       propsDataEdit.value = record
+
       isClickEditBank.value = true
       store.commit('company/STORE_COMPANY_INFOMATION_EDIT_BANK', record)
     }
@@ -1202,7 +1192,6 @@ export default defineComponent({
       checkNewCreate.value = false
       checkAddBank.value = false
       checkChooseBank.value = false
-      checkConflictBank.value = false
       form.value = {
         ...form.value,
         ad_bank_accounts: [...dataSource.value]
@@ -1219,7 +1208,6 @@ export default defineComponent({
         ...form.value,
         ad_bank_accounts: [...dataSource.value]
       }
-      checkConflictBank.value = false
       store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
       store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
     }
@@ -1281,6 +1269,7 @@ export default defineComponent({
         state.selectedRowKeys = [record.id]
         tempRow = [record.id]
         store.state.company.isCreate ? (showBtnCancle.value = true) : (showBtnCancle.value = false)
+        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
       }
     }
 
@@ -1317,7 +1306,6 @@ export default defineComponent({
           showBtnCancle.value = false
           checkAddBank.value = false
           checkChooseBank.value = false
-          checkConflictBank.value = false
           isCreate.value = true
           checkNewCreate.value = true
           image.value = ''
@@ -1362,7 +1350,6 @@ export default defineComponent({
           checkNewCreate.value = false
           checkAddBank.value = false
           checkChooseBank.value = false
-          checkConflictBank.value = false
           emit('handleCancle', true)
           store.commit('company/STORE_COMPANY_INFOMATION_REMOVE', false)
           store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
@@ -1405,7 +1392,6 @@ export default defineComponent({
       isCreate,
       checkAddBank,
       checkChooseBank,
-      checkConflictBank,
       isClickSubmit,
       isClickEditBank,
       columns,
