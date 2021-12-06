@@ -208,7 +208,7 @@ import { useStore } from 'vuex'
 import useCheckBankInUseService from '@/views/CompanyInformation/compasables/useCheckBankInUseService'
 
 import ModalCheckBankInUse from '@/components/ModalCheckBankInUse'
-import { forEach } from 'lodash-es'
+import { forEach, includes } from 'lodash-es'
 import useCheckBankUsedService from '@/views/CompanyInformation/compasables/useCheckBankUsedSetvice'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
@@ -328,22 +328,37 @@ export default defineComponent({
         number: form.value.number
       }
 
-      try {
-        const { checkBankUsed } = useCheckBankUsedService(data)
-        await checkBankUsed()
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          duration: 5,
-          message:
-            locale.value === 'en'
-              ? t('company_infomation.create_bank') + form.value.name
-              : form.value.name + t('company_infomation.create_bank')
-        })
+      if (typeof form.value.id === 'string') {
         context.emit('update:visible', false)
         context.emit('formEditBank', form.value)
-        validateColorBankNumber.value = false
-      } catch (err) {
-        checkErrorsApi(err)
+      } else {
+        forEach(form.value, (value) => {
+          if (includes(value, '__bank__')) {
+            form.value = {
+              ...form.value,
+              id: null,
+              is_withdrawal_main_bank_account: null
+            }
+          }
+        })
+
+        try {
+          const { checkBankUsed } = useCheckBankUsedService(data)
+          await checkBankUsed()
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'successfully',
+            duration: 5,
+            message:
+              locale.value === 'en'
+                ? t('company_infomation.create_bank') + form.value.name
+                : form.value.name + t('company_infomation.create_bank')
+          })
+          context.emit('update:visible', false)
+          context.emit('formEditBank', form.value)
+          validateColorBankNumber.value = false
+        } catch (err) {
+          checkErrorsApi(err)
+        }
       }
     })
 
