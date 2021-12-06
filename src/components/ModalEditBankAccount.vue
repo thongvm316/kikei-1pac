@@ -239,7 +239,6 @@ export default defineComponent({
 
     const btnDelete = ref(false)
     const checkDelete = ref(false)
-    const validateBankNumber = ref(false)
     const validateColorBankNumber = ref(false)
 
     const currencyID = ref([])
@@ -274,7 +273,6 @@ export default defineComponent({
 
     const handleCancel = () => {
       open.value = false
-      validateBankNumber.value = false
       validateColorBankNumber.value = false
       context.emit('update:visible', false)
     }
@@ -325,14 +323,8 @@ export default defineComponent({
         is_withdrawal_main_bank_account: null
       }
 
-      forEach(dataSource.value, (value) => {
-        if (value.number === form.value.number) {
-          return (validateBankNumber.value = true)
-        }
-      })
-
       let data = {
-        id: null,
+        id: form.value.id,
         number: form.value.number
       }
 
@@ -376,13 +368,6 @@ export default defineComponent({
       }
     )
 
-    watch(
-      () => form.value.number,
-      () => {
-        validateBankNumber.value = false
-      }
-    )
-
     return {
       locale,
       form,
@@ -391,7 +376,6 @@ export default defineComponent({
       currencyID,
       resetForm,
       checkDelete,
-      validateBankNumber,
       validateColorBankNumber,
       handleCancelDelete,
       handleDelete,

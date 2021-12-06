@@ -267,12 +267,14 @@ export default defineComponent({
         id: null,
         number: form.value.number
       }
+
       form.value = {
         ...listBank.value,
         ...form.value,
         id: uniqueId(UNIQUE_ID_PREFIX),
         is_withdrawal_main_bank_account: null
       }
+
       try {
         const { checkBankUsed } = useCheckBankUsedService(data)
         await checkBankUsed()

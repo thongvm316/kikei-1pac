@@ -190,6 +190,7 @@ export default defineComponent({
     onBeforeMount(() => {
       getAllGroup()
       store.commit('company/STORE_COMPANY_INFOMATION_ISCREATE', true)
+      store.commit('company/STORE_COMPANY_INFOMATION_LEAVETAB', 1)
     })
 
     watch(
@@ -200,6 +201,7 @@ export default defineComponent({
           keyTabDefault.value = targetKeyTab.value
           fetchListForm(targetKeyTab.value)
           store.commit('company/STORE_COMPANY_INFOMATION_CHANGE', true)
+          store.commit('company/STORE_COMPANY_INFOMATION_LEAVETAB', activeKey.value)
         }
       }
     )
