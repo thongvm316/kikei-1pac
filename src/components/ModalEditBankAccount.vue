@@ -144,7 +144,6 @@
                     :placeholder="$t('company_infomation.please_enter')"
                     class="w-300"
                     :class="errors.length || validateColorBankNumber ? 'input_border' : ''"
-                    @input="changeInput"
                     @change="handleChange"
                   />
                   <!-- Error message -->
@@ -209,7 +208,7 @@ import { useStore } from 'vuex'
 import useCheckBankInUseService from '@/views/CompanyInformation/compasables/useCheckBankInUseService'
 
 import ModalCheckBankInUse from '@/components/ModalCheckBankInUse'
-import { forEach, includes } from 'lodash-es'
+import { find, forEach, includes } from 'lodash-es'
 import useCheckBankUsedService from '@/views/CompanyInformation/compasables/useCheckBankUsedSetvice'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 
@@ -276,6 +275,7 @@ export default defineComponent({
 
     watch(propsDataEdit, (value) => {
       itemEdit.value = value
+      validateColorBankNumber.value = false
     })
 
     watch(currencyList, (value) => {
@@ -378,7 +378,22 @@ export default defineComponent({
           }
         }
       } else {
-        if (validateColorBankNumber.value) {
+        if (find(allListBank.value, ['number', form.value.number])) {
+          if (form.value.number === store.state.company.numberBank) {
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'successfully',
+              duration: 5,
+              message:
+                locale.value === 'en'
+                  ? t('company_infomation.create_bank') + form.value.name
+                  : form.value.name + t('company_infomation.create_bank')
+            })
+            context.emit('update:visible', false)
+            context.emit('formEditBank', form.value)
+          } else {
+            validateColorBankNumber.value = true
+          }
+        } else {
           store.commit('flash/STORE_FLASH_MESSAGE', {
             variant: 'successfully',
             duration: 5,
@@ -389,9 +404,6 @@ export default defineComponent({
           })
           context.emit('update:visible', false)
           context.emit('formEditBank', form.value)
-          validateColorBankNumber.value = false
-        } else {
-          validateColorBankNumber.value = true
         }
       }
     })
@@ -406,18 +418,6 @@ export default defineComponent({
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`company_infomation.error_${field}`))
-    }
-
-    const changeInput = () => {
-      if (typeof form.value.id === 'string') {
-        forEach(allListBank.value, (value) => {
-          if (value.number !== form.value.number) {
-            validateColorBankNumber.value = false
-          } else {
-            validateColorBankNumber.value = true
-          }
-        })
-      }
     }
 
     watch(
@@ -438,7 +438,6 @@ export default defineComponent({
       resetForm,
       checkDelete,
       validateColorBankNumber,
-      changeInput,
       handleCancelDelete,
       handleDelete,
       replaceField,
