@@ -144,6 +144,7 @@
                     :placeholder="$t('company_infomation.please_enter')"
                     class="w-300"
                     :class="errors.length || validateColorBankNumber ? 'input_border' : ''"
+                    @input="changeInput"
                     @change="handleChange"
                   />
                   <!-- Error message -->
@@ -224,6 +225,10 @@ export default defineComponent({
       type: Array,
       required: true
     },
+    propsDataSource: {
+      type: Array,
+      required: true
+    },
     propsDataEdit: {
       type: Object,
       required: true
@@ -243,12 +248,14 @@ export default defineComponent({
 
     const currencyID = ref([])
     const listBank = ref([])
+    const allListBank = ref([])
 
     const itemEdit = ref({})
 
     const { currencyList } = toRefs(props)
     const { dataSource } = toRefs(props)
     const { propsDataEdit } = toRefs(props)
+    const { propsDataSource } = toRefs(props)
 
     let form = ref({
       abbreviation: '',
@@ -261,6 +268,10 @@ export default defineComponent({
 
     watch(dataSource, (value) => {
       listBank.value = value
+    })
+
+    watch(propsDataSource, (value) => {
+      allListBank.value = value
     })
 
     watch(propsDataEdit, (value) => {
@@ -328,23 +339,46 @@ export default defineComponent({
         number: form.value.number
       }
 
-      if (typeof form.value.id === 'string') {
-        context.emit('update:visible', false)
-        context.emit('formEditBank', form.value)
-      } else {
-        forEach(form.value, (value) => {
-          if (includes(value, '__bank__')) {
-            form.value = {
-              ...form.value,
-              id: null,
-              is_withdrawal_main_bank_account: null
-            }
+      if (typeof form.value.id !== 'string') {
+        forEach(allListBank.value, (value) => {
+          if (value.number === form.value.number) {
+            validateColorBankNumber.value = true
+          } else {
+            validateColorBankNumber.value = false
           }
         })
 
-        try {
-          const { checkBankUsed } = useCheckBankUsedService(data)
-          await checkBankUsed()
+        if (!validateColorBankNumber.value) {
+          forEach(form.value, (value) => {
+            if (includes(value, '__bank__')) {
+              form.value = {
+                ...form.value,
+                id: null,
+                is_withdrawal_main_bank_account: null
+              }
+            }
+          })
+
+          try {
+            const { checkBankUsed } = useCheckBankUsedService(data)
+            await checkBankUsed()
+            store.commit('flash/STORE_FLASH_MESSAGE', {
+              variant: 'successfully',
+              duration: 5,
+              message:
+                locale.value === 'en'
+                  ? t('company_infomation.create_bank') + form.value.name
+                  : form.value.name + t('company_infomation.create_bank')
+            })
+            context.emit('update:visible', false)
+            context.emit('formEditBank', form.value)
+            validateColorBankNumber.value = false
+          } catch (err) {
+            checkErrorsApi(err)
+          }
+        }
+      } else {
+        if (validateColorBankNumber.value) {
           store.commit('flash/STORE_FLASH_MESSAGE', {
             variant: 'successfully',
             duration: 5,
@@ -356,8 +390,8 @@ export default defineComponent({
           context.emit('update:visible', false)
           context.emit('formEditBank', form.value)
           validateColorBankNumber.value = false
-        } catch (err) {
-          checkErrorsApi(err)
+        } else {
+          validateColorBankNumber.value = true
         }
       }
     })
@@ -372,6 +406,18 @@ export default defineComponent({
 
     const replaceField = (text, field) => {
       return text.replace(field, t(`company_infomation.error_${field}`))
+    }
+
+    const changeInput = () => {
+      if (typeof form.value.id === 'string') {
+        forEach(allListBank.value, (value) => {
+          if (value.number !== form.value.number) {
+            validateColorBankNumber.value = false
+          } else {
+            validateColorBankNumber.value = true
+          }
+        })
+      }
     }
 
     watch(
@@ -392,6 +438,7 @@ export default defineComponent({
       resetForm,
       checkDelete,
       validateColorBankNumber,
+      changeInput,
       handleCancelDelete,
       handleDelete,
       replaceField,
