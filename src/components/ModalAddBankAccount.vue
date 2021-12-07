@@ -183,7 +183,7 @@
 import { defineComponent, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from 'vee-validate'
-import { forEach, last, uniqueId } from 'lodash-es'
+import { find, forEach, last, uniqueId } from 'lodash-es'
 import { useStore } from 'vuex'
 
 import useCheckBankUsedService from '@/views/CompanyInformation/compasables/useCheckBankUsedSetvice'
@@ -275,23 +275,28 @@ export default defineComponent({
         is_withdrawal_main_bank_account: null
       }
 
-      try {
-        const { checkBankUsed } = useCheckBankUsedService(data)
-        await checkBankUsed()
-        store.commit('flash/STORE_FLASH_MESSAGE', {
-          variant: 'successfully',
-          duration: 5,
-          message:
-            locale.value === 'en'
-              ? t('company_infomation.create_bank') + form.value.name
-              : form.value.name + t('company_infomation.create_bank')
-        })
-        context.emit('update:visible', false)
-        context.emit('formAddBank', form.value)
-        validateColorBankNumber.value = false
-        store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
-      } catch (err) {
-        checkErrorsApi(err)
+      if (find(listALlBank.value, ['number', form.value.number])) {
+        validateColorBankNumber.value = true
+      } else {
+        try {
+          const { checkBankUsed } = useCheckBankUsedService(data)
+          await checkBankUsed()
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'successfully',
+            duration: 5,
+            message:
+              locale.value === 'en'
+                ? t('company_infomation.create_bank') + form.value.name
+                : form.value.name + t('company_infomation.create_bank')
+          })
+          context.emit('update:visible', false)
+          context.emit('formAddBank', form.value)
+          validateColorBankNumber.value = false
+          store.commit('company/STORE_COMPANY_INFOMATION_LEAVEGROUP', false)
+          store.commit('company/STORE_COMPANY_INFOMATION_NUMBER_BANK', form.value.number)
+        } catch (err) {
+          checkErrorsApi(err)
+        }
       }
     })
 

@@ -3,6 +3,7 @@ const state = {
   navName: {},
   formBankEdit: {},
   leaveTab: {},
+  numberBank: {},
   isRemove: false,
   isDeleted: false,
   isChangeTab: false,

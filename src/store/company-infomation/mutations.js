@@ -9,7 +9,8 @@ import {
   STORE_COMPANY_INFOMATION_LEAVEGROUP,
   STORE_COMPANY_INFOMATION_NAVNAME,
   STORE_COMPANY_INFOMATION_EDIT_BANK,
-  STORE_COMPANY_INFOMATION_LEAVETAB
+  STORE_COMPANY_INFOMATION_LEAVETAB,
+  STORE_COMPANY_INFOMATION_NUMBER_BANK
 } from '../mutation-types'
 
 const mutations = {
@@ -47,6 +48,10 @@ const mutations = {
 
   [STORE_COMPANY_INFOMATION_LEAVETAB](state, payload) {
     state.leaveTab = payload
+  },
+
+  [STORE_COMPANY_INFOMATION_NUMBER_BANK](state, payload) {
+    state.numberBank = payload
   },
 
   [STORE_COMPANY_INFOMATION_NAVNAME](state, payload) {
