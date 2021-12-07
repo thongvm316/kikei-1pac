@@ -29,6 +29,7 @@
       :currency-list="currencyList"
       :data-source="dataSource"
       :props-data-edit="propsDataEdit"
+      :props-data-source="propsDataSource"
       @formEditBank="handleFormEditBank($event)"
       @deleteBank="handleDeleteBank($event)"
     />
@@ -697,6 +698,7 @@ export default defineComponent({
     const revertTableBank = ref([])
     const dataSource = ref([])
     const propsDataCreate = ref([])
+    const propsDataSource = ref([])
 
     const saveDate = ref({})
     const propsDataDelete = ref({})
@@ -1177,7 +1179,7 @@ export default defineComponent({
 
     const handleEditBank = (record) => {
       propsDataEdit.value = record
-
+      propsDataSource.value = dataSource.value
       isClickEditBank.value = true
       store.commit('company/STORE_COMPANY_INFOMATION_EDIT_BANK', record)
     }
@@ -1402,6 +1404,7 @@ export default defineComponent({
       state,
       idBank,
       propsDataEdit,
+      propsDataSource,
       propsDataCreate,
       handleChooseBank,
       handleFormAddBank,
