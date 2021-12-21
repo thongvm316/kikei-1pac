@@ -590,8 +590,6 @@ export default defineComponent({
       })
 
       const currentGroup = find(props?.dataGroups, { id: props?.project?.value?.groupId })
-      // const currentGroupCurrencyId = find(currencyList.value, { code: currentGroup.depositCurrencyCode })
-      // estimateCurrencyId.value = result?.data[0]?.currencyId || currentGroupCurrencyId?.id
       const currency = find(currencyList.value, {
         id: result?.data[0]?.currencyId
       })
