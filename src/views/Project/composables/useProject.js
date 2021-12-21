@@ -8,6 +8,24 @@ const ProjectService = service.get('ProjectService')
 const PositionService = service.get('PositionService')
 const { t } = i18n.global
 
+export const getProjectMoneyEstimate = async (params) => {
+  try {
+    const { data } = await ProjectService.getProjectMoneyEstimate(params)
+
+    return data?.result || []
+  } catch (e) {
+    throw e
+  }
+}
+
+export const editProjectMoneyEstimate = async (id, data) => {
+  try {
+    await ProjectService.editProjectMoneyEstimate(id, data)
+  } catch (e) {
+    throw e
+  }
+}
+
 export const getProjectList = async (params, loading, data) => {
   loading.value = true
   try {

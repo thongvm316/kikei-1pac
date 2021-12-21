@@ -286,7 +286,12 @@ import { getCurrencyExchange, getCurrencyList } from '../../composables/useCurre
 import EditIcon from '@/assets/icons/ico_edit.svg'
 import EditLargeIcon from '@/assets/icons/ico_edit_large.svg'
 import { DownOutlined } from '@ant-design/icons-vue'
-import { getLaborDirectCostList, getRevenueList } from '../../composables/useProject'
+import {
+  getLaborDirectCostList,
+  getRevenueList,
+  getProjectMoneyEstimate,
+  editProjectMoneyEstimate
+} from '../../composables/useProject'
 import moment from 'moment'
 import RemindInputStatisticMonthModal from './RemindInputStatisticMonthModal.vue'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
@@ -375,11 +380,6 @@ export default defineComponent({
         : fromStringToDateTimeFormatPicker(moment(new Date()).format('YYYY-MM'))
     )
     const estimateCurrencyId = ref()
-
-    const handleCancelEditForm = () => {
-      isEditing.value = false
-      revenueEstimateMoney.value = props?.project?.value?.estimate
-    }
 
     const handleOpenCostModal = (typeId) => {
       if (props.project.value?.statisticsFromMonth === '' || props.project.value?.statisticsToMonth === '') {
@@ -590,8 +590,6 @@ export default defineComponent({
       })
 
       const currentGroup = find(props?.dataGroups, { id: props?.project?.value?.groupId })
-      const currentGroupCurrencyId = find(currencyList.value, { code: currentGroup.depositCurrencyCode })
-      estimateCurrencyId.value = result?.data[0]?.currencyId || currentGroupCurrencyId?.id
       const currency = find(currencyList.value, {
         id: result?.data[0]?.currencyId
       })
@@ -612,13 +610,15 @@ export default defineComponent({
       fetchRevenueList()
     }
 
-    const submitButton = () => {
-      const emitData = {
-        revenueEstimateMoney: revenueEstimateMoney.value,
-        estimateCurrencyId: estimateCurrencyId.value
-      }
+    const submitButton = async () => {
+      await editProjectMoneyEstimate(projectMoneyEstimate.value.id, { estimateMoney: revenueEstimateMoney.value })
+      await fetchProjectMoneyEstimate()
       isEditing.value = false
-      emit('on-submit-predict-budget', emitData)
+    }
+
+    const handleCancelEditForm = () => {
+      isEditing.value = false
+      revenueEstimateMoney.value = projectMoneyEstimate.value.estimateMoney
     }
 
     watch(
@@ -643,6 +643,20 @@ export default defineComponent({
       }
     )
 
+    const projectMoneyEstimate = ref()
+
+    const fetchProjectMoneyEstimate = async () => {
+      const { data: projectMoneyEstimateRes } = await getProjectMoneyEstimate({
+        projectId: props?.project?.value?.id,
+        month: moment(new Date()).format('YYYY-MM')
+      })
+
+      projectMoneyEstimate.value = projectMoneyEstimateRes[0]
+
+      estimateCurrencyId.value = projectMoneyEstimate.value.currencyCode
+      revenueEstimateMoney.value = projectMoneyEstimate.value.estimateMoney
+    }
+
     onBeforeMount(async () => {
       // get currency list
       const currencyReponse = await getCurrencyList()
@@ -652,7 +666,7 @@ export default defineComponent({
       const { result } = await getCurrencyExchange()
       currencyExchange.value = result.data
 
-      revenueEstimateMoney.value = props?.project?.value?.estimate
+      fetchProjectMoneyEstimate()
 
       fetchOrderCostList()
       fetchMaterialCostList()
