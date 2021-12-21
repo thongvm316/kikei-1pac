@@ -176,34 +176,25 @@
 
     <div class="moneyWrapper">
       <!-- money -->
-      <a-form-item name="money" label="金額" class="u-relative" :class="{ 'has-error': localErrors['money'] }">
+      <a-form-item
+        name="estimateMoney"
+        label="金額"
+        class="u-relative"
+        :class="{ 'has-error': localErrors['estimateMoney'] }"
+      >
         <a-input-number
-          v-model:value="projectParams.money"
+          v-model:value="projectParams.estimateMoney"
           placeholder="入力してください"
           :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
           :precision="0"
           :style="{ width: '300px' }"
         />
         <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{ `(${depositCurrencyCode})` }}</span>
-        <p v-if="localErrors['money']" class="ant-form-explain">
-          {{ $t(`common.local_error.${localErrors['money']}`) }}
+        <p v-if="localErrors['estimateMoney']" class="ant-form-explain">
+          {{ $t(`common.local_error.${localErrors['estimateMoney']}`) }}
         </p>
       </a-form-item>
       <!-- money -->
-
-      <!-- tax -->
-      <a-form-item name="tax" label="税金">
-        <a-input-number
-          v-model:value="projectParams.tax"
-          :precision="0"
-          :style="{ width: '68px' }"
-          :min="0"
-          :max="100"
-        />
-
-        <span class="u-ml-8 u-text-grey-75">%</span>
-      </a-form-item>
-      <!-- tax -->
     </div>
 
     <!-- tag  -->
@@ -312,8 +303,7 @@ export default defineComponent({
       director: '',
       tags: [],
       memo: '',
-      money: null,
-      tax: null
+      estimateMoney: null
     })
     const localErrors = ref({})
     const loading = ref(false)
@@ -340,7 +330,7 @@ export default defineComponent({
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
       accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
-      money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
+      estimateMoney: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
     })
 
     const dynamicBaseOnAccuracy = () => {

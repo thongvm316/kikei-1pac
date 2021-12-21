@@ -9,7 +9,6 @@
           v-model:is-loaded-overview-table="isLoadedOverviewTable"
           :project="project"
           :project-ref="projectRef"
-          :revenue-estimate-money-request="revenueEstimateMoneyRequest"
           :data-groups="dataGroups"
           :data-accounts="dataAccounts"
           :data-statuses="dataStatuses"
@@ -102,12 +101,6 @@ export default defineComponent({
       isLoadedOverviewTable.value = false
     }
 
-    const revenueEstimateMoneyRequest = ref()
-
-    const onSubmitPredictBudget = (dataEmit) => {
-      revenueEstimateMoneyRequest.value = dataEmit
-    }
-
     const onUpdateTotalRevenue = async () => {
       await fetchProject()
     }
@@ -139,7 +132,6 @@ export default defineComponent({
       project,
       finance,
       isLoadedOverviewTable,
-      revenueEstimateMoneyRequest,
       projectRef,
       dataAccounts,
       dataStatuses,
@@ -148,7 +140,6 @@ export default defineComponent({
       isMinimiseProjectHistory,
 
       onSubmitEditProjectForm,
-      onSubmitPredictBudget,
       onCollapseProjectHistory,
       onUpdateTotalRevenue
     }

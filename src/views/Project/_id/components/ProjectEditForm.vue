@@ -353,58 +353,6 @@
                       </tr>
                       <!-- accountID -->
 
-                      <tr>
-                        <td>金額</td>
-
-                        <td>
-                          <div class="moneyWrapper">
-                            <!-- money -->
-                            <a-form-item
-                              name="money"
-                              label=""
-                              class="u-relative"
-                              :class="{ 'has-error': localErrors['money'] }"
-                            >
-                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{
-                                $filters.number_with_commas(projectParams.money)
-                              }}</span>
-                              <a-input-number
-                                v-else
-                                v-model:value="projectParams.money"
-                                placeholder="入力してください"
-                                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                :precision="0"
-                                :style="{ width: '150px' }"
-                              />
-                              <span v-if="depositCurrencyCode" class="u-ml-8 u-text-grey-75">{{
-                                `(${depositCurrencyCode})`
-                              }}</span>
-                              <p v-if="localErrors['money']" class="ant-form-explain">
-                                {{ $t(`common.local_error.${localErrors['money']}`) }}
-                              </p>
-                            </a-form-item>
-                            <!-- money -->
-
-                            <!-- tax -->
-                            <a-form-item name="tax" label="">
-                              <span class="u-ml-8">税金: </span>
-                              <span v-if="!isEditing" class="u-text-grey-15 u-text-12">{{ projectParams.tax }}</span>
-                              <a-input-number
-                                v-else
-                                v-model:value="projectParams.tax"
-                                :precision="0"
-                                :style="{ width: '68px' }"
-                                :min="0"
-                                :max="100"
-                              />
-
-                              <span class="u-ml-8 u-text-grey-75">%</span>
-                            </a-form-item>
-                            <!-- tax -->
-                          </div>
-                        </td>
-                      </tr>
-
                       <!-- tag  -->
                       <tr>
                         <td>タグ</td>
@@ -515,11 +463,6 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-
-    revenueEstimateMoneyRequest: {
-      type: Object,
-      default: undefined
-    },
     projectRef: Object,
     dataAccounts: Array,
     dataStatuses: Array,
@@ -557,10 +500,8 @@ export default defineComponent({
       groupId: null,
       accountId: null,
       director: '',
-      money: null,
       tags: [],
-      memo: '',
-      tax: null
+      memo: ''
     })
     const localErrors = ref({})
     const loading = ref(false)
@@ -602,18 +543,6 @@ export default defineComponent({
     }
 
     watch(
-      () => props.revenueEstimateMoneyRequest,
-      async (val) => {
-        const paramRequest = cloneDeep(projectDataRequest.value)
-        paramRequest.estimate = val.revenueEstimateMoney
-        paramRequest.estimateCurrencyId = val.estimateCurrencyId
-
-        await editProject(projectProp.value.id, paramRequest)
-        emit('on-submit-edit-project-form')
-      }
-    )
-
-    watch(
       () => props.projectRef,
       () => {
         initProjectPropData()
@@ -631,8 +560,7 @@ export default defineComponent({
       statusId: [{ type: 'number', required: true, message: t('project.error_message.status'), trigger: 'change' }],
       accuracyId: [{ type: 'number', required: true, message: t('project.error_message.accuracy'), trigger: 'change' }],
       groupId: [{ type: 'number', required: true, message: t('project.error_message.group'), trigger: 'change' }],
-      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }],
-      money: [{ type: 'number', required: true, message: t('project.error_message.money'), trigger: 'change' }]
+      accountId: [{ type: 'number', required: true, message: t('project.error_message.account'), trigger: 'change' }]
     })
 
     const dynamicBaseOnAccuracy = () => {
@@ -1145,12 +1073,6 @@ export default defineComponent({
     &__text {
       color: red;
     }
-  }
-
-  .moneyWrapper {
-    display: flex;
-    align-items: flex-start;
-    gap: 32px;
   }
 
   .project-form-tags__tooltip {

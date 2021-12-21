@@ -85,5 +85,13 @@ export default {
 
   getSuggestTag(params) {
     return apiCaller({ method: 'GET', url: `${RESOURCES.tag}/search`, params })
+  },
+
+  getProjectMoneyEstimate(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.project}/money-estimate/list`, params })
+  },
+
+  editProjectMoneyEstimate(id, data) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.project}/money-estimate/${id}`, data })
   }
 }
