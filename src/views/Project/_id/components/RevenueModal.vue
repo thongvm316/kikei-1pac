@@ -224,9 +224,9 @@
             </a-button>
 
             <div class="u-text-right u-mt-28">
-              <a-select :value="1" show-arrow class="u-ml-8" :default-active-first-option="false">
-                <a-select-option :value="1">消費税: 10%</a-select-option>
-                <a-select-option :value="2">VAT: 10%</a-select-option>
+              <a-select v-model:value="costState.tax" show-arrow class="u-ml-8">
+                <a-select-option :value="10">消費税: 10%</a-select-option>
+                <a-select-option :value="20">VAT: 10%</a-select-option>
               </a-select>
             </div>
 
@@ -490,7 +490,8 @@ export default defineComponent({
       projectName: null,
       quotationValidityPeriod: 1,
       quotationValidityPeriodOther: null,
-      total: null
+      total: null,
+      tax: 10
     }
     const costState = ref({ ...cloneDeep(initialCostState), projectCostsType: activeKey.value })
     const isLoadingDataTable = ref()
@@ -765,6 +766,7 @@ export default defineComponent({
       if (dataRequest.quotationValidityPeriod !== 5) dataRequest.quotationValidityPeriodOther = null
       dataRequest.projectCostsType = Number(dataRequest.projectCostsType)
       dataRequest.currencyId = currencyExchangeSelected.value
+      dataRequest.tax = 10 // the same tax: 10%
       dataRequest.deliveryDate = dataRequest.deliveryDate ? moment(dataRequest.deliveryDate).format('YYYY-MM-DD') : null
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')
