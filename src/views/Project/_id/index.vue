@@ -22,7 +22,6 @@
           :data-groups="dataGroups"
           :project="project"
           :project-ref="projectRef"
-          @on-submit-predict-budget="onSubmitPredictBudget"
           @on-update-total-revenue="onUpdateTotalRevenue"
         />
       </div>

@@ -178,7 +178,7 @@
       <!-- money -->
       <a-form-item
         name="estimateMoney"
-        label="金額"
+        label="予測金額"
         class="u-relative"
         :class="{ 'has-error': localErrors['estimateMoney'] }"
       >

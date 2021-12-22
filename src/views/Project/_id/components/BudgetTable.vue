@@ -60,7 +60,13 @@
                               </td>
                             </tr>
                           </td>
-                          <td class="table-cost__edit"></td>
+                          <td class="table-cost__edit icon-history">
+                            <a-button type="link" @click="isOpenEstimateMoneyModal = true">
+                              <template #icon>
+                                <history-icon />
+                              </template>
+                            </a-button>
+                          </td>
                         </tr>
 
                         <tr class="dashed-bottom">
@@ -266,6 +272,8 @@
   />
 
   <RemindInputStatisticMonthModal v-model:visible="remindInputStatisticMonthModal" />
+
+  <EstimateMoneyModal v-if="isOpenEstimateMoneyModal" v-model:visible="isOpenEstimateMoneyModal" :project="project" />
 </template>
 
 <script>
@@ -278,6 +286,7 @@ import { PROJECT_TYPES } from '@/enums/project.enum'
 import CostsModal from './CostsModal'
 import DirectlyPersonCost from './DirectlyPersonCost'
 import RevenueModal from './RevenueModal.vue'
+import EstimateMoneyModal from './EstimateMoneyModal.vue'
 
 import { COST_MODAL_TYPES, PROJECT_COST_TYPES } from '@/enums/project.enum'
 import { getOrderCostList, getDirectCostList, getMaterialCostList } from '../../composables/useCosts'
@@ -295,6 +304,7 @@ import {
 import moment from 'moment'
 import RemindInputStatisticMonthModal from './RemindInputStatisticMonthModal.vue'
 import { fromStringToDateTimeFormatPicker } from '@/helpers/date-time-format'
+import HistoryIcon from '@/assets/icons/ico_history.svg'
 
 export default defineComponent({
   name: 'ProjectBudgetTable',
@@ -306,7 +316,9 @@ export default defineComponent({
     DownOutlined,
     DirectlyPersonCost,
     RevenueModal,
-    RemindInputStatisticMonthModal
+    RemindInputStatisticMonthModal,
+    HistoryIcon,
+    EstimateMoneyModal
   },
 
   props: {
@@ -316,7 +328,7 @@ export default defineComponent({
     projectRef: Object
   },
 
-  emits: ['on-submit-predict-budget', 'on-update-total-revenue'],
+  emits: ['on-update-total-revenue'],
 
   setup(props, { emit }) {
     const route = useRoute()
@@ -332,6 +344,9 @@ export default defineComponent({
 
     // directly person cost modal
     const isOpenDirectlyCostModal = ref()
+
+    // estimate money modal
+    const isOpenEstimateMoneyModal = ref()
 
     // data
     const isLoadingBudgetTable = ref(false)
@@ -684,6 +699,7 @@ export default defineComponent({
       currencyList,
       currencyExchange,
       remindInputStatisticMonthModal,
+      isOpenEstimateMoneyModal,
 
       COST_MODAL_TYPES,
       titleCostModal,
@@ -830,6 +846,10 @@ export default defineComponent({
     td.table-cost__edit {
       padding-top: 10px;
       padding-left: 12px;
+
+      &.icon-history {
+        vertical-align: bottom;
+      }
     }
 
     &__content {
