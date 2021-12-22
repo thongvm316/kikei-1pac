@@ -224,9 +224,10 @@
             </a-button>
 
             <div class="u-text-right u-mt-28">
-              <a-select v-model:value="costState.tax" show-arrow class="u-ml-8">
-                <a-select-option :value="10">消費税: 10%</a-select-option>
-                <a-select-option :value="20">VAT: 10%</a-select-option>
+              <a-select v-model:value="costState.taxMethod" show-arrow class="u-ml-8">
+                <a-select-option :value="TAX_TYPES.SALE">消費税: 10%</a-select-option>
+                <a-select-option :value="TAX_TYPES.VAT">VAT: 10%</a-select-option>
+                <a-select-option :value="TAX_TYPES.NONE">無し</a-select-option>
               </a-select>
             </div>
 
@@ -438,6 +439,8 @@ import { findIndex, uniqueId, find, cloneDeep, isEqual } from 'lodash-es'
 import moment from 'moment'
 import ConfirmSubmitModal from './ConfirmSubmitModal.vue'
 import ConfirmCloneModal from './ConfirmCloneModal.vue'
+import { TAX_TYPES } from '@/enums/project.enum'
+
 export default defineComponent({
   name: 'RevenueModal',
 
@@ -491,7 +494,8 @@ export default defineComponent({
       quotationValidityPeriod: 1,
       quotationValidityPeriodOther: null,
       total: null,
-      tax: 10
+      tax: 1,
+      taxMethod: TAX_TYPES.SALE
     }
     const costState = ref({ ...cloneDeep(initialCostState), projectCostsType: activeKey.value })
     const isLoadingDataTable = ref()
@@ -766,7 +770,7 @@ export default defineComponent({
       if (dataRequest.quotationValidityPeriod !== 5) dataRequest.quotationValidityPeriodOther = null
       dataRequest.projectCostsType = Number(dataRequest.projectCostsType)
       dataRequest.currencyId = currencyExchangeSelected.value
-      dataRequest.tax = 10 // the same tax: 10%
+      dataRequest.tax = dataRequest.taxMethod === TAX_TYPES.NONE ? 0 : 10
       dataRequest.deliveryDate = dataRequest.deliveryDate ? moment(dataRequest.deliveryDate).format('YYYY-MM-DD') : null
       dataRequest.dateCreateEstimate = dataRequest.dateCreateEstimate
         ? moment(dataRequest.dateCreateEstimate).format('YYYY-MM-DD')
@@ -882,6 +886,7 @@ export default defineComponent({
       costStateToClone,
       isHaveNoChangeCostState,
       disabledDate,
+      TAX_TYPES,
 
       handleCancel,
       handleClickEditUnitPrice,

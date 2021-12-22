@@ -54,3 +54,9 @@ export const PROJECT_REVENUE_TYPES = Object.freeze([
     value: 2
   }
 ])
+
+export const TAX_TYPES = Object.freeze({
+  SALE: 1,
+  VAT: 2,
+  NONE: 3
+})
