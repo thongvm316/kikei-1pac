@@ -199,11 +199,7 @@
 
                         <!-- sub total -->
                         <td>
-                          {{
-                            $filters.number_with_commas(
-                              cost.unitPrice * cost.quantity * currencyExchange[initialCurrencyCode][selectCurrencyCode]
-                            )
-                          }}
+                          {{ $filters.number_with_commas(cost.unitPrice * cost.quantity) }}
                         </td>
                       </tr>
                     </template>
@@ -677,7 +673,7 @@ export default defineComponent({
           dateCreateEstimate: fromStringToDateTimeFormatPicker(costState.value.dateCreateEstimate),
           deliveryDate: fromStringToDateTimeFormatPicker(costState.value.deliveryDate),
           // TODO: fix initial currency id of quantity
-          currencyId: costState.value?.currencyId ? costState.value.currencyId : 2
+          currencyId: costState.value?.currencyId ? costState.value.currencyId : props.project.value?.currencyId
         }
 
         costState.value.adProjectRevenueItems = costState.value.adProjectRevenueItems.map((item) => ({
