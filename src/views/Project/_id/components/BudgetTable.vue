@@ -665,11 +665,10 @@ export default defineComponent({
         projectId: props?.project?.value?.id,
         month: moment(new Date()).format('YYYY-MM')
       })
-
-      projectMoneyEstimate.value = projectMoneyEstimateRes[0]
+      projectMoneyEstimate.value = projectMoneyEstimateRes ? projectMoneyEstimateRes[0] : {}
 
       estimateCurrencyId.value = projectMoneyEstimate.value.currencyCode
-      revenueEstimateMoney.value = projectMoneyEstimate.value.estimateMoney
+      revenueEstimateMoney.value = projectMoneyEstimate.value.estimateMoney || 0
     }
 
     onBeforeMount(async () => {
