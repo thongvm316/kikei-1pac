@@ -1,12 +1,5 @@
 <template>
-  <a-modal
-    v-model:visible="visible"
-    class="estimate-money-modal"
-    width="320px"
-    centered
-    title="受注金額の予算"
-    @cancel="handleCancel"
-  >
+  <a-modal v-model:visible="visible" class="estimate-money-modal" width="320px" centered title="受注金額の予算">
     <template #footer>
       <a-spin :spinning="loading">
         <div class="list">

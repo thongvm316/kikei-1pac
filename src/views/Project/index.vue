@@ -84,7 +84,7 @@
       </template>
 
       <template #renderProjectMoney="{ record }">
-        {{ $filters.number_with_commas(record.money) }}
+        {{ $filters.number_with_commas(record.estimateMoney) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">

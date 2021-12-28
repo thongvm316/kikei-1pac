@@ -230,6 +230,9 @@
             <div class="revenue-modal__count">
               <p>合計: {{ $filters.number_with_commas(totalCostItems) }} ({{ selectCurrencyCode.toUpperCase() }})</p>
               <p>
+                税金: {{ $filters.number_with_commas(totalCostItems * 0.1) }} ({{ selectCurrencyCode.toUpperCase() }})
+              </p>
+              <p>
                 合計（税込):
                 {{ $filters.number_with_commas(totalCostItems + totalCostItems * 0.1) }}
                 ({{ selectCurrencyCode.toUpperCase() }})
