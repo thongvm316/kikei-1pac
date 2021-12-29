@@ -250,7 +250,11 @@
 
                   <tr>
                     <td>合計（税込):</td>
-                    <td class="u-pl-12">
+                    <td v-if="costState.taxMethod === 3" class="u-pl-12">
+                      {{ $filters.number_with_commas(totalCostItems) }} ({{ selectCurrencyCode.toUpperCase() }})
+                    </td>
+
+                    <td v-else class="u-pl-12">
                       {{ $filters.number_with_commas(totalCostItems + totalCostItems * 0.1) }} ({{
                         selectCurrencyCode.toUpperCase()
                       }})
