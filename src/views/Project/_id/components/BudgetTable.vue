@@ -663,8 +663,9 @@ export default defineComponent({
     const fetchProjectMoneyEstimate = async () => {
       const { data: projectMoneyEstimateRes } = await getProjectMoneyEstimate({
         projectId: props?.project?.value?.id,
-        month: moment(new Date()).format('YYYY-MM')
+        month: moment(month.value).format('YYYY-MM')
       })
+
       projectMoneyEstimate.value = projectMoneyEstimateRes ? projectMoneyEstimateRes[0] : {}
 
       estimateCurrencyId.value = projectMoneyEstimate.value.currencyCode

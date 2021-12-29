@@ -5,7 +5,7 @@
         <div class="list">
           <div v-for="item in projectMoneyEstimate" :key="item.id" class="list__item">
             <p>予測 ({{ item.month }})</p>
-            <p>{{ item.estimateMoney }} ({{ item.currencyCode }})</p>
+            <p>{{ $filters.number_with_commas(item.estimateMoney) }} ({{ item.currencyCode }})</p>
           </div>
         </div>
       </a-spin>
