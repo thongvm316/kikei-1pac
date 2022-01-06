@@ -1,5 +1,16 @@
 import { shallowMount } from '@vue/test-utils'
 import ModalActionBar from '@/components/ModalActionBar'
+import { createStore } from 'vuex'
+
+const store = createStore({
+  state() {
+    return {
+      auth: {
+        authProfile: null
+      }
+    }
+  }
+})
 
 describe('ModalActionBar', () => {
   let wrapper
@@ -11,6 +22,7 @@ describe('ModalActionBar', () => {
       },
 
       global: {
+        plugins: [store],
         stubs: { AButton: true }
       }
     })
