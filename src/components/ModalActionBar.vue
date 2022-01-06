@@ -4,6 +4,7 @@
       <a-button
         :disabled="project && !authProfile.isAdmin && isProjectCreatedByUser"
         type="default"
+        data-test="goToEditButton"
         @click="$emit('on-go-to-edit')"
       >
         <template #icon>
@@ -14,7 +15,7 @@
         {{ $t('project.float_modal.edit') }}
       </a-button>
 
-      <a-button type="default" @click="$emit('on-go-to-copy')">
+      <a-button type="default" data-test="goToCopyButton" @click="$emit('on-go-to-copy')">
         <template #icon>
           <span class="btn-icon">
             <copy-icon />
@@ -23,7 +24,12 @@
         {{ $t('project.float_modal.copy') }}
       </a-button>
 
-      <a-button v-if="enableGoToDeposit" type="default" @click="$emit('on-go-to-deposit')">
+      <a-button
+        v-if="enableGoToDeposit"
+        type="default"
+        data-test="goToDepositButton"
+        @click="$emit('on-go-to-deposit')"
+      >
         <template #icon>
           <span class="btn-icon">
             <to-deposit-icon />
@@ -35,6 +41,7 @@
       <a-button
         type="default"
         :disabled="isDisableDelete || (project && !authProfile.isAdmin && isProjectCreatedByUser)"
+        data-test="goToDeleteButton"
         @click="$emit('on-go-to-delete')"
       >
         <template #icon>
