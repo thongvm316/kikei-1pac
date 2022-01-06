@@ -5,7 +5,8 @@ export default {
   subcategory: '中分類',
   category: '大分類',
   note: '中分類名より検索します',
-  subcategoryName: '中分類',
+  subcategory_name: '中分類',
+  error_subcategory_name: '中分類',
   key_word: '項目名',
   search: '検索',
   place_input: '入力してください',
@@ -20,5 +21,7 @@ export default {
   text_input: 'テキスト入力',
   use_distinction: '使用区分',
   input: '通常(テキスト入力)',
-  back: '戻る'
+  back: '戻る',
+  subcategory_deposit: 'この中分類は入出金で使用しているため、削除できません',
+  emptyData: '該当する中分類が見つかりませんでした。'
 }

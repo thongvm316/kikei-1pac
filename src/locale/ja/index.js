@@ -16,6 +16,12 @@ import accounting from './accounting'
 import user from './user'
 import subcategory from './subcategory'
 import login from './login'
+import set_password from './set_password'
+import change_password from './change_password'
+import profile from './profile'
+import activate_password from './activate_password'
+import company_infomation from './company_infomation'
+import balance_registration from './balance_registration'
 
 export default {
   errors,
@@ -35,5 +41,11 @@ export default {
   accounting,
   user,
   subcategory,
-  login
+  login,
+  set_password,
+  change_password,
+  profile,
+  activate_password,
+  company_infomation,
+  balance_registration
 }

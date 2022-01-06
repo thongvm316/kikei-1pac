@@ -17,12 +17,16 @@ export default {
     return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/search`, params, data })
   },
 
-  getDepositDetail(depositId) {
-    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}` })
+  getDepositDetail(depositId, params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.deposit}/${depositId}`, params })
   },
 
-  deleteDeposit(depositId, params) {
-    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/${depositId}`, params })
+  deleteDeposit(data) {
+    return apiCaller({ method: 'DELETE', url: RESOURCES.deposit, data })
+  },
+
+  deleteDepositRoot(id, data) {
+    return apiCaller({ method: 'DELETE', url: `${RESOURCES.deposit}/root/${id}`, data })
   },
 
   confirmDeposit(data) {
@@ -31,5 +35,17 @@ export default {
 
   unconfirmDeposit(data) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/unconfirm`, data })
+  },
+
+  getRecordRead(projectId) {
+    return apiCaller({ method: 'PUT', url: `${RESOURCES.deposit}/read/${projectId}` })
+  },
+
+  recoverDeposit(data) {
+    return apiCaller({ method: 'PATCH', url: `${RESOURCES.deposit}/restore`, data })
+  },
+
+  setIndexDeposit(data) {
+    return apiCaller({ method: 'POST', url: `${RESOURCES.deposit}/set-index`, data })
   }
 }

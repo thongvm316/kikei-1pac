@@ -5,7 +5,6 @@ import CategoryService from './category'
 import SubCategoryService from './sub-category'
 import GroupService from './group'
 import DepositService from './deposit'
-import AccountService from './account'
 import SettingAccountService from './setting-account'
 import CompanyService from './company'
 import ProjectService from './project'
@@ -17,10 +16,19 @@ import UserService from './user'
 import CurrencyService from './currency'
 import ChartService from './chart'
 import DashboardService from './dashboard'
+import PermissionService from './permission'
+import ProfileService from './profile'
+import CompanyInfomationGroupService from './company-infomation'
+import CountryService from './country'
+import DirectCostsService from './direct-costs'
+import MaterialCostsService from './material-costs'
+import OrderCostsService from './order-costs'
+import PositionService from './position'
+import RevenueService from './revenue'
+import BalanceRegistrationService from './balance-registration'
 
 const repositories = {
   StorageService,
-  AccountService,
   SettingAccountService,
   AuthService,
   BankAccountsService,
@@ -37,7 +45,17 @@ const repositories = {
   UserService,
   CurrencyService,
   ChartService,
-  DashboardService
+  DashboardService,
+  PermissionService,
+  ProfileService,
+  CompanyInfomationGroupService,
+  CountryService,
+  DirectCostsService,
+  MaterialCostsService,
+  OrderCostsService,
+  PositionService,
+  RevenueService,
+  BalanceRegistrationService
 }
 
 export default {

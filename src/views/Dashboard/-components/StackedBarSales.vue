@@ -11,7 +11,7 @@
         <div
           v-if="accuracy.accuracyCode && accuracy.accuracyCode !== 'S'"
           class="stacked-bar__item"
-          :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }"
+          :style="{ width: `${$filters.number_with_commas(accuracy.percentVisible, 2)}%` }"
         >
           <a-popover
             :title="
@@ -46,8 +46,11 @@
               </span>
             </p>
           </template>
-          <div class="stacked-bar__item" :style="{ width: `${$filters.number_with_commas(accuracy.percent, 2)}%` }">
-            <span>{{ accuracy.accuracyCode }}</span>
+          <div
+            class="stacked-bar__item"
+            :style="{ width: `${$filters.number_with_commas(accuracy.percentVisible, 2)}%` }"
+          >
+            <span v-if="accuracy.accuracyCode">{{ accuracy.accuracyCode }}</span>
           </div>
         </a-popover>
       </template>
@@ -60,7 +63,8 @@
 </template>
 
 <script>
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref, onUpdated, onMounted, onUnmounted } from 'vue'
+import { debounce } from 'lodash-es'
 
 export default defineComponent({
   name: 'StackedBarSales',
@@ -70,6 +74,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const pointPercent = ref(0)
+
     const statistics = computed(() => {
       if (!props?.dataSource?.statistics) return {}
 
@@ -77,26 +83,52 @@ export default defineComponent({
       const revenueTarget = props.dataSource?.revenueTarget || 0
       const totalRevenue = props.dataSource.statistics.reduce((acc, currentVal) => acc + currentVal.revenue, 0)
 
-      const list = props.dataSource.statistics.map((accuracy) => {
+      const list = props.dataSource.statistics.map((accuracy, accuracyIndex) => {
         const _total = totalRevenue > revenueTarget ? totalRevenue : revenueTarget
         const percent = _total ? (accuracy?.revenue / _total) * 100 : 0
-        totalPercent += percent
 
-        return { ...accuracy, percent }
+        const percentVisible = accuracyIndex !== 0 && percent < pointPercent.value ? pointPercent.value * 0.7 : percent
+        totalPercent += percentVisible
+
+        return { ...accuracy, percent, percentVisible }
       })
 
-      // remaiming
-      const remainingPercent = 100 - totalPercent
+      // remaiming point
+      const remainingPercent = 100 - totalPercent > 0 ? 100 - totalPercent : 0
       const remainingTarget = revenueTarget - totalRevenue
       list.push({
         accuracyId: 'remainingTarget',
         accuracyCode: '',
         accuracyName: '残り',
         revenue: remainingTarget > 0 ? remainingTarget : 0,
-        percent: remainingPercent > 0 ? remainingPercent : 0
+        percent: remainingPercent,
+        percentVisible: remainingPercent
       })
-
       return list
+    })
+
+    const calculatePercentagePoint = () => {
+      const stackedBarEl = document.querySelector('.stacked-bar__chart')
+      if (!stackedBarEl) {
+        pointPercent.value = 0
+        return
+      }
+
+      const stackedBarLineWidth = stackedBarEl.offsetWidth || 0
+      const pointWidth = stackedBarEl.querySelector('.stacked-bar__item span')?.offsetWidth || 0
+      pointPercent.value = (pointWidth / stackedBarLineWidth) * 100
+    }
+
+    onUpdated(() => {
+      calculatePercentagePoint()
+    })
+
+    onMounted(() => {
+      window.addEventListener('resize', debounce(calculatePercentagePoint, 500))
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', calculatePercentagePoint)
     })
 
     return {
@@ -113,7 +145,7 @@ export default defineComponent({
 .stacked-bar {
   @include flexbox(center, flex-end);
   flex-direction: column;
-  margin: 12px 32px;
+  margin: 32px 32px 12px;
 
   &__chart {
     @include flexbox(center, center);
@@ -173,10 +205,10 @@ export default defineComponent({
 
   &__item {
     height: 100%;
-    // width: 100%;
+    width: 100%;
     position: relative;
     background-color: $color-grey-100;
-    transition: width 500ms linear;
+    transition: width 400ms linear;
 
     span {
       @include flexbox(center, center);
@@ -213,6 +245,7 @@ export default defineComponent({
     }
 
     span {
+      color: $color-grey-100;
       background-color: $color-additional-blue-6;
     }
   }
@@ -228,10 +261,6 @@ export default defineComponent({
 
     .ant-popover-title {
       color: $color-additional-red-6;
-    }
-
-    span {
-      display: none;
     }
   }
 }

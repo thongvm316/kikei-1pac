@@ -6,7 +6,7 @@
         <div class="form-group">
           <div class="form-content">
             <label class="form-label">{{ $t('subcategory.category') }}</label>
-            <label class="form-input">{{ filter.category_name }}</label>
+            <label class="form-input">{{ $route.query.name }}</label>
           </div>
         </div>
 
@@ -36,11 +36,11 @@
 </template>
 
 <script>
-import { defineComponent, reactive, computed } from 'vue'
+import { defineComponent, reactive, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
-import { isEqual } from 'lodash-es'
+import { forEach, includes, isArray, isEqual, keys, map } from 'lodash-es'
 
 export default defineComponent({
   name: 'SubcategorySearchForm',
@@ -54,9 +54,7 @@ export default defineComponent({
     const route = useRoute()
 
     const initialState = {
-      key_search: '',
-      category_id: [parseInt(route.query.category_id)],
-      category_name: route.query.name
+      key_search: ''
     }
 
     const filter = reactive({ ...initialState })
@@ -72,10 +70,42 @@ export default defineComponent({
       Object.assign(filter, initialState)
     }
 
+    onMounted(() => {
+      if (keys(route.query).length > 0) {
+        forEach(route.query, (value, key) => {
+          if (
+            !includes(
+              [
+                'id',
+                'name',
+                'category_name',
+                'category_id',
+                'in_use',
+                'division_type',
+                'subcategory_kind',
+                'order_by',
+                'page_number',
+                'page_size'
+              ],
+              key
+            )
+          ) {
+            if (isArray(value)) {
+              filter[key] = map(
+                value[0].length > 3 ? [...JSON.parse('[' + value + ']')] : [...value],
+                value[0].length > 3 ? (i) => Boolean(i) : (i) => Number(i)
+              )
+            } else {
+              filter[key] = value
+            }
+          }
+        })
+      }
+      store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
+    })
+
     const onSearch = () => {
       const data = {
-        category_name: filter.category_name,
-        category_id: filter.category_id,
         key_search: filter.key_search
       }
       context.emit('filter-changed', data)

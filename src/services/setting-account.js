@@ -27,5 +27,13 @@ export default {
 
   resetPasswordAccount(id) {
     return apiCaller({ method: 'PUT', url: `${RESOURCES.account}/resetpassword/${id}` })
+  },
+
+  getListDropdown(params) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.account}`, params })
+  },
+
+  getPermissionAccount() {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.account}/permission` })
   }
 }

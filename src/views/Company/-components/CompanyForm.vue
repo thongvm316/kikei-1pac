@@ -4,7 +4,7 @@
     <form @submit="onSubmit">
       <!-- Company name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="company_name" rules="input_required">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.name" name="company_name" rules="input_required">
           <div class="form-content">
             <label class="form-label required">{{ $t('company.company_name') }}</label>
             <div class="form-input">
@@ -12,6 +12,7 @@
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
@@ -40,20 +41,23 @@
 
       <!-- Company code -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.code" name="company_code_project" rules="input_required">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.code" name="company_code_project">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_code_project') }}</label>
+            <label class="form-label">{{ $t('company.company_code_project') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="company_code_project" class="errors">
                 {{ replaceField(message, 'company_code_project') }}
               </ErrorMessage>
+
+              <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
         </Field>
@@ -61,25 +65,23 @@
 
       <!-- Slack code -->
       <div class="form-group">
-        <Field
-          v-slot="{ field, handleChange }"
-          v-model="form.slack_code"
-          name="company_slack_code"
-          rules="input_required"
-        >
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.slack_code" name="company_slack_code">
           <div class="form-content">
-            <label class="form-label required">{{ $t('company.company_slack_code') }}</label>
+            <label class="form-label">{{ $t('company.company_slack_code') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
               <ErrorMessage v-slot="{ message }" as="span" name="company_slack_code" class="errors">
                 {{ replaceField(message, 'company_slack_code') }}
               </ErrorMessage>
+
+              <p class="form-caption">{{ $t('company.caption') }}</p>
             </div>
           </div>
         </Field>
@@ -87,7 +89,12 @@
 
       <!-- Country -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.country_id" name="country" rules="select_required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.country_id"
+          name="country"
+          rules="select_required"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('company.country') }}</label>
             <div class="form-input">
@@ -95,6 +102,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="country in COUNTRY" :key="country.id" :value="country.id">
@@ -113,7 +121,7 @@
       <!-- Currency -->
       <div class="form-group">
         <Field
-          v-slot="{ field, handleChange }"
+          v-slot="{ field, handleChange, errors }"
           v-model="form.currency_id"
           name="trading_currency"
           rules="select_required"
@@ -125,6 +133,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="currency in CURRENCY" :key="currency.id" :value="currency.id">
@@ -142,7 +151,12 @@
 
       <!-- Payment Site -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.payment_term" name="payment_site" rules="select_required">
+        <Field
+          v-slot="{ field, handleChange, errors }"
+          v-model="form.payment_term"
+          name="payment_site"
+          rules="select_required"
+        >
           <div class="form-content">
             <label class="form-label required">{{ $t('company.payment_site') }}</label>
             <div class="form-input">
@@ -150,6 +164,7 @@
                 v-model:value="field.value"
                 :placeholder="$t('common.select_option_empty')"
                 style="width: 200px"
+                :style="errors.length ? 'border: 1px solid #FF4D4F' : ''"
                 @change="handleChange"
               >
                 <a-select-option v-for="payment in PAYMENT" :key="payment.id" :value="payment.id">
@@ -230,7 +245,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
@@ -241,6 +256,7 @@ import { DIVISION, COUNTRY, CURRENCY, PAYMENT } from '@/enums/company.enum'
 import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
 import useUpdateCompanyService from '@/views/Company/composables/useUpdateCompanyService'
 import useCreateCompanyService from '@/views/Company/composables/useCreateCompanyService'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'CompanyForm',
@@ -259,7 +275,9 @@ export default defineComponent({
       description: ''
     })
     const router = useRouter()
+    const store = useStore()
     const route = useRoute()
+
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
 
@@ -268,12 +286,20 @@ export default defineComponent({
       company_name: t('company.error_company_name'),
       company_slack_code: t('company.error_company_slack_code')
     })
+    const tmpErrors = ref()
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'company-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       router.push({ name: 'company', params: route.params, query: route.query })
@@ -297,11 +323,18 @@ export default defineComponent({
         const { updateCompany } = useUpdateCompanyService(id, data)
         await updateCompany()
         // await this.onSuccess(this.$t('message_success'), this.$t('update_message_successfully'))
-        await router.push({ name: 'company' }).catch((err) => err)
+        await router.push({ name: 'company', query: route.query }).catch((err) => err)
       } catch (err) {
         checkErrorsApi(err)
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'successfully',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createCompany = async (data) => {
@@ -317,16 +350,20 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
 
-      for (let item in err.response.data.errors) {
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
         if (item === 'company_code') item = 'company_code_project'
 
         locale.value === 'en'
-          ? (err.response.data.errors[item] = `${companyEnums.value[item]} existed`)
-          : (err.response.data.errors[item] = `${companyEnums.value[item]}は存在しました`)
+          ? (errs[item] = `${companyEnums.value[item]} existed`)
+          : (errs[item] = `${companyEnums.value[item]}は存在しました`)
 
-        setFieldError(item, err.response.data.errors[item])
+        setFieldError(item, errs[item])
       }
     }
 

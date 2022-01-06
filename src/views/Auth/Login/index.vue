@@ -5,11 +5,12 @@
         <a-typography-title>{{ $t('login.title') }}</a-typography-title>
 
         <a-form ref="loginFormRef" :model="params" :rules="loginFormRules" layout="vertical" @submit="onSubmitLogin">
-          <a-form-item name="username" :label="$t('login.username_label')">
+          <a-form-item name="username" :label="$t('login.email_label')">
             <a-input
               v-model:value="params.username"
               size="large"
-              :placeholder="$t('login.username_placeholder')"
+              type="email"
+              :placeholder="$t('login.email_placeholder')"
               autofocus
               @pressEnter="onSubmitLogin"
             />
@@ -60,7 +61,7 @@ export default defineComponent({
 
     // input validator rules
     const loginFormRules = {
-      username: [{ required: true, message: t('login.username_require'), trigger: 'change' }],
+      username: [{ type: 'email', required: true, message: t('login.email_require'), trigger: 'change' }],
       password: [{ required: true, message: t('login.password_require'), trigger: 'change' }]
     }
 
@@ -80,10 +81,7 @@ export default defineComponent({
           // to dashboard screen
           toDashboardScreen()
         }
-      } catch (e) {
-        console.log(e)
-        // throw e
-      }
+      } catch (_) {}
     }
 
     return {
@@ -100,8 +98,8 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import '@/styles/shared/mixins';
 
-$form-wrapper-size: 452px;
-$form-size: 220px;
+$form-wrapper-size: 500px;
+$form-size: 280px;
 
 .login {
   @include flexbox();
@@ -128,6 +126,12 @@ $form-size: 220px;
   // modified
   .ant-typography {
     margin-bottom: 64px;
+  }
+
+  .ant-form-vertical {
+    .ant-form-item {
+      margin-top: 24px;
+    }
   }
 
   .ant-btn-primary {

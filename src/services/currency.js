@@ -10,5 +10,13 @@ export default {
       method: 'POST',
       url: `${RESOURCES.currency}/search`
     })
+  },
+
+  getCurrencyCompanyInfomation() {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.currency}` })
+  },
+
+  getCurrencyExchange() {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.currency}/list` })
   }
 }

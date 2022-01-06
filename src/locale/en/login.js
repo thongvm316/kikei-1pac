@@ -1,8 +1,8 @@
 export default {
   title: 'Login',
-  username_label: 'Login ID',
-  username_placeholder: 'Enter ID',
-  username_require: 'Please input username',
+  email_label: 'Email address',
+  email_placeholder: 'Enter email address',
+  email_require: 'Please input email',
   password_label: 'Password',
   password_placeholder: 'Enter password',
   password_require: 'Please input password',

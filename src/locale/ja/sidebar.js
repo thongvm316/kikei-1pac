@@ -9,5 +9,9 @@ export default {
   subcategory: '中分類一覧',
   setting: '登録設定',
   logs: '活動記録',
-  account: '登録アカウント'
+  account: '登録アカウント',
+  bank: 'Bank',
+  bankAccount: 'Bank Account',
+  company_information: '会社情報・売上目標設定',
+  balance_registration: '銀行残高登録'
 }

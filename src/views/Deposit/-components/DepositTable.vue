@@ -1,23 +1,35 @@
 <template>
   <a-table
-    class="deposit-table"
+    :class="['deposit-table', isTableModal && 'is-table-modal', isRecoverModal && 'is-recover-modal']"
     :loading="isLoadingDataTable"
-    :scroll="{ x: 1200, y: height - 295 }"
+    :scroll="{ x: 1200, y: isTableModal ? height - 400 : height - 295 }"
     :row-class-name="onAddRowClass"
     :custom-row="onCustomRow"
     :columns="columnsDeposit"
     :data-source="dataDeposit"
-    :row-selection="{
-      onChange: onSelectChangeRow,
-      onSelectAll: onSelectAllChangeRows,
-      selectedRowKeys: currentSelectedRowKeys,
-      getCheckboxProps: (record) => ({ disabled: record.confirmed })
-    }"
+    :components="components"
+    :row-selection="
+      isTableModal && typeModifyDepositRoot === TYPE_MODIFY_DEPOSIT_ROOT['EDIT']
+        ? null
+        : {
+            onChange: onSelectChangeRow,
+            onSelectAll: onSelectAllChangeRows,
+            selectedRowKeys: currentSelectedRowKeys,
+            getCheckboxProps: (record) => ({ disabled: record.confirmed }),
+            order: 3
+          }
+    "
     :pagination="false"
     :expand-icon-as-cell="false"
     :locale="localeTable"
     @change="changeDepositTable"
   >
+    <template #renderProjectRead="{ text: read }">
+      <div class="column-read">
+        <p class="point-status" :style="{ backgroundColor: tagsAction(read).backgroundColor }"></p>
+      </div>
+    </template>
+
     <template #renderDepositUpdatedAt="{ record }">{{ $filters.moment_l(record.date) }}</template>
 
     <template #renderDepositStatictis="{ record }">{{ $filters.moment_yyyy_mm(record.statisticsMonth) }}</template>
@@ -29,7 +41,7 @@
     </template>
 
     <template #renderSubcategoryName="{ record }">
-      <a-tooltip color="#fff" :title="record.subcategoryName">
+      <a-tooltip color="#fff" :title="record.subcategoryName" placement="topLeft">
         {{ record.subcategoryName }}
       </a-tooltip>
     </template>
@@ -60,18 +72,11 @@
       </span>
     </template>
 
-    <template #action="{ record }">
+    <template #confirmed="{ record }">
       <a-button v-if="record.confirmed && isAdmin" type="danger" @click="$emit('handle-open-unconfirm-modal', record)">
         取消
       </a-button>
-      <a-button
-        v-else
-        :disabled="record.confirmed"
-        type="primary"
-        @click="$emit('on-open-confirm-deposit-record-modal', record)"
-      >
-        確定
-      </a-button>
+      <a-button v-else :disabled="record.confirmed" type="primary" @click="handleConfirmedRow(record)"> 確定 </a-button>
     </template>
 
     <template #purpose="{ record }">
@@ -95,8 +100,10 @@
 import { defineComponent, onBeforeMount, ref, onUnmounted, computed } from 'vue'
 import humps from 'humps'
 import { useStore } from 'vuex'
-
 import { toOrderBy } from '@/helpers/table'
+import { TYPE_MODIFY_DEPOSIT_ROOT } from '@/enums/deposit.enum'
+import useGetRecordRead from '@/views/Deposit/composables/useGetRecordRead'
+import VueDraggableNext from './VueDraggableNext.vue'
 
 export default defineComponent({
   name: 'DepositTable',
@@ -107,22 +114,54 @@ export default defineComponent({
     currentSelectedRowKeys: Array,
     dataDeposit: Array,
     isLoadingDataTable: Boolean,
-    isVisibleModalActionBar: Boolean
+    isVisibleModalActionBar: Boolean,
+    isDeleteRootAll: Boolean,
+    isTableModal: {
+      type: Boolean,
+      default: false
+    },
+    isRecoverModal: {
+      type: Boolean,
+      default: false
+    },
+    typeModifyDepositRoot: {
+      type: String,
+      default: undefined
+    },
+    currentSelectedRecordId: {
+      type: Number,
+      required: false
+    }
   },
 
   setup(props, { emit }) {
+    const components = ref({
+      body: {
+        wrapper: VueDraggableNext
+      }
+    })
+
     const store = useStore()
 
     const currentRowClick = ref()
     const height = ref(0)
-
     const isAdmin = store.state.auth?.authProfile?.isAdmin || false
 
     const localeTable = {
       emptyText: '該当する入出金が見つかりませんでした。'
     }
 
+    const columnNotShowList = ['confirmed']
+
     const columnsDeposit = [
+      {
+        dataIndex: 'read',
+        key: 'read',
+        slots: {
+          customRender: 'renderProjectRead'
+        },
+        width: 32
+      },
       {
         title: '入出金日',
         dataIndex: 'date',
@@ -200,18 +239,21 @@ export default defineComponent({
       },
       {
         title: '確定',
-        dataIndex: 'action',
-        key: 'action',
-        slots: { customRender: 'action' },
+        dataIndex: 'confirmed',
+        key: 'confirmed',
+        slots: { customRender: 'confirmed' },
         width: '136px',
         align: 'center',
+        sorter: true,
         ellipsis: true
       }
-    ]
-
-    const currencyCodeText = computed(() => {
-      return props.dataDeposit[0]?.currency
+    ].filter((col) => {
+      if (!props.isTableModal) return true
+      if (props.isRecoverModal) columnNotShowList.push('read')
+      return columnNotShowList.indexOf(col.dataIndex) === -1
     })
+
+    const currencyCodeText = computed(() => (props?.dataDeposit[0] ? props?.dataDeposit[0]?.currency : ''))
 
     const onSelectChangeRow = (selectedRowKeys) => {
       if (
@@ -235,6 +277,9 @@ export default defineComponent({
         'update:currentSelectedRowKeys',
         selectedRows.map((item) => item.key)
       )
+
+      // use for delete root
+      emit('update:isDeleteRootAll', selectedRows.length > 0)
     }
 
     const onCustomRow = (record) => {
@@ -242,6 +287,7 @@ export default defineComponent({
         onClick: (event) => {
           if (event.target.type === 'button') return
           currentRowClick.value = record.key
+
           emit('on-open-deposit-buttons-float', record)
         }
       }
@@ -249,8 +295,11 @@ export default defineComponent({
 
     const onAddRowClass = (record) => {
       let classes = ''
-      if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
-
+      if (!props.isTableModal) {
+        if (record.key === currentRowClick.value && props.isVisibleModalActionBar) classes += 'is-clicked-row'
+      } else {
+        if (record.key === props.currentSelectedRecordId) classes += 'is-clicked-row'
+      }
       return classes
     }
 
@@ -267,6 +316,26 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
+    const tagsAction = (status) => {
+      if (!status) {
+        return { backgroundColor: '#F5222D' }
+      } else {
+        return { backgroundColor: 'transparent' }
+      }
+    }
+
+    const checkRead = async (evt) => {
+      const { getRecordRead } = useGetRecordRead(evt.id)
+      await getRecordRead()
+      evt.read = true
+    }
+
+    const handleConfirmedRow = async (record) => {
+      if (!record.read) checkRead(record)
+
+      emit('on-open-confirm-deposit-record-modal', record)
+    }
+
     onBeforeMount(() => {
       // get inner height
       getInnerHeight()
@@ -278,12 +347,16 @@ export default defineComponent({
     })
 
     return {
+      components,
       isAdmin,
       columnsDeposit,
       localeTable,
       height,
       currencyCodeText,
+      TYPE_MODIFY_DEPOSIT_ROOT,
 
+      handleConfirmedRow,
+      tagsAction,
       onSelectChangeRow,
       onSelectAllChangeRows,
       onCustomRow,
@@ -298,6 +371,25 @@ export default defineComponent({
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
 
+.deposit-table {
+  .column-read {
+    width: 12px;
+    height: 12px;
+
+    .point-status {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      border-radius: 50%;
+      background-color: red;
+    }
+
+    .text-status {
+      margin-bottom: 0;
+    }
+  }
+}
+
 .ant-table-wrapper.deposit-table {
   .ant-table-column-sorters {
     display: flex !important;
@@ -308,6 +400,14 @@ export default defineComponent({
   }
 
   table thead .ant-checkbox-wrapper {
+    display: none;
+  }
+
+  &.is-table-modal table thead .ant-checkbox-wrapper {
+    display: block;
+  }
+
+  &.is-table-modal.is-recover-modal thead .ant-checkbox-wrapper {
     display: none;
   }
 
@@ -414,6 +514,12 @@ export default defineComponent({
 
   .ant-table-placeholder {
     padding-top: 48px;
+  }
+}
+
+.ant-table-wrapper.deposit-table.is-table-modal {
+  .ant-table-placeholder {
+    height: calc(100vh - 500px);
   }
 }
 </style>

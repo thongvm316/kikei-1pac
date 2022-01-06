@@ -195,7 +195,7 @@ export default defineComponent({
       const data = {
         groupId: props.groupId,
         type: record?.divisionType ? [record.divisionType] : [],
-        categoryId: record?.categoryId || [],
+        categoryId: record?.categoryId && record?.categoryId[0] !== 0 ? record.categoryId : [],
         subcategoryId: [],
         statisticsFrom: column?.dataIndex ? moment(column.dataIndex).startOf('month').format('YYYY-MM-DD') : null,
         statisticsTo: column?.dataIndex ? moment(column.dataIndex).endOf('month').format('YYYY-MM-DD') : null
@@ -287,15 +287,21 @@ export default defineComponent({
   .ant-table-fixed-left {
     border-top: 1px solid #bfbfbf;
 
-    .ant-table-row-cell-break-word:first-child {
-      padding-left: 32px;
-    }
-
     th.ant-table-row-cell-break-word:first-child {
       background-color: $color-grey-55;
       color: $color-grey-100;
       font-size: 16px;
     }
+  }
+
+  .ant-table-fixed-left .ant-table-row-cell-break-word:first-child,
+  .ant-table-scroll table .ant-table-fixed-columns-in-body:not([colspan]) {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .ant-table-scroll .ant-table-row.ant-table-row-level-1 .ant-table-fixed-columns-in-body:not([colspan]) {
+    padding-left: 44px;
   }
 
   .ant-table-row-cell-break-word {
@@ -363,6 +369,16 @@ export default defineComponent({
 
   .ant-table-empty .ant-table-body {
     overflow-x: hidden !important;
+  }
+
+  .ant-table-row.ant-table-row-level-1 {
+    .ant-table-row-indent.indent-level-1 {
+      display: none;
+    }
+
+    .ant-table-row-cell-break-word {
+      padding-left: 44px;
+    }
   }
 }
 

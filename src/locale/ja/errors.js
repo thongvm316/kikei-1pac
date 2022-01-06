@@ -14,6 +14,7 @@ export default {
   deposit_root_0002: '元の入出金が無効です',
   deposit_root_0003: '元の入出金が存在しました',
   deposit_root_0004: '入力が無効です',
+  deposit_9999: 'Unhandler exception',
   // project errors
   project_0001: '該当プロジェクトが見つかりません',
   project_0002: 'プロジェクトが無効です',
@@ -41,14 +42,14 @@ export default {
 
   category_0000: 'エラーが見つかりません',
   category_0001: '大分類が見つかりません',
-  category_0002: '大分類が無効です',
-  category_0003: '大分類が存在しました',
+  category_0002: '大分類が存在しました',
+  category_0003: '大分類が無効です',
   category_0004: '入力が無効です',
 
   subcategory_0000: 'エラーが見つかりません',
   subcategory_0001: '中分類が見つかりません',
-  subcategory_0002: '中分類が無効です',
-  subcategory_0003: '中分類が存在しました',
+  subcategory_0002: '中分類が存在しました',
+  subcategory_0003: '中分類が無効です',
   subcategory_0004: '入力が無効です',
 
   currency_0000: 'エラーが見つかりません',
@@ -64,6 +65,23 @@ export default {
   account_0004: '入力が無効です',
   account_0102: '権限がありません',
 
+  template_permission_0000: 'エラーが見つかりません',
+  template_permission_0001: 'テンプレートが見つかりません',
+  template_permission_0002: 'テンプレートが無効です',
+  template_permission_0003: 'テンプレートが存在しました',
+  template_permission_0004: '入力が無効です',
+  template_permission_0102: '権限がありません',
+
+  profile_0000: 'エラーが見つかりません',
+  profile_0001: 'プロフィール見つかりません',
+  profile_0002: 'プロフィール存在しました',
+  profile_0003: 'プロフィール無効です',
+  profile_0004: '入力が無効です',
+
   chart_date_2m: 'グラフ表示の場合は2ヶ月以内の日付を選択してください',
-  data_chart_null: 'no data'
+  data_chart_null: 'データなし',
+
+  check_activate_token_0004: 'メールアドレスが確認されました',
+
+  project_labor_direct_cost_0004: '入力が無効です'
 }

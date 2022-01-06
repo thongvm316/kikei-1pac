@@ -62,6 +62,14 @@
   display: flex;
 }
 
+.d-hidden {
+  display: none;
+}
+
 .u-whitespace-normal {
   white-space: normal;
+}
+
+.u-whitespace-nowrap {
+  white-space: nowrap;
 }

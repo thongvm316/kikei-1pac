@@ -61,3 +61,5 @@ docs/aws/*.pem
 .env.production
 
 src/test/unit/coverage/
+
+.vscode

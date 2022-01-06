@@ -49,6 +49,15 @@
     }
 
     .group-chart {
+      display: grid;
+      grid-template-columns: auto auto auto auto;
+      text-align: left;
+      grid-column-gap: 15px;
+  
+      .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+        margin-left: 0 !important;
+      }
+      
       span {
         display: inline-flex;
         align-items: center;
@@ -70,6 +79,7 @@
     position: relative;
     height: calc(100vh - 230px);
     background: #fff;
+    overflow-x: scroll;
 
     canvas {
       position: absolute;

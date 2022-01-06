@@ -1,35 +1,33 @@
 <template>
   <section class="project-new">
-    <project-form :project="project" />
+    <project-add-form :project="project" />
   </section>
 </template>
 
 <script>
 import { defineComponent, onBeforeMount } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { getProject } from '../composables/useProject'
-import ProjectForm from '../-components/ProjectForm'
+import ProjectAddForm from './-components/ProjectAddForm.vue'
 
 export default defineComponent({
   name: 'ProjectNewPage',
 
   components: {
-    ProjectForm
+    ProjectAddForm
   },
 
   setup() {
     const route = useRoute()
-    const router = useRouter()
     const project = {}
 
     const fetchProject = async () => {
       const projectId = route.query.selectedId
       if (!projectId) return
 
-      project.value = await getProject(projectId)
+      project.value = await getProject(projectId, { isEdit: false })
       project.value.code = ''
       project.value.name = ''
-      router.replace({ query: {} })
     }
 
     onBeforeMount(() => {

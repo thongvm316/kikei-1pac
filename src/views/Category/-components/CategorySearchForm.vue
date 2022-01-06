@@ -75,7 +75,8 @@ import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
 import { DIVISIONCATEGORY, DIVISIONSUBCATEGORY, INUSE } from '@/enums/category.enum'
-import { forEach, includes, isArray, isEqual, keys, map } from 'lodash-es'
+import { isEqual } from 'lodash-es'
+import { refreshCategory } from '@/helpers/check-refresh-cate-sub'
 
 export default defineComponent({
   name: 'CategorySearchForm',
@@ -105,17 +106,7 @@ export default defineComponent({
     })
 
     onMounted(() => {
-      if (keys(route.query).length > 0) {
-        forEach(route.query, (value, key) => {
-          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-            if (isArray(value)) {
-              filter[key] = map([...value], (i) => Number(i))
-            } else {
-              filter[key] = value
-            }
-          }
-        })
-      }
+      refreshCategory(route.query, filter)
       store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
     })
 

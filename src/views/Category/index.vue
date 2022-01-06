@@ -16,6 +16,7 @@
       :data-source="dataSource"
       :row-key="(record) => record.id"
       :loading="isLoading"
+      :locale="emptyTextHTML"
       :pagination="{
         ...pagination,
         showTotal: showTotal
@@ -43,7 +44,10 @@
       </template>
 
       <template #action="{ text: action, record }">
-        <a @click="handleSelectNumber(record)">{{ record.subcategoryKind === 10 ? action : '-' }}</a>
+        <template v-if="record.subcategoryKind === 10">
+          <a class="number_category" @click="handleSelectNumber(record)">{{ action }}</a>
+        </template>
+        <template v-else> - </template>
       </template>
 
       <template #inUse="{ text: inUse }">
@@ -78,13 +82,14 @@ import useGetCategoryListService from '@/views/Category/composables/useGetCatego
 import useDeleteCategoryService from '@/views/Category/composables/useDeleteCategoryService'
 import { convertPagination } from '@/helpers/convert-pagination'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
-import { forEach, includes, isArray, keys, map } from 'lodash-es'
 
 import Table from '@/mixins/table.mixin'
 import CategorySearchForm from '@/views/Category/-components/CategorySearchForm'
 import AddIcon from '@/assets/icons/ico_line-add.svg'
 import ModalAction from '@/components/ModalAction'
 import ModalDelete from '@/components/ModalDelete'
+import { camelToSnakeCase } from '@/helpers/camel-to-sake-case'
+import { refreshCategory } from '@/helpers/check-refresh-cate-sub'
 
 export default defineComponent({
   name: 'Index',
@@ -92,36 +97,6 @@ export default defineComponent({
   components: { ModalAction, CategorySearchForm, AddIcon, ModalDelete },
 
   mixins: [Table],
-
-  async beforeRouteEnter(to, from, next) {
-    const body = {}
-
-    if (keys(to.query).length > 0) {
-      forEach(to.query, (value, key) => {
-        if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-          if (isArray(value)) {
-            body[key] = map([...value], (i) => Number(i))
-          } else {
-            body[key] = value
-          }
-        }
-      })
-    }
-
-    const query = {
-      page_number: to.query.page_number || 1,
-      page_size: 50,
-      order_by: 'name asc',
-      ...to.query,
-      ...body
-    }
-
-    const { getLists } = await useGetCategoryListService(query, body)
-    const { result } = await getLists()
-    to.meta['lists'] = result.data
-    to.meta['pagination'] = { ...convertPagination(result.meta) }
-    next()
-  },
 
   setup() {
     const route = useRoute()
@@ -139,9 +114,19 @@ export default defineComponent({
     const modalActionRef = ref()
     const height = ref(0)
     let idSelected = ref({})
+    const emptyTextHTML = ref({})
 
     const state = reactive({ selectedRowKeys: [] })
     let tempRow = reactive([])
+
+    emptyTextHTML.value = {
+      emptyText: <div class="ant-empty ant-empty-normal ant-empty-description"> {t('category.emptyData')}</div>
+    }
+
+    const categoryEnums = ref({
+      category_deposit: t('category.category_deposit'),
+      category_subcategory: t('category.category_subcategory')
+    })
 
     const rowSelection = computed(() => {
       return {
@@ -154,7 +139,7 @@ export default defineComponent({
     const columns = computed(() => {
       return [
         {
-          title: t('category.categoryName'),
+          title: t('category.category_name'),
           dataIndex: 'name',
           key: 'name',
           sorter: true
@@ -187,16 +172,28 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      dataSource.value = [...route.meta['lists']]
-      pagination.value = { ...route.meta['pagination'] }
+      const body = {}
 
-      // Back Form
-      tempRow = [parseInt(await route.params.id)]
-      if (tempRow[0] === parseInt(await route.params.id)) {
-        state.selectedRowKeys = [parseInt(await route.params.id)]
-        tempRow = [parseInt(await route.params.id)]
-        recordVisible.value.id = route.params.id
-        recordVisible.value.visible = true
+      refreshCategory(route.query, body)
+
+      const query = {
+        page_number: route.query.page_number,
+        page_size: 50,
+        order_by: 'name asc',
+        ...route.query,
+        ...body
+      }
+
+      isLoading.value = true
+
+      try {
+        const { getLists } = await useGetCategoryListService(query, body)
+        const { result } = await getLists()
+
+        dataSource.value = result.data
+        pagination.value = { ...convertPagination(result.meta) }
+      } finally {
+        isLoading.value = false
       }
 
       // get inner height
@@ -225,17 +222,7 @@ export default defineComponent({
         order_by: sorter.order === '' ? 'name asc' : sorter.field + ' ' + sorter.order
       }
 
-      if (keys(route.query).length > 0) {
-        forEach(route.query, (value, key) => {
-          if (!includes(['order_by', 'page_number', 'page_size'], key)) {
-            if (isArray(value)) {
-              filter.value[key] = map([...value], (i) => Number(i))
-            } else {
-              filter.value[key] = value
-            }
-          }
-        })
-      }
+      refreshCategory(route.query, filter.value)
 
       await router.push({
         name: 'category',
@@ -250,12 +237,6 @@ export default defineComponent({
 
     const onFilterChange = async (evt) => {
       filter.value = { ...deleteEmptyValue(evt) }
-      params.value = {
-        page_number: 1,
-        page_size: 50,
-        order_by: 'name asc',
-        ...filter.value
-      }
       await router.push({ name: 'category', query: { ...params.value, ...filter.value } })
       await fetchList(params.value, filter.value)
     }
@@ -264,19 +245,35 @@ export default defineComponent({
       try {
         const { deleteCategory } = useDeleteCategoryService(recordVisible.value.id)
         await deleteCategory()
-      } catch (error) {
-        console.log(error)
+        //show notification
+        store.commit('flash/STORE_FLASH_MESSAGE', {
+          variant: 'successfully',
+          duration: 5,
+          message:
+            locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'が削除されました'
+        })
+      } catch (err) {
+        checkErrorsApi(err)
+        throw err
       }
       openDelete.value = false
       recordVisible.value.visible = false
       await fetchList(params.value)
-      //show notification
-      store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
-        duration: 5,
-        message:
-          locale.value === 'en' ? 'Deleted' + recordVisible.value.name : recordVisible.value.name + 'を削除しました'
-      })
+    }
+
+    const checkErrorsApi = (err) => {
+      openDelete.value = false
+      err.response.data.errors = camelToSnakeCase(err.response.data.errors)
+
+      for (let item in err.response.data.errors) {
+        setTimeout(() => {
+          store.commit('flash/STORE_FLASH_MESSAGE', {
+            variant: 'error',
+            duration: 5,
+            message: locale.value === 'en' ? `${categoryEnums.value[item]}` : `${categoryEnums.value[item]}`
+          })
+        }, 1000)
+      }
     }
 
     // Close ActionBar
@@ -314,7 +311,7 @@ export default defineComponent({
 
       idSelected.value = {
         key_search: '',
-        category_id: [parseInt(record.id)],
+        category_id: parseInt(record.id),
         name: record.name,
         id: record.id
       }
@@ -377,6 +374,7 @@ export default defineComponent({
       height,
       params,
       modalActionRef,
+      emptyTextHTML,
       handleDeleteRecord,
       handleCloseRecord,
       handleClickOutdideTable,

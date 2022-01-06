@@ -48,6 +48,20 @@ export default defineComponent({
         }
       ],
 
+      //email sent
+      'email-sent': [
+        {
+          path: '/email-sent'
+        }
+      ],
+
+      //password sent
+      'password-sent': [
+        {
+          path: '/password-sent'
+        }
+      ],
+
       //dashboard
       dashboard: [
         {
@@ -228,6 +242,22 @@ export default defineComponent({
         }
       ],
 
+      // company information
+      'company-information': [
+        {
+          path: '/setting/company-information',
+          breadcrumbName: t('breadcrumb.company_information')
+        }
+      ],
+
+      // balance registration
+      'balance-registration': [
+        {
+          path: '/setting/balance-registration',
+          breadcrumbName: t('breadcrumb.balance_registration')
+        }
+      ],
+
       // logs
       logs: [
         {
@@ -248,7 +278,7 @@ export default defineComponent({
     const getRoutesList = () => {
       const nameRoute = route?.name || ''
       routes.value = routesList[nameRoute] || []
-      if (route?.query) {
+      if (route?.query && routes.value.length > 0) {
         routes.value[routes.value.length - 1].query = Object.keys(route.query).length ? { ...route.query } : ''
       }
     }

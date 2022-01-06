@@ -89,6 +89,11 @@
           <template #action="{ record }">
             <a-button type="primary" @click="handleSelectCompany(record)">{{ $t('company.confirm') }}</a-button>
           </template>
+
+          <template #createdAt="{ text: createdAt }">
+            {{ $filters.moment_l(createdAt) }}
+          </template>
+
           <template #divisions="{ text: divisions }">
             {{
               divisions === 0 ? $t('company.customer') : divisions === 1 ? $t('company.partner') : $t('company.both')
@@ -133,7 +138,7 @@ export default defineComponent({
     const { t } = useI18n()
 
     const dataSource = ref([])
-    const pagination = ref({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+    const pagination = ref({ pageNumber: 1, pageSize: 30, orderBy: 'created_at desc' })
     const selected = ref({})
     const filters = ref({})
     const tmpCompany = ref({})
@@ -156,6 +161,12 @@ export default defineComponent({
           dataIndex: 'confirm',
           key: 'confirm',
           slots: { customRender: 'action' }
+        },
+        {
+          title: t('company.company_created_at'),
+          dataIndex: 'createdAt',
+          key: 'createdAt',
+          slots: { customRender: 'createdAt' }
         },
         {
           title: t('company.company'),
@@ -200,14 +211,14 @@ export default defineComponent({
 
     const handleClear = async () => {
       Object.assign(filter, initialState)
-      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' })
+      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'created_at desc' })
     }
 
     const handleChange = async (pagination) => {
       const params = {
         pageNumber: pagination.current,
         pageSize: pagination.pageSize,
-        orderBy: 'code asc'
+        orderBy: 'created_at desc'
       }
 
       await fetchList(params, filter)
@@ -215,7 +226,7 @@ export default defineComponent({
 
     const onSearch = async () => {
       filters.value = { ...deleteEmptyValue(filter) }
-      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'code asc' }, filters.value)
+      await fetchList({ pageNumber: 1, pageSize: 30, orderBy: 'created_at desc' }, filters.value)
     }
 
     const customRow = (record) => {
@@ -235,8 +246,8 @@ export default defineComponent({
       isLoading.value = true
 
       try {
-        const { getLists } = useGetCompanyListService({ ...params }, data)
-        const { result } = await getLists()
+        const { getListCompany } = useGetCompanyListService({ ...params }, data)
+        const { result } = await getListCompany()
 
         dataSource.value = [...result.data]
         pagination.value = convertPagination(result.meta, 'bottom')

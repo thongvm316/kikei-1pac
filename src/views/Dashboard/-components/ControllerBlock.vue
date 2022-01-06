@@ -1,5 +1,5 @@
 <template>
-  <div class="controller-block u-flex u-justify-between u-items-center u-mx-32">
+  <div v-if="groupList?.length !== 0" class="controller-block u-flex u-justify-between u-items-center u-mx-32">
     <p class="controller-block__title">{{ title }}</p>
     <div class="u-flex u-justify-between u-items-center">
       <div class="u-flex u-justify-between u-items-center">
@@ -46,7 +46,12 @@
   </div>
 
   <!-- block content -->
-  <a-collapse v-model:activeKey="activeKey" :bordered="false" class="controller-collapse u-mt-8">
+  <a-collapse
+    v-if="groupList?.length !== 0"
+    v-model:activeKey="activeKey"
+    :bordered="false"
+    class="controller-collapse u-mt-8"
+  >
     <a-collapse-panel key="1">
       <a-tabs
         v-if="!isUnvisibleGroupTab"
@@ -111,16 +116,13 @@ export default defineComponent({
     const isShowBlockContent = ref(true)
     const activeKey = ref(['1'])
 
-    const dashboardBlocks = computed(() => store.state.dashboard.blocks)
+    const dashboardBlocks = computed(() => store.state?.dashboard?.blocks || [])
 
     const onHandleChangeGroup = (id) => {
       const allGroupId = props.groupList
         .filter((group) => group.id !== 0)
-        .reduce((acc, group) => {
-          acc += acc ? ',' + group.id : group.id
-          return acc
-        }, '')
-
+        .map((group) => group.id)
+        .toString()
       const params = { groupId: id > 0 ? id : allGroupId }
       emit('on-change-group', params)
 
@@ -218,7 +220,7 @@ export default defineComponent({
   position: relative;
 
   &:hover &__tooltip {
-    display: inline-block
+    display: inline-block;
   }
 
   &__tooltip {

@@ -35,7 +35,7 @@
       :data-source="projectDatas"
       :loading="loading"
       :pagination="false"
-      :scroll="{ x: 1200, y: height - 236 }"
+      :scroll="{ x: 1400, y: height - 236 }"
       :row-class-name="
         (record, index) => {
           return targetProjectSelected.id === record.id ? 'is-clicked-row' : ''
@@ -45,6 +45,12 @@
       :locale="localeTable"
       @change="changeProjectTable"
     >
+      <template #renderProjectRead="{ text: read }">
+        <div class="column-read">
+          <p class="point-status" :style="{ backgroundColor: tagsAction(read).backgroundColor }"></p>
+        </div>
+      </template>
+
       <template #projectNameTitle> {{ $t('project.customer_name') }} / {{ $t('project.project_name') }} </template>
 
       <template #renderProjectName="{ record }">
@@ -78,7 +84,7 @@
       </template>
 
       <template #renderProjectMoney="{ record }">
-        {{ $filters.number_with_commas(record.money) }}
+        {{ $filters.number_with_commas(record.estimateMoney) }}
       </template>
 
       <template #renderProjectAccuracy="{ record }">
@@ -116,6 +122,8 @@
   <modal-action-bar
     v-if="isOpenFloatButtons"
     ref="modalActionRef"
+    :project="true"
+    :target-project-selected-created-by-id="targetProjectSelected.createdBy"
     :enable-go-to-deposit="targetProjectSelected.accuracyCode === 'S' && targetProjectSelected.paymentTerm !== 2"
     @on-go-to-edit="goToEditProject"
     @on-go-to-copy="cloneProject"
@@ -153,6 +161,7 @@ import { useRouter } from 'vue-router'
 import { merge } from 'lodash-es'
 
 import { getProjectList, deleteProject, exportProject } from './composables/useProject'
+import useGetRecordRead from './composables/useGetRecordRead'
 import { toOrderBy } from '@/helpers/table'
 import { deepCopy } from '@/helpers/json-parser'
 import ProjectSearchForm from './-components/ProjectSearchForm'
@@ -189,7 +198,15 @@ export default defineComponent({
     })
     const height = ref(0)
     const projectDatas = ref([])
+    const clickRecord = ref()
     const columns = [
+      {
+        dataIndex: 'read',
+        key: 'read',
+        slots: {
+          customRender: 'renderProjectRead'
+        }
+      },
       {
         title: t('project.updated_date'),
         dataIndex: 'updated_at',
@@ -197,7 +214,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectUpdatedAt'
         },
-        sorter: true
+        sorter: true,
+        width: 120
       },
       {
         dataIndex: 'ADCompany.name',
@@ -229,7 +247,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectAccuracy'
         },
-        sorter: true
+        sorter: true,
+        width: 100
       },
       {
         title: t('project.release_date'),
@@ -238,7 +257,8 @@ export default defineComponent({
         slots: {
           customRender: 'renderProjectReleaseDate'
         },
-        sorter: true
+        sorter: true,
+        width: 120
       },
       {
         dataIndex: 'money',
@@ -316,6 +336,7 @@ export default defineComponent({
           } else {
             targetProjectSelected.value = record
             isOpenFloatButtons.value = true
+            if (!record.read) checkRead(record)
           }
         }
       }
@@ -381,7 +402,7 @@ export default defineComponent({
 
       // show notification
       store.commit('flash/STORE_FLASH_MESSAGE', {
-        variant: 'success',
+        variant: 'successfully',
         duration: 5,
         message: t('project.flash_message.delete_success', { name: targetProjectSelected.value?.name || '' })
       })
@@ -429,13 +450,25 @@ export default defineComponent({
       isOpenMemoModal.value = true
     }
 
+    const tagsAction = (status) => {
+      if (!status) {
+        return { backgroundColor: '#F5222D' }
+      } else {
+        return { backgroundColor: 'transparent' }
+      }
+    }
+
+    const checkRead = async (evt) => {
+      const { getRecordRead } = useGetRecordRead(evt.id)
+      await getRecordRead()
+      evt.read = true
+    }
+
     onBeforeMount(() => {
       // get filters deposit from store
       const filtersProjectStore = store.state.project?.filters || {}
 
       updateRequestData(merge(deepCopy(filtersProjectStore)))
-
-      // fetchProjectDatas()
 
       // get inner height
       getInnerHeight()
@@ -445,6 +478,9 @@ export default defineComponent({
     watch(
       () => requestData.value,
       () => {
+        // check groupId for permission
+        if (!requestData.value.data?.groupId) return
+
         fetchProjectDatas()
       }
     )
@@ -471,7 +507,10 @@ export default defineComponent({
       modalActionRef,
       isOpenMemoModal,
       memoRecordSelected,
+      clickRecord,
 
+      checkRead,
+      tagsAction,
       onCustomRow,
       cloneProject,
       goToDeposit,
@@ -528,6 +567,37 @@ export default defineComponent({
     .ant-table-placeholder {
       padding-top: 48px;
     }
+
+    .ant-table-thead {
+      tr > th:first-child {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .ant-table-tbody {
+      tr > td:first-child {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .column-read {
+      width: 12px;
+      height: 12px;
+
+      .point-status {
+        width: 12px;
+        height: 12px;
+        margin: 0;
+        border-radius: 50%;
+        background-color: red;
+      }
+
+      .text-status {
+        margin-bottom: 0;
+      }
+    }
   }
 
   .btn-memo svg {
@@ -543,13 +613,13 @@ export default defineComponent({
       cursor: pointer;
 
       &:first-child {
-        padding-left: 32px !important;
+        padding-left: 12px !important;
       }
     }
   }
 
   table thead tr th:first-child {
-    padding-left: 32px !important;
+    padding-left: 12px !important;
   }
 }
 </style>

@@ -1,6 +1,5 @@
 /* eslint-disable no-useless-catch */
 import services from '@/services'
-import { uniqueId } from 'lodash-es'
 import { TYPE_NAME_DEPOSIT } from '@/enums/deposit.enum'
 
 const DepositService = services.get('DepositService')
@@ -30,6 +29,16 @@ export const confirmDeposit = async (data) => {
 export const getGroups = async () => {
   try {
     const { data } = await GroupService.getGroups()
+
+    return data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getGroupsForAccount = async (featureKey, params) => {
+  try {
+    const { data } = await GroupService.getGroupsForAccount(featureKey, params)
 
     return data
   } catch (e) {
@@ -67,9 +76,9 @@ export const getSubCategory = async (params) => {
   }
 }
 
-export const deleteDeposit = async (id, params) => {
+export const deleteDeposit = async (dataRequest) => {
   try {
-    const { data } = await DepositService.deleteDeposit(id, params)
+    const { data } = await DepositService.deleteDeposit(dataRequest)
 
     return data
   } catch (error) {
@@ -86,9 +95,9 @@ export const createDeposit = async (data) => {
   }
 }
 
-export const getDepositDetail = async (id) => {
+export const getDepositDetail = async (id, params) => {
   try {
-    const { data } = await DepositService.getDepositDetail(id)
+    const { data } = await DepositService.getDepositDetail(id, params)
 
     return data
   } catch (error) {
@@ -169,6 +178,24 @@ export const unconfirmDeposit = async (depositId) => {
   try {
     const response = await DepositService.unconfirmDeposit({ id: [depositId] })
     return response
+  } catch (error) {
+    throw error
+  }
+}
+
+export const deleteDepositRoot = async (id, dataRequest) => {
+  try {
+    const { data } = await DepositService.deleteDepositRoot(id, dataRequest)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const setIndexDeposit = async (data) => {
+  try {
+    await DepositService.setIndexDeposit(data)
   } catch (error) {
     throw error
   }

@@ -48,3 +48,8 @@ export const TYPE_NAME_DEPOSIT_FOR_FILTER = Object.freeze({
   30: '98',
   40: '99'
 })
+
+export const TYPE_MODIFY_DEPOSIT_ROOT = Object.freeze({
+  EDIT: 'EDIT',
+  DELETE: 'DELETE'
+})

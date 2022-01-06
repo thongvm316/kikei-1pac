@@ -1,0 +1,74 @@
+@import '@/styles/shared/mixins';
+
+.modal-change-profile {
+  width: 750px !important;
+}
+
+.modal-profile {
+  @include flexbox();
+  margin: 22px 100px 62px;
+  justify-content: center;
+  
+  &__img {
+    margin-right: 60px;
+  }
+  
+  &__form {
+    width: 350px;
+    text-align: left;
+    
+    .note-progile {
+      color: #1890FF;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+    
+    .form-group{
+      .form-content{
+        margin-bottom: 16px;
+        
+        input {
+          width: 300px;
+        }
+        
+        &__email {
+          @include flexbox();
+          align-items: center;
+          
+          .email-profile {
+            width: 300px;
+            height: 39px;
+            padding: 6.5px 11px;
+            border: 1px solid #d9d9d9;
+            background-color: #f5f5f5;
+            color: #bfbfbf;
+            font-size: 16px;
+            margin-bottom: 0;
+          }
+  
+          .pencil-icon {
+            width: 15px;
+            height: 15px;
+            flex: 1;
+            
+            &:hover {
+              cursor: pointer;
+              
+              path {
+                fill: #31AAF1;
+              }
+            }
+            
+            &:focus {
+              outline: none;
+            }
+            
+            path {
+              fill: #064780;
+            }
+          }
+        }
+      }
+    }
+  }
+}

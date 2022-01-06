@@ -5,7 +5,15 @@ const RESOURCES = Object.freeze({
 })
 
 export default {
-  getGroups() {
-    return apiCaller({ method: 'GET', url: RESOURCES.group })
+  getGroups(params = {}) {
+    return apiCaller({ method: 'GET', url: RESOURCES.group, params })
+  },
+
+  getGroupsForAccount(featureKey, params = {}) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.group}/group_for_account/${featureKey}`, params })
+  },
+
+  getGroupsFinancing(params = {}) {
+    return apiCaller({ method: 'GET', url: `${RESOURCES.group}/group_for_account/3`, params })
   }
 }

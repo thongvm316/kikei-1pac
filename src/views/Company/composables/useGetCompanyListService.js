@@ -12,7 +12,18 @@ export default function useGetCompanyListService(params, data) {
     }
   }
 
+  const getListCompany = async () => {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const response = await CompanyService.getListCompany(params, data)
+      return response.data
+    } catch (e) {
+      throw e
+    }
+  }
+
   return {
-    getLists
+    getLists,
+    getListCompany
   }
 }

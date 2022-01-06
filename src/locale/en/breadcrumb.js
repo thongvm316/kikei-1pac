@@ -11,6 +11,7 @@ export default {
   edit: '登録',
   new: '登録',
   logs: '活動記録',
-  account: '登録アカウント',
-  personal_setting: '個人設定'
+  account: 'アカウント一覧',
+  personal_setting: '個人設定',
+  company_information: '会社情報・売上目標設定'
 }

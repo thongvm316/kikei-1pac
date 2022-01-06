@@ -89,7 +89,7 @@ import moment from 'moment'
 import { find } from 'lodash-es'
 
 import AccountingTable from './-components/AccountingTable'
-import { getGroups, getPeriods, getDeposit, getWithdrawal, getTotal } from './composables/useAccounting'
+import { getGroupsForAccount, getPeriods, getDeposit, getWithdrawal, getTotal } from './composables/useAccounting'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 
 import LineDownIcon from '@/assets/icons/ico_line-down.svg'
@@ -148,27 +148,20 @@ export default defineComponent({
         const periodResponse = await getPeriods(groupId)
         periodList.value = periodResponse.result?.data || []
 
-        // set financing period
-        const filtersAccountingStore = store.state?.accounting?.filters || {}
-        if (filtersAccountingStore?.periodId) {
-          financingPeriod.value = filtersAccountingStore?.periodId
+        // set period current
+        const periodCurrentFound = find(periodList.value, (periodItem) => {
+          const currentTime = moment()
+          const startedDate = periodItem?.startedDate
+          const finishedDate = periodItem?.finishedDate
+
+          if (!startedDate || !finishedDate) return false
+
+          return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
+        })
+
+        if (periodCurrentFound) {
+          financingPeriod.value = periodCurrentFound.id
           fetchDataTables()
-        } else {
-          // set period current
-          const periodCurrentFound = find(periodList.value, (periodItem) => {
-            const currentTime = moment()
-            const startedDate = periodItem?.startedDate
-            const finishedDate = periodItem?.finishedDate
-
-            if (!startedDate || !finishedDate) return false
-
-            return currentTime >= moment(startedDate) && currentTime <= moment(finishedDate)
-          })
-
-          if (periodCurrentFound) {
-            financingPeriod.value = periodCurrentFound.id
-            fetchDataTables()
-          }
         }
       } finally {
         isLoadingPeriod.value = false
@@ -190,9 +183,10 @@ export default defineComponent({
         depositList.value = depositReponse?.result?.data || []
         withdrawalList.value = withdrawalReponse?.result?.data || []
         financingTotalList.value = financingTotalReponse?.result?.data || []
-
-        // save filters accounting to store
-        store.commit('accounting/STORE_ACCOUNTING_FILTER', dataRequest)
+      } catch (err) {
+        depositList.value = []
+        withdrawalList.value = []
+        financingTotalList.value = []
       } finally {
         isLoadingTable.value = false
       }
@@ -266,7 +260,7 @@ export default defineComponent({
         // add month data
         ;(category?.data || []).map((categoryMonth) => {
           const monthStr = monthStrFormat(categoryMonth.month)
-          rowCategory[monthStr] = categoryMonth.money
+          rowCategory[monthStr] = Math.round(categoryMonth.money)
         })
 
         items.push(rowCategory)
@@ -285,7 +279,7 @@ export default defineComponent({
 
             ;(subItem?.data || []).map((subData) => {
               const monthStr = monthStrFormat(subData.month)
-              rowSubcategory[monthStr] = subData.money
+              rowSubcategory[monthStr] = Math.round(subData.money)
             })
 
             items.push(rowSubcategory)
@@ -312,16 +306,15 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       // fetch group list
-      const groupsReponse = await getGroups()
-      const groupList = groupsReponse.result?.data || []
-      tabListGroup.value = groupList
+      const groupsReponse = await getGroupsForAccount(4)
+      tabListGroup.value = groupsReponse.result?.data || []
 
       // set group active
       const filtersAccountingStore = store.state?.accounting?.filters || {}
       if (filtersAccountingStore.groupId) {
         activeKeyGroup.value = filtersAccountingStore.groupId
-      } else if (groupList.length > 0) {
-        activeKeyGroup.value = groupList[0].id
+      } else if (tabListGroup.value.length > 0) {
+        activeKeyGroup.value = tabListGroup.value[0].id
       }
 
       fetchPeriodList()

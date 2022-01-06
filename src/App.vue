@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { notification } from 'ant-design-vue'
 
-const MESSAGE_VARIANTS = ['open', 'success', 'error', 'info', 'warning', 'warn']
+const MESSAGE_VARIANTS = ['open', 'error', 'info', 'warning', 'warn', 'successfully']
 
 export default defineComponent({
   name: 'App',
@@ -16,6 +16,7 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const { t } = useI18n()
+
     const flashMessage = computed(() => store.state.flash.message)
     const onClose = () => {
       store.commit('flash/CLEAR_FLASH_MESSAGE')

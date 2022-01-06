@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { defineComponent, reactive, computed, onMounted } from 'vue'
+import { defineComponent, reactive, computed, watch, toRefs, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import SearchIcon from '@/assets/icons/ico_search.svg'
@@ -78,11 +78,20 @@ export default defineComponent({
 
   components: { SearchIcon },
 
+  props: {
+    isDelete: {
+      type: Boolean,
+      required: true
+    }
+  },
+
   emits: ['filter-changed'],
 
   setup(props, context) {
     const store = useStore()
     const route = useRoute()
+
+    const { isDelete } = toRefs(props)
 
     const initialState = {
       key_search: '',
@@ -92,6 +101,14 @@ export default defineComponent({
     }
 
     let filter = reactive({ ...initialState })
+
+    watch(isDelete, (value) => {
+      if (value) {
+        handleClear()
+        onSearch()
+        store.commit('search/STORE_SEARCH_SHOW_BADGE', !isEqual(filter, initialState))
+      }
+    })
 
     const visible = computed({
       get: () => store.state.search.currentRoute === route.name,

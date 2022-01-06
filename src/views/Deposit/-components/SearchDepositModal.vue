@@ -183,7 +183,9 @@ export default defineComponent({
       categoryId: [],
       subcategoryId: [],
       confirmed: [],
-      purpose: ''
+      purpose: '',
+      subcategoryCompanyId: null,
+      subcategoryGroupId: null
     }
 
     const state = ref(deepCopy(initState))
@@ -225,7 +227,9 @@ export default defineComponent({
         categoryId: state.value.categoryId,
         subcategoryId: state.value.subcategoryId,
         purpose: state.value.purpose,
-        projectId: null
+        projectId: null,
+        subcategoryCompanyId: state.value.subcategoryCompanyId,
+        subcategoryGroupId: state.value.subcategoryCompanyId
       }
 
       if (isNeedSubmit.value) {

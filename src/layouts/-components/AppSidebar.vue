@@ -10,45 +10,70 @@
       </div>
 
       <ul class="aside__menu">
-        <li v-for="navItem in navList" :key="navItem.name" class="aside__list">
+        <li v-for="navItem in navListAccess" :key="navItem.name" class="aside__list">
           <router-link
             v-if="!navItem.children"
+            v-slot="{ isActive, isExactActive }"
             :to="{ name: navItem.name }"
-            :class="['aside__link', navItem.name === 'dashboard' && 'is-dashboard']"
+            custom
           >
-            <component :is="navItem.icon" class="aside__link--nav-icon" />
-            <span class="aside__link--text">{{ navItem.label }}</span>
+            <div
+              :class="[
+                'aside__collapse--header aside__link',
+                isActive && 'is-active',
+                isExactActive && 'router-link-exact-active',
+                navItem.name === 'dashboard' && 'is-dashboard',
+                activeKey.includes(navItem.name) && 'is-sub-nav-open'
+              ]"
+              @click="handleNavGroupSetting(navItem.name)"
+            >
+              <component :is="navItem.icon" class="aside__link--nav-icon" />
+              <span class="aside__link--text">{{ navItem.label }}</span>
+            </div>
           </router-link>
 
           <div v-else class="aside__collapse">
             <a-collapse v-model:activeKey="activeKey" :bordered="false">
               <a-collapse-panel :key="navItem.name" :show-arrow="false" :force-render="true">
                 <template #extra>
-                  <li class="aside__list" @click="headerCollapseClick">
-                    <router-link v-slot="{ isActive, isExactActive }" :to="{ name: navItem.name }" custom>
+                  <ul>
+                    <li v-if="navItem.children?.length > 0" class="aside__list" @click="headerCollapseClick">
+                      <router-link v-slot="{ isActive, isExactActive }" :to="{ name: navItem.name }" custom>
+                        <div
+                          :class="[
+                            'aside__collapse--header aside__link',
+                            isActive && 'is-active',
+                            isExactActive && 'router-link-exact-active',
+                            navItem.name === 'dashboard' && 'is-dashboard',
+                            activeKey.includes(navItem.name) && 'is-sub-nav-open'
+                          ]"
+                          @click="null"
+                        >
+                          <component :is="navItem.icon" class="aside__link--nav-icon" />
+                          <span class="aside__link--text">{{ navItem.label }}</span>
+                          <arrow-down-icon class="aside__link--arrow-icon" />
+                        </div>
+                      </router-link>
+                    </li>
+                  </ul>
+                </template>
+
+                <ul v-if="isShowChidrenNav" class="aside__sub-nav">
+                  <li v-for="subNavItem in navItem.children" :key="subNavItem.name" class="aside__list">
+                    <router-link v-slot="{ isActive, isExactActive }" :to="{ name: subNavItem.name }" custom>
                       <div
                         :class="[
                           'aside__collapse--header aside__link',
                           isActive && 'is-active',
                           isExactActive && 'router-link-exact-active',
-                          navItem.name === 'dashboard' && 'is-dashboard',
-                          activeKey.includes(navItem.name) && 'is-sub-nav-open'
+                          subNavItem.name === 'dashboard' && 'is-dashboard',
+                          activeKey.includes(subNavItem.name) && 'is-sub-nav-open'
                         ]"
-                        @click="null"
+                        @click="handleSubNavGroupSetting(subNavItem.name)"
                       >
-                        <component :is="navItem.icon" class="aside__link--nav-icon" />
-                        <span class="aside__link--text">{{ navItem.label }}</span>
-                        <arrow-down-icon class="aside__link--arrow-icon" />
+                        <i class="aside__link--circle-icon" />
+                        <span class="aside__text">{{ subNavItem.label }}</span>
                       </div>
-                    </router-link>
-                  </li>
-                </template>
-
-                <ul v-if="isShowChidrenNav" class="aside__sub-nav">
-                  <li v-for="subNavItem in navItem.children" :key="subNavItem.name" class="aside__list">
-                    <router-link :to="{ name: subNavItem.name }" class="aside__link">
-                      <i class="aside__link--circle-icon" />
-                      <span class="aside__text">{{ subNavItem.label }}</span>
                     </router-link>
                   </li>
                 </ul>
@@ -62,8 +87,10 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { find } from 'lodash-es'
 
 import DashboardIcon from '@/assets/icons/ico_dashboard.svg'
 import ProjectIcon from '@/assets/icons/ico_project.svg'
@@ -73,6 +100,7 @@ import SettingIcon from '@/assets/icons/ico_setting.svg'
 import SideBarCloseIcon from '@/assets/icons/ico_sidebar_close.svg'
 import ArrowDownIcon from '@/assets/icons/ico_arrow_down.svg'
 import AccountingIcon from '@/assets/icons/ico_accounting.svg'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'AppSidebar',
@@ -90,6 +118,8 @@ export default defineComponent({
 
   setup(_, { emit }) {
     const { t } = useI18n()
+    const store = useStore()
+    const router = useRouter()
 
     const navList = [
       {
@@ -100,22 +130,26 @@ export default defineComponent({
       {
         name: 'project',
         label: t('sidebar.project'),
-        icon: 'ProjectIcon'
+        icon: 'ProjectIcon',
+        featureKey: 1
       },
       {
         name: 'deposit',
         label: t('sidebar.deposit'),
-        icon: 'DepositIcon'
+        icon: 'DepositIcon',
+        featureKey: 2
       },
       {
         name: 'financing',
         label: t('sidebar.financing'),
-        icon: 'FinancingIcon'
+        icon: 'FinancingIcon',
+        featureKey: 3
       },
       {
         name: 'accounting',
         label: t('sidebar.accounting'),
-        icon: 'AccountingIcon'
+        icon: 'AccountingIcon',
+        featureKey: 4
       },
       {
         name: 'setting',
@@ -124,23 +158,75 @@ export default defineComponent({
         children: [
           {
             name: 'company',
-            label: t('sidebar.company')
+            label: t('sidebar.company'),
+            featureKey: 5
           },
           {
             name: 'category',
-            label: t('sidebar.category')
+            label: t('sidebar.category'),
+            featureKey: 6
           },
           {
             name: 'account',
-            label: t('sidebar.account')
+            label: t('sidebar.account'),
+            featureKey: 7
+          },
+          {
+            name: 'company-information',
+            label: t('sidebar.company_information'),
+            featureKey: 11
+          },
+          {
+            name: 'balance-registration',
+            label: t('sidebar.balance_registration'),
+            featureKey: 12
           },
           {
             name: 'logs',
-            label: t('sidebar.logs')
+            label: t('sidebar.logs'),
+            featureKey: 10
           }
         ]
       }
     ]
+
+    const skipMenuList = ['dashboard']
+
+    // check page access
+    const navListAccess = computed(() => {
+      const permissionList = store.state?.account?.permissions || []
+
+      return navList
+        .filter((page) => {
+          if (skipMenuList.indexOf(page.name) !== -1 || (!page.featureKey && page.children)) return true
+
+          // filter page
+          const groupAccess = permissionList.filter((group) => {
+            const groupFound = find(group.permissions, { featureKey: page.featureKey })
+            return groupFound && groupFound.permissionKey !== 3
+          })
+
+          return groupAccess.length > 0
+        })
+        .map((page) => {
+          if (!page.children) return page
+
+          // filter children page
+          const children = page.children.filter((childrenPage) => {
+            const groupAccess = permissionList.filter((group) => {
+              const groupFound = find(group.permissions, { featureKey: childrenPage.featureKey })
+              return groupFound && groupFound.permissionKey !== 3
+            })
+
+            return groupAccess.length > 0
+          })
+
+          return {
+            ...page,
+            children
+          }
+        })
+    })
 
     // collapse sidebar
     const isCollapse = ref(false)
@@ -159,13 +245,35 @@ export default defineComponent({
       isCollapse.value && event.stopPropagation()
     }
 
+    const navName = ref('')
+
+    const handleNavGroupSetting = async (navItem) => {
+      navName.value = navItem
+      if (store.state.company.leaveGroup) {
+        await router.push({ name: navItem })
+      } else {
+        store.commit('company/STORE_COMPANY_INFOMATION_CHECKSIDEBAR', true)
+        store.commit('company/STORE_COMPANY_INFOMATION_NAVNAME', navItem)
+      }
+    }
+
+    const handleSubNavGroupSetting = async (subNavItem) => {
+      navName.value = subNavItem
+      if (store.state.company.leaveGroup) {
+        await router.push({ name: subNavItem })
+      } else {
+        store.commit('company/STORE_COMPANY_INFOMATION_CHECKSIDEBAR', true)
+        store.commit('company/STORE_COMPANY_INFOMATION_NAVNAME', subNavItem)
+      }
+    }
+
     watch(activeKey, (newVal) => {
       if (!isCollapse.value) preActiveKeys.value = newVal
     })
 
     watch(isCollapse, () => {
       activeKey.value = isCollapse.value
-        ? navList.filter((item) => item.children).map((item) => item.name)
+        ? navListAccess.value.filter((item) => item.children).map((item) => item.name)
         : preActiveKeys.value
 
       // disable transition panel in first time
@@ -177,12 +285,15 @@ export default defineComponent({
     })
 
     return {
-      navList,
-      isCollapse,
-      toggleSideBar,
+      navListAccess,
       activeKey,
+      isCollapse,
+      isShowChidrenNav,
+      navName,
+      toggleSideBar,
       headerCollapseClick,
-      isShowChidrenNav
+      handleNavGroupSetting,
+      handleSubNavGroupSetting
     }
   }
 })

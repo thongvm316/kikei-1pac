@@ -1,120 +1,11 @@
 <template>
   <section class="financing">
-    <div class="financing__header">
-      <div class="financing__header--top u-mx-32">
-        <div class="financing__header--wrap">
-          <!--Stages-->
-          <div class="form-group">
-            <label class="form-label">{{ $t('financing.financing_list.stages') }}:</label>
-
-            <div class="form-select">
-              <a-select v-model:value="filter.period_id" allow-clear @change="onChangePeriod">
-                <a-select-option v-for="item in periodList" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </a-select-option>
-              </a-select>
-            </div>
-          </div>
-          <!--./Stages -->
-          <!--Date From-->
-          <div class="form-group">
-            <label class="form-label"> {{ $t('financing.financing_list.date') }}: </label>
-
-            <div class="form-select">
-              <a-range-picker
-                v-model:value="filter.date_from_to"
-                format="YYYY-MM-DD"
-                :style="{ width: '260px' }"
-                :placeholder="['YYYY/MM/DD', 'YYYY/MM/DD']"
-                @change="onChangeDate"
-              >
-                <template #suffixIcon>
-                  <CalendarOutlined />
-                </template>
-              </a-range-picker>
-            </div>
-          </div>
-          <!--./Date From -->
-          <!-- Display -->
-          <div class="form-group">
-            <label class="form-label">{{ $t('financing.financing_list.display') }}:</label>
-
-            <div class="form-checkbox">
-              <a-radio-group v-model:value="filter.show_by" @change="onChangeShowBy">
-                <a-radio
-                  v-for="item in SHOW_BY"
-                  :key="item.id"
-                  :value="item.id"
-                  :disabled="item.id === 1 ? isDisabledDisplay : false"
-                >
-                  {{ $t(`financing.financing_list.${item.value}`) }}
-                </a-radio>
-              </a-radio-group>
-            </div>
-          </div>
-          <!-- ./Display -->
-        </div>
-        <!-- Download CSV -->
-        <a-tooltip placement="topLeft" title="CSV ファイルダウンロード">
-          <a-button type="link" class="btn-download" :loading="isLoadingExportCsv" @click="exportFinancingCsvFile">
-            <template #icon>
-              <span class="btn-icon" style="height: 28px"><icon-csv /></span>
-            </template>
-          </a-button>
-        </a-tooltip>
-        <!-- ./Download CSV -->
-      </div>
-      <div class="financing__header--middle">
-        <a-tabs v-model:activeKey="filter.group_id" default-active-key="1" :animated="false" @change="onChangeTabGroup">
-          <a-tab-pane v-for="item in groupList" :key="item.id" :tab="item.name"></a-tab-pane>
-        </a-tabs>
-      </div>
-
-      <div class="financing__header--bottom u-mx-32">
-        <!-- Bank Account -->
-        <div class="form-group">
-          <div class="form-select form-select-bank">
-            <a-select v-model:value="filter.bank_account_ids" :disabled="isDisabledBank" @change="onChangeBankAccount">
-              <a-select-option v-for="item in bankAccountList" :key="item.id" :value="item.id">
-                <span v-if="item.currencyCode">
-                  {{ item.name + ' (' + item.currencyCode + ')' }}
-                </span>
-                <span v-else>
-                  {{ item.name }}
-                </span>
-              </a-select-option>
-            </a-select>
-          </div>
-          <!-- View mode -->
-          <div class="form-checkbox">
-            <a-radio-group v-model:value="filter.view_mode" @change="onChangeViewMode(filter.view_mode)">
-              <a-radio v-for="item in VIEW_MODE" :key="item.id" :value="item.id">
-                {{ $t(`financing.financing_list.${item.value}`) }}
-              </a-radio>
-            </a-radio-group>
-          </div>
-          <!-- ./View mode -->
-        </div>
-        <!-- ./Bank Account -->
-
-        <!-- Currency -->
-        <div v-if="!isDisabledCurrency" class="form-group">
-          <label class="form-label">
-            <span v-if="filter.group_id"> {{ $t('financing.financing_list.currency') }}: </span>
-            <span v-else> {{ $t('financing.financing_list.currency_by_all_group') }}:</span>
-          </label>
-
-          <div class="form-select form-select-currency">
-            <a-select v-model:value="filter.currency_code" @change="onChangeCurrency">
-              <a-select-option v-for="item in currencyList" :key="item.id" :value="item.code">
-                {{ item.code }}
-              </a-select-option>
-            </a-select>
-          </div>
-        </div>
-        <!-- ./Currency -->
-      </div>
-    </div>
+    <financing-filter
+      :is-loading-export-csv="isLoadingExportCsv"
+      :data-filter-table="dataFilterTable"
+      @on-filter-request="onDataFilterRequest"
+      @on-export-csv="exportFinancingCsvFile"
+    />
 
     <financing-table
       :is-loading-data-table="isLoadingDataTable"
@@ -123,61 +14,47 @@
       :data-financing="dataRowsTableFinancing"
       :data-request="updateDataRequest"
       :scroll-custom="scrollCustom"
-      @on-sort="onSortTable"
-      @on-filter="onFilterRender"
+      @on-filter-tables="onFilterTablesRender"
     />
   </section>
 </template>
 <script>
-import { defineComponent, onBeforeMount, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-
 import moment from 'moment'
-import { isEmpty, remove } from 'lodash-es'
+import { forEach, isEmpty, remove } from 'lodash-es'
 
 import useGetFinancingListService from '@/views/Financing/composables/useGetFinancingListService'
-import useGetGroupListService from '@/views/Financing/composables/useGetGroupListService'
-import useGetPeriodListService from '@/views/Financing/composables/useGetPeriodListService'
-import useGetBankAccountsService from '@/views/Financing/composables/useGetBankAccountsService'
-import useGetCurrencyService from '@/views/Financing/composables/useGetCurrencyService'
-
-import {
-  convertDataByDates,
-  convertDataByMonth,
-  convertDataCsv,
-  convertDataFilter,
-  findCurrentPeriod
-} from './composables/useFinancing'
 
 import FinancingTable from '@/views/Financing/-components/FinancingTable'
-import { convertPagination } from '@/helpers/convert-pagination'
+import FinancingFilter from '@/views/Financing/-components/FinancingFilter'
 
+import {
+  addDaysInCurrentDate,
+  convertDataByDates,
+  convertDataByMonth,
+  convertDataCsv
+} from '@/helpers/extend-financing'
+import { convertPagination } from '@/helpers/convert-pagination'
 import { exportCSVFile } from '@/helpers/export-csv-file'
 import Table from '@/mixins/table.mixin'
-import { VIEW_MODE } from '@/enums/financing.enum'
-import { SHOW_BY } from '@/enums/financing.enum'
-import IconCsv from '@/assets/icons/ico_csv.svg'
-import { CalendarOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
   name: 'Index',
 
-  components: { FinancingTable, IconCsv, CalendarOutlined },
+  components: {
+    FinancingFilter,
+    FinancingTable
+  },
 
   mixins: [Table],
 
   setup() {
     const { t } = useI18n()
     const store = useStore()
-    const router = useRouter()
 
-    const groupList = ref([])
-    const periodList = ref([])
-    const bankAccountList = ref([])
-    const bankAccountId = ref([])
-    const currencyList = ref([])
+    const filter = ref([])
     const dataColumns = ref([])
     const dataByDates = ref([])
 
@@ -188,8 +65,12 @@ export default defineComponent({
     const dataRows = ref({})
     const dataRowsTableFinancing = ref([])
     const updateDataRequest = ref({})
+    const dataFilterTable = ref({})
     const height = ref(0)
     const pagination = ref({})
+    const scrollCustom = ref({})
+    const startedDate = ref({})
+    const finishedDate = ref({})
 
     const isLoading = ref(false)
     const isLoadingDataTable = ref(true)
@@ -199,11 +80,14 @@ export default defineComponent({
     const isDisabledBank = ref(false)
     const isDisabledCurrency = ref(false)
     const isLoadingExportCsv = ref(false)
-    const scrollCustom = ref({})
+    const checkScrollUp = ref(false)
+    const checkStartedDate = ref(false)
+    const checkStartedPeriod = ref(false)
+    const checkFinishedPeriod = ref(false)
 
     // data for request financing
     const initialDataRequest = {
-      group_id: 1,
+      group_id: null,
       period_id: null,
       from_date: null,
       to_date: null,
@@ -224,38 +108,6 @@ export default defineComponent({
       }
     }
 
-    const initialCsvLabels = [
-      { header: t('financing.csv.header.date'), field: 'date', formatBy: 'moment_l' },
-      { header: t('financing.csv.header.total_money'), field: 'totalMoney' }
-    ]
-
-    const initialExportCSV = {
-      fileTitle: 'financing',
-      labels: [],
-      items: []
-    }
-
-    const initialGroup = {
-      id: 0,
-      name: t('financing.financing_list.show_all_group')
-    }
-
-    const initialBankAccount = {
-      id: 0,
-      name: t('financing.financing_list.show_all_bank'),
-      currency_code: null
-    }
-
-    const initialStateFilter = {
-      group_id: 1,
-      period_id: null,
-      date_from_to: [null, null],
-      show_by: 1,
-      view_mode: 0,
-      bank_account_ids: null,
-      currency_code: null
-    }
-
     const initialColumns = [
       {
         title: t('financing.financing_list.date'),
@@ -263,7 +115,6 @@ export default defineComponent({
         key: 'date',
         fixed: 'left',
         width: 160,
-        sorter: true,
         slots: { customRender: 'customDate' }
       },
       {
@@ -277,220 +128,30 @@ export default defineComponent({
       }
     ]
 
-    const filter = reactive({ ...initialStateFilter })
+    const initialCsvLabels = [
+      { header: t('financing.csv.header.date'), field: 'date', formatBy: 'moment_l' },
+      { header: t('financing.csv.header.total_money'), field: 'totalMoney' }
+    ]
+
+    const initialExportCSV = {
+      fileTitle: 'financing',
+      labels: [],
+      items: []
+    }
+
     const dataExportCsv = reactive({ ...initialExportCSV })
 
-    // Handle filter
-    const onChangePeriod = async (event) => {
-      filter.date_from_to = null
-      isDisabledDate.value = !(event === undefined || event === null)
+    const onDataFilterRequest = (filter) => {
       updateParamRequestFinancing({
-        data: {
-          period_id: filter.period_id,
-          from_date: null,
-          to_date: null
-        },
-        params: {
-          pageNumber: 1
-        }
+        data: filter.data,
+        params: filter.params
       })
-      remove(dataRowsTableFinancing.value)
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
     }
 
-    const onChangeDate = async (value, dateString) => {
-      filter.period_id = null
-      isDisabledPeriod.value = !(dateString[0] === null && dateString[1] === null)
-
-      filter.date_from_to = dateString
-      if (dateString[0] === null && dateString[1] === null) {
-        let periodCurrentFound = findCurrentPeriod(periodList.value)
-        filter.period_id = periodCurrentFound?.id || null
-      }
-      updateParamRequestFinancing({
-        data: {
-          period_id: filter.period_id,
-          from_date: filter.date_from_to[0],
-          to_date: filter.date_from_to[1]
-        },
-        params: {
-          pageNumber: 1
-        }
-      })
-      remove(dataRowsTableFinancing.value)
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-    }
-
-    const onChangeShowBy = async () => {
-      updateParamRequestFinancing({
-        data: {
-          show_by: filter.show_by
-        },
-        params: {
-          pageNumber: 1
-        }
-      })
-      remove(dataRowsTableFinancing.value)
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-    }
-
-    const onChangeTabGroup = async (value) => {
-      // Check show tab all
-      if (value !== 0) {
-        await fetchBankAccounts({ group_id: value })
-        filter.show_by = 1
-        filter.bank_account_ids = bankAccountList.value[0].id
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        isDisabledCurrency.value = false
-
-        updateParamRequestFinancing({
-          data: { group_id: filter.group_id },
-          params: {
-            pageNumber: 1
-          }
-        })
-      } else {
-        filter.show_by = 0
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-        isDisabledDisplay.value = true
-        isDisabledBank.value = true
-        isDisabledCurrency.value = false
-        updateParamRequestFinancing({
-          data: { group_id: null },
-          params: {
-            pageNumber: 1
-          }
-        })
-      }
-      updateParamRequestFinancing({
-        data: { show_by: filter.show_by, bank_account_ids: [] },
-        params: {
-          pageNumber: 1
-        }
-      })
-      remove(dataRowsTableFinancing.value)
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-    }
-
-    const onChangeBankAccount = async () => {
-      if (filter.bank_account_ids !== 0) {
-        isDisabledCurrency.value = true
-        updateParamRequestFinancing({
-          data: {
-            currency_code: filter.currency_code,
-            bank_account_ids: [filter.bank_account_ids]
-          },
-          params: {
-            pageNumber: 1
-          }
-        })
-      } else {
-        isDisabledCurrency.value = false
-        let currencyCode = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.currency_code = currencyCode.code
-        updateParamRequestFinancing({
-          data: { bank_account_ids: [] },
-          params: {
-            pageNumber: 1
-          }
-        })
-      }
-      remove(dataRowsTableFinancing.value)
-
-      // save filters to store
-      store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-    }
-
-    const onChangeViewMode = async (mode) => {
-      if (mode) {
-        await router.push({ name: 'financing-chart' })
-      }
-    }
-
-    const onChangeCurrency = async () => {
-      updateParamRequestFinancing({
-        data: { currency_code: filter.currency_code },
-        params: {
-          pageNumber: 1
-        }
-      })
-      remove(dataRowsTableFinancing.value)
-    }
-
-    // Fetch data group
-    const fetchGroupList = async () => {
-      const { getGroups } = useGetGroupListService()
-      const { result } = await getGroups()
-
-      groupList.value = result?.data
-      groupList.value.push(initialGroup)
-    }
-
-    // Fetch data period
-    const fetchPeriodList = async (groupID) => {
-      const { getPeriods } = useGetPeriodListService(groupID)
-      const { result } = await getPeriods()
-
-      periodList.value = result?.data
-    }
-
-    // Fetch bank accounts
-    const fetchBankAccounts = async (groupID) => {
-      remove(bankAccountList.value)
-      const { getBankAccounts } = useGetBankAccountsService(groupID)
-      const { result } = await getBankAccounts()
-      bankAccountList.value = result?.data
-      bankAccountList.value.unshift(initialBankAccount)
-    }
-
-    // Fetch currency
-    const fetchCurrency = async () => {
-      const { getCurrency } = useGetCurrencyService()
-      const { result } = await getCurrency()
-
-      currencyList.value = result?.data
-    }
-
-    const onSortTable = async (emitData) => {
-      let currentSortStr = null
-      if (emitData.orderBy !== null) {
-        currentSortStr = `${emitData.field} ${emitData.orderBy}`
-      }
-      remove(dataRowsTableFinancing.value)
-
-      updateParamRequestFinancing({ params: { orderBy: currentSortStr, pageNumber: 1 } })
-    }
-
-    const onFilterRender = async (data) => {
+    const onFilterTablesRender = (data) => {
       if (data) {
-        const dataFilter = await convertDataFilter(data)
-        Object.assign(filter, dataFilter)
-        isDisabledDisplay.value = false
-        isDisabledBank.value = false
-        filter.period_id = null
-        isDisabledPeriod.value = true
-        if (filter.bank_account_ids.length === 0) {
-          filter.bank_account_ids = bankAccountList?.value[0]?.id
-        }
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.currency_code = currencyDefault?.code || null
-        updateParamRequestFinancing({
-          data: data,
-          params: {
-            pageNumber: 1
-          }
-        })
-
-        await fetchDataTableFinancing(data, requestParamsData.value.params)
+        dataFilterTable.value = data
+        updateParamRequestFinancing({ data: { ...data } })
       }
     }
 
@@ -537,7 +198,7 @@ export default defineComponent({
     }
 
     const convertDataTableRows = async (data) => {
-      if (data) {
+      if (data && !checkScrollUp.value) {
         for (let i = 0; i < data.length; i++) {
           if (requestParamsData.value.data.show_by === 1) {
             dataRows.value = Object.assign(
@@ -554,10 +215,30 @@ export default defineComponent({
           dataRows.value['totalMoney'] = data[i].totalMoney
           dataRowsTableFinancing.value.push(dataRows.value)
         }
+      } else {
+        for (let i = data.length - 1; i >= 0; i--) {
+          if (requestParamsData.value.data.show_by === 1) {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByDates(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          } else {
+            dataRows.value = Object.assign(
+              {},
+              convertDataByMonth(data[i].dataByColumns, 'columnId', 'columns_', 'money')
+            )
+          }
+          dataRows.value['date'] = moment(data[i].date).format('YYYY/MM/DD')
+          dataRows.value['totalMoney'] = data[i].totalMoney
+          dataRowsTableFinancing.value.unshift(dataRows.value)
+        }
       }
     }
 
     const fetchDataTableFinancing = async (data, params) => {
+      const tableContent = document.querySelector('.ant-table-body')
+      let currentHeight = tableContent.scrollHeight
+
       isLoadingDataTable.value = true
       // eslint-disable-next-line no-useless-catch
       try {
@@ -567,6 +248,8 @@ export default defineComponent({
         // remove(dataRowsTableFinancing.value)
         remove(dataColumnsTableFinancing.value)
         remove(dataColumnsNameTable.value)
+        remove(dataColumns.value)
+        remove(dataByDates.value)
         dataColumns.value = result.data?.columns || []
         dataByDates.value = result.data?.dataByDates ?? []
         dataColumnsNameTable.value = dataColumns.value.map((item) => `columns_${item.id}`)
@@ -575,7 +258,13 @@ export default defineComponent({
         await convertDataTableRows(dataByDates.value)
 
         pagination.value = { ...convertPagination(result.meta) }
+        nextTick(() => {
+          currentHeight = tableContent.scrollHeight
+        })
       } finally {
+        if (store.state.financing.checkScrollDownFirst && !store.state.financing.chooseRecord) {
+          tableContent.scrollTop = tableContent.scrollHeight - currentHeight - 100
+        }
         isLoadingDataTable.value = false
       }
     }
@@ -621,110 +310,7 @@ export default defineComponent({
       height.value = window.innerHeight
     }
 
-    onBeforeMount(async () => {
-      await fetchGroupList()
-      await fetchCurrency()
-
-      // get filters financing from store
-      const filtersFinancingStore = store.state.financing?.filters || {}
-      let groupID = filter?.group_id || null
-      let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-      filter.currency_code = currencyDefault?.code || null
-      // Load data by filter store
-      if (!isEmpty(filtersFinancingStore)) {
-        const dataFilter = await convertDataFilter(filtersFinancingStore.data)
-
-        Object.assign(filter, dataFilter)
-        Object.assign(requestParamsData.value, filtersFinancingStore)
-        groupID = filter?.group_id || null
-        if (groupID === null) {
-          await fetchPeriodList(1)
-          await fetchBankAccounts({ group_id: 1 })
-        } else {
-          await fetchPeriodList(groupID)
-          await fetchBankAccounts({ group_id: groupID })
-        }
-
-        if (groupID === null) {
-          filter.group_id = groupList?.value[groupList.value.length - 1].id
-          isDisabledDisplay.value = true
-          isDisabledBank.value = true
-        }
-
-        if (filter.bank_account_ids.length === 0) {
-          filter.bank_account_ids = bankAccountList?.value[0]?.id
-        }
-
-        if (requestParamsData.value.data.period_id === null) {
-          filter.period_id = requestParamsData.value.data.period_id
-          filter.date_from_to[0] = filtersFinancingStore.data.from_date
-          filter.date_from_to[1] = filtersFinancingStore.data.to_date
-          requestParamsData.value.data = {
-            ...requestParamsData.value.data,
-            period_id: filter.period_id,
-            from_date: filter.date_from_to[0],
-            to_date: filter.date_from_to[1]
-          }
-          // save filters to store
-          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-        } else {
-          let periodCurrentFound = findCurrentPeriod(periodList.value)
-          if (requestParamsData.value.data.period_id !== periodCurrentFound?.id) {
-            filter.currency_code =
-              requestParamsData.value.data.currency_code !== null
-                ? currencyDefault?.code
-                : requestParamsData.value.data.currency_code
-            filter.period_id = periodCurrentFound?.id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = requestParamsData.value.data.to_date
-            requestParamsData.value.data = {
-              ...requestParamsData.value.data,
-              period_id: filter.period_id,
-              from_date: requestParamsData.value.data.from_date,
-              to_date: requestParamsData.value.data.to_date
-            }
-          } else {
-            filter.currency_code =
-              requestParamsData.value.data.currency_code === null
-                ? currencyDefault?.code
-                : requestParamsData.value.data.currency_code
-            filter.period_id = periodCurrentFound?.id
-            filter.date_from_to[0] = requestParamsData.value.data.from_date
-            filter.date_from_to[1] = requestParamsData.value.data.to_date
-            requestParamsData.value.data = {
-              ...requestParamsData.value.data,
-              period_id: filter.period_id,
-              from_date: requestParamsData.value.data.from_date,
-              to_date: requestParamsData.value.data.to_date
-            }
-          }
-          // save filters to store
-          store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-        }
-        isDisabledCurrency.value = !!filter.bank_account_ids
-      } else {
-        // Load data default
-        if (groupID) {
-          await fetchPeriodList(groupID)
-          await fetchBankAccounts({ group_id: groupID })
-
-          let periodCurrentFound = findCurrentPeriod(periodList.value)
-          filter.period_id = periodCurrentFound?.id || null
-        }
-        let currencyDefault = currencyList?.value.find((item) => item.code === 'JPY')
-        filter.currency_code = currencyDefault?.code || null
-        filter.bank_account_ids = bankAccountList?.value[0]?.id
-        requestParamsData.value.data.group_id = filter?.group_id || null
-        requestParamsData.value.data.period_id = filter?.period_id || null
-        // save filters to store
-        store.commit('financing/STORE_FINANCING_FILTER', requestParamsData.value)
-      }
-
-      updateDataRequest.value = requestParamsData.value
-      await fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
-    })
-
-    onMounted(() => {
+    onMounted(async () => {
       // get inner height
       getInnerHeight()
       window.addEventListener('resize', getInnerHeight)
@@ -734,22 +320,124 @@ export default defineComponent({
       window.removeEventListener('resize', getInnerHeight)
     })
 
-    watch(dataRowsTableFinancing.value, (val) => {
+    // watch to event scroll table financing
+    watch(dataRowsTableFinancing.value, () => {
       const tableContent = document.querySelector('.ant-table-body')
 
-      if (tableContent && val.length) {
-        tableContent.addEventListener('scroll', () => {
-          // checking whether a selector is well defined
-          const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
-          if (per >= 100) {
-            let pageCurrent = ++pagination.value.current
-            if (pageCurrent <= pagination.value.totalPage) {
-              updateParamRequestFinancing({ params: { pageNumber: pageCurrent } })
+      forEach(store.state.financing.getPeriod, (value) => {
+        if (value.currentPeriod) {
+          startedDate.value = moment(value.startedDate).format('YYYY-MM-DD')
+          finishedDate.value = moment(value.finishedDate).format('YYYY-MM-DD')
+        }
+      })
+
+      tableContent.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) {
+          checkStartedPeriod.value = false
+          checkFinishedPeriod.value = false
+          store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+        } else {
+          checkStartedPeriod.value = false
+          checkFinishedPeriod.value = false
+          store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', true)
+        }
+
+        const per = (tableContent.scrollTop / (tableContent.scrollHeight - tableContent.clientHeight)) * 100
+
+        if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
+
+        if (requestParamsData.value.data.show_by === 1) {
+          if (store.state.financing.checkScrollDownFirst && per === 0) {
+            if (addDaysInCurrentDate(store.state.financing.fromDate, -60) > startedDate.value) {
+              checkStartedDate.value = true
+
+              if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+                checkScrollUp.value = true
+                updateParamRequestFinancing({
+                  data: {
+                    from_date: addDaysInCurrentDate(store.state.financing.fromDate, -60),
+                    to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+                  }
+                })
+                store.commit(
+                  'financing/STORE_FINANCING_FILTER_FROM_DATE',
+                  addDaysInCurrentDate(store.state.financing.fromDate, -60)
+                )
+              }
+            } else {
+              if (per === 0 && store.state.financing.fromDate <= startedDate.value) checkStartedPeriod.value = true
+
+              if (!checkStartedPeriod.value) {
+                checkStartedDate.value = false
+                if (store.state.financing.checkScrollDownFirst && !isLoadingDataTable.value) {
+                  checkScrollUp.value = true
+                  updateParamRequestFinancing({
+                    data: {
+                      from_date: startedDate.value,
+                      to_date: addDaysInCurrentDate(store.state.financing.fromDate, -1)
+                    }
+                  })
+                  store.commit('financing/STORE_FINANCING_IS_CHECK_SCROLL', false)
+                  store.commit(
+                    'financing/STORE_FINANCING_FILTER_FROM_DATE',
+                    addDaysInCurrentDate(store.state.financing.fromDate, -60)
+                  )
+                }
+              }
             }
           }
-        })
-      }
+
+          if (addDaysInCurrentDate(store.state.financing.toDate, 60) < finishedDate.value) {
+            checkStartedDate.value = true
+            if (per === 100 && !isLoadingDataTable.value) {
+              checkScrollUp.value = false
+              updateParamRequestFinancing({
+                data: {
+                  from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
+                  to_date: addDaysInCurrentDate(store.state.financing.toDate, 60)
+                }
+              })
+              store.commit(
+                'financing/STORE_FINANCING_FILTER_TO_DATE',
+                addDaysInCurrentDate(store.state.financing.toDate, 60)
+              )
+            }
+          } else {
+            if (per === 100 && store.state.financing.toDate >= finishedDate.value) checkFinishedPeriod.value = true
+
+            if (!checkFinishedPeriod.value) {
+              checkStartedDate.value = false
+              if (per === 100 && !isLoadingDataTable.value) {
+                checkScrollUp.value = false
+                updateParamRequestFinancing({
+                  data: {
+                    from_date: addDaysInCurrentDate(store.state.financing.toDate, 1),
+                    to_date: finishedDate.value
+                  }
+                })
+                store.commit('financing/STORE_FINANCING_FILTER_TO_DATE', finishedDate.value)
+              }
+            }
+          }
+        }
+      })
     })
+
+    // watch to event click table financing
+    watch(
+      () => store.state.financing.filters,
+      () => {
+        remove(dataRowsTableFinancing.value)
+
+        if (!isEmpty(store.state.financing.filters)) {
+          updateParamRequestFinancing({
+            params: {
+              pageNumber: 1
+            }
+          })
+        }
+      }
+    )
 
     // watch to fetch data financing
     watch(
@@ -760,24 +448,8 @@ export default defineComponent({
         fetchDataTableFinancing(requestParamsData.value.data, requestParamsData.value.params)
       }
     )
-    // watch to event click table financing
-    watch(
-      () => store.state.financing?.filters,
-      () => {
-        // fetch data table
-        onFilterRender()
-      }
-    )
 
     return {
-      initialGroup,
-      initialBankAccount,
-      initialStateFilter,
-      groupList,
-      periodList,
-      bankAccountList,
-      currencyList,
-      bankAccountId,
       filter,
       updateDataRequest,
       scrollCustom,
@@ -788,6 +460,7 @@ export default defineComponent({
       dataColumnsTableFinancing,
       dataRowsTableFinancing,
       dataExportCsv,
+      dataFilterTable,
       isLoading,
       isDisabledPeriod,
       isDisabledDate,
@@ -796,25 +469,12 @@ export default defineComponent({
       isDisabledBank,
       isDisabledCurrency,
       isLoadingExportCsv,
-      SHOW_BY,
-      VIEW_MODE,
-      onChangePeriod,
-      onChangeDate,
-      onChangeShowBy,
-      onChangeTabGroup,
-      onChangeBankAccount,
-      onChangeViewMode,
-      onChangeCurrency,
-      onFilterRender,
-      onSortTable,
-      fetchGroupList,
-      fetchPeriodList,
-      fetchCurrency,
+      onDataFilterRequest,
+      onFilterTablesRender,
       fetchDataTableFinancing,
       convertDataTableHeader,
       convertDataTableRows,
-      exportFinancingCsvFile,
-      updateParamRequestFinancing
+      exportFinancingCsvFile
     }
   }
 })

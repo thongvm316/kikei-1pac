@@ -9,7 +9,7 @@
     :row-key="(record) => record.date"
     :pagination="false"
     :loading="isLoadingDataTable"
-    @change="changeFinancingTable"
+    :row-class-name="(record, index) => rowClassName(record, index)"
   >
     <!-- custom column date -->
     <template #customDate="{ text }">
@@ -93,11 +93,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import humps from 'humps'
 import moment from 'moment'
 
 import Table from '@/mixins/table.mixin'
-import { toOrderBy } from '@/helpers/table'
 import IconWarnings from '@/assets/icons/ico_warnings.svg'
 
 export default defineComponent({
@@ -136,6 +134,8 @@ export default defineComponent({
     }
   },
 
+  emits: ['onFilterTables'],
+
   setup(props, { emit }) {
     const { t } = useI18n()
     const router = useRouter()
@@ -148,6 +148,7 @@ export default defineComponent({
     const dataByDate = ref(true)
     const emptyTextHTML = ref({})
     const dataFilterRequest = ref({})
+
     emptyTextHTML.value = {
       emptyText: (
         <div class="ant-empty ant-empty-normal ant-empty-description"> {t('financing.financing_list.emptyData')}</div>
@@ -211,13 +212,13 @@ export default defineComponent({
     }
 
     const handlePageRedirect = (record, column) => {
+      store.commit('financing/STORE_FINANCING_IS_SHOW_BY', true)
       dataFilterRequest.value = props.dataRequest.data
 
       let columnId = column.key.split('_')[1] ?? ''
       let typeDeposit = null
       let moneyType = null
       let groupId = parseInt(columnId)
-
       if (dataFilterRequest.value.group_id) {
         groupId = dataFilterRequest.value.group_id
       }
@@ -233,6 +234,7 @@ export default defineComponent({
       }
 
       handleDateFilterRequest(record)
+
       handleBankIdFilterRequest(columnId)
 
       const data = {
@@ -258,7 +260,8 @@ export default defineComponent({
           currency_code: null
         }
         store.commit('financing/STORE_FINANCING_FILTER', { data })
-        emit('on-filter', data)
+        store.commit('financing/STORE_FINANCING_CHOOSE_RECORD', true)
+        emit('onFilterTables', data)
       }
     }
 
@@ -282,14 +285,14 @@ export default defineComponent({
       }
     }
 
-    const changeFinancingTable = (pagination, filters, sorter) => {
-      const emitData = {
-        orderBy: toOrderBy(sorter.order),
-        field: humps.decamelize(sorter.field)
+    const rowClassName = (record) => {
+      if (moment(record.date).format('MM') === '11' && !store.state.financing.checkShowBy) {
+        return 'table-striped'
+      } else {
+        return record.date === moment().format('YYYY/MM/DD') ? 'table-striped' : null
       }
-
-      emit('on-sort', emitData)
     }
+
     onMounted(() => {
       handleDateColumn()
     })
@@ -303,15 +306,15 @@ export default defineComponent({
 
     return {
       t,
-      useRoute,
       dataByDate,
       emptyTextHTML,
       isDisabledEventClick,
+      rowClassName,
+      useRoute,
       dataToolTip,
       showToolTipData,
       handlePageRedirect,
       handlePageRedirectTotal,
-      changeFinancingTable,
       handleDateFilterRequest,
       handleDateColumn
     }

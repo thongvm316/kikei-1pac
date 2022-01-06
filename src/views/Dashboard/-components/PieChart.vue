@@ -6,7 +6,7 @@
 
     <ul>
       <li v-for="(item, index) in explainChartText" :key="item.id">
-        <span :class="`doted doted--${index + 1}`"></span>{{ item.companyName }}
+        <span :class="`doted doted--${index + 1} ${item.isOther && 'other'}`"></span>{{ item.companyName }}
       </li>
     </ul>
   </div>
@@ -30,19 +30,17 @@ export default defineComponent({
 
   setup(props) {
     const myPieChartRef = ref()
+    const chartVal = ref()
+
     const dataPieChart = computed(() => {
       return props.rankingData?.map((item) => parseFloat(parseFloat(item.revenue).toFixed(0)))
     })
 
     const explainChartText = computed(() => {
-      if (props.rankingData?.length < 5) {
-        return props.rankingData
-      } else {
-        let explainChartText = props.rankingData?.filter((_, index) => index < 5)
-        explainChartText?.push({ icompanyId: uniqueId('__ranking_chart__'), companyName: 'その他' })
+      let explainChartText = props.rankingData?.filter((_, index) => index < chartVal.value.length - 1)
+      explainChartText?.push({ icompanyId: uniqueId('__ranking_chart__'), companyName: 'その他', isOther: true })
 
-        return explainChartText
-      }
+      return explainChartText
     })
 
     const data = ref({ datasets: [] })
@@ -87,31 +85,76 @@ export default defineComponent({
       })
     }
 
-    const handleValuePieChart = (data = []) => {
-      if (data.length < 7) return data
+    const createOtherValueChart = (data) => {
+      const count = data.reduce((prep, next) => prep + next, 0)
+      const [top1, top2, ...others] = data
+      let newChartVal = [top1, top2]
+      let countOtherValue = 0
 
-      let valueFromTop6 = null
-      let valuePieChart = []
-      data.forEach((item, index) => {
-        if (index < 5) {
-          valuePieChart.push(item)
+      others.forEach((item) => {
+        if (item / count > 0.05) {
+          newChartVal.push(item)
         } else {
-          valueFromTop6 += item
+          countOtherValue += item
         }
       })
-      valuePieChart.push(valueFromTop6)
+      newChartVal.push(countOtherValue)
+      chartVal.value = newChartVal
 
-      return valuePieChart
+      return newChartVal
+    }
+
+    const handleValuePieChart = (data = []) => {
+      if (data.length < 7) {
+        return createOtherValueChart(data)
+      } else {
+        let valueFromTop6 = null
+        let valuePieChart = []
+        data.forEach((item, index) => {
+          if (index < 5) {
+            valuePieChart.push(item)
+          } else {
+            valueFromTop6 += item
+          }
+        })
+        valuePieChart.push(valueFromTop6)
+
+        return createOtherValueChart(valuePieChart)
+      }
+    }
+
+    const handleColorChart = (length) => {
+      const colorList = ['#FA8C16', '#2F54EB', '#13C2C2', '#52C41A', '#722ED1', '#8C8C8C']
+      const colorOther = '#8C8C8C'
+      const hoverBackgroundColor = ['#FFD591', '#ADC6FF', '#87E8DE', '#B7EB8F', '#D3ADF7', '#BFBFBF']
+      const hoverColorOther = '#BFBFBF'
+
+      if (length <= 3) {
+        return {
+          bachGround: ['#FA8C16', '#2F54EB', '#8C8C8C'],
+          hoverBackground: ['#FFD591', '#ADC6FF', '#BFBFBF']
+        }
+      } else {
+        colorList.splice(length - 1, colorList.length - (length - 1), colorOther)
+        hoverBackgroundColor.splice(length - 1, hoverBackgroundColor.length - (length - 1), hoverColorOther)
+
+        return {
+          bachGround: colorList,
+          hoverBackground: hoverBackgroundColor
+        }
+      }
     }
 
     watch(dataPieChart, (value) => {
       data.value.datasets = []
+      const ValuePieChart = handleValuePieChart(value)
+      const colorList = handleColorChart(ValuePieChart.length)
 
       // set datasets
       data.value.datasets.push({
-        data: handleValuePieChart(value),
-        backgroundColor: ['#FA8C16', '#2F54EB', '#13C2C2', '#52C41A', '#722ED1', '#8C8C8C'],
-        hoverBackgroundColor: ['#FFD591', '#ADC6FF', '#87E8DE', '#B7EB8F', '#D3ADF7', '#BFBFBF'],
+        data: ValuePieChart,
+        backgroundColor: colorList.bachGround,
+        hoverBackgroundColor: colorList.hoverBackground,
         borderColor: '#FFFFFF',
         hoverBorderWidth: 0
       })
@@ -126,7 +169,8 @@ export default defineComponent({
 
     return {
       explainChartText,
-      myPieChartRef
+      myPieChartRef,
+      chartVal
     }
   }
 })
@@ -176,6 +220,10 @@ $doted-colors: (
           &--#{$key} {
             background-color: $val;
           }
+        }
+
+        &.other {
+          background-color: $color-grey-55;
         }
       }
     }

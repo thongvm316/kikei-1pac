@@ -45,13 +45,12 @@ export default defineComponent({
     // route name list to visible search button
     // eslint-disable-next-line prettier/prettier
     const visibleSearchList = [
-      'dashboard',
       'deposit',
       'project',
       'company',
       'category',
-      'account',
       'subcategory',
+      'company-registration',
       'logs'
     ]
 

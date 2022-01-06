@@ -1,5 +1,5 @@
-.ant-modal {
-  top: 52px;
+.modal-group-setting {
+  top: 45%;
 }
 
 .ant-modal-content {
@@ -50,7 +50,7 @@
   .ant-modal-content {
     width: 380px;
     .ant-modal-footer {
-      padding-top: 16px;
+      padding: 16px;
 
       p {
         margin-bottom: 21px;
@@ -64,8 +64,71 @@
   }
 }
 
+.modal-add-bank {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .btn-close {
+    &:hover {
+      background: #31AAF1;
+      color: white;
+    }
+  }
+  
+  .ant-modal-content {
+    width: 665px;
+  }
+}
+
+.modal-account-confirm {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .ant-modal-content {
+    width: 380px;
+    
+    .ant-modal-footer {
+      padding: 16px;
+      
+      p {
+        margin-bottom: 21px;
+      }
+    }
+  }
+}
+
+.modal-account-success-confirm {
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .ant-modal-content {
+    .ant-modal-footer {
+      padding: 16px 36px;
+      
+      p {
+        margin-bottom: 0;
+        font-size: 14px;
+        line-height: 22px;
+      }
+      
+      .group-text {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
 .ant-checkbox + span {
-  padding: 0 8px 0 4px;
+  padding: 0 0 0 4px;
 }
 
 .modal-activity-log {
@@ -75,4 +138,8 @@
       color: white;
     }
   }
+}
+
+.modal-check-delete-bank {
+  max-width: 351px;
 }

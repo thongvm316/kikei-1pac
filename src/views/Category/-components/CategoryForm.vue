@@ -4,19 +4,20 @@
     <form @submit="onSubmit">
       <!-- Category name -->
       <div class="form-group">
-        <Field v-slot="{ field, handleChange }" v-model="form.name" name="categoryName" rules="required">
+        <Field v-slot="{ field, handleChange, errors }" v-model="form.name" name="category_name" rules="input_required">
           <div class="form-content">
-            <label class="form-label required">{{ $t('category.categoryName') }}</label>
+            <label class="form-label required">{{ $t('category.category_name') }}</label>
             <div class="form-input">
               <a-input
                 :value="field.value"
                 :placeholder="$t('common.please_enter')"
                 class="w-300"
+                :class="errors.length ? 'input_border' : ''"
                 @change="handleChange"
               />
               <!-- Error message -->
-              <ErrorMessage v-slot="{ message }" as="span" name="categoryName" class="errors">
-                {{ replaceField(message, 'categoryName') }}
+              <ErrorMessage v-slot="{ message }" as="span" name="category_name" class="errors">
+                {{ replaceField(message, 'category_name') }}
               </ErrorMessage>
             </div>
           </div>
@@ -120,11 +121,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { deleteEmptyValue } from '@/helpers/delete-empty-value'
 import { useForm } from 'vee-validate'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 
 import { DIVISIONCATEGORY, DIVISIONMEDIUM, INUSE, INREPORT } from '@/enums/category.enum'
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons-vue'
@@ -149,16 +151,30 @@ export default defineComponent({
       show_in_report: true
     })
     const isOpen = ref(false)
+    const store = useStore()
     const router = useRouter()
     const route = useRoute()
     const { handleSubmit, setFieldError } = useForm()
     const { t, locale } = useI18n()
+
+    const categoryEnums = ref({
+      category_name: t('category.error_category_name')
+    })
+
+    const tmpErrors = ref()
 
     onMounted(() => {
       if ('id' in route.params && route.name === 'category-edit') {
         form.value = { ...form.value, ...camelToSnakeCase(route.meta['detail']) }
       }
     })
+
+    watch(
+      () => locale.value,
+      () => {
+        verifyErrors(tmpErrors.value)
+      }
+    )
 
     const handleCancel = () => {
       router.push({ name: 'category', params: route.params, query: route.query })
@@ -181,10 +197,17 @@ export default defineComponent({
       try {
         const { updateCategory } = useUpdateCategoryService(id, data)
         await updateCategory()
-        await router.push({ name: 'category' })
+        await router.push({ name: 'category', query: route.query })
       } catch (err) {
         throw err
       }
+
+      //show notification
+      store.commit('flash/STORE_FLASH_MESSAGE', {
+        variant: 'successfully',
+        duration: 5,
+        message: locale.value === 'en' ? 'Update' + form.value.name : form.value.name + 'が更新されました'
+      })
     }
 
     const createCategory = async (data) => {
@@ -200,16 +223,25 @@ export default defineComponent({
     }
 
     const checkErrorsApi = (err) => {
-      for (let item in err.response.data.errors) {
+      tmpErrors.value = camelToSnakeCase(err.response.data.errors)
+
+      verifyErrors(tmpErrors.value)
+    }
+
+    const verifyErrors = (errs) => {
+      for (let item in errs) {
+        if (item === 'company_code') item = 'company_code_project'
+
         locale.value === 'en'
-          ? (err.response.data.errors[item] = 'The content existed')
-          : (err.response.data.errors[item] = '内容は存在しました。')
-        setFieldError(item, err.response.data.errors[item])
+          ? (errs[item] = `${categoryEnums.value[item]} existed`)
+          : (errs[item] = `${categoryEnums.value[item]}は存在しました`)
+
+        setFieldError(item, errs[item])
       }
     }
 
     const replaceField = (text, field) => {
-      return text.replace(field, t(`category.${field}`))
+      return text.replace(field, t(`category.error_${field}`))
     }
 
     return {

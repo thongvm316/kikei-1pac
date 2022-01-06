@@ -1,12 +1,12 @@
 <template>
   <a-modal v-model:visible="visible" class="modal-delete-deposit-js" centered title="削除" width="380px">
     <template #footer>
-      <p v-if="currentSelectedRecord?.purpose">
+      <p v-if="!!purpose">
         {{ $t('deposit.deposit_list.delete_deposit', { purpose }) }}
       </p>
       <p v-else>{{ $t('deposit.deposit_list.delete_deposit_multiple') }}</p>
       <a-button type="default" @click="handleCancel">キャンセル</a-button>
-      <a-button type="danger" @click="$emit('on-delete-deposit-record')">削除</a-button>
+      <a-button :loading="loading" type="danger" @click="handleDeleteDeposit">削除</a-button>
     </template>
   </a-modal>
 </template>
@@ -18,22 +18,32 @@ export default defineComponent({
   name: 'DeleteDepositModal',
 
   props: {
-    currentSelectedRecord: Object
+    currentSelectedRecord: Object,
+    loading: {
+      type: Boolean,
+      default: false
+    }
   },
 
   setup(props, { emit }) {
     const visible = ref()
+    const purpose = computed(() => props.currentSelectedRecord?.purpose)
 
     const handleCancel = () => {
       emit('update:visible', false)
+      emit('update:currentSelectedRecord', null)
     }
 
-    const purpose = computed(() => props.currentSelectedRecord?.purpose)
+    const handleDeleteDeposit = () => {
+      const emitKey = purpose.value ? 'once' : 'multiple'
+      emit('on-delete-deposit-record', emitKey)
+    }
 
     return {
       visible,
       purpose,
-      handleCancel
+      handleCancel,
+      handleDeleteDeposit
     }
   }
 })

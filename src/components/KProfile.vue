@@ -1,16 +1,28 @@
 <template>
   <a-popover v-model:visible="visible" trigger="click" placement="bottomRight" overlay-class-name="k-profile">
     <a-button :class="['k-profile__btn-user', visible && 'is-active']">
-      <user-icon />
+      <template v-if="image">
+        <div id="imagePreview-avatar" :style="{ backgroundImage: `url(${image})` }"></div>
+      </template>
+      <template v-else>
+        <user-icon />
+      </template>
     </a-button>
+
+    <modal-profile
+      v-model:visible="isShow"
+      :is-show="isShow"
+      :data-profile="dataProfile"
+      @is-submit="handleSubmitFromModal($event)"
+    />
 
     <template #content>
       <a-menu mode="inline">
-        <a-menu-item class="menu__item">
-          <router-link to="/user" class="menu__link">
+        <a-menu-item class="menu__item" @click="handleShowModalProfile">
+          <div class="menu__link">
             <user-setting-icon />
             <span class="menu__link--text">{{ $t('user.personal_settings') }}</span>
-          </router-link>
+          </div>
         </a-menu-item>
 
         <a-sub-menu v-if="currencyList.length > 0" key="sub1">
@@ -48,11 +60,14 @@ import VndCurrencyIcon from '@/assets/icons/ico_currency_vnd.svg'
 import YenCurrencyIcon from '@/assets/icons/ico_currency_yen.svg'
 import LogoutIcon from '@/assets/icons/ico_logout.svg'
 import UserSettingIcon from '@/assets/icons/ico_user_setting.svg'
+import ModalProfile from '@/components/ModalProfile/ModalProfile'
+import useGetProfileDetailService from '@/components/ModalProfile/composables/useGetProfileDetailService'
 
 export default defineComponent({
   name: 'KProfile',
 
   components: {
+    ModalProfile,
     UserIcon,
     UsdCurrencyIcon,
     VndCurrencyIcon,
@@ -69,6 +84,9 @@ export default defineComponent({
     const { t } = useI18n()
     const router = useRouter()
     const store = useStore()
+    const isShow = ref()
+    const dataProfile = ref({})
+    const image = ref()
     // currency list
     const currencyActive = ref('jpy')
     const currencyList = ref([
@@ -101,6 +119,19 @@ export default defineComponent({
       }
     }
 
+    const handleShowModalProfile = async () => {
+      try {
+        const { profileDetail } = useGetProfileDetailService()
+        const { result } = await profileDetail()
+
+        dataProfile.value = result
+        isShow.value = true
+        visible.value = false
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
     const handleLogout = async () => {
       try {
         const { logout } = useLogoutService(loading)
@@ -116,12 +147,29 @@ export default defineComponent({
       store.commit('financing/CLEAR_FINANCING_FILTER')
       store.commit('flash/CLEAR_FLASH_MESSAGE')
       store.commit('project/CLEAR_PROJECT_FILTER')
+      store.commit('account/CLEAR_ACCOUNT_PERMISSIONS')
 
       await router.push({ name: 'login' })
     }
 
-    onMounted(() => {
-      swapCurrencyList()
+    const fetchData = async () => {
+      try {
+        const { profileDetail } = useGetProfileDetailService()
+        const { result } = await profileDetail()
+
+        image.value = result.data.avatar
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    const handleSubmitFromModal = async (e) => {
+      if (e) await fetchData()
+    }
+
+    onMounted(async () => {
+      await swapCurrencyList()
+      await fetchData()
     })
 
     watch(currencyActive, () => {
@@ -135,6 +183,11 @@ export default defineComponent({
       openKeys,
       currencyList,
       currencyActive,
+      isShow,
+      dataProfile,
+      image,
+      handleSubmitFromModal,
+      handleShowModalProfile,
       handleLogout,
       changeCurrencyActive
     }
@@ -145,6 +198,14 @@ export default defineComponent({
 <style lang="scss">
 @import '@/styles/shared/variables';
 @import '@/styles/shared/mixins';
+
+#imagePreview-avatar {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 50px;
+  height: 50px;
+}
 
 .k-profile {
   svg {
@@ -182,9 +243,8 @@ export default defineComponent({
     .menu__item {
       .menu__link {
         color: rgba(0, 0, 0, 0.85);
-        &:hover {
-          color: #1890ff;
-        }
+        display: flex;
+        align-items: center;
       }
     }
   }
