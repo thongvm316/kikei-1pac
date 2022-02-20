@@ -1,5 +1,0 @@
-/build/
-/config/
-/dist/
-*.stories.tsx
-/src/test/unit/coverage
